@@ -8,53 +8,45 @@ import { CustomTimePicker, type Issue } from './components/custom-time-picker';
 
 const now = dayjs();
 dayjs.extend(weekOfYear);
+const initialIssue = {
+    startTime: dayjs(),
+    endTime: dayjs().add(1, 'second'),
+    type: '',
+    id: 0,
+    duration: 0,
+};
 
 const TotalType = ['READ', 'STUDY', 'REVIEW', 'TED', 'SPORT'];
 const StudyType = ['STUDY'];
 const ReadType = ['READ', 'TED'];
 
 function Time({ total, read, study, onChange }: { total: number, read: number, study: number, onChange: (obj: { [key: string]: number }) => void }) {
-    const initialIssue = {
-        startTime: dayjs(),
-        endTime: dayjs().add(1, 'second'),
-        type: '',
-        id: 0,
-        duration: 0,
-    };
     const [issues, setIssues] = useState<Issue[]>([]);
     const [lastIssueId, setLastIssueId] = useState(0);
-    const handleAdd = () => {
+
+    const handleAddIssue = () => {
         setLastIssueId(lastIssueId + 1);
     }
-    const handleIssueUPdate = (newIssue: Issue) => {
-        const newIndex = issues.findIndex((it) => it.id === newIssue.id);
-        if (newIndex > -1) {
-            issues.splice(newIndex, 1, newIssue);
+    const handleIssueUPdate = (currentIssue: Issue) => {
+        const currentIndex = issues.findIndex((it) => it.id === currentIssue.id);
+        if (currentIndex > -1) {
+            if(currentIndex >= 1) {
+                const interval = currentIssue.startTime.diff(issues[currentIndex - 1].endTime, 'minute');
+                issues[currentIndex - 1].interval = interval;
+            }
+            // 更新
+            issues.splice(currentIndex, 1, currentIssue);
             setIssues([...issues]);
         } else {
-            setIssues([...issues, newIssue]);
+            // 添加
+            setIssues([...issues, currentIssue]);
         }
-        onChange(calculate());
-
-        function calculate() {
-            const res = { total: 0, read: 0, study: 0 };
-            issues.forEach((it) => {
-                if (TotalType.includes(it.type)) {
-                    res.total += it.duration;
-                }
-                if (ReadType.includes(it.type)) {
-                    res.read += it.duration;
-                }
-                if (StudyType.includes(it.type)) {
-                    res.study += it.duration;
-                }
-            });
-            return res;
-        }
+        // 任意一项更新，都重新计算总计时间
+        onChange(calculate(issues));
     }
 
     useEffect(() => {
-        const newIssues = [...issues, { ...initialIssue, id: lastIssueId + 1 }];
+        const newIssues = [...issues, { ...initialIssue, id: lastIssueId + 1, interval: 0 }];
         setIssues(newIssues);
     }, [lastIssueId])
 
@@ -65,9 +57,25 @@ function Time({ total, read, study, onChange }: { total: number, read: number, s
             <span style={{ backgroundColor: 'yellow' }}>前端{study}m</span>)
         </p>
         <YesterDay />
-        {issues.map((it, index) => <CustomTimePicker {...it} key={index} onIssue={handleIssueUPdate} />)}
-        <Button className='btn' onClick={handleAdd}>添加一项</Button>
+        {issues.map((it, index) => <CustomTimePicker init={it} key={index} onIssue={handleIssueUPdate} />)}
+        <Button className='btn' onClick={handleAddIssue}>添加一项</Button>
     </div>)
+
+    function calculate(arr: Issue[] = issues) {
+        const res = { total: 0, read: 0, study: 0 };
+        arr.forEach((it) => {
+            if (TotalType.includes(it.type)) {
+                res.total += it.duration;
+            }
+            if (ReadType.includes(it.type)) {
+                res.read += it.duration;
+            }
+            if (StudyType.includes(it.type)) {
+                res.study += it.duration;
+            }
+        });
+        return res;
+    }
 }
 function Issue() {
     return (<div className='outer'>

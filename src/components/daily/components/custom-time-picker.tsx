@@ -15,8 +15,9 @@ const options = Object.keys(TypeEnum).map(key => ({
     label: TypeEnum[key as keyof typeof TypeEnum]
 }));
 
-interface CustomTimePickerProps extends Issue {
+interface CustomTimePickerProps {
     onIssue?: (issue: Issue) => void;
+    init: Issue;
 }
 
 interface Issue {
@@ -25,11 +26,12 @@ interface Issue {
     type: string;
     id: number;
     duration: number;
+    interval: number;
 }
 
-function CustomTimePicker({ startTime, endTime, type, id, duration, onIssue }: CustomTimePickerProps) {
+function CustomTimePicker({ init, onIssue }: CustomTimePickerProps) {
     const handleChange = (id: number, value: string | dayjs.Dayjs | null, changeType: keyof Issue) => {
-        const newIssue = { startTime, endTime, type, id, duration, [changeType]: value };
+        const newIssue = { ...init, id, [changeType]: value };
         const dur = (newIssue.endTime as dayjs.Dayjs).diff(newIssue.startTime as dayjs.Dayjs, 'minute');
         if (onIssue) {
             onIssue({ ...newIssue, duration: dur });
@@ -37,25 +39,28 @@ function CustomTimePicker({ startTime, endTime, type, id, duration, onIssue }: C
     }
 
     return (
-        <div className='time-picker' key={id}>
+        <div className='time-picker' key={init.id}>
             {['startTime', 'endTime'].map((timeType, index) => {
                 return <>
                     <TimePicker
-                        key={id}
+                        key={init.id}
                         format='HH:mm'
-                        value={timeType === 'startTime' ? startTime : endTime}
-                        onChange={(value) => handleChange(id, value, timeType as keyof Issue)}
+                        value={init[timeType as keyof Issue] as dayjs.Dayjs}
+                        onChange={(value) => handleChange(init.id, value, timeType as keyof Issue)}
                         needConfirm={false} />
                     {index === 0 && <>-
-                        <span className='duration'>{duration}m</span>{` ->`}</>}
+                        <span className='duration'>{init.duration}m</span>{` ->`}</>}
                 </>
             })}
+            &nbsp;
             <Select
-                value={type}
+                value={init.type}
                 options={options}
-                onChange={value => handleChange(id, value, 'type')}
+                onChange={value => handleChange(init.id, value, 'type')}
                 size='middle'
                 className='select' />
+            &nbsp;
+            {!!init.interval && <span className={init.interval > init.duration ? 'purple' : ''}>{init.interval}</span>}
         </div>
     );
 }

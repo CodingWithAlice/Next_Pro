@@ -26,6 +26,11 @@
 }
 
 .duration {
-    min-width: 40px;
+    min-width: 50px;
     text-align: center;
+}
+
+.purple {
+    background-color: palevioletred;
+    padding: 0 4px;
 }
