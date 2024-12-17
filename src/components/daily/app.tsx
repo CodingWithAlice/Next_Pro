@@ -3,7 +3,7 @@ import { Button } from 'antd';
 import dayjs from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import './app.css';
-import YesterDay from './components/yesterday';
+import {YesterDay, showTime} from './components/tool';
 import { CustomTimePicker, type Issue } from './components/custom-time-picker';
 
 const now = dayjs();
@@ -30,7 +30,7 @@ function Time({ total, read, study, onChange }: { total: number, read: number, s
     const handleIssueUPdate = (currentIssue: Issue) => {
         const currentIndex = issues.findIndex((it) => it.id === currentIssue.id);
         if (currentIndex > -1) {
-            if(currentIndex >= 1) {
+            if (currentIndex >= 1) {
                 const interval = currentIssue.startTime.diff(issues[currentIndex - 1].endTime, 'minute');
                 issues[currentIndex - 1].interval = interval;
             }
@@ -52,9 +52,9 @@ function Time({ total, read, study, onChange }: { total: number, read: number, s
 
     return (<div className='outer'>
         <h2>一、时间统计</h2>
-        <p>总计：{total}m
-            &nbsp;(阅读{read}m&nbsp;
-            <span style={{ backgroundColor: 'yellow' }}>前端{study}m</span>)
+        <p>总计：{showTime(total)}
+            (阅读：{showTime(read)}
+            <span style={{ backgroundColor: 'yellow' }}>前端：{showTime(study)}</span>)
         </p>
         <YesterDay />
         {issues.map((it, index) => <CustomTimePicker init={it} key={index} onIssue={handleIssueUPdate} />)}

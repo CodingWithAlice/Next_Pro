@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 
-export default function YesterDay() {
+function YesterDay() {
     const now = dayjs();
     const date = now.subtract(1, 'day').format('MM.DD');
     const week = now.day() === 1 ? '周日' : '周' + '日一二三四五六'.charAt(now.day());
@@ -10,3 +10,11 @@ export default function YesterDay() {
         {week}
     </div>
 }
+
+function showTime(min: number) {
+    if (min < 0) { min = min + 24 * 60 };
+    const hour = Math.floor(min / 60);
+    return hour ? `${hour}h${min % 60}m ` : `${min}m `
+}
+
+export { YesterDay, showTime };
