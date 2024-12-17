@@ -1,0 +1,31 @@
+.daily {
+    display: flex;
+    justify-content: space-around;
+}
+.outer{
+    display: flex;
+    flex-direction: column;
+}
+
+.yesterday {
+    display: flex;
+}
+
+.time-picker {
+    display: flex;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.btn {
+    margin-top: 10px;
+}
+
+.select {
+    width: 80px;
+}
+
+.duration {
+    min-width: 40px;
+    text-align: center;
+}

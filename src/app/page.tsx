@@ -1,6 +1,7 @@
 'use client';
 import { useState } from "react";
 import Square from '../components/square/app';
+import Daily from "@/components/daily/app";
 
 export default function Home() {
     const [count, setCount] = useState(0);
@@ -22,7 +23,8 @@ export default function Home() {
         height: '100px',
         placeholder: 'loading',
         ul: false,
-        btn: false
+        btn: false,
+        square: false,
     };
 
     const products = [
@@ -47,6 +49,8 @@ export default function Home() {
                     <li key={product.id}>{product.title}</li>
                 ))}
             </ul>}
-            <Square />
+            {status.square && <Square />}
+            <Daily />
+            
         </div>);
 }
