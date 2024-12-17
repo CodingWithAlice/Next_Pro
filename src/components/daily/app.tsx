@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Button } from 'antd';
+import { Button, Input } from 'antd';
 import dayjs from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import './app.css';
-import {YesterDay, showTime} from './components/tool';
+import { YesterDay, showTime } from './components/tool';
 import { CustomTimePicker, type Issue } from './components/custom-time-picker';
 
+const { TextArea } = Input;
 const now = dayjs();
 dayjs.extend(weekOfYear);
 const initialIssue = {
@@ -77,10 +78,37 @@ function Time({ total, read, study, onChange }: { total: number, read: number, s
         return res;
     }
 }
-function Issue() {
+function Issue({ study }: { study: number }) {
+    function transformTextArea(key: string, placeholder: string) {
+        return <TextArea key={key} placeholder={placeholder} className='textarea' rows={2} />
+    }
     return (<div className='outer'>
         <h2>二、事项统计</h2>
         <YesterDay />
+        <h4>前端学习时长：{showTime(study)} 🎉🎉🎉</h4>
+        <section className='outer'>
+            【复盘】
+            ①运动 + 电影：
+            <section className='flex'>
+                {[
+                    { key: 'sport', placeholder: '运动情况' },
+                    { key: 'movie', placeholder: '电影' }
+                ].map(it => transformTextArea(it.key, it.placeholder))}
+            </section>
+            ② 前端：
+            {transformTextArea('study', '前端学习情况')}
+            ③ TED+阅读：
+            <section className='flex'>
+                {[
+                    { key: 'ted', placeholder: 'TED主题' },
+                    { key: 'read', placeholder: '阅读情况' }
+                ].map(it => transformTextArea(it.key, it.placeholder))}
+            </section>
+            【做得棒的3件事】
+            {transformTextArea('good', '积极心理学')}
+            【推荐解决方案】
+            {transformTextArea('fix', '可以变得更好的事情')}
+        </section>
     </div>)
 }
 export default function Daily() {
@@ -108,7 +136,7 @@ export default function Daily() {
         <h1 style={{ textAlign: 'center' }}>Week {now.week()}</h1>
         <div className="daily">
             <Time total={total} read={read} study={study} onChange={handleFunc} />
-            <Issue />
+            <Issue study={study} />
         </div></>)
 }
 

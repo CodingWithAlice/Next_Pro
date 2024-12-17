@@ -7,7 +7,7 @@
     flex-direction: column;
 }
 
-.yesterday {
+.flex {
     display: flex;
 }
 
@@ -33,4 +33,8 @@
 .purple {
     background-color: palevioletred;
     padding: 0 4px;
+}
+
+.textarea{
+    width: 250px;
 }
