@@ -9,13 +9,6 @@ import { CustomTimePicker, type Issue } from './components/custom-time-picker';
 const { TextArea } = Input;
 const now = dayjs();
 dayjs.extend(weekOfYear);
-const initialIssue = {
-    startTime: dayjs(),
-    endTime: dayjs().add(1, 'second'),
-    type: '',
-    id: 0,
-    duration: 0,
-};
 
 const TotalType = ['READ', 'STUDY', 'REVIEW', 'TED', 'SPORT'];
 const StudyType = ['STUDY'];
@@ -24,6 +17,13 @@ const ReadType = ['READ', 'TED'];
 function Time({ total, read, study, onChange }: { total: number, read: number, study: number, onChange: (obj: { [key: string]: number }) => void }) {
     const [issues, setIssues] = useState<Issue[]>([]);
     const [lastIssueId, setLastIssueId] = useState(0);
+    const initialIssue = {
+        startTime: issues[issues.length-1]?.endTime || dayjs(),
+        endTime: dayjs().add(1, 'second'),
+        type: '',
+        id: 0,
+        duration: 0,
+    };
 
     const handleAddIssue = () => {
         setLastIssueId(lastIssueId + 1);
@@ -80,7 +80,7 @@ function Time({ total, read, study, onChange }: { total: number, read: number, s
 }
 function Issue({ study }: { study: number }) {
     function transformTextArea(key: string, placeholder: string) {
-        return <TextArea key={key} placeholder={placeholder} className='textarea' rows={2} />
+        return <TextArea key={key} placeholder={placeholder} style={{ resize: 'both', overflow: 'auto' }} />
     }
     return (<div className='outer'>
         <h2>二、事项统计</h2>
