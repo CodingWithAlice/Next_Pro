@@ -13,7 +13,7 @@ const TotalType = ['READ', 'STUDY', 'REVIEW', 'TED', 'SPORT'];
 const StudyType = ['STUDY'];
 const ReadType = ['READ', 'TED'];
 
-function Time({ total, read, study, onChange }: { total: number, read: number, study: number, onChange: (value: number, type: string) => void }) {
+function Time({ total, read, study, onChange }: { total: number, read: number, study: number, onChange: (obj: { [key: string]: number }) => void }) {
     const initialIssue = {
         startTime: dayjs(),
         endTime: dayjs().add(1, 'second'),
@@ -24,12 +24,9 @@ function Time({ total, read, study, onChange }: { total: number, read: number, s
     const [issues, setIssues] = useState<Issue[]>([]);
     const [lastIssueId, setLastIssueId] = useState(0);
     const handleAdd = () => {
-        console.log('lastIssueId=', lastIssueId);
-
         setLastIssueId(lastIssueId + 1);
     }
     const handleIssueUPdate = (newIssue: Issue) => {
-        console.log(1111, newIssue);
         const newIndex = issues.findIndex((it) => it.id === newIssue.id);
         if (newIndex > -1) {
             issues.splice(newIndex, 1, newIssue);
@@ -37,14 +34,22 @@ function Time({ total, read, study, onChange }: { total: number, read: number, s
         } else {
             setIssues([...issues, newIssue]);
         }
-        if (TotalType.includes(newIssue.type)) {
-            onChange(issues.reduce((acc, cur) => acc + cur.duration, 0), 'total');
-        }
-        if (StudyType.includes(newIssue.type)) {
-            onChange(issues.reduce((acc, cur) => acc + cur.duration, 0), 'study');
-        }
-        if (ReadType.includes(newIssue.type)) {
-            onChange(issues.reduce((acc, cur) => acc + cur.duration, 0), 'read');
+        onChange(calculate());
+
+        function calculate() {
+            const res = { total: 0, read: 0, study: 0 };
+            issues.forEach((it) => {
+                if (TotalType.includes(it.type)) {
+                    res.total += it.duration;
+                }
+                if (ReadType.includes(it.type)) {
+                    res.read += it.duration;
+                }
+                if (StudyType.includes(it.type)) {
+                    res.study += it.duration;
+                }
+            });
+            return res;
         }
     }
 
@@ -75,18 +80,20 @@ export default function Daily() {
     const [read, setRead] = useState(0);
     const [study, setStudy] = useState(0);
 
-    const handleFunc =(value: number,type:string)=>{
-        switch(type){
-            case 'total':
-                setTotal(value);
-                break;
-            case 'read':
-                setRead(value);
-                break;
-            case 'study':
-                setStudy(value);
-                break;
-        }
+    const handleFunc = (valueObj: { [key: string]: number }) => {
+        Object.entries(valueObj).forEach(([type, value]) => {
+            switch (type) {
+                case 'total':
+                    setTotal(value);
+                    break;
+                case 'read':
+                    setRead(value);
+                    break;
+                case 'study':
+                    setStudy(value);
+                    break;
+            }
+        });
     }
 
     return (<>
