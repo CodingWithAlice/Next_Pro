@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button, Input } from 'antd';
 import dayjs from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import './app.css';
-import { YesterDay, showTime } from './components/tool';
+import { FormatDateToMonthDayWeek, formatMinToHM } from './components/tool';
 import { CustomTimePicker, type Issue } from './components/custom-time-picker';
 
 const { TextArea } = Input;
@@ -16,26 +16,30 @@ const ReadType = ['READ', 'TED'];
 
 function Time({ total, read, study, onChange }: { total: number, read: number, study: number, onChange: (obj: { [key: string]: number }) => void }) {
     const [issues, setIssues] = useState<Issue[]>([]);
-    const [lastIssueId, setLastIssueId] = useState(0);
-    const initialIssue = {
-        startTime: issues[issues.length-1]?.endTime || dayjs(),
-        endTime: dayjs().add(1, 'second'),
-        type: '',
-        id: 0,
-        duration: 0,
-    };
 
     const handleAddIssue = () => {
-        setLastIssueId(lastIssueId + 1);
+        const suggestTime = issues[issues.length-1]?.endTime || dayjs()
+        const newIssue = {
+            startTime: suggestTime,
+            endTime: suggestTime.add(1, 'second'),
+            type: '',
+            id: issues.length,
+            duration: 0,
+            interval: 0
+        };
+        setIssues([...issues, newIssue]);
     }
+    
     const handleIssueUPdate = (currentIssue: Issue) => {
         const currentIndex = issues.findIndex((it) => it.id === currentIssue.id);
+        // 修改
         if (currentIndex > -1) {
             if (currentIndex >= 1) {
-                const interval = currentIssue.startTime.diff(issues[currentIndex - 1].endTime, 'minute');
-                issues[currentIndex - 1].interval = interval;
+                const preIssue = issues[currentIndex - 1];
+                const interval = currentIssue.startTime.diff(preIssue.endTime, 'minute');
+                // 更新上一项的间隔时间
+                preIssue.interval = interval;
             }
-            // 更新
             issues.splice(currentIndex, 1, currentIssue);
             setIssues([...issues]);
         } else {
@@ -46,18 +50,13 @@ function Time({ total, read, study, onChange }: { total: number, read: number, s
         onChange(calculate(issues));
     }
 
-    useEffect(() => {
-        const newIssues = [...issues, { ...initialIssue, id: lastIssueId + 1, interval: 0 }];
-        setIssues(newIssues);
-    }, [lastIssueId])
-
     return (<div className='outer'>
         <h2>一、时间统计</h2>
-        <p>总计：{showTime(total)}
-            (阅读：{showTime(read)}
-            <span style={{ backgroundColor: 'yellow' }}>前端：{showTime(study)}</span>)
+        <p>总计：{formatMinToHM(total)}
+            (阅读：{formatMinToHM(read)}
+            <span style={{ backgroundColor: 'yellow' }}>前端：{formatMinToHM(study)}</span>)
         </p>
-        <YesterDay />
+        <FormatDateToMonthDayWeek />
         {issues.map((it, index) => <CustomTimePicker init={it} key={index} onIssue={handleIssueUPdate} />)}
         <Button className='btn' onClick={handleAddIssue}>添加一项</Button>
     </div>)
@@ -79,13 +78,13 @@ function Time({ total, read, study, onChange }: { total: number, read: number, s
     }
 }
 function Issue({ study }: { study: number }) {
-    function transformTextArea(key: string, placeholder: string) {
+    function uniformTextAreaWithStyle(key: string, placeholder: string) {
         return <TextArea key={key} placeholder={placeholder} style={{ resize: 'both', overflow: 'auto' }} />
     }
     return (<div className='outer'>
         <h2>二、事项统计</h2>
-        <YesterDay />
-        <h4>前端学习时长：{showTime(study)} 🎉🎉🎉</h4>
+        <FormatDateToMonthDayWeek />
+        <h4>前端学习时长：{formatMinToHM(study)} 🎉🎉🎉</h4>
         <section className='outer'>
             【复盘】
             ①运动 + 电影：
@@ -93,21 +92,21 @@ function Issue({ study }: { study: number }) {
                 {[
                     { key: 'sport', placeholder: '运动情况' },
                     { key: 'movie', placeholder: '电影' }
-                ].map(it => transformTextArea(it.key, it.placeholder))}
+                ].map(it => uniformTextAreaWithStyle(it.key, it.placeholder))}
             </section>
             ② 前端：
-            {transformTextArea('study', '前端学习情况')}
+            {uniformTextAreaWithStyle('study', '前端学习情况')}
             ③ TED+阅读：
             <section className='flex'>
                 {[
                     { key: 'ted', placeholder: 'TED主题' },
                     { key: 'read', placeholder: '阅读情况' }
-                ].map(it => transformTextArea(it.key, it.placeholder))}
+                ].map(it => uniformTextAreaWithStyle(it.key, it.placeholder))}
             </section>
             【做得棒的3件事】
-            {transformTextArea('good', '积极心理学')}
+            {uniformTextAreaWithStyle('good', '积极心理学')}
             【推荐解决方案】
-            {transformTextArea('fix', '可以变得更好的事情')}
+            {uniformTextAreaWithStyle('fix', '可以变得更好的事情')}
         </section>
     </div>)
 }
