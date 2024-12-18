@@ -42,7 +42,7 @@ function CustomTimePicker({ init, onIssue }: CustomTimePickerProps) {
     return (
         <div className='time-picker' key={init.id}>
             {['startTime', 'endTime'].map((timeType, index) => {
-                return <>
+                return <div key={`${init.id}-${timeType}`}>
                     <TimePicker
                         key={init.id}
                         format='HH:mm'
@@ -52,7 +52,7 @@ function CustomTimePicker({ init, onIssue }: CustomTimePickerProps) {
                         style={{width: 88}} />
                     {index === 0 && <>-
                         <span className='duration'>{showTime(init.duration)}</span>{` ->`}</>}
-                </>
+                </div>
             })}
             &nbsp;
             <Select
