@@ -20,9 +20,17 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* .outer {
-    color: chocolate; 
-} */
+.outer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+h1 {
+    font-size: 2rem;
+    margin: 50px;
+}
 .img {
     border-radius: 50%;
 }

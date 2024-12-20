@@ -1,10 +1,13 @@
 'use client';
 import { useState } from "react";
-import Square from '../components/square/app';
-import Daily from "@/components/daily/app";
+import Link from "next/link";
+import { RightOutlined } from "@ant-design/icons";
+// import { useRouter } from 'next/navigation';
+
 
 export default function Home() {
     const [count, setCount] = useState(0);
+    // const router = useRouter();
     function handleClick() {
         alert('You clicked me!');
         setCount(count + 1);
@@ -22,9 +25,8 @@ export default function Home() {
         width: '100px',
         height: '100px',
         placeholder: 'loading',
-        ul: false,
         btn: false,
-        square: false,
+        ul: false
     };
 
     const products = [
@@ -32,25 +34,31 @@ export default function Home() {
         { title: 'Garlic', id: 2 },
         { title: 'Apple', id: 3 },
     ];
+
+    // const handleRouter = () => {
+    //     router.push('/daily');
+    // };
     return (
         <div className="outer">
-            {/* <h1>Welcome to my {status.cat}</h1> */}
+            <h1>首页</h1>
+            {/* 1、测试 按钮简单操作 */}
             {status.btn && <MyButton count={count} onClick={handleClick} />}
-            {status.url && <img
-                className="img"
-                src={status.url}
-                alt={status.placeholder}
-                style={{
-                    width: status.width,
-                    height: status.height,
-                }} />}
+            {/* 2、ul 展示 列表 */}
             {status.ul && <ul>
                 {products.map(product => (
                     <li key={product.id}>{product.title}</li>
                 ))}
             </ul>}
-            {status.square && <Square />}
-            <Daily />
-            
+            <Link href='./square' >
+                井字格【两人玩小游戏】 <RightOutlined />
+            </Link>
+            <Link href='./daily' >
+                Daily 日常记录 <RightOutlined />
+            </Link>
+            <Link href='./stock' >
+                React 哲学案例 ing <RightOutlined />
+            </Link>
+
+            {/* <button onClick={handleRouter}>Go to Daily</button> */}
         </div>);
 }

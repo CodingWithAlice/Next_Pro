@@ -1,10 +1,12 @@
+"use client"
 import { useState } from 'react';
 import { Button, Input } from 'antd';
 import dayjs from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import './app.css';
-import { FormatDateToMonthDayWeek, formatMinToHM } from './components/tool';
-import { CustomTimePicker, type Issue } from './components/custom-time-picker';
+import { FormatDateToMonthDayWeek, formatMinToHM } from '@/components/tool';
+import { CustomTimePicker, type Issue } from '@/components/custom-time-picker';
+import styled from 'styled-components';
 
 const { TextArea } = Input;
 const now = dayjs();
@@ -18,7 +20,7 @@ function Time({ total, read, study, onChange }: { total: number, read: number, s
     const [issues, setIssues] = useState<Issue[]>([]);
 
     const handleAddIssue = () => {
-        const suggestTime = issues[issues.length-1]?.endTime || dayjs()
+        const suggestTime = issues[issues.length - 1]?.endTime || dayjs()
         const newIssue = {
             startTime: suggestTime,
             endTime: suggestTime.add(1, 'second'),
@@ -29,7 +31,7 @@ function Time({ total, read, study, onChange }: { total: number, read: number, s
         };
         setIssues([...issues, newIssue]);
     }
-    
+
     const handleIssueUPdate = (currentIssue: Issue) => {
         const currentIndex = issues.findIndex((it) => it.id === currentIssue.id);
         // 修改
@@ -77,9 +79,14 @@ function Time({ total, read, study, onChange }: { total: number, read: number, s
         return res;
     }
 }
+
+const StyledTextArea = styled(TextArea)`
+    resize: both;
+    overflow: auto;`
+
 function Issue({ study }: { study: number }) {
     function uniformTextAreaWithStyle(key: string, placeholder: string) {
-        return <TextArea key={key} placeholder={placeholder} style={{ resize: 'both', overflow: 'auto' }} />
+        return <StyledTextArea key={key} placeholder={placeholder} />
     }
     return (<div className='outer'>
         <h2>二、事项统计</h2>
