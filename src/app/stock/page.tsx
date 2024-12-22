@@ -1,58 +1,49 @@
-import { JSX } from "react";
+interface Product {
+    category: string,
+    price: string,
+    stocked: boolean,
+    name: string
+}
+interface TransProduct {
+    [key: string]: Product[];
+}
 
-interface DataType {
-    category: string;
-    price: string;
-    stocked: boolean;
-    name: string;
+function SearchWrap() {
+    return <>
+        <input type="text" placeholder="Search..." />
+        <br />
+        <input type="checkbox" /><label>Only show products in stock</label>
+    </>
 }
-function ProductCategoryRow({ category }: { category: string }) {
-    return (
+
+function CategoryTable({ type, data }: { type: string, data: Product[] }) {
+    return <>
         <tr>
-            <th colSpan={2}>
-                {category}
-            </th>
+            <th colSpan={2}>{type}</th>
         </tr>
-    );
+        {data.map((it, index) => <tr key = {index}>
+                <td style={{ color: !it.stocked ? 'red' : '' }}>{it.name}</td>
+                <td>{it.price}</td>
+            </tr>)}
+    </>
+
 }
-function ProductRow({ product }: { product: DataType }) {
-    const name = product.stocked ? product.name :
-        <span style={{ color: 'red' }}>
-            {product.name}
-        </span>;
-    return (
-        <tr>
-            <td>{name}</td>
-            <td>{product.price}</td>
-        </tr>
-    );
-}
-function SearchBar() {
-    return (<form>
-        <input type="text" placeholder="search..." />
-        <label>
-            <input type="checkbox" />
-            Only show products in stock
-        </label>
-    </form>)
-}
-function ProductTable({ products }: { products: DataType[] }) {
-    const rows: JSX.Element[] = [];
-    let lastCategory = '';
-    products.forEach((it) => {
-        if (it.category !== lastCategory) {
-            rows.push(<ProductCategoryRow
-                category={it.category}
-                key={it.category} />)
-        }
-        rows.push(
-            <ProductRow
-                product={it}
-                key={it.name} />
-        );
-        lastCategory = it.category;
-    })
-    return (<table>
+
+function DetailTable({ products }: { products: Product[] }) {
+    // 数据按照 category 分类
+    function ClassifyByCategory(data: Product[]) {
+        return data.reduce<TransProduct>((pre, cur) => {
+            const c = cur.category;
+            if (!pre[c]) {
+                pre[c] = [];
+            }
+            pre[c].push(cur);
+            return pre;
+        }, {})
+    }
+    const categoryData = ClassifyByCategory(products);
+    const categories = Object.keys(categoryData);
+    return <table>
         <thead>
             <tr>
                 <th>Name</th>
@@ -60,19 +51,11 @@ function ProductTable({ products }: { products: DataType[] }) {
             </tr>
         </thead>
         <tbody>
-            {rows}
+            {categories.map((it, index) => <CategoryTable key={index} type={it} data={categoryData[it]} />)}
         </tbody>
-    </table>)
+    </table>
 }
 
-function FilterableProductTable({ products }: { products: DataType[] }) {
-    return (
-        <div>
-            <SearchBar />
-            <ProductTable products={products} />
-        </div>
-    );
-}
 const PRODUCTS = [
     { category: "Fruits", price: "$1", stocked: true, name: "Apple" },
     { category: "Fruits", price: "$1", stocked: true, name: "Dragonfruit" },
@@ -82,6 +65,9 @@ const PRODUCTS = [
     { category: "Vegetables", price: "$1", stocked: true, name: "Peas" }
 ];
 
-export default function App() {
-    return <FilterableProductTable products={PRODUCTS} />;
+export default function Outer() {
+    return <>
+        <SearchWrap />
+        <DetailTable products={PRODUCTS} />
+    </>
 }
