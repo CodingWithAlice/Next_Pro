@@ -1,3 +1,7 @@
+"use client"
+
+import { useEffect, useState } from "react";
+
 interface Product {
     category: string,
     price: string,
@@ -8,11 +12,11 @@ interface TransProduct {
     [key: string]: Product[];
 }
 
-function SearchWrap() {
+function SearchWrap({ onTextChange, onCheckChange }: { onTextChange: (value: string) => void, onCheckChange: (checked: boolean) => void }) {
     return <>
-        <input type="text" placeholder="Search..." />
+        <input type="text" placeholder="Search..." onChange={e => onTextChange(e.target.value)} />
         <br />
-        <input type="checkbox" /><label>Only show products in stock</label>
+        <input type="checkbox" onChange={e => onCheckChange(e.target.checked)} /><label>Only show products in stock</label>
     </>
 }
 
@@ -21,10 +25,10 @@ function CategoryTable({ type, data }: { type: string, data: Product[] }) {
         <tr>
             <th colSpan={2}>{type}</th>
         </tr>
-        {data.map((it, index) => <tr key = {index}>
-                <td style={{ color: !it.stocked ? 'red' : '' }}>{it.name}</td>
-                <td>{it.price}</td>
-            </tr>)}
+        {data.map((it, index) => <tr key={index}>
+            <td style={{ color: !it.stocked ? 'red' : '' }}>{it.name}</td>
+            <td>{it.price}</td>
+        </tr>)}
     </>
 
 }
@@ -66,8 +70,31 @@ const PRODUCTS = [
 ];
 
 export default function Outer() {
+    const [searchText, setSearchText] = useState('');
+    const [searchCheck, setSearchCheck] = useState(false);
+    const [pros, setPros] = useState(PRODUCTS);
+
+    const filterPros = () => {
+        if (!searchText && !searchCheck) {
+            // 都为空 - 展示全部
+            return PRODUCTS;
+        }
+        if (searchText && searchCheck) {
+            // 都不为空 - 同时筛选
+            return PRODUCTS.filter(it => it.stocked && it.name.includes(searchText));
+        }
+        if (searchCheck) {
+            return PRODUCTS.filter(it => it.stocked);
+        }
+        return PRODUCTS.filter(it => it.name.includes(searchText));
+    }
+
+    useEffect(() => {
+        setPros(filterPros());
+    }, [searchText, searchCheck])
+    // 处理筛选后的数据
     return <>
-        <SearchWrap />
-        <DetailTable products={PRODUCTS} />
+        <SearchWrap onTextChange={setSearchText} onCheckChange={setSearchCheck} />
+        <DetailTable products={pros} />
     </>
 }
