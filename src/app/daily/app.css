@@ -2,7 +2,7 @@
     display: flex;
     justify-content: space-around;
 }
-.outer{
+.wrap{
     display: flex;
     flex-direction: column;
 }

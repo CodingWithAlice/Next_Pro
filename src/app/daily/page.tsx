@@ -1,12 +1,11 @@
 "use client"
 import { useState } from 'react';
-import { Button, Input } from 'antd';
+import { Button, Input, Progress } from 'antd';
 import dayjs from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import './app.css';
 import { FormatDateToMonthDayWeek, formatMinToHM } from '@/components/tool';
 import { CustomTimePicker, type Issue } from '@/components/custom-time-picker';
-import styled from 'styled-components';
 
 const { TextArea } = Input;
 const now = dayjs();
@@ -52,7 +51,7 @@ function Time({ total, read, study, onChange }: { total: number, read: number, s
         onChange(calculate(issues));
     }
 
-    return (<div className='outer'>
+    return (<div className='wrap'>
         <h2>一、时间统计</h2>
         <p>总计：{formatMinToHM(total)}
             (阅读：{formatMinToHM(read)}
@@ -80,19 +79,15 @@ function Time({ total, read, study, onChange }: { total: number, read: number, s
     }
 }
 
-const StyledTextArea = styled(TextArea)`
-    resize: both;
-    overflow: auto;`
-
 function Issue({ study }: { study: number }) {
     function uniformTextAreaWithStyle(key: string, placeholder: string) {
-        return <StyledTextArea key={key} placeholder={placeholder} />
+        return <TextArea key={key} placeholder={placeholder} style={{ resize: 'both', overflow: 'auto' }} />
     }
-    return (<div className='outer'>
+    return (<div className='wrap'>
         <h2>二、事项统计</h2>
         <FormatDateToMonthDayWeek />
         <h4>前端学习时长：{formatMinToHM(study)} 🎉🎉🎉</h4>
-        <section className='outer'>
+        <section className='wrap'>
             【复盘】
             ①运动 + 电影：
             <section className='flex'>
@@ -139,7 +134,11 @@ export default function Daily() {
     }
 
     return (<>
-        <h1 style={{ textAlign: 'center' }}>Week {now.week()}</h1>
+        <h1 style={{ textAlign: 'center' }}>
+            Week {now.week()}
+            <br />
+            <Progress percent={12} steps={8} />
+        </h1>
         <div className="daily">
             <Time total={total} read={read} study={study} onChange={handleFunc} />
             <Issue study={study} />
