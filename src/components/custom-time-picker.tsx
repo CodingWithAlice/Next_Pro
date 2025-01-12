@@ -1,6 +1,7 @@
 import { Select, TimePicker } from "antd";
 import dayjs from "dayjs";
 import { formatMinToHM } from "./tool";
+import classNames from "classnames";
 
 enum TypeEnum {
     READ = '阅读',
@@ -38,6 +39,9 @@ function CustomTimePicker({ init, onIssue }: CustomTimePickerProps) {
             onIssue({ ...newIssue, duration: dur });
         }
     }
+    const intervalClass = classNames({
+        'purple': init.interval > init.duration
+    })
 
     return (
         <div className='time-picker' key={init.id}>
@@ -62,7 +66,7 @@ function CustomTimePicker({ init, onIssue }: CustomTimePickerProps) {
                 size='middle'
                 className='select' />
             &nbsp;
-            {!!init.interval && <span className={init.interval > init.duration ? 'purple' : ''}>{formatMinToHM(init.interval)}</span>}
+            {!!init.interval && <span className={intervalClass}>{formatMinToHM(init.interval)}</span>}
         </div>
     );
 }
