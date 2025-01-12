@@ -1,11 +1,12 @@
 "use client"
 import { useState } from 'react';
-import { Button, Input, Progress } from 'antd';
+import { Button, Input } from 'antd';
 import dayjs from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import './app.css';
 import { FormatDateToMonthDayWeek, formatMinToHM } from '@/components/tool';
 import { CustomTimePicker, type Issue } from '@/components/custom-time-picker';
+import ProcessCircle from '@/components/process-circle';
 
 const { TextArea } = Input;
 const now = dayjs();
@@ -134,10 +135,10 @@ export default function Daily() {
     }
 
     return (<>
-        <h1 style={{ textAlign: 'center' }}>
+        <h1 className='week'>
             Week {now.week()}
             <br />
-            <Progress percent={12} steps={8} />
+            <ProcessCircle startTime='2024-12-30' cycle={15} />
         </h1>
         <div className="daily">
             <Time total={total} read={read} study={study} onChange={handleFunc} />

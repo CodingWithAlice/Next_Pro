@@ -49,16 +49,15 @@ export default function Home() {
                     <li key={product.id}>{product.title}</li>
                 ))}
             </ul>}
-            <Link href='./square' >
-                井字格【两人玩小游戏】 <RightOutlined />
-            </Link>
             <Link href='./daily' >
                 Daily 日常记录 <RightOutlined />
             </Link>
-            <Link href='./stock' >
-                React 哲学案例 ing <RightOutlined />
+            <Link href='./square' >
+                井字格【两人玩小游戏】 <RightOutlined />
             </Link>
-
+            <Link href='./stock' >
+                搜索表单 <RightOutlined />
+            </Link>
             {/* <button onClick={handleRouter}>Go to Daily</button> */}
         </div>);
 }

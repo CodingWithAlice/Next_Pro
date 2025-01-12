@@ -1,3 +1,7 @@
+.week {
+    text-align: center;
+    margin-bottom: 5px;
+}
 .daily {
     display: flex;
     justify-content: space-around;

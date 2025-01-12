@@ -1,4 +1,6 @@
 import dayjs from "dayjs";
+import relativeTime from 'dayjs/plugin/relativeTime'
+dayjs.extend(relativeTime);
 
 // 展示 月.日 周几 - 默认展示昨天
 function FormatDateToMonthDayWeek({handle = 1}: {handle?: number}) {
@@ -17,5 +19,14 @@ function formatMinToHM(min: number) {
     const hour = Math.floor(min / 60);
     return hour ? `${hour}h${min % 60}m ` : `${min}m `
 }
+// 计算当前计划周期流逝速度
+function getPassedPercent(startTime:string, cycle:number) {
+    const now = dayjs(startTime).toNow(true);
+    
+    return {
+        steps: cycle,
+        percent: parseInt(now) / cycle * 100,
+    }
+}
 
-export { FormatDateToMonthDayWeek, formatMinToHM };
+export { FormatDateToMonthDayWeek, formatMinToHM, getPassedPercent };
