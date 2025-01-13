@@ -1,5 +1,5 @@
 "use client"
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Input } from 'antd';
 import dayjs from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
@@ -7,6 +7,7 @@ import './app.css';
 import { FormatDateToMonthDayWeek, formatMinToHM } from '@/components/tool';
 import { CustomTimePicker, type Issue } from '@/components/custom-time-picker';
 import ProcessCircle from '@/components/process-circle';
+import Api from '../service/api';
 
 const { TextArea } = Input;
 const now = dayjs();
@@ -133,6 +134,11 @@ export default function Daily() {
             }
         });
     }
+    useEffect(() => {
+        Api.getDailyApi().then(res => {
+            console.log(res);
+        })
+    }, []);
 
     return (<>
         <h1 className='week'>
