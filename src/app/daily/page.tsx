@@ -24,7 +24,7 @@ function Time({ total, read, study, onChange }: { total: number, read: number, s
         const suggestTime = issues[issues.length - 1]?.endTime || dayjs()
         const newIssue = {
             startTime: suggestTime,
-            endTime: suggestTime.add(1, 'second'),
+            endTime: suggestTime.add(1, 'minute'),
             type: '',
             id: issues.length,
             duration: 0,
@@ -53,15 +53,23 @@ function Time({ total, read, study, onChange }: { total: number, read: number, s
         onChange(calculate(issues));
     }
 
+    const handleSave = () => {
+        console.log(issues);
+    }
+
     return (<div className='wrap'>
-        <h2>一、时间统计</h2>
+        <b>一、时间统计</b>
         <p>总计：{formatMinToHM(total)}
             (阅读：{formatMinToHM(read)}
             <span style={{ backgroundColor: 'yellow' }}>前端：{formatMinToHM(study)}</span>)
         </p>
         <FormatDateToMonthDayWeek />
         {issues.map((it, index) => <CustomTimePicker init={it} key={index} onIssue={handleIssueUPdate} />)}
-        <Button className='btn' onClick={handleAddIssue}>添加一项</Button>
+        <div className='flex-around'>
+            <Button className='btn' onClick={handleAddIssue}>添加一项</Button>
+            <Button type="primary" className='btn' onClick={handleSave}>保存</Button>
+        </div>
+
     </div>)
 
     function calculate(arr: Issue[] = issues) {
@@ -146,7 +154,7 @@ export default function Daily() {
             <br />
             <ProcessCircle startTime='2024-12-30' cycle={15} />
         </h1>
-        <div className="daily">
+        <div className="flex-around">
             <Time total={total} read={read} study={study} onChange={handleFunc} />
             <Issue study={study} />
         </div></>)

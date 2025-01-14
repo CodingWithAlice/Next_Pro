@@ -2,7 +2,7 @@
     text-align: center;
     margin-bottom: 5px;
 }
-.daily {
+.flex-around {
     display: flex;
     justify-content: space-around;
 }

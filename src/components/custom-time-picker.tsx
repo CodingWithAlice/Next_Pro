@@ -32,8 +32,13 @@ interface Issue {
 }
 
 function CustomTimePicker({ init, onIssue }: CustomTimePickerProps) {
-    const handleChange = (id: number, value: string | dayjs.Dayjs | null, changeType: keyof Issue) => {
+    const handleChange = (id: number, value: string | dayjs.Dayjs | null, changeType: keyof Issue) => {        
         const newIssue = { ...init, id, [changeType]: value };
+        // 优化：如果开始时间大于结束时间，则结束时间+1分钟
+        if(changeType === 'startTime' && newIssue.endTime.isBefore(newIssue.startTime)) {
+            newIssue.endTime = newIssue.startTime.add(1, 'minute');
+        }
+
         const dur = (newIssue.endTime as dayjs.Dayjs).diff(newIssue.startTime as dayjs.Dayjs, 'minute');
         if (onIssue) {
             onIssue({ ...newIssue, duration: dur });
