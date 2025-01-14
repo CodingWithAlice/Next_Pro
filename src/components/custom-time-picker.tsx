@@ -2,6 +2,7 @@ import { Select, TimePicker } from "antd";
 import dayjs from "dayjs";
 import { formatMinToHM } from "./tool";
 import classNames from "classnames";
+import './custom-time-picker.css';
 
 enum TypeEnum {
     READ = '阅读',
@@ -54,11 +55,11 @@ function CustomTimePicker({ init, onIssue }: CustomTimePickerProps) {
                 return <div key={`${init.id}-${timeType}`}>
                     <TimePicker
                         key={init.id}
+                        className="picker"
                         format='HH:mm'
                         value={init[timeType as keyof Issue] as dayjs.Dayjs}
                         onChange={(value) => handleChange(init.id, value, timeType as keyof Issue)}
-                        needConfirm={false}
-                        style={{ width: 88 }} />
+                        needConfirm={false} />
                     {index === 0 && <>-
                         <span className='duration'>{formatMinToHM(init.duration)}</span>{` ->`}</>}
                 </div>

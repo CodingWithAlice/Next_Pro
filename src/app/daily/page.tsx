@@ -94,7 +94,7 @@ function Issue({ study }: { study: number }) {
         return <TextArea key={key} placeholder={placeholder} style={{ resize: 'both', overflow: 'auto' }} />
     }
     return (<div className='wrap'>
-        <h2>二、事项统计</h2>
+        <b>二、事项统计</b>
         <FormatDateToMonthDayWeek />
         <h4>前端学习时长：{formatMinToHM(study)} 🎉🎉🎉</h4>
         <section className='wrap'>
@@ -117,7 +117,7 @@ function Issue({ study }: { study: number }) {
             </section>
             【做得棒的3件事】
             {uniformTextAreaWithStyle('good', '积极心理学')}
-            【推荐解决方案】
+            【今天有犯错吗？错误是纠正偏差的大好机会】
             {uniformTextAreaWithStyle('fix', '可以变得更好的事情')}
         </section>
     </div>)
