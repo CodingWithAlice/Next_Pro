@@ -25,4 +25,7 @@ export const RoutineTypeModal = sequelize.define('routine_type', {
   },
   type: DataTypes.STRING,
   des: DataTypes.STRING,
+}, {
+    tableName: 'routine_type',
+    timestamps: false,
 })
