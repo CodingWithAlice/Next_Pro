@@ -4,7 +4,7 @@ import { Button, Input } from 'antd';
 import dayjs from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import './app.css';
-import { FormatDateToMonthDayWeek, formatMinToHM } from '@/components/tool';
+import { FormatDateToMonthDayWeek, formatMinToHM, getYesterdayDate } from '@/components/tool';
 import { CustomTimePicker, type Issue } from '@/components/custom-time-picker';
 import ProcessCircle from '@/components/process-circle';
 import Api from '../service/api';
@@ -13,12 +13,19 @@ const { TextArea } = Input;
 const now = dayjs();
 dayjs.extend(weekOfYear);
 
+export interface routineType {
+    id: number;
+    type: string;
+    des: string;
+}
+
 const TotalType = ['READ', 'STUDY', 'REVIEW', 'TED', 'SPORT'];
 const StudyType = ['STUDY'];
 const ReadType = ['READ', 'TED'];
 
 function Time({ total, read, study, onChange }: { total: number, read: number, study: number, onChange: (obj: { [key: string]: number }) => void }) {
     const [issues, setIssues] = useState<Issue[]>([]);
+    const [routineType, setRoutineType] = useState<routineType[]>([]);
 
     const handleAddIssue = () => {
         const suggestTime = issues[issues.length - 1]?.endTime || dayjs()
@@ -54,8 +61,29 @@ function Time({ total, read, study, onChange }: { total: number, read: number, s
     }
 
     const handleSave = () => {
-        console.log(issues);
+        const transIssues = issues.map((it) => {
+            const { id, ...rest } = it;
+            return {
+                ...rest,
+                ...getYesterdayDate(),
+                routineTypeId: it.type,
+                startTime: it.startTime.format('HH:mm:ss'),
+                endTime: it.endTime.format('HH:mm:ss'),
+                daySort: id,
+            }
+        });
+        console.log(transIssues);
+
+        Api.postDailyApi(transIssues).then(res => {
+            console.log(res);
+        })
     }
+
+    useEffect(() => {
+        Api.getRoutineApi().then(res => {
+            setRoutineType(res.data.filter((it: routineType) => !it.type.includes('total')));
+        })
+    }, []);
 
     return (<div className='wrap'>
         <b>一、时间统计</b>
@@ -64,7 +92,7 @@ function Time({ total, read, study, onChange }: { total: number, read: number, s
             <span style={{ backgroundColor: 'yellow' }}>前端：{formatMinToHM(study)}</span>)
         </p>
         <FormatDateToMonthDayWeek />
-        {issues.map((it, index) => <CustomTimePicker init={it} key={index} onIssue={handleIssueUPdate} />)}
+        {issues.map((it, index) => <CustomTimePicker routineTypes={routineType} init={it} key={index} onIssue={handleIssueUPdate} />)}
         <div className='flex-around'>
             <Button className='btn' onClick={handleAddIssue}>添加一项</Button>
             <Button type="primary" className='btn' onClick={handleSave}>保存</Button>
@@ -142,11 +170,6 @@ export default function Daily() {
             }
         });
     }
-    useEffect(() => {
-        Api.getDailyApi().then(res => {
-            console.log(res);
-        })
-    }, []);
 
     return (<>
         <h1 className='week'>

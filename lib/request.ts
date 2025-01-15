@@ -15,17 +15,21 @@ async function get(
   }
 }
 
-// function post(url: string, data: any) {
-//     return axios.post(url, data);
-// }
+async function post(
+  api: string,
+  data: { [key: string]: string | number | boolean }[]
+) {
+  return await axios.post(`${url}/${api}`, { data })
+}
 
 // function update(url: string, data: any) {
-//     return axios.put(url, data);
+//   return axios.put(url, data)
 // }
 
-export default {
+const request = {
   get,
-  // post,
-  //  update
-  //
+  post,
+  //   update,
 }
+
+export default request

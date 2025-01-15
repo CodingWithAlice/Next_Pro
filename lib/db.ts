@@ -28,4 +28,28 @@ export const RoutineTypeModal = sequelize.define('routine_type', {
 }, {
     tableName: 'routine_type',
     timestamps: false,
+    underscored: true
 })
+
+export const DailyModal = sequelize.define('daily', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    routineTypeId: DataTypes.INTEGER,
+    date: DataTypes.DATE,
+    startTime: DataTypes.TIME,
+    endTime: DataTypes.TIME,
+    daySort: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    duration: DataTypes.INTEGER,
+    weekday: DataTypes.STRING,
+    interval: DataTypes.INTEGER,
+  }, {
+      tableName: 'daily',
+      timestamps: false,
+      underscored: true
+  })

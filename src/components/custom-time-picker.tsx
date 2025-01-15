@@ -3,24 +3,12 @@ import dayjs from "dayjs";
 import { formatMinToHM } from "./tool";
 import classNames from "classnames";
 import './custom-time-picker.css';
-
-enum TypeEnum {
-    READ = '阅读',
-    STUDY = '前端',
-    REVIEW = '复盘',
-    TED = 'TED',
-    SPORT = '运动',
-    SLEEP = '睡眠',
-    MOVIE = '电影',
-}
-const options = Object.keys(TypeEnum).map(key => ({
-    value: key,
-    label: TypeEnum[key as keyof typeof TypeEnum]
-}));
+import { routineType } from "../app/daily/page";
 
 interface CustomTimePickerProps {
     onIssue?: (issue: Issue) => void;
     init: Issue;
+    routineTypes: routineType[];
 }
 
 interface Issue {
@@ -32,7 +20,12 @@ interface Issue {
     interval: number;
 }
 
-function CustomTimePicker({ init, onIssue }: CustomTimePickerProps) {
+function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps) {
+    const options = routineTypes.map((type:routineType) => ({
+        value: type.id,
+        label: type.des,
+    }));
+
     const handleChange = (id: number, value: string | dayjs.Dayjs | null, changeType: keyof Issue) => {        
         const newIssue = { ...init, id, [changeType]: value };
         // 优化：如果开始时间大于结束时间，则结束时间+1分钟
