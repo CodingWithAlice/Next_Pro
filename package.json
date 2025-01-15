@@ -14,10 +14,12 @@
     "axios": "^1.7.9",
     "classnames": "^2.5.1",
     "dayjs": "^1.11.13",
-    "mysql2": "^3.12.0",
+    "mysql2": "^2.3.3",
     "next": "15.1.0",
+    "pg-hstore": "^2.3.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "sequelize": "^6.37.5",
     "styled-components": "^6.1.13"
   },
   "devDependencies": {
@@ -25,6 +27,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/sequelize": "^4.28.20",
     "eslint": "^9",
     "eslint-config-next": "15.1.0",
     "postcss": "^8",
