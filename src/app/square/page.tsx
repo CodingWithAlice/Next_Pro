@@ -92,8 +92,6 @@ export default function Game() {
 }
 
 function calculateWinner(squares: string[]) {
-    // console.log('squares =', squares);
-
     const lines = [
         [0, 1, 2],
         [3, 4, 5],
