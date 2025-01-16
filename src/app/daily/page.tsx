@@ -19,9 +19,9 @@ export interface routineType {
     des: string;
 }
 
-const TotalType = ['READ', 'STUDY', 'REVIEW', 'TED', 'SPORT'];
-const StudyType = ['STUDY'];
-const ReadType = ['READ', 'TED'];
+const TotalType = ['reading', 'frontEnd', 'review', 'TED', 'strength', 'aerobic'];
+const StudyType = ['frontEnd', 'LTN'];
+const ReadType = ['reading'];
 
 function Time({ total, read, study, onChange }: { total: number, read: number, study: number, onChange: (obj: { [key: string]: number }) => void }) {
     const [issues, setIssues] = useState<Issue[]>([]);
@@ -103,13 +103,15 @@ function Time({ total, read, study, onChange }: { total: number, read: number, s
     function calculate(arr: Issue[] = issues) {
         const res = { total: 0, read: 0, study: 0 };
         arr.forEach((it) => {
-            if (TotalType.includes(it.type)) {
+            const type = routineType.find((type) => type.id === +it.type)?.type;
+            if(!type) return;
+            if (TotalType.includes(type)) {
                 res.total += it.duration;
             }
-            if (ReadType.includes(it.type)) {
+            if (ReadType.includes(type)) {
                 res.read += it.duration;
             }
-            if (StudyType.includes(it.type)) {
+            if (StudyType.includes(type)) {
                 res.study += it.duration;
             }
         });
