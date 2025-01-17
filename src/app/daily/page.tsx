@@ -19,7 +19,7 @@ export interface routineType {
     des: string;
 }
 
-const TotalType = ['reading', 'frontEnd', 'review', 'TED', 'strength', 'aerobic'];
+const TotalType = ['reading', 'frontEnd', 'review', 'TED', 'strength', 'aerobic', 'LTN'];
 const StudyType = ['frontEnd', 'LTN'];
 const ReadType = ['reading'];
 
