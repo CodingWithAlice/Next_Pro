@@ -1,0 +1,23 @@
+
+.wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 80%;
+}
+.week {
+    margin-bottom: 8px;
+}
+.textarea {
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+.desc {
+    white-space: nowrap;
+    margin: 0 4px 0 12px;
+    color: dimgray;
+}
+.title {
+    font-size: 1.2em;
+}

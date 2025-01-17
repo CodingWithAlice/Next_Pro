@@ -58,6 +58,9 @@ export default function Home() {
             <Link href='./stock' >
                 搜索表单 <RightOutlined />
             </Link>
+            <Link href='./week' >
+                周报 <RightOutlined />
+            </Link>
             {/* <button onClick={handleRouter}>Go to Daily</button> */}
         </div>);
 }
