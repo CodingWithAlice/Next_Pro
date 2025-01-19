@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState } from 'react';
-import { Button, Input } from 'antd';
+import { Button, Input, Space, ConfigProvider } from 'antd';
 import dayjs from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import './app.css';
@@ -8,6 +8,33 @@ import { FormatDateToMonthDayWeek, formatMinToHM, getYesterdayDate } from '@/com
 import { CustomTimePicker, type Issue } from '@/components/custom-time-picker';
 import ProcessCircle from '@/components/process-circle';
 import Api from '../service/api';
+import { createStyles } from 'antd-style';
+import { AntDesignOutlined } from '@ant-design/icons';
+
+const useStyle = createStyles(({ prefixCls, css }) => ({
+    linearGradientButton: css`
+      &.${prefixCls}-btn-primary:not([disabled]):not(.${prefixCls}-btn-dangerous) {
+        > span {
+          position: relative;
+        }
+  
+        &::before {
+          content: '';
+          background: linear-gradient(120deg, #d4fc79, #96e6a1);
+          position: absolute;
+          inset: -1px;
+          opacity: 1;
+          transition: all 0.3s;
+          border-radius: inherit;
+        }
+  
+        &:hover::before {
+          opacity: 0;
+        }
+      }
+    `,
+}));
+
 
 const { TextArea } = Input;
 const now = dayjs();
@@ -26,6 +53,7 @@ const ReadType = ['reading'];
 function Time({ total, read, study, onChange }: { total: number, read: number, study: number, onChange: (obj: { [key: string]: number }) => void }) {
     const [issues, setIssues] = useState<Issue[]>([]);
     const [routineType, setRoutineType] = useState<routineType[]>([]);
+    const { styles } = useStyle();
 
     const handleAddIssue = () => {
         const suggestTime = issues[issues.length - 1]?.endTime || dayjs()
@@ -89,22 +117,29 @@ function Time({ total, read, study, onChange }: { total: number, read: number, s
         <b>一、时间统计</b>
         <p>总计：{formatMinToHM(total)}
             (阅读：{formatMinToHM(read)}
-            <span style={{ backgroundColor: 'yellow' }}>前端：{formatMinToHM(study)}</span>)
+            <span className='front'>前端：{formatMinToHM(study)}</span>)
         </p>
         <FormatDateToMonthDayWeek />
         {issues.map((it, index) => <CustomTimePicker routineTypes={routineType} init={it} key={index} onIssue={handleIssueUPdate} />)}
-        <div className='flex-around'>
-            <Button className='btn' onClick={handleAddIssue}>添加一项</Button>
-            <Button type="primary" className='btn' onClick={handleSave}>保存</Button>
-        </div>
-
+        <ConfigProvider
+            button={{
+                className: styles.linearGradientButton,
+            }}
+        >
+            <Space className='btn-group'>
+                <Button onClick={handleAddIssue}>添加一项</Button>
+                <Button onClick={handleSave} type="primary" icon={<AntDesignOutlined />}>
+                    保存
+                </Button>
+            </Space>
+        </ConfigProvider>
     </div>)
 
     function calculate(arr: Issue[] = issues) {
         const res = { total: 0, read: 0, study: 0 };
         arr.forEach((it) => {
             const type = routineType.find((type) => type.id === +it.type)?.type;
-            if(!type) return;
+            if (!type) return;
             if (TotalType.includes(type)) {
                 res.total += it.duration;
             }
@@ -173,15 +208,15 @@ export default function Daily() {
         });
     }
 
-    return (<>
+    return (<div className='wrapper'>
         <h1 className='week'>
             Week {now.week()}
             <br />
-            <ProcessCircle startTime='2024-12-30' cycle={15} />
+            <ProcessCircle startTime='2025-1-17' cycle={9} />
         </h1>
         <div className="flex-around">
             <Time total={total} read={read} study={study} onChange={handleFunc} />
             <Issue study={study} />
-        </div></>)
+        </div></div>)
 }
 

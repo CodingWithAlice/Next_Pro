@@ -12,7 +12,7 @@ function getYesterdayDate(handle: number = 1) {
 function FormatDateToMonthDayWeek({ handle = 1 }: { handle?: number }) {
     const { weekday, date } = getYesterdayDate(handle);
     return <div className='flex'>
-        <span style={{ color: 'red', fontWeight: 500 }}>{date}</span>
+        <span style={{ color: '#f68084', fontWeight: 800 }}>{date}</span>
         &nbsp;
         周{weekday}
     </div>
@@ -26,7 +26,8 @@ function formatMinToHM(min: number) {
 // 计算当前计划周期流逝速度
 function getPassedPercent(startTime: string, cycle: number) {
     const now = dayjs(startTime).toNow(true);
-
+    console.log('now', now, parseInt(now) / cycle);
+    
     return {
         steps: cycle,
         percent: parseInt(now) / cycle * 100,

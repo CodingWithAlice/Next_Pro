@@ -1,14 +1,45 @@
+body {
+    color: rgb(6, 128, 67);
+    font-weight: 500;
+    background: transparent;
+    background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+}
+
 .week {
     text-align: center;
     margin-bottom: 5px;
+    letter-spacing: 0.2rem;
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: rgb(38, 157, 128);
 }
+
 .flex-around {
     display: flex;
     justify-content: space-around;
 }
-.wrap{
+
+.wrap {
     display: flex;
     flex-direction: column;
+}
+
+.front {
+    background-color: rgb(174, 221, 129, 0.5);
+    padding: 2px;
+    border-radius: 15%;
+}
+
+.btn-group {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.btn-group button {
+    color: rgb(6, 128, 67);
+    font-weight: 600;
 }
 
 .flex {
@@ -19,10 +50,6 @@
     display: flex;
     align-items: center;
     margin-top: 4px;
-}
-
-.btn {
-    margin-top: 10px;
 }
 
 .select {
@@ -36,6 +63,9 @@
 }
 
 .purple {
-    background-color: palevioletred;
+    background-color: rgba(246, 128, 132, 0.3);
     padding: 0 4px;
+    border-radius: 15%;
+    color: rgb(38, 157, 128);
+    font-weight: 400;
 }
