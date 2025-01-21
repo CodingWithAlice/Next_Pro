@@ -2,8 +2,8 @@ import { Select, TimePicker } from "antd";
 import dayjs from "dayjs";
 import { formatMinToHM } from "./tool";
 import classNames from "classnames";
-import './custom-time-picker.css';
-import { routineType } from "../app/daily/page";
+import './component.css';
+import { routineType } from '@/daily/page';
 
 interface CustomTimePickerProps {
     onIssue?: (issue: Issue) => void;

@@ -59,10 +59,34 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
     `,
 }));
 
+function debounce(fn: Function, delay: number) {
+    let timer: NodeJS.Timeout | null = null;
+    return function (...args) {
+        clearTimeout(timer as NodeJS.Timeout);
+        timer = setTimeout(() => {
+            fn(...args);
+        }, delay);
+    }
+}
+
+function throttle(fn: Function, delay: number) {
+    let timer: NodeJS.Timeout | null = null;
+    return function (...args) {
+        if (!timer) {
+            timer = setTimeout(() => {
+                fn(...args);
+                timer = null;
+            }, delay);
+        }
+    }
+}
+
 export { 
     FormatDateToMonthDayWeek, 
     formatMinToHM, 
     getPassedPercent, 
     getYesterdayDate, 
-    useStyle 
+    useStyle,
+    debounce,
+    throttle
 };
