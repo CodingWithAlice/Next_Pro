@@ -19,8 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "db":["./lib/db.ts"]
+      "@/*": ["./src/app/*"],
+      "db":["./lib/db.ts"],
     },
     "allowSyntheticDefaultImports": true,
   },

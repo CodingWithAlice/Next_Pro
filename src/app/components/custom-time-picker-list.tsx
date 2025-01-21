@@ -1,5 +1,5 @@
 import { CustomTimePicker, type Issue } from '@/components/custom-time-picker';
-import { routineType } from '@/app/daily/page';
+import { routineType } from '@/daily/page';
 
 const TotalType = ['reading', 'frontEnd', 'review', 'TED', 'strength', 'aerobic', 'LTN'];
 const StudyType = ['frontEnd', 'LTN'];

@@ -1,4 +1,4 @@
-import request from '../../../lib/request'
+import request from '../../../lib/request';
 
 const Api = {
   getRoutineApi(params?: { [key: string]: string | number | boolean }) {

@@ -1,9 +1,9 @@
 import { FormatDateToMonthDayWeek, formatMinToHM, getYesterdayDate, useStyle } from '@/components/tool';
 import { Button, Space, ConfigProvider, message } from 'antd';
-import Api from '@/app/service/api';
+import Api from '@/service/api';
 import { AntDesignOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
-import { routineType } from '@/app/daily/page';
+import { routineType } from '@/daily/page';
 import dayjs from 'dayjs';
 import CustomTimePickerList from './custom-time-picker-list';
 import { type Issue } from '@/components/custom-time-picker';
