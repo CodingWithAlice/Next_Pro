@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
-import relativeTime from 'dayjs/plugin/relativeTime'
+import relativeTime from 'dayjs/plugin/relativeTime';
+import { createStyles } from 'antd-style';
 dayjs.extend(relativeTime);
 
 // 展示 月.日 周几 - 默认展示昨天
@@ -34,4 +35,34 @@ function getPassedPercent(startTime: string, cycle: number) {
     }
 }
 
-export { FormatDateToMonthDayWeek, formatMinToHM, getPassedPercent, getYesterdayDate };
+const useStyle = createStyles(({ prefixCls, css }) => ({
+    linearGradientButton: css`
+      &.${prefixCls}-btn-primary:not([disabled]):not(.${prefixCls}-btn-dangerous) {
+        > span {
+          position: relative;
+        }
+  
+        &::before {
+          content: '';
+          background: linear-gradient(120deg, #d4fc79, #96e6a1);
+          position: absolute;
+          inset: -1px;
+          opacity: 1;
+          transition: all 0.3s;
+          border-radius: inherit;
+        }
+  
+        &:hover::before {
+          opacity: 0;
+        }
+      }
+    `,
+}));
+
+export { 
+    FormatDateToMonthDayWeek, 
+    formatMinToHM, 
+    getPassedPercent, 
+    getYesterdayDate, 
+    useStyle 
+};
