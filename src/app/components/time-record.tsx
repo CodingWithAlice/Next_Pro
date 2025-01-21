@@ -19,7 +19,7 @@ export default function TimeRecord({ total, read, study, onChange }: TimeRecordP
     const [issues, setIssues] = useState<Issue[]>([]);
     const [routineType, setRoutineType] = useState<routineType[]>([]);
     const { styles } = useStyle();
-    const [info, setInfo] = useState('');
+    const [messageApi, contextHolder] = message.useMessage();
 
     const handleAddIssue = () => {
         const suggestTime = issues[issues.length - 1]?.endTime || dayjs()
@@ -47,8 +47,10 @@ export default function TimeRecord({ total, read, study, onChange }: TimeRecordP
             }
         });
         Api.postDailyApi(transIssues).then(() => {
-            setInfo('保存成功');
-            message.success('保存成功');
+            messageApi.open({
+                type: 'success',
+                content: '保存成功',
+            });
         })
     }
 
@@ -59,6 +61,7 @@ export default function TimeRecord({ total, read, study, onChange }: TimeRecordP
     }, []);
 
     return (<div className='wrap'>
+        {contextHolder}
         <b>一、时间统计</b>
         <p>总计：{formatMinToHM(total)}
             (阅读：{formatMinToHM(read)}
@@ -78,7 +81,7 @@ export default function TimeRecord({ total, read, study, onChange }: TimeRecordP
             <Space className='btn-group'>
                 <Button onClick={handleAddIssue}>添加一项</Button>
                 <Button onClick={handleSave} type="primary" icon={<AntDesignOutlined />}>
-                    {info || '保存'}
+                    保存
                 </Button>
             </Space>
         </ConfigProvider>

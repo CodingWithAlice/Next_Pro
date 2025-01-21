@@ -1,25 +1,32 @@
+import { IssueRecordProps } from '@/components/tool'
 import axios, { AxiosResponse } from 'axios'
 
 const url = process.env.API_URL || 'http://localhost:3000/api'
 
 async function get(
-  api: string,
-  params?: { [key: string]: string | number | boolean }
+	api: string,
+	params?: { [key: string]: string | number | boolean }
 ) {
-  try {
-    const response: AxiosResponse = await axios.get(`${url}/${api}`, { params })
-    return response.data
-  } catch (error) {
-    console.error('请求出错:', error)
-    throw error
-  }
+	try {
+		const response: AxiosResponse = await axios.get(`${url}/${api}`, {
+			params,
+		})
+		return response.data
+	} catch (error) {
+		console.error('请求出错:', error)
+		throw error
+	}
 }
 
-async function post(
-  api: string,
-  data: { [key: string]: string | number | boolean }[]
+async function postList(
+	api: string,
+	data: { [key: string]: string | number | boolean }[]
 ) {
-  return await axios.post(`${url}/${api}`, { data })
+	return await axios.post(`${url}/${api}`, { data })
+}
+
+async function postIssue(api: string, data: IssueRecordProps) {
+	return await axios.post(`${url}/${api}`, { ...data, date: new Date() })
 }
 
 // function update(url: string, data: any) {
@@ -27,9 +34,9 @@ async function post(
 // }
 
 const request = {
-  get,
-  post,
-  //   update,
+	get,
+	postList,
+	postIssue,
 }
 
 export default request

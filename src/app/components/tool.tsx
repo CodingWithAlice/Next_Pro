@@ -81,6 +81,19 @@ function throttle(fn: Function, delay: number) {
     }
 }
 
+interface IssueRecordProps {
+    sport: string,
+    video: string,
+    front: string,
+    ted: string,
+    reading: string,
+    good1?: string,
+    good2?: string,
+    good: string,
+    good3?: string,
+    better: string,
+}
+
 export { 
     FormatDateToMonthDayWeek, 
     formatMinToHM, 
@@ -88,5 +101,6 @@ export {
     getYesterdayDate, 
     useStyle,
     debounce,
-    throttle
+    throttle,
+    type IssueRecordProps
 };

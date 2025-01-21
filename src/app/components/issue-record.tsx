@@ -1,22 +1,10 @@
 
-import { Button, ConfigProvider, Input } from "antd";
-import { FormatDateToMonthDayWeek, formatMinToHM, useStyle } from "@/components/tool"
+import { Button, ConfigProvider, Input, message } from "antd";
+import { FormatDateToMonthDayWeek, formatMinToHM, IssueRecordProps, useStyle } from "@/components/tool"
 import { ExperimentFilled } from "@ant-design/icons";
 import { useState } from "react";
+import Api from "@/service/api";
 const { TextArea } = Input;
-
-interface IssueRecordProps {
-    sport: string,
-    video: string,
-    front: string,
-    ted: string,
-    reading: string,
-    good1?: string,
-    good2?: string,
-    good: string,
-    good3?: string,
-    better: string,
-}
 
 interface UniformTextAreaWithStyleProps {
     type: keyof IssueRecordProps,
@@ -38,6 +26,7 @@ function UniformTextAreaWithStyle({ type, placeholder, source, emit }: UniformTe
 }
 
 export default function IssueRecord({ study }: { study: number }) {
+    const [messageApi, contextHolder] = message.useMessage();
     const { styles } = useStyle();
     const [data, setDate] = useState<IssueRecordProps>({
         sport: '',
@@ -65,13 +54,21 @@ export default function IssueRecord({ study }: { study: number }) {
     };
 
     const handleSave = () => {
-        console.log('save', data);
+        Api.postIssueApi(data).then((e) => {
+            if (e?.data) {
+                messageApi.open({
+                    type: 'success',
+                    content: e.data.message,
+                });
+            }
+        })
     }
 
     const getTextArea = (key: keyof IssueRecordProps, placeholder: string) => <UniformTextAreaWithStyle key={key} type={key} placeholder={placeholder} source={data} emit={handleInput} />
 
 
     return (<div className='wrap'>
+        {contextHolder}
         <b>二、事项统计</b>
         <FormatDateToMonthDayWeek />
         <h4>前端学习时长：{formatMinToHM(study)} 🎉🎉🎉</h4>
