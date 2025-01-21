@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState } from 'react';
-import { Button, Input, Space, ConfigProvider } from 'antd';
+import { Button, Input, Space, ConfigProvider, message } from 'antd';
 import dayjs from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import './app.css';
@@ -54,6 +54,7 @@ function Time({ total, read, study, onChange }: { total: number, read: number, s
     const [issues, setIssues] = useState<Issue[]>([]);
     const [routineType, setRoutineType] = useState<routineType[]>([]);
     const { styles } = useStyle();
+    const [info, setInfo] = useState('');
 
     const handleAddIssue = () => {
         const suggestTime = issues[issues.length - 1]?.endTime || dayjs()
@@ -100,10 +101,9 @@ function Time({ total, read, study, onChange }: { total: number, read: number, s
                 daySort: id,
             }
         });
-        console.log(transIssues);
-
-        Api.postDailyApi(transIssues).then(res => {
-            console.log(res);
+        Api.postDailyApi(transIssues).then(() => {
+            setInfo('保存成功');
+            message.success('保存成功');
         })
     }
 
@@ -129,7 +129,7 @@ function Time({ total, read, study, onChange }: { total: number, read: number, s
             <Space className='btn-group'>
                 <Button onClick={handleAddIssue}>添加一项</Button>
                 <Button onClick={handleSave} type="primary" icon={<AntDesignOutlined />}>
-                    保存
+                    {info || '保存'}
                 </Button>
             </Space>
         </ConfigProvider>

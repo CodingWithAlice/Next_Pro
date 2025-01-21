@@ -13,7 +13,6 @@ function transTitle(title: string) {
 function UniformTextAreaWithStyle({ key, desc, init, onChange }: { key: string, desc: string, init: string, onChange: (data: { [key: string]: string }) => void }) {
     const [text, setText] = useState<string>(init);
     const handleText = (type: string, value: string) => {
-        console.log(type, value);
         setText(value);
         onChange({ [type]: value });
     }
@@ -33,7 +32,6 @@ export default function Week() {
     const [data, setData] = useState<{ [key: string]: string }>({});
 
     const handleChange = (v) => {
-        console.log(1111111, v);
         // setData(...data, [key]: value);
     }
     const transTextArea = (it: { key: string, desc: string }) => {

@@ -6,7 +6,8 @@ dayjs.extend(relativeTime);
 function getYesterdayDate(handle: number = 1) {
     const now = dayjs();
     const date = now.subtract(handle, 'day').format('YYYY-MM-DD');
-    const weekday = '日一二三四五六'.charAt(now.day());
+    
+    const weekday = '六日一二三四五'.charAt(now.day());
     return { weekday, date }
 }
 function FormatDateToMonthDayWeek({ handle = 1 }: { handle?: number }) {
@@ -26,7 +27,6 @@ function formatMinToHM(min: number) {
 // 计算当前计划周期流逝速度
 function getPassedPercent(startTime: string, cycle: number) {
     const now = dayjs(startTime).toNow(true);
-    console.log('now', now, parseInt(now) / cycle);
     
     return {
         steps: cycle,
