@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.5.2",
+    "@ant-design/pro-components": "^2.8.4",
     "antd": "^5.22.5",
     "antd-style": "^3.7.1",
     "axios": "^1.7.9",
@@ -20,6 +21,7 @@
     "pg-hstore": "^2.3.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-router-dom": "^6.28.2",
     "sequelize": "^6.37.5",
     "styled-components": "^6.1.13"
   },

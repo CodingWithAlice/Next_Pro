@@ -94,6 +94,22 @@ interface IssueRecordProps {
     better: string,
 }
 
+ // 分类共三类：Learning、Life、Health
+const Category = {
+    learning: 'Learning',
+    life: 'Life',
+    health: 'Health',
+}
+const CategoryColor = {
+    Learning: 'green',
+    Life: 'pink',
+    Health: 'volcano'
+}
+
+const  getWeek = () => {
+    return dayjs().week()
+  }
+
 export { 
     FormatDateToMonthDayWeek, 
     formatMinToHM, 
@@ -102,5 +118,8 @@ export {
     useStyle,
     debounce,
     throttle,
+    getWeek,
+    Category,
+    CategoryColor,
     type IssueRecordProps
 };
