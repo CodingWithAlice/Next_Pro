@@ -59,6 +59,12 @@ export const DailyModal = sequelize.define(
 		tableName: 'daily',
 		timestamps: false,
 		underscored: true,
+        indexes: [
+            {
+                unique: true,
+                fields: ['date', 'day_sort'] // 为 date 和 sort 字段组合设置唯一索引
+            }
+        ]
 	}
 )
 
