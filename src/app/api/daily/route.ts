@@ -1,5 +1,6 @@
 import { DailyModal } from 'db'
 import { NextRequest, NextResponse } from 'next/server'
+import { transDateToWhereOptions } from 'utils'
 
 async function POST(request: NextRequest) {
 	try {
@@ -26,6 +27,24 @@ async function POST(request: NextRequest) {
 		)
 	}
 }
+
+async function GET(request: NextRequest) {
+	try {
+		const { searchParams } = request.nextUrl
+		const date = searchParams.get('date')
+		const options = date ? transDateToWhereOptions(new Date(date)) : {};
+
+		const res = await DailyModal.findAll(options)
+		return NextResponse.json({ data: res })
+	} catch (error) {
+		console.error(error)
+		return NextResponse.json(
+			{ error: 'Internal Server Error' },
+			{ status: 500 }
+		)
+	}
+}
+
 // 删除数据 - 该功能不导出，仅供内部使用
 // eslint-disable-next-line
 async function DELETE(request: NextRequest) {
@@ -46,4 +65,4 @@ async function DELETE(request: NextRequest) {
 	}
 }
 
-export { POST }
+export { POST, GET }

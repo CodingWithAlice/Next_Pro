@@ -1,6 +1,6 @@
 import { IssueModal } from 'db'
 import { NextRequest, NextResponse } from 'next/server'
-import { Op } from 'sequelize';
+import { transDateToWhereOptions } from 'utils';
 
 
 async function POST(request: NextRequest) {
@@ -8,14 +8,10 @@ async function POST(request: NextRequest) {
 		const body = await request.json();
 
         // 日期转换
-        const dateObj = new Date(body.date);
-        const startDate = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
-        const endDate = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate(), 23, 59, 59);
+        const option = transDateToWhereOptions(body.date);
       
 		const [issue, created] = await IssueModal.findOrCreate({
-			where: { date: {
-                [Op.between]: [startDate, endDate]
-            } },
+			...option,
 			defaults: body,
 		})
 		if (!created) {
