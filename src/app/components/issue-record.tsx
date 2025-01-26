@@ -55,9 +55,7 @@ export default function IssueRecord({ study, issueData }: { study: number, issue
             }
         })
     }
-
-    const getTextArea = (key: keyof IssueRecordProps, placeholder: string) => <UniformTextAreaWithStyle key={key} type={key} placeholder={placeholder} source={data} emit={handleInput} />
-
+    const getTextArea = (key: keyof IssueRecordProps, placeholder: string, source: IssueRecordProps) => (<UniformTextAreaWithStyle key={key} type={key} placeholder={placeholder} source={source} emit={handleInput} />)
 
     return (<div className='wrap'>
         {contextHolder}
@@ -71,21 +69,21 @@ export default function IssueRecord({ study, issueData }: { study: number, issue
                 {[
                     { key: 'sport', placeholder: '运动情况' },
                     { key: 'video', placeholder: '电影' }
-                ].map(it => getTextArea(it.key as keyof IssueRecordProps, it.placeholder))}
+                ].map(it => getTextArea(it.key as keyof IssueRecordProps, it.placeholder, issueData))}
             </section>
             ② 前端：
-            {getTextArea('front', '前端学习情况')}
+            {getTextArea('front', '前端学习情况', issueData)}
             ③ TED+阅读：
             <section className='flex'>
                 {[
                     { key: 'ted', placeholder: 'TED主题' },
                     { key: 'reading', placeholder: '阅读情况' }
-                ].map(it => getTextArea(it.key as keyof IssueRecordProps, it.placeholder))}
+                ].map(it => getTextArea(it.key as keyof IssueRecordProps, it.placeholder, issueData))}
             </section>
             【做得棒的3件事】
-            {getTextArea('good', '积极心理学')}
+            {getTextArea('good', '积极心理学', issueData)}
             【今天有犯错吗？错误是纠正偏差的大好机会】
-            {getTextArea('better', '可以变得更好的事情')}
+            {getTextArea('better', '可以变得更好的事情', issueData)}
             <ConfigProvider
                 button={{
                     className: styles.linearGradientButton,
