@@ -2,7 +2,6 @@ import { FormatDateToMonthDayWeek, formatMinToHM, getYesterdayDate, useStyle } f
 import { Button, Space, ConfigProvider, message } from 'antd';
 import Api from '@/service/api';
 import { AntDesignOutlined } from '@ant-design/icons';
-import { useEffect, useState } from 'react';
 import { routineType } from '@/daily/page';
 import dayjs from 'dayjs';
 import CustomTimePickerList from './custom-time-picker-list';
@@ -12,24 +11,13 @@ interface TimeRecordProps {
     total: number,
     read: number,
     study: number,
+    routineType: routineType[],
+    issues: Issue[],
+    setIssues: (issues: Issue[]) => void,
     onChange: (obj: { [key: string]: number }) => void
 }
 
-interface DailyDataProps {
-    date: string,
-    daySort: number,
-    duration: number,
-    endTime: string,
-    id: number,
-    interval: number,
-    routineTypeId: number,
-    startTime: string,
-    weekday: string
-}
-
-export default function TimeRecord({ total, read, study, onChange }: TimeRecordProps) {
-    const [issues, setIssues] = useState<Issue[]>([]);
-    const [routineType, setRoutineType] = useState<routineType[]>([]);
+export default function TimeRecord({ total, read, study, onChange, routineType, issues, setIssues }: TimeRecordProps) {
     const { styles } = useStyle();
     const [messageApi, contextHolder] = message.useMessage();
 
@@ -65,19 +53,6 @@ export default function TimeRecord({ total, read, study, onChange }: TimeRecordP
             });
         })
     }
-
-    useEffect(() => {
-        Api.getDailyApi(dayjs().subtract(1, 'day').format('YYYY-MM-DD')).then(({ routineData, dailyData }) => {
-            const routine = routineData.filter((it: routineType) => !it.type.includes('total'));
-            setRoutineType(routine);
-            setIssues(dailyData.map((data: DailyDataProps) => ({
-                ...data,
-                startTime: dayjs(`${data.date} ${data.startTime}`),
-                endTime: dayjs(`${data.date} ${data.endTime}`),
-                type: data.routineTypeId
-            })));
-        })
-    }, []);
 
     return (<div className='wrap'>
         {contextHolder}
