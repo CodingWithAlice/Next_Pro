@@ -7,6 +7,7 @@ import WeekTitle from '@/components/week-title';
 import Api from '@/service/api';
 import dayjs from 'dayjs';
 import { type Issue } from '@/components/custom-time-picker';
+import { IssueRecordProps } from '@/components/tool';
 
 export interface routineType {
     id: number;
@@ -26,6 +27,10 @@ interface DailyDataProps {
     weekday: string
 }
 
+const TotalType = ['reading', 'frontEnd', 'review', 'TED', 'strength', 'aerobic', 'LTN'];
+const StudyType = ['frontEnd', 'LTN'];
+const ReadType = ['reading'];
+
 export default function Daily() {
     const [total, setTotal] = useState(0);
     const [read, setRead] = useState(0);
@@ -33,10 +38,19 @@ export default function Daily() {
 
     const [routineType, setRoutineType] = useState<routineType[]>([]);
     const [issues, setIssues] = useState<Issue[]>([]);
+    const [issueData, setIssueData] = useState<IssueRecordProps>({
+        sport: '',
+        video: '',
+        front: '',
+        ted: '',
+        reading: '',
+        good: '',
+        better: '',
+    });
 
 
     useEffect(() => {
-        Api.getDailyApi(dayjs().subtract(1, 'day').format('YYYY-MM-DD')).then(({ routineData, dailyData }) => {
+        Api.getDailyApi(dayjs().subtract(1, 'day').format('YYYY-MM-DD')).then(({ routineData, dailyData, IssueData }) => {
             const routine = routineData.filter((it: routineType) => !it.type.includes('total'));
             setRoutineType(routine);
             setIssues(dailyData.map((data: DailyDataProps) => ({
@@ -45,10 +59,12 @@ export default function Daily() {
                 endTime: dayjs(`${data.date} ${data.endTime}`),
                 type: data.routineTypeId
             })));
+            setIssueData({ ...IssueData, good: IssueData.good1 + '，' + IssueData.good2 + '，' + IssueData.good3 });
         })
     }, []);
 
-    const handleFunc = (valueObj: { [key: string]: number }) => {
+    const handleFunc = (arr: Issue[]) => {
+        const valueObj = calculate(arr);
         Object.entries(valueObj).forEach(([type, value]) => {
             switch (type) {
                 case 'total':
@@ -64,11 +80,28 @@ export default function Daily() {
         });
     }
 
+    function calculate(arr: Issue[]) {
+        const res = { total: 0, read: 0, study: 0 };
+        arr.forEach((it) => {
+            const type = routineType.find((type) => type.id === +it.type)?.type;
+            if (!type) return;
+            if (TotalType.includes(type)) {
+                res.total += it.duration;
+            }
+            if (ReadType.includes(type)) {
+                res.read += it.duration;
+            }
+            if (StudyType.includes(type)) {
+                res.study += it.duration;
+            }
+        });
+        return res;
+    }
+
     return (<div className='wrapper'>
         <WeekTitle />
         <div className="flex-around">
             <TimeRecord total={total} read={read} study={study} onChange={handleFunc} issues={issues} setIssues={setIssues} routineType={routineType} />
-            <IssueRecord study={study} />
+            <IssueRecord study={study} issueData={issueData} />
         </div></div>)
 }
-

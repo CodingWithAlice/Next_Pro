@@ -25,18 +25,10 @@ function UniformTextAreaWithStyle({ type, placeholder, source, emit }: UniformTe
         }} />
 }
 
-export default function IssueRecord({ study }: { study: number }) {
+export default function IssueRecord({ study, issueData }: { study: number, issueData: IssueRecordProps }) {
     const [messageApi, contextHolder] = message.useMessage();
     const { styles } = useStyle();
-    const [data, setDate] = useState<IssueRecordProps>({
-        sport: '',
-        video: '',
-        front: '',
-        ted: '',
-        reading: '',
-        good: '',
-        better: '',
-    });
+    const [data, setData] = useState<IssueRecordProps>(issueData);
 
     const handleInput = (type: string, value: string) => {
         let change = { ...data, [type]: value };
@@ -50,7 +42,7 @@ export default function IssueRecord({ study }: { study: number }) {
             }, {} as Partial<IssueRecordProps>);
             change = { ...change, ...sup };
         }
-        setDate(change);
+        setData(change);
     };
 
     const handleSave = () => {

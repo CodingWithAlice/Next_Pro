@@ -14,7 +14,7 @@ interface TimeRecordProps {
     routineType: routineType[],
     issues: Issue[],
     setIssues: (issues: Issue[]) => void,
-    onChange: (obj: { [key: string]: number }) => void
+    onChange: (arr: Issue[]) => void
 }
 
 export default function TimeRecord({ total, read, study, onChange, routineType, issues, setIssues }: TimeRecordProps) {
