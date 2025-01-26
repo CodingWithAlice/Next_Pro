@@ -15,6 +15,18 @@ interface TimeRecordProps {
     onChange: (obj: { [key: string]: number }) => void
 }
 
+interface DailyDataProps {
+    date: string,
+    daySort: number,
+    duration: number,
+    endTime: string,
+    id: number,
+    interval: number,
+    routineTypeId: number,
+    startTime: string,
+    weekday: string
+}
+
 export default function TimeRecord({ total, read, study, onChange }: TimeRecordProps) {
     const [issues, setIssues] = useState<Issue[]>([]);
     const [routineType, setRoutineType] = useState<routineType[]>([]);
@@ -35,15 +47,15 @@ export default function TimeRecord({ total, read, study, onChange }: TimeRecordP
     }
 
     const handleSave = () => {
-        const transIssues = issues.map((it) => {
-            const { id, ...rest } = it;
+        const transIssues = issues.map((it, index) => {
+            const { ...rest } = it;
             return {
                 ...rest,
                 ...getYesterdayDate(),
                 routineTypeId: it.type,
                 startTime: it.startTime.format('HH:mm:ss'),
                 endTime: it.endTime.format('HH:mm:ss'),
-                daySort: id,
+                daySort: index,
             }
         });
         Api.postDailyApi(transIssues).then(() => {
@@ -55,8 +67,15 @@ export default function TimeRecord({ total, read, study, onChange }: TimeRecordP
     }
 
     useEffect(() => {
-        Api.getRoutineApi().then(res => {
-            setRoutineType(res.data.filter((it: routineType) => !it.type.includes('total')));
+        Api.getDailyApi(dayjs().subtract(1, 'day').format('YYYY-MM-DD')).then(({ routineData, dailyData }) => {
+            const routine = routineData.filter((it: routineType) => !it.type.includes('total'));
+            setRoutineType(routine);
+            setIssues(dailyData.map((data: DailyDataProps) => ({
+                ...data,
+                startTime: dayjs(`${data.date} ${data.startTime}`),
+                endTime: dayjs(`${data.date} ${data.endTime}`),
+                type: data.routineTypeId
+            })));
         })
     }, []);
 
