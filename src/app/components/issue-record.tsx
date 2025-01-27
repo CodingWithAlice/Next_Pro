@@ -2,7 +2,6 @@
 import { Button, ConfigProvider, Input, message } from "antd";
 import { FormatDateToMonthDayWeek, formatMinToHM, IssueRecordProps, useStyle } from "@/components/tool"
 import { ExperimentFilled } from "@ant-design/icons";
-import { useState } from "react";
 import Api from "@/service/api";
 import dayjs from "dayjs";
 const { TextArea } = Input;
@@ -26,29 +25,21 @@ function UniformTextAreaWithStyle({ type, placeholder, source, emit }: UniformTe
         }} />
 }
 
-export default function IssueRecord({ study, issueData }: { study: number, issueData: IssueRecordProps }) {
+export default function IssueRecord({ study, issueData, setIssueData }: { study: number, issueData: IssueRecordProps, setIssueData: (data: IssueRecordProps) => void }) {
     const [messageApi, contextHolder] = message.useMessage();
     const { styles } = useStyle();
-    const [data, setData] = useState<IssueRecordProps>(issueData);
 
     const handleInput = (type: string, value: string) => {
-        let change = { ...data, [type]: value };
-        // 处理good字段        
-        if (type === 'good') {
-            const list = value.split('，');
-            const sup = list.reduce((pre: Partial<IssueRecordProps>, cur, index) => {
-                const saveType = `good${index + 1}` as keyof IssueRecordProps;
-                pre[saveType] = cur;
-                return pre
-            }, {} as Partial<IssueRecordProps>);
-            change = { ...change, ...sup };
-        }
-        setData(change);
+        const change = { ...issueData, [type]: value };
+        setIssueData(change);
     };
 
     const handleSave = () => {
         Api.postIssueApi({
-            ...data, 
+            ...issueData,
+            good1: issueData.good.split('\n')[0],
+            good2: issueData.good.split('\n')[1],
+            good3: issueData.good.split('\n')[2],
             date: dayjs().subtract(1, 'day').toDate()
         }).then((e) => {
             if (e?.data) {

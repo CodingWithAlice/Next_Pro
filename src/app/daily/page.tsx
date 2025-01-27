@@ -61,7 +61,8 @@ export default function Daily() {
             })));
             setIssueData({ 
                 ...IssueData, 
-                good: IssueData.good1 ? (IssueData.good1 + '，' + IssueData.good2 + '，' + IssueData.good3) : null });
+                good: ([IssueData.good1 || '', IssueData.good2 || '', IssueData.good3 || '']).filter(it => !!it).join('\n'),
+            });
         })
     }, []);
 
@@ -104,6 +105,6 @@ export default function Daily() {
         <WeekTitle />
         <div className="flex-around">
             <TimeRecord total={total} read={read} study={study} onChange={handleFunc} issues={issues} setIssues={setIssues} routineType={routineType} />
-            <IssueRecord study={study} issueData={issueData} />
+            <IssueRecord study={study} issueData={issueData} setIssueData={setIssueData} />
         </div></div>)
 }

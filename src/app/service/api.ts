@@ -1,3 +1,4 @@
+import { Dayjs } from 'dayjs'
 import request from '../../../lib/request'
 
 const Api = {
@@ -12,7 +13,7 @@ const Api = {
 		return request.get('daily', { date })
 	},
 
-	postIssueApi(data: { [key: string]: string | number | Date }) {
+	postIssueApi(data: { [key: string]: string | number | Dayjs | Date }) {
 		return request.post('daily/issue', data)
 	},
 

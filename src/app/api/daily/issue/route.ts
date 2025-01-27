@@ -6,16 +6,15 @@ import { transDateToWhereOptions } from 'utils';
 async function POST(request: NextRequest) {
 	try {
 		const body = await request.json();
-
+        const data = body.data;
         // 日期转换
-        const option = transDateToWhereOptions(body.date);
-      
+        const option = transDateToWhereOptions(data.date);
 		const [issue, created] = await IssueModal.findOrCreate({
 			...option,
-			defaults: body,
+			defaults: data,
 		})
 		if (!created) {
-            issue.set(body);
+            issue.set(data);
 			// 如果已经存在，更新描述
 			await issue.save()
 		}

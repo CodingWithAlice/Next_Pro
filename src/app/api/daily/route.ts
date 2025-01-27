@@ -8,6 +8,7 @@ async function POST(request: NextRequest) {
 		if (Array.isArray(body?.data)) {
 			// 以 data 批量插入
 			await TimeModal.bulkCreate(body?.data, {
+				validate: true,
 				updateOnDuplicate: [
 					'routineTypeId',
 					'startTime',

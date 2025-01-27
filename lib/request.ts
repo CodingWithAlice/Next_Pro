@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from 'axios'
+import { Dayjs } from 'dayjs'
 
 const url = process.env.API_URL || 'http://localhost:3000/api'
 
@@ -24,7 +25,7 @@ async function postList(
 	return await axios.post(`${url}/${api}`, { data })
 }
 
-async function post(api: string, data: { [key: string]: string | number | Date }) {
+async function post(api: string, data: { [key: string]: string | number | Dayjs | Date }) {
 	return await axios.post(`${url}/${api}`, { data })
 }
 
