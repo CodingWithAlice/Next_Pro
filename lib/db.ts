@@ -105,6 +105,8 @@ export const WeekModal = sequelize.define(
         improveMethods: DataTypes.STRING,
         wellDone: DataTypes.STRING,
         nextWeek: DataTypes.STRING,
+        created_at: DataTypes.DATE,
+        updated_at: DataTypes.DATE,
 	},
 	{
 		tableName: 'week_issue_record',
@@ -124,6 +126,8 @@ export const SerialModal = sequelize.define(
         serialNumber: DataTypes.INTEGER,
         startTime: DataTypes.DATE,
         endTime: DataTypes.DATE,
+        created_at: DataTypes.DATE,
+        updated_at: DataTypes.DATE,
 	},
 	{
 		tableName: 'ltn_serial_time',

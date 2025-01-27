@@ -1,7 +1,7 @@
 "use client";
 import TextArea from "antd/es/input/TextArea";
 import './app.css';
-import { Button } from "antd";
+import { Button, Select } from "antd";
 import { useEffect, useState } from "react";
 import Api from "@/service/api";
 
@@ -31,6 +31,8 @@ function UniformTextAreaWithStyle({ type, desc, init, onChange }: { type: string
 
 export default function Week() {
     const [data, setData] = useState<{ [key: string]: string }>({});
+    const [serials, setSerials] = useState([]);
+    const [curSerial, setCurSerial] = useState(0);
     const handleChange = (v: { [key: string]: string }) => {
         setData({ ...data, ...v });
     }
@@ -40,20 +42,37 @@ export default function Week() {
 
     const handleSave = () => {
         console.log(data);
-
+        Api.postWeekApi({ ...data, serialNumber: curSerial }).then((res) => {
+            console.log('post', res);
+        })
     }
 
     useEffect(() => {
-        Api.getWeekApi(1).then((res) => {
-            console.log('get', res);
-
+        Api.getWeekApi(1).then(({ weeData, serialData }) => {
+            console.log('get', weeData, serialData);
+            setSerials(serialData.reverse());
+            setCurSerial(serialData.length + 1);
         })
     }, [])
 
     return <div className="outer">
-        <h1 className="week">LTN 周报
-
-        </h1>
+        <div className="week">
+            <h1>LTN 周报</h1>
+            {!!serials.length && <Select
+                style={{ width: 120 }}
+                onChange={setCurSerial}
+                value={curSerial}
+                options={[
+                    {
+                        label: '新-LTN' + (serials.length + 1),
+                        value: serials.length + 1
+                    },
+                    ...serials.map((it: { serialNumber: number }) => ({
+                        value: it?.serialNumber,
+                        label: `LTN周期${it.serialNumber}`
+                    }))]}
+            />}
+        </div>
         <section className='wrap'>
             {transTextArea({ key: 'time', desc: '周期' })}
             {transTitle('【学习内容前端】')}
