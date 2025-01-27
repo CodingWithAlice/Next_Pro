@@ -1,4 +1,4 @@
-import { DailyModal, IssueModal, RoutineTypeModal } from 'db'
+import { TimeModal, IssueModal, RoutineTypeModal } from 'db'
 import { NextRequest, NextResponse } from 'next/server'
 import { transDateToWhereOptions } from 'utils'
 
@@ -7,7 +7,7 @@ async function POST(request: NextRequest) {
 		const body = await request.json()
 		if (Array.isArray(body?.data)) {
 			// 以 data 批量插入
-			await DailyModal.bulkCreate(body?.data, {
+			await TimeModal.bulkCreate(body?.data, {
 				updateOnDuplicate: [
 					'routineTypeId',
 					'startTime',
@@ -34,7 +34,7 @@ async function GET(request: NextRequest) {
 		const date = searchParams.get('date')
 		const options = date ? transDateToWhereOptions(new Date(date)) : {}
 
-		const dailyData = await DailyModal.findAll(options)
+		const dailyData = await TimeModal.findAll(options)
 		const routineData = await RoutineTypeModal.findAll()
 		const IssueList = await IssueModal.findAll(options)
 		return NextResponse.json({
@@ -58,14 +58,14 @@ async function DELETE(request: NextRequest) {
 	const id = searchParams.get('id')
 	if (id) {
 		// 删除指定id的数据
-		await DailyModal.destroy({
+		await TimeModal.destroy({
 			where: {
 				id,
 			},
 		})
 	} else {
 		// 清空表
-		await DailyModal.destroy({
+		await TimeModal.destroy({
 			truncate: true,
 		})
 	}

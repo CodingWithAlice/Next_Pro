@@ -25,7 +25,7 @@ export const RoutineTypeModal = sequelize.define(
 	}
 )
 
-export const DailyModal = sequelize.define(
+export const TimeModal = sequelize.define(
 	'daily_time_record',
 	{
 		id: {
@@ -83,6 +83,51 @@ export const IssueModal = sequelize.define(
 	{
 		tableName: 'daily_issue_record',
 		timestamps: false,
+		underscored: true,
+	}
+)
+
+export const WeekModal = sequelize.define(
+	'week_issue_record',
+	{
+		id: {
+			type: DataTypes.INTEGER,
+			primaryKey: true,
+			autoIncrement: true,
+		},
+        serialNumber: DataTypes.INTEGER,
+        frontOverview: DataTypes.STRING,
+        frontWellDone: DataTypes.STRING,
+        toBeBetter: DataTypes.STRING,
+        sleep: DataTypes.STRING,
+        sport: DataTypes.STRING,
+        movie: DataTypes.STRING, 
+        improveMethods: DataTypes.STRING,
+        wellDone: DataTypes.STRING,
+        nextWeek: DataTypes.STRING,
+	},
+	{
+		tableName: 'week_issue_record',
+		timestamps: true,
+		underscored: true,
+	}
+)
+
+export const SerialModal = sequelize.define(
+	'ltn_serial_time',
+	{
+		id: {
+			type: DataTypes.INTEGER,
+			primaryKey: true,
+			autoIncrement: true,
+		},
+        serialNumber: DataTypes.INTEGER,
+        startTime: DataTypes.DATE,
+        endTime: DataTypes.DATE,
+	},
+	{
+		tableName: 'ltn_serial_time',
+		timestamps: true,
 		underscored: true,
 	}
 )

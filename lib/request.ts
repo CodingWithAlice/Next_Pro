@@ -29,6 +29,10 @@ async function postIssue(api: string, data: IssueRecordProps) {
 	return await axios.post(`${url}/${api}`, { ...data, date: new Date() })
 }
 
+async function post(api: string, data: { [key: string]: string | number }) {
+	return await axios.post(`${url}/${api}`, { data })
+}
+
 // function update(url: string, data: any) {
 //   return axios.put(url, data)
 // }
@@ -37,6 +41,7 @@ const request = {
 	get,
 	postList,
 	postIssue,
+	post,
 }
 
 export default request

@@ -2,7 +2,8 @@
 import TextArea from "antd/es/input/TextArea";
 import './app.css';
 import { Button } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Api from "@/service/api";
 
 // 统一标题样式
 function transTitle(title: string) {
@@ -39,18 +40,26 @@ export default function Week() {
 
     const handleSave = () => {
         console.log(data);
+
     }
+
+    useEffect(() => {
+        Api.getWeekApi(1).then((res) => {
+            console.log('get', res);
+
+        })
+    }, [])
 
     return <div className="outer">
         <h1 className="week">LTN 周报
-           
+
         </h1>
         <section className='wrap'>
             {transTextArea({ key: 'time', desc: '周期' })}
             {transTitle('【学习内容前端】')}
             {[
-                { key: 'conclusion', desc: '概况' },
-                { key: 'goodThings', desc: '做得棒的地方' },
+                { key: 'frontOverview', desc: '前端概况' },
+                { key: 'frontWellDone', desc: '做得棒的地方' },
                 { key: 'toBeBetter', desc: '可以做得更好的地方' }
             ].map(it => transTextArea(it))}
 
@@ -68,10 +77,10 @@ export default function Week() {
             ].map(it => transTextArea(it))}
 
             {transTitle('【学习方法复盘和改进】')}
-            {transTextArea({ key: 'good', desc: '' })}
+            {transTextArea({ key: 'improve_methods', desc: '' })}
 
             {transTitle('【本周期做得不错的地方】')}
-            {transTextArea({ key: 'fix', desc: '' })}
+            {transTextArea({ key: 'wellDone', desc: '' })}
 
             {transTitle('【下周主要学习的内容】')}
             {transTextArea({ key: 'nextWeek', desc: '' })}
