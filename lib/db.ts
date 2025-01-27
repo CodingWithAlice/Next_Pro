@@ -1,16 +1,6 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import mysql2 from 'mysql2'
 
-// const pool = mysql.createPool({
-//   host: '127.0.0.1',
-//   user: 'root',
-//   password: 'localhost',
-//   database: 'Daily',
-//   waitForConnections: true,
-//   connectionLimit: 10,
-//   queueLimit: 0,
-// })
-
 export const sequelize = new Sequelize('Daily', 'root', 'localhost', {
 	host: 'localhost',
 	dialect: 'mysql',
@@ -36,7 +26,7 @@ export const RoutineTypeModal = sequelize.define(
 )
 
 export const DailyModal = sequelize.define(
-	'daily',
+	'daily_time_record',
 	{
 		id: {
 			type: DataTypes.INTEGER,
@@ -56,7 +46,7 @@ export const DailyModal = sequelize.define(
 		interval: DataTypes.INTEGER,
 	},
 	{
-		tableName: 'daily',
+		tableName: 'daily_time_record',
 		timestamps: false,
 		underscored: true,
         indexes: [
@@ -69,7 +59,7 @@ export const DailyModal = sequelize.define(
 )
 
 export const IssueModal = sequelize.define(
-	'issue_table',
+	'daily_issue_record',
 	{
 		id: {
 			type: DataTypes.INTEGER,
@@ -91,7 +81,7 @@ export const IssueModal = sequelize.define(
         }
 	},
 	{
-		tableName: 'issue_table',
+		tableName: 'daily_issue_record',
 		timestamps: false,
 		underscored: true,
 	}

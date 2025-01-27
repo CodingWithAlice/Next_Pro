@@ -1,4 +1,4 @@
-ALTER TABLE issue_table
+ALTER TABLE daily_issue_record
 ADD COLUMN better TEXT,
 ADD COLUMN front TINYTEXT,
 ADD COLUMN good1 TINYTEXT,

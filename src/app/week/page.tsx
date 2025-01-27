@@ -10,41 +10,41 @@ function transTitle(title: string) {
 }
 
 // 统一 textarea 样式
-function UniformTextAreaWithStyle({ key, desc, init, onChange }: { key: string, desc: string, init: string, onChange: (data: { [key: string]: string }) => void }) {
+function UniformTextAreaWithStyle({ type, desc, init, onChange }: { type: string, desc: string, init: string, onChange: (data: { [key: string]: string }) => void }) {
     const [text, setText] = useState<string>(init);
     const handleText = (type: string, value: string) => {
         setText(value);
         onChange({ [type]: value });
     }
 
-    return <div className="textarea" key={key}>
+    return <div className="textarea" key={type}>
         {desc && <span className="desc">{desc}:</span>}
         <TextArea
-            key={key}
+            key={type}
             style={{ resize: 'both', overflow: 'auto' }}
             rows={1}
-            onChange={(e) => handleText(key, e.target.value)}
+            onChange={(e) => handleText(type, e.target.value)}
             value={text} />
     </div>
 }
 
 export default function Week() {
     const [data, setData] = useState<{ [key: string]: string }>({});
-
-    const handleChange = (v) => {
-        // setData(...data, [key]: value);
+    const handleChange = (v: { [key: string]: string }) => {
+        setData({ ...data, ...v });
     }
     const transTextArea = (it: { key: string, desc: string }) => {
-        return <UniformTextAreaWithStyle key={it.key} desc={it.desc} init={data?.[it.key] || ''} onChange={handleChange} />
+        return <UniformTextAreaWithStyle key={it.key} type={it.key} desc={it.desc} init={data?.[it.key] || ''} onChange={(v) => handleChange(v)} />
     };
 
     const handleSave = () => {
         console.log(data);
     }
 
-
     return <div className="outer">
-        <h1 className="week">周报</h1>
+        <h1 className="week">LTN 周报
+           
+        </h1>
         <section className='wrap'>
             {transTextArea({ key: 'time', desc: '周期' })}
             {transTitle('【学习内容前端】')}
