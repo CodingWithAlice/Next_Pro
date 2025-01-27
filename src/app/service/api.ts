@@ -1,4 +1,3 @@
-import { IssueRecordProps } from '@/components/tool'
 import request from '../../../lib/request'
 
 const Api = {
@@ -13,8 +12,8 @@ const Api = {
 		return request.get('daily', { date })
 	},
 
-	postIssueApi(data: IssueRecordProps) {
-		return request.postIssue('daily/issue', data)
+	postIssueApi(data: { [key: string]: string | number | Date }) {
+		return request.post('daily/issue', data)
 	},
 
 	getWeekApi(serialNumber: number) {

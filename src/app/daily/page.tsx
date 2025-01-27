@@ -59,7 +59,9 @@ export default function Daily() {
                 endTime: dayjs(`${data.date} ${data.endTime}`),
                 type: data.routineTypeId
             })));
-            setIssueData({ ...IssueData, good: IssueData.good1 + '，' + IssueData.good2 + '，' + IssueData.good3 });
+            setIssueData({ 
+                ...IssueData, 
+                good: IssueData.good1 ? (IssueData.good1 + '，' + IssueData.good2 + '，' + IssueData.good3) : null });
         })
     }, []);
 

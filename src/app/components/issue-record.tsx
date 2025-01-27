@@ -4,6 +4,7 @@ import { FormatDateToMonthDayWeek, formatMinToHM, IssueRecordProps, useStyle } f
 import { ExperimentFilled } from "@ant-design/icons";
 import { useState } from "react";
 import Api from "@/service/api";
+import dayjs from "dayjs";
 const { TextArea } = Input;
 
 interface UniformTextAreaWithStyleProps {
@@ -32,7 +33,7 @@ export default function IssueRecord({ study, issueData }: { study: number, issue
 
     const handleInput = (type: string, value: string) => {
         let change = { ...data, [type]: value };
-        // 处理good字段
+        // 处理good字段        
         if (type === 'good') {
             const list = value.split('，');
             const sup = list.reduce((pre: Partial<IssueRecordProps>, cur, index) => {
@@ -46,7 +47,10 @@ export default function IssueRecord({ study, issueData }: { study: number, issue
     };
 
     const handleSave = () => {
-        Api.postIssueApi(data).then((e) => {
+        Api.postIssueApi({
+            ...data, 
+            date: dayjs().subtract(1, 'day').toDate()
+        }).then((e) => {
             if (e?.data) {
                 messageApi.open({
                     type: 'success',
