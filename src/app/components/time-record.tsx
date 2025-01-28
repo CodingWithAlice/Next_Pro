@@ -27,7 +27,7 @@ export default function TimeRecord({ total, read, study, onChange, routineType, 
             startTime: suggestTime,
             endTime: suggestTime.add(1, 'minute'),
             type: '',
-            id: issues.length,
+            daySort: issues.length,
             duration: 0,
             interval: 0
         };

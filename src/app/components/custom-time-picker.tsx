@@ -15,7 +15,7 @@ interface Issue {
     startTime: dayjs.Dayjs;
     endTime: dayjs.Dayjs;
     type: string;
-    id: number;
+    daySort: number;
     duration: number;
     interval: number;
 }
@@ -26,8 +26,8 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
         label: type.des,
     }));
 
-    const handleChange = (id: number, value: string | dayjs.Dayjs | null, changeType: keyof Issue) => {        
-        const newIssue = { ...init, id, [changeType]: value };
+    const handleChange = (daySort: number, value: string | dayjs.Dayjs | null, changeType: keyof Issue) => {        
+        const newIssue = { ...init, daySort, [changeType]: value };
         // 优化：如果开始时间大于结束时间，则结束时间+1分钟
         if(changeType === 'startTime' && newIssue.endTime.isBefore(newIssue.startTime)) {
             newIssue.endTime = newIssue.startTime.add(1, 'minute');
@@ -43,15 +43,15 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
     })
 
     return (
-        <div className='time-picker' key={init.id}>
+        <div className='time-picker' key={init.daySort}>
             {['startTime', 'endTime'].map((timeType, index) => {
-                return <div key={`${init.id}-${timeType}`}>
+                return <div key={`${init.daySort}-${timeType}`}>
                     <TimePicker
-                        key={init.id}
+                        key={init.daySort}
                         className="picker"
                         format='HH:mm'
                         value={init[timeType as keyof Issue] as dayjs.Dayjs}
-                        onChange={(value) => handleChange(init.id, value, timeType as keyof Issue)}
+                        onChange={(value) => handleChange(init.daySort, value, timeType as keyof Issue)}
                         needConfirm={false} />
                     {index === 0 && <>-
                         <span className='duration'>{formatMinToHM(init.duration)}</span>{` ->`}</>}
@@ -61,7 +61,7 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
             <Select
                 value={init.type}
                 options={options}
-                onChange={value => handleChange(init.id, value, 'type')}
+                onChange={value => handleChange(init.daySort, value, 'type')}
                 size='middle'
                 className='select' />
             &nbsp;
