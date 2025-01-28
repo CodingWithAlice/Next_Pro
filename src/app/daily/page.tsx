@@ -8,6 +8,7 @@ import Api from '@/service/api';
 import dayjs from 'dayjs';
 import { type Issue } from '@/components/custom-time-picker';
 import { IssueRecordProps } from '@/components/tool';
+import config from 'config';
 
 export interface routineType {
     id: number;
@@ -50,7 +51,7 @@ export default function Daily() {
 
 
     useEffect(() => {
-        Api.getDailyApi(dayjs().subtract(1, 'day').format('YYYY-MM-DD')).then(({ routineData, dailyData, IssueData }) => {
+        Api.getDailyApi(dayjs().subtract(config.current, 'day').format('YYYY-MM-DD')).then(({ routineData, dailyData, IssueData }) => {
             const routine = routineData.filter((it: routineType) => !it.type.includes('total'));
             setRoutineType(routine);
             setIssues(dailyData.map((data: DailyDataProps) => ({

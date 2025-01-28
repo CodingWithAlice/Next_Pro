@@ -22,6 +22,7 @@
       "@/*": ["./src/app/*"],
       "db":["./lib/db.ts"],
       "utils":["./lib/utils.ts"],
+      "config":["./config.tsx"],
     },
     "allowSyntheticDefaultImports": true,
   },

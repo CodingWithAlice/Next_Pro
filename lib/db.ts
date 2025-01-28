@@ -102,6 +102,8 @@ export const WeekModal = sequelize.define(
         sleep: DataTypes.STRING,
         sport: DataTypes.STRING,
         movie: DataTypes.STRING, 
+        ted: DataTypes.STRING, 
+        read: DataTypes.STRING, 
         improveMethods: DataTypes.STRING,
         wellDone: DataTypes.STRING,
         nextWeek: DataTypes.STRING,
