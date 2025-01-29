@@ -62,11 +62,12 @@ export default function TimeRecord({ total, read, study, onChange, routineType, 
             <span className='front'>前端：{formatMinToHM(study)}</span>)
         </p>
         <FormatDateToMonthDayWeek />
-        <CustomTimePickerList
+        {!!issues.length && <CustomTimePickerList
+            key={issues[issues.length - 1].daySort}
             list={issues}
             routineTypes={routineType}
             setList={setIssues}
-            freshTime={onChange} />
+            freshTime={onChange} />}
         <ConfigProvider
             button={{
                 className: styles.linearGradientButton,

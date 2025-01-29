@@ -11,7 +11,7 @@ interface CustomTimePickerListProps {
 export default function CustomTimePickerList({ list, routineTypes, setList, freshTime }: CustomTimePickerListProps) {
     freshTime(list); // 初始化计算总计时间
     const handleIssueUPdate = (currentIssue: Issue) => {
-        const currentIndex = list.findIndex((it) => it.id === currentIssue.id);
+        const currentIndex = list.findIndex((it) => it.daySort === currentIssue.daySort);
         // 修改
         if (currentIndex > -1) {
             if (currentIndex >= 1) {
