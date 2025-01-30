@@ -35,7 +35,10 @@ export const TimeModal = sequelize.define(
 			autoIncrement: true,
 		},
 		routineTypeId: DataTypes.INTEGER,
-		date: DataTypes.DATE,
+		date: {
+            type: DataTypes.DATE,
+            field: 'date' // 显式指定字段
+        },
 		startTime: DataTypes.TIME,
 		endTime: DataTypes.TIME,
 		daySort: {
@@ -50,12 +53,12 @@ export const TimeModal = sequelize.define(
 		tableName: 'daily_time_record',
 		timestamps: false,
 		underscored: true,
-        indexes: [
-            {
-                unique: true,
-                fields: ['date', 'day_sort'] // 为 date 和 sort 字段组合设置唯一索引
-            }
-        ]
+		indexes: [
+			{
+				unique: true,
+				fields: ['date', 'day_sort'] // 为 date 和 sort 字段组合设置唯一索引
+			}
+		]
 	}
 )
 
@@ -77,9 +80,10 @@ export const IssueModal = sequelize.define(
 		ted: DataTypes.STRING,
 		video: DataTypes.STRING,
 		date: {
-            type: DataTypes.DATE,
-            unique: true
-        }
+			type: DataTypes.DATE,
+			unique: true,
+            field: 'date' // 显式指定字段
+		},
 	},
 	{
 		tableName: 'daily_issue_record',
@@ -96,20 +100,20 @@ export const WeekModal = sequelize.define(
 			primaryKey: true,
 			autoIncrement: true,
 		},
-        serialNumber: DataTypes.INTEGER,
-        frontOverview: DataTypes.STRING,
-        frontWellDone: DataTypes.STRING,
-        toBeBetter: DataTypes.STRING,
-        sleep: DataTypes.STRING,
-        sport: DataTypes.STRING,
-        movie: DataTypes.STRING, 
-        ted: DataTypes.STRING, 
-        read: DataTypes.STRING, 
-        improveMethods: DataTypes.STRING,
-        wellDone: DataTypes.STRING,
-        nextWeek: DataTypes.STRING,
-        created_at: DataTypes.DATE,
-        updated_at: DataTypes.DATE,
+		serialNumber: DataTypes.INTEGER,
+		frontOverview: DataTypes.STRING,
+		frontWellDone: DataTypes.STRING,
+		toBeBetter: DataTypes.STRING,
+		sleep: DataTypes.STRING,
+		sport: DataTypes.STRING,
+		movie: DataTypes.STRING,
+		ted: DataTypes.STRING,
+		read: DataTypes.STRING,
+		improveMethods: DataTypes.STRING,
+		wellDone: DataTypes.STRING,
+		nextWeek: DataTypes.STRING,
+		created_at: DataTypes.DATE,
+		updated_at: DataTypes.DATE,
 	},
 	{
 		tableName: 'week_issue_record',
@@ -119,12 +123,12 @@ export const WeekModal = sequelize.define(
 )
 
 interface SerialAttributes {
-    id: number;
-    serialNumber: number;
-    startTime: Date;
-    endTime: Date;
-    created_at: Date;
-    updated_at: Date;
+	id: number;
+	serialNumber: number;
+	startTime: Date;
+	endTime: Date;
+	created_at: Date;
+	updated_at: Date;
 }
 
 type SerialCreationAttributes = Optional<SerialAttributes, 'id' | 'serialNumber' | 'startTime' | 'endTime' | 'created_at' | 'updated_at'>;
@@ -132,16 +136,16 @@ type SerialCreationAttributes = Optional<SerialAttributes, 'id' | 'serialNumber'
 export const SerialModal: ModelDefined<SerialAttributes, SerialCreationAttributes> = sequelize.define(
 	'ltn_serial_time',
 	{
-		 id: {
+		id: {
 			type: DataTypes.INTEGER,
 			primaryKey: true,
 			autoIncrement: true,
 		},
-        serialNumber: DataTypes.INTEGER,
-        startTime: DataTypes.DATE,
-        endTime: DataTypes.DATE,
-        created_at: DataTypes.DATE,
-        updated_at: DataTypes.DATE,
+		serialNumber: DataTypes.INTEGER,
+		startTime: DataTypes.DATE,
+		endTime: DataTypes.DATE,
+		created_at: DataTypes.DATE,
+		updated_at: DataTypes.DATE,
 	},
 	{
 		tableName: 'ltn_serial_time',
@@ -149,3 +153,13 @@ export const SerialModal: ModelDefined<SerialAttributes, SerialCreationAttribute
 		underscored: true,
 	}
 )
+
+// 关联关系
+IssueModal.hasMany(TimeModal, {
+	foreignKey: 'date',
+	sourceKey: 'date',
+})
+TimeModal.belongsTo(IssueModal, {
+	foreignKey: 'date',
+	targetKey: 'date',
+})
