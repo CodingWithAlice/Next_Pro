@@ -6,6 +6,7 @@ import { routineType } from '@/daily/page';
 import dayjs from 'dayjs';
 import CustomTimePickerList from './custom-time-picker-list';
 import { type Issue } from '@/components/custom-time-picker';
+import config from 'config';
 
 interface TimeRecordProps {
     total: number,
@@ -34,13 +35,37 @@ export default function TimeRecord({ total, read, study, onChange, routineType, 
         setIssues([...issues, newIssue]);
     }
 
+    function addTotalIssue(issues: Issue[], totalTime: number, studyTime: number): Issue[] {
+
+        const length = issues.length;
+        const totalIssue = {
+            ...issues[0],
+            startTime: dayjs(),
+            endTime: dayjs(),
+            interval: 0,
+            id: null
+        }
+        return [...issues, {
+            ...totalIssue,
+            type: config.frontTotalId+ '',
+            daySort: length + 1,
+            duration: studyTime,
+        }, {
+            ...totalIssue,
+            type: config.ltnTotalId + '',
+            daySort: length + 2,
+            duration: totalTime
+        }]
+    }
+
     const handleSave = () => {
-        const transIssues = issues.map((it, index) => {
+        const addTotal = addTotalIssue(issues, total, study)
+        const transIssues = addTotal.map((it, index) => {
             const { ...rest } = it;
             return {
                 ...rest,
                 ...getYesterdayDate(),
-                routineTypeId: it.type,
+                routineTypeId: +it.type,
                 startTime: it.startTime.format('HH:mm:ss'),
                 endTime: it.endTime.format('HH:mm:ss'),
                 daySort: index,

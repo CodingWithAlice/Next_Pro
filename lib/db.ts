@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { Sequelize, DataTypes, ModelDefined, Optional } from 'sequelize'
 import mysql2 from 'mysql2'
 
 export const sequelize = new Sequelize('Daily', 'root', 'localhost', {
@@ -17,6 +17,7 @@ export const RoutineTypeModal = sequelize.define(
 		},
 		type: DataTypes.STRING,
 		des: DataTypes.STRING,
+		show: DataTypes.BOOLEAN,
 	},
 	{
 		tableName: 'routine_type',
@@ -117,10 +118,21 @@ export const WeekModal = sequelize.define(
 	}
 )
 
-export const SerialModal = sequelize.define(
+interface SerialAttributes {
+    id: number;
+    serialNumber: number;
+    startTime: Date;
+    endTime: Date;
+    created_at: Date;
+    updated_at: Date;
+}
+
+type SerialCreationAttributes = Optional<SerialAttributes, 'id' | 'serialNumber' | 'startTime' | 'endTime' | 'created_at' | 'updated_at'>;
+
+export const SerialModal: ModelDefined<SerialAttributes, SerialCreationAttributes> = sequelize.define(
 	'ltn_serial_time',
 	{
-		id: {
+		 id: {
 			type: DataTypes.INTEGER,
 			primaryKey: true,
 			autoIncrement: true,

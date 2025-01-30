@@ -5,7 +5,7 @@ import config from 'config';
 dayjs.extend(relativeTime);
 
 // 展示 月.日 周几 - 默认展示昨天
-function getYesterdayDate(handle: number = 1) {
+function getYesterdayDate(handle: number = config.current) {
     const now = dayjs();
     const date = now.subtract(handle, 'day').format('YYYY-MM-DD');
 

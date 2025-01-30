@@ -14,6 +14,7 @@ export interface routineType {
     id: number;
     type: string;
     des: string;
+    show: boolean;
 }
 
 interface DailyDataProps {
@@ -52,16 +53,18 @@ export default function Daily() {
 
     useEffect(() => {
         Api.getDailyApi(dayjs().subtract(config.current, 'day').format('YYYY-MM-DD')).then(({ routineData, dailyData, IssueData }) => {
-            const routine = routineData.filter((it: routineType) => !it.type.includes('total'));
+            // 过程可以展示的 routine 类别
+            const routine = routineData.filter((it: routineType) => it.show);
+            const routineIds = routine.map((it: routineType) => it.id);
             setRoutineType(routine);
-            setIssues(dailyData.map((data: DailyDataProps) => ({
+            setIssues(dailyData.filter((it: DailyDataProps) => routineIds.includes(it.routineTypeId)).map((data: DailyDataProps) => ({
                 ...data,
                 startTime: dayjs(`${data.date} ${data.startTime}`),
                 endTime: dayjs(`${data.date} ${data.endTime}`),
                 type: data.routineTypeId
             })));
-            setIssueData({ 
-                ...IssueData, 
+            setIssueData({
+                ...IssueData,
                 good: ([IssueData.good1 || '', IssueData.good2 || '', IssueData.good3 || '']).filter(it => !!it).join('\n'),
             });
         })
