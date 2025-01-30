@@ -35,8 +35,8 @@ export default function TimeRecord({ total, read, study, onChange, routineType, 
         setIssues([...issues, newIssue]);
     }
 
-    function addTotalIssue(issues: Issue[], totalTime: number, studyTime: number): Issue[] {
-
+    function addTotalIssue(issues: Issue[], totalTime: number, studyTime: number): Issue[] {        
+        if (totalTime < 0) { totalTime = totalTime + 24 * 60 };
         const length = issues.length;
         const totalIssue = {
             ...issues[0],
