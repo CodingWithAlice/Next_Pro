@@ -1,8 +1,12 @@
 'use client'
-import Api from "@/service/api"
-import { useEffect, useState } from "react"
+import Api from "@/service/api";
+import { useEffect, useState } from "react";
 import { WeekDayProps, WeekDay } from "@/components/week-day";
-import '../app.css'
+import '../app.css';
+import qs from 'qs';
+
+const queryString = window.location.search.substring(1); // 去掉 "?"
+const params = qs.parse(queryString);
 
 export default function Period({ curSerial }: { curSerial: number }) {
     const [startTime, setStartTime] = useState('');
@@ -10,7 +14,9 @@ export default function Period({ curSerial }: { curSerial: number }) {
     const [weekData, setWeekData] = useState([]);
 
     useEffect(() => {
-        Api.getWeekPeriodApi(curSerial).then(res => {
+        const serialNumber = curSerial || +(params?.serialNumber || 0);
+        if(!serialNumber) return;
+        Api.getWeekPeriodApi(serialNumber).then(res => {
             setStartTime(res.startTime.slice(5));
             setEndTime(res.endTime.slice(5));
             setWeekData(res.weekData);

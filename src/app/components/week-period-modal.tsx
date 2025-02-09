@@ -14,7 +14,7 @@ export function WeekPeriodModal({curSerial}: {curSerial: number}) {
     const handleCancel = () => {
         setIsModalOpen(false);
     };
-    const titleNode = <Link href='./week/period' >
+    const titleNode = <Link href={`/week/period?serialNumber=${curSerial}`} >
         每日数据 <RightOutlined />
     </Link>;
 
