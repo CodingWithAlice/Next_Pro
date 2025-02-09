@@ -11,7 +11,7 @@ export default function Week() {
     const [weekData, setWeekData] = useState<{ [key: string]: string }>({});
     const [serials, setSerials] = useState([]);
     const [curSerial, setCurSerial] = useState(0);
-    
+
     const handleSave = () => {
         const current = +curSerial === 0 ? serials.length + 1 : curSerial;
         Api.postWeekApi({ ...weekData, serialNumber: current }).then((res) => {
@@ -23,7 +23,7 @@ export default function Week() {
         Api.getWeekApi(curSerial).then(({ weekData, serialData }) => {
             setSerials(serialData.reverse());
 
-            const currentSerial = serialData.filter((it: { [key: string]: string }) => +it.serialNumber === curSerial)?.[0];            
+            const currentSerial = serialData.filter((it: { [key: string]: string }) => +it.serialNumber === curSerial)?.[0];
             const time = currentSerial ? `${currentSerial?.startTime} 至 ${currentSerial?.endTime}` : '新周期';
             setWeekData({ ...weekData, time });
         })
@@ -36,6 +36,6 @@ export default function Week() {
         </div>
         <WeekDetailTextarea weekData={weekData} setWeekData={setWeekData} />
         <Button type="primary" className='btn' onClick={handleSave}>保存</Button>
-        <WeekPeriodModal curSerial={curSerial} />
+        {curSerial !== 0 && <WeekPeriodModal curSerial={curSerial} />}
     </div>
 }
