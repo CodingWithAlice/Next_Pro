@@ -40,3 +40,13 @@ body {
 .select {
     width: 150px
 }
+
+.week-data-wrap {
+    display: flex;
+    overflow-x: auto;
+}
+
+.week-period {
+    text-align: center;
+    margin-bottom: 2px;
+}

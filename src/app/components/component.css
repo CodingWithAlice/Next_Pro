@@ -2,3 +2,17 @@
     width: 88px;
     margin: 0 4px;
 }
+
+.week-day {
+    background-color: rgb(245, 244, 242);
+    width: 320px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0 8px;
+    margin: 0 4px;
+    flex: none;
+}
+
+.input {
+    width: 80%;
+}

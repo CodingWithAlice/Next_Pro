@@ -17,7 +17,7 @@ export interface routineType {
     show: boolean;
 }
 
-interface DailyDataProps {
+export interface DailyDataProps {
     date: string,
     daySort: number,
     duration: number,

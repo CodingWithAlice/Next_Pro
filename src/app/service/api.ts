@@ -23,6 +23,10 @@ const Api = {
 	postWeekApi(data: { [key: string]: string | number }) {
 		return request.post('week', data)
 	},
+
+    getWeekPeriodApi(serialNumber: number) {
+        return request.get('week/period', { serialNumber })
+    }
 }
 
 export default Api

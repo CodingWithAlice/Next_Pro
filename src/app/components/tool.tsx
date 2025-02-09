@@ -21,7 +21,8 @@ function FormatDateToMonthDayWeek({ handle = config.current }: { handle?: number
     </div>
 }
 // 处理展示时间
-function formatMinToHM(min: number) {
+function formatMinToHM(min?: number) {
+    if(!min) return '0';
     if (min < 0) { min = min + 24 * 60 };
     const hour = Math.floor(min / 60);
     return hour ? `${hour}h${!!(min % 60) ? (min % 60) + 'm' : ''} ` : `${min}m `

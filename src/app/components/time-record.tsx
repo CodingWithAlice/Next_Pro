@@ -52,7 +52,7 @@ export default function TimeRecord({ total, read, study, onChange, routineType, 
             duration: studyTime,
         }, {
             ...totalIssue,
-            type: config.ltnTotalId + '',
+            type: config.totalId + '',
             daySort: length + 2,
             duration: totalTime
         }]
