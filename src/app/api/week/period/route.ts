@@ -1,3 +1,4 @@
+import { transTwoDateToWhereOptions } from 'utils';
 import { NextRequest, NextResponse } from 'next/server'
 import { IssueModal, SerialModal, TimeModal } from 'db'
 
@@ -28,6 +29,7 @@ async function GET(request: NextRequest) {
 			const endTime = serialDateInfo.getDataValue('endTime')
 			// 查询周期内的时间 + 事项记录			
 			const weekData = await IssueModal.findAll({
+                where: transTwoDateToWhereOptions(startTime, endTime),
 				include: [
 					{
 						model: TimeModal,

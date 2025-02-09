@@ -1,6 +1,6 @@
 import { IssueModal } from 'db'
 import { NextRequest, NextResponse } from 'next/server'
-import { transDateToWhereOptions } from 'utils';
+import { transOneDateToWhereOptions } from 'utils';
 
 
 async function POST(request: NextRequest) {
@@ -8,9 +8,9 @@ async function POST(request: NextRequest) {
 		const body = await request.json();
         const data = body.data;
         // 日期转换
-        const option = transDateToWhereOptions(data.date);
+        const option = transOneDateToWhereOptions(data.date);
 		const [issue, created] = await IssueModal.findOrCreate({
-			...option,
+			where: option,
 			defaults: data,
 		})
 		if (!created) {

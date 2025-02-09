@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import { Op } from 'sequelize'
 
-function transDateToWhereOptions(date: string) {
+function transOneDateToWhereOptions(date: string) {
 	// 日期转换 - startOf('date') 东八区自动减去 8小时
 	const dateObj = new Date(date)
 	const startDate = dayjs(dateObj).startOf('date').add(8, 'hours').toDate()
@@ -24,9 +24,19 @@ function transDateToWhereOptions(date: string) {
 		},
 	}
 
+	return where2
+}
+
+function transTwoDateToWhereOptions(start: string | Date, end: string | Date) {
+	const startObj = new Date(start)
+	const endObj = new Date(end)
+	const startDate = dayjs(startObj).startOf('date').add(8, 'hours').toDate()
+	const endDate = dayjs(endObj).endOf('date').add(8, 'hours').toDate()
 	return {
-		where: where2,
+		date: {
+			[Op.between]: [startDate, endDate],
+		},
 	}
 }
 
-export { transDateToWhereOptions }
+export { transOneDateToWhereOptions, transTwoDateToWhereOptions }

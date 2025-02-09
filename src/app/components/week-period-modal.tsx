@@ -5,7 +5,7 @@ import { useState } from "react";
 import Link from "next/link";
 
 
-export function WeekPeriodModal({curSerial}: {curSerial: number}) {
+export function WeekPeriodModal({ curSerial }: { curSerial: number }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const showModal = () => {
@@ -29,7 +29,13 @@ export function WeekPeriodModal({curSerial}: {curSerial: number}) {
             icon={<FieldTimeOutlined />}
             onClick={showModal}
         />
-        <Modal title={titleNode} open={isModalOpen} footer={null} onCancel={handleCancel} >
+        <Modal
+            title={titleNode}
+            open={isModalOpen}
+            footer={null}
+            onCancel={handleCancel}
+            width={1200}
+        >
             <Period curSerial={curSerial} />
         </Modal>
     </>

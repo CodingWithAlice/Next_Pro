@@ -20,13 +20,28 @@ function FormatDateToMonthDayWeek({ handle = config.current }: { handle?: number
         周{weekday}
     </div>
 }
+
 // 处理展示时间
 function formatMinToHM(min?: number) {
-    if(!min) return '0';
+    if (!min) return '0';
     if (min < 0) { min = min + 24 * 60 };
     const hour = Math.floor(min / 60);
     return hour ? `${hour}h${!!(min % 60) ? (min % 60) + 'm' : ''} ` : `${min}m `
 }
+
+// 处理周期展示
+function formatSerialNumber(num: number) {
+    const str = num + '';
+
+    const source = ['〇', '①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨'];
+    let res = '';
+    Array(str.length).fill(1).forEach((it, index) => {        
+        res += source[+str[index]];
+    })
+
+    return res
+}
+
 // 计算当前计划周期流逝速度
 function getPassedPercent(startTime: string, cycle: number) {
     const now = dayjs(startTime).toNow(true);
@@ -115,6 +130,7 @@ const getWeek = () => {
 export {
     FormatDateToMonthDayWeek,
     formatMinToHM,
+    formatSerialNumber,
     getPassedPercent,
     getYesterdayDate,
     useStyle,

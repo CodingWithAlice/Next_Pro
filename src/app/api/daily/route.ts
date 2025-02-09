@@ -1,6 +1,6 @@
 import { TimeModal, IssueModal, RoutineTypeModal } from 'db'
 import { NextRequest, NextResponse } from 'next/server'
-import { transDateToWhereOptions } from 'utils'
+import { transOneDateToWhereOptions } from 'utils'
 
 async function POST(request: NextRequest) {
 	try {
@@ -33,11 +33,11 @@ async function GET(request: NextRequest) {
 	try {
 		const { searchParams } = request.nextUrl
 		const date = searchParams.get('date')
-		const options = date ? transDateToWhereOptions(date) : {}
+		const options = date ? transOneDateToWhereOptions(date) : {}
 
-		const dailyData = await TimeModal.findAll(options)
+		const dailyData = await TimeModal.findAll({ where: options })
 		const routineData = await RoutineTypeModal.findAll()
-		const IssueList = await IssueModal.findAll(options)
+		const IssueList = await IssueModal.findAll({ where: options })
 		return NextResponse.json({
 			dailyData,
 			routineData,
