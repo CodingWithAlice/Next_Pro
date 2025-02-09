@@ -4,18 +4,18 @@ import { useEffect, useState } from "react"
 import { WeekDayProps, WeekDay } from "@/components/week-day";
 import '../app.css'
 
-export default function Period() {
+export default function Period({ curSerial }: { curSerial: number }) {
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
     const [weekData, setWeekData] = useState([]);
 
     useEffect(() => {
-        Api.getWeekPeriodApi(14).then(res => {
+        Api.getWeekPeriodApi(curSerial).then(res => {
             setStartTime(res.startTime.slice(5));
             setEndTime(res.endTime.slice(5));
             setWeekData(res.weekData);
         })
-    }, [])
+    }, [curSerial])
 
     return <div>
         <h1 className="week-period">周期时间 {startTime}--{endTime}</h1>
