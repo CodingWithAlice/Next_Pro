@@ -33,7 +33,7 @@ async function GET(request: NextRequest) {
 	try {
 		const { searchParams } = request.nextUrl
 		const date = searchParams.get('date')
-		const options = date ? transDateToWhereOptions(new Date(date)) : {}
+		const options = date ? transDateToWhereOptions(date) : {}
 
 		const dailyData = await TimeModal.findAll(options)
 		const routineData = await RoutineTypeModal.findAll()

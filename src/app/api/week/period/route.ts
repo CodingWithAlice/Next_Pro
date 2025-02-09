@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { IssueModal, SerialModal, TimeModal } from 'db'
-import { col } from 'sequelize'
 
 // 按照周期整合数据
 // function getPeriodData(dailyTimeRecord: any, dailyIssueRecord: any) {
@@ -32,9 +31,6 @@ async function GET(request: NextRequest) {
 				include: [
 					{
 						model: TimeModal,
-						on: {
-							date: col('daily_issue_record.date'),
-						},
 					},
 				],
 			})
