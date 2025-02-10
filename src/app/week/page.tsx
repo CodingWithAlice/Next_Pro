@@ -6,6 +6,7 @@ import Api from "@/service/api";
 import { SerialsPicker } from "@/components/serials-picker";
 import { WeekDetailTextarea } from '@/components/week-detail-textarea';
 import { WeekPeriodModal } from '@/components/week-period-modal';
+import { getGapTime } from '@/components/tool';
 
 export default function Week() {
     const [weekData, setWeekData] = useState<{ [key: string]: string }>({});
@@ -24,7 +25,9 @@ export default function Week() {
             setSerials(serialData.reverse());
 
             const currentSerial = serialData.filter((it: { [key: string]: string }) => +it.serialNumber === curSerial)?.[0];
-            const time = currentSerial ? `${currentSerial?.startTime} 至 ${currentSerial?.endTime}` : '新周期';
+            const gap = getGapTime(currentSerial?.startTime, currentSerial?.endTime, 'day');
+            const time = currentSerial ? `${currentSerial?.startTime} 至 ${currentSerial?.endTime} ${gap}天` : '新周期';
+
             setWeekData({ ...weekData, time });
         })
     }, [curSerial])

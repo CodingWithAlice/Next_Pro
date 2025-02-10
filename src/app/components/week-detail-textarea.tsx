@@ -19,7 +19,7 @@ function UniformTextAreaWithStyle({ type, desc, init, onChange }: { type: string
         {desc && <span className="desc">{desc}:</span>}
         <TextArea
             key={type}
-            style={{ resize: 'both', overflow: 'auto' }}
+            style={{ resize: 'both' }}
             rows={1}
             onChange={(e) => handleText(type, e.target.value)}
             value={init}

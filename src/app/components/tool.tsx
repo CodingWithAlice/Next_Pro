@@ -66,6 +66,13 @@ function getPassedPercent(startTime: string, cycle: number) {
     }
 }
 
+function getGapTime(startTime: string, endTime: string, type: 'hour' | 'minute'| 'day') {
+    const start = dayjs(startTime);
+    const end = dayjs(endTime);
+    return end.diff(start, type);
+
+}
+
 const useStyle = createStyles(({ prefixCls, css }) => ({
     linearGradientButton: css`
       &.${prefixCls}-btn-primary:not([disabled]):not(.${prefixCls}-btn-dangerous) {
@@ -151,6 +158,7 @@ export {
     FormatDateToMonthDayWeek,
     formatMinToHM,
     formatTime,
+    getGapTime,
     formatSerialNumber,
     getPassedPercent,
     getYesterdayDate,
