@@ -1,5 +1,5 @@
-import { FormatDateToMonthDayWeek, formatMinToHM, getYesterdayDate, useStyle } from '@/components/tool';
-import { Button, Space, ConfigProvider, message } from 'antd';
+import { FormatDateToMonthDayWeek, formatMinToHM, getYesterdayDate, formatTime } from '@/components/tool';
+import { Button, Space, message } from 'antd';
 import Api from '@/service/api';
 import { AntDesignOutlined } from '@ant-design/icons';
 import { routineType } from '@/daily/page';
@@ -20,7 +20,6 @@ interface TimeRecordProps {
 }
 
 export default function TimeRecord({ total, ltnTotal, read, study, onChange, routineType, issues, setIssues }: TimeRecordProps) {
-    const { styles } = useStyle();
     const [messageApi, contextHolder] = message.useMessage();
 
     const handleAddIssue = () => {
@@ -37,8 +36,6 @@ export default function TimeRecord({ total, ltnTotal, read, study, onChange, rou
     }
 
     function addTotalIssue(issues: Issue[], totalTime: number, studyTime: number, ltnTotal: number): Issue[] {        
-        if (totalTime < 0) { totalTime = totalTime + 24 * 60 };
-        if (ltnTotal < 0) { ltnTotal = ltnTotal + 24 * 60 };
         const length = issues.length;
         const totalIssue = {
             ...issues[0],
@@ -52,19 +49,19 @@ export default function TimeRecord({ total, ltnTotal, read, study, onChange, rou
             // 前端 total
             type: config.frontTotalId+ '',
             daySort: length + 1,
-            duration: studyTime,
+            duration: formatTime(studyTime),
         }, {
             ...totalIssue,
             // 全部 total
             type: config.totalId + '',
             daySort: length + 2,
-            duration: totalTime
+            duration: formatTime(totalTime)
         }, {
             ...totalIssue,
             // ltn total
             type: config.ltnTotalId + '',
             daySort: length + 3,
-            duration: ltnTotal
+            duration: formatTime(ltnTotal)
         }]
     }
 
@@ -103,18 +100,12 @@ export default function TimeRecord({ total, ltnTotal, read, study, onChange, rou
             routineTypes={routineType}
             setList={setIssues}
             freshTime={onChange} />}
-        <ConfigProvider
-            button={{
-                className: styles.linearGradientButton,
-            }}
-        >
             <Space className='btn-group'>
                 <Button onClick={handleAddIssue}>添加一项</Button>
-                <Button onClick={handleSave} type="primary" icon={<AntDesignOutlined />}>
+                <Button onClick={handleSave} icon={<AntDesignOutlined />}>
                     保存
                 </Button>
             </Space>
-        </ConfigProvider>
     </div>)
 
 }

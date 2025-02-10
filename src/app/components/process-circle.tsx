@@ -3,7 +3,7 @@ import { getPassedPercent } from "./tool";
 
 export default function ProcessCircle({ startTime, cycle }: { startTime: string, cycle: number }) {
     const { percent, steps } = getPassedPercent(startTime, cycle);
-    
+
     return <Progress
         percent={percent}
         steps={steps}

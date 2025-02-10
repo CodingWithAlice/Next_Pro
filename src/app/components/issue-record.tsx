@@ -1,6 +1,6 @@
 
-import { Button, ConfigProvider, Input, message } from "antd";
-import { FormatDateToMonthDayWeek, formatMinToHM, IssueRecordProps, useStyle } from "@/components/tool"
+import { Button, Input, message } from "antd";
+import { FormatDateToMonthDayWeek, formatMinToHM, IssueRecordProps } from "@/components/tool"
 import { ExperimentFilled } from "@ant-design/icons";
 import Api from "@/service/api";
 import dayjs from "dayjs";
@@ -21,15 +21,14 @@ function UniformTextAreaWithStyle({ type, placeholder, source, emit }: UniformTe
         placeholder={placeholder}
         style={{
             resize: 'both',
-            overflow: 'auto'
         }}
         autoSize={{ minRows: 1, maxRows: 12 }}
-         />
+    />
 }
 
 export default function IssueRecord({ study, issueData, setIssueData }: { study: number, issueData: IssueRecordProps, setIssueData: (data: IssueRecordProps) => void }) {
     const [messageApi, contextHolder] = message.useMessage();
-    const { styles } = useStyle();
+    // const { styles } = useStyle();
 
     const handleInput = (type: string, value: string) => {
         const change = { ...issueData, [type]: value };
@@ -81,17 +80,11 @@ export default function IssueRecord({ study, issueData, setIssueData }: { study:
             {getTextArea('good', '积极心理学', issueData)}
             【今天有犯错吗？错误是纠正偏差的大好机会】
             {getTextArea('better', '可以变得更好的事情', issueData)}
-            <ConfigProvider
-                button={{
-                    className: styles.linearGradientButton,
-                }}
-            >
-                <div className='btn-group'>
-                    <Button onClick={handleSave} type="primary" icon={<ExperimentFilled />}>
-                        保存☞☞☞观察自己数据库
-                    </Button>
-                </div>
-            </ConfigProvider>
+            <div className='btn-group'>
+                <Button onClick={handleSave} icon={<ExperimentFilled />}>
+                    保存☞☞☞观察自己数据库
+                </Button>
+            </div>
         </section>
     </div>)
 }

@@ -59,12 +59,17 @@ export default function Daily() {
             const routine = routineData.filter((it: routineType) => it.show);
             const routineIds = routine.map((it: routineType) => it.id);
             setRoutineType(routine);
-            setIssues(dailyData.filter((it: DailyDataProps) => routineIds.includes(it.routineTypeId)).map((data: DailyDataProps) => ({
+
+            const initIssues = dailyData.filter((it: DailyDataProps) => routineIds.includes(it.routineTypeId)).map((data: DailyDataProps) => ({
                 ...data,
                 startTime: dayjs(`${data.date} ${data.startTime}`),
                 endTime: dayjs(`${data.date} ${data.endTime}`),
                 type: data.routineTypeId
-            })));
+            }))
+            setIssues(initIssues);
+            // 初始化计算总计时间
+            handleFunc(initIssues, routine);
+
             setIssueData({
                 ...IssueData,
                 good: ([IssueData.good1 || '', IssueData.good2 || '', IssueData.good3 || '']).filter(it => !!it).join('\n'),
@@ -72,8 +77,8 @@ export default function Daily() {
         })
     }, []);
 
-    const handleFunc = (arr: Issue[]) => {
-        const valueObj = calculate(arr);
+    const handleFunc = (arr: Issue[], types?: routineType[]) => {
+        const valueObj = calculate(arr, types);
         Object.entries(valueObj).forEach(([type, value]) => {
             switch (type) {
                 case 'total':
@@ -92,10 +97,11 @@ export default function Daily() {
         });
     }
 
-    function calculate(arr: Issue[]) {
+    function calculate(arr: Issue[], types?: routineType[]) {
+        const routineTypes = types || routineType;
         const res = { total: 0, read: 0, study: 0, ltnTotal: 0 };
         arr.forEach((it) => {
-            const type = routineType.find((type) => type.id === +it.type)?.type;
+            const type = routineTypes.find((type) => type.id === +it.type)?.type;
             if (!type) return;
             if (TotalType.includes(type)) {
                 res.total += it.duration;
@@ -110,7 +116,6 @@ export default function Daily() {
                 res.ltnTotal += it.duration;
             }
         });
-        console.log(res);
         return res;
     }
 

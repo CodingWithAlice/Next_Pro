@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { createStyles } from 'antd-style';
+import qs from 'qs';
 import config from 'config';
 dayjs.extend(relativeTime);
 
@@ -21,10 +22,20 @@ function FormatDateToMonthDayWeek({ handle = config.current }: { handle?: number
     </div>
 }
 
+// 处理时间为负数的情况（跨0点学习导致的）
+function formatTime(time?: number) {
+    if (!time) {
+        return 0
+    }
+    if (time > 0) {
+        return time
+    }
+    return time + 24 * 60;
+}
+
 // 处理展示时间
 function formatMinToHM(min?: number) {
-    if (!min) return '0';
-    if (min < 0) { min = min + 24 * 60 };
+    min = formatTime(min)
     const hour = Math.floor(min / 60);
     return hour ? `${hour}h${!!(min % 60) ? (min % 60) + 'm' : ''} ` : `${min}m `
 }
@@ -35,7 +46,7 @@ function formatSerialNumber(num: number) {
 
     const source = ['〇', '①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨'];
     let res = '';
-    Array(str.length).fill(1).forEach((it, index) => {        
+    Array(str.length).fill(1).forEach((it, index) => {
         res += source[+str[index]];
     })
 
@@ -44,7 +55,10 @@ function formatSerialNumber(num: number) {
 
 // 计算当前计划周期流逝速度
 function getPassedPercent(startTime: string, cycle: number) {
-    const now = dayjs(startTime).toNow(true);
+    let now = dayjs(startTime).toNow(true);
+    if (now.includes('hours')) {
+        now = '0';
+    }
 
     return {
         steps: cycle,
@@ -98,6 +112,12 @@ function throttle(fn: Function, delay: number) {
     }
 }
 
+function getUrlParams() {
+    const queryString = window.location.search.substring(1); // 去掉 "?"
+    const params = qs.parse(queryString);
+    return params;
+}
+
 interface IssueRecordProps {
     sport: string,
     video: string,
@@ -130,6 +150,7 @@ const getWeek = () => {
 export {
     FormatDateToMonthDayWeek,
     formatMinToHM,
+    formatTime,
     formatSerialNumber,
     getPassedPercent,
     getYesterdayDate,
@@ -137,6 +158,7 @@ export {
     debounce,
     throttle,
     getWeek,
+    getUrlParams,
     Category,
     CategoryColor,
     type IssueRecordProps

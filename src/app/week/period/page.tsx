@@ -3,17 +3,15 @@ import Api from "@/service/api";
 import { useEffect, useState } from "react";
 import { WeekDayProps, WeekDay } from "@/components/week-day";
 import '../app.css';
-import qs from 'qs';
-import { formatSerialNumber } from "@/components/tool";
+import { formatSerialNumber, getUrlParams } from "@/components/tool";
 
-const queryString = window.location.search.substring(1); // 去掉 "?"
-const params = qs.parse(queryString);
+const urlParams = getUrlParams();
 
 export default function Period({ curSerial }: { curSerial: number }) {
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
     const [weekData, setWeekData] = useState([]);
-    const serialNumber = curSerial || +(params?.serialNumber || 0);
+    const serialNumber = curSerial || +(urlParams?.serialNumber || 0);
 
 
     useEffect(() => {
