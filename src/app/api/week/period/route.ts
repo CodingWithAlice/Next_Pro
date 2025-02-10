@@ -34,7 +34,7 @@ async function GET(request: NextRequest) {
 					{
 						model: TimeModal,
                         where: {
-                            routineTypeId: [9, 10, 13, 14] // 9-总计 10-入睡时间 13-前端总计 14-LTN时长
+                            routineTypeId: [9, 10, 13, 14, 16] // 9-总计 10-入睡时间 13-前端总计 14-总时长 16-LTN时长
                         },
 					},
 				],

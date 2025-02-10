@@ -31,12 +31,14 @@ export interface DailyDataProps {
 
 const TotalType = ['reading', 'frontEnd', 'review', 'TED', 'strength', 'aerobic', 'LTN'];
 const StudyType = ['frontEnd', 'LTN'];
+const LTNType = ['LTN'];
 const ReadType = ['reading'];
 
 export default function Daily() {
     const [total, setTotal] = useState(0);
     const [read, setRead] = useState(0);
     const [study, setStudy] = useState(0);
+    const [ltnTotal, setLtnTotal] = useState(0);
 
     const [routineType, setRoutineType] = useState<routineType[]>([]);
     const [issues, setIssues] = useState<Issue[]>([]);
@@ -83,12 +85,15 @@ export default function Daily() {
                 case 'study':
                     setStudy(value);
                     break;
+                case 'ltnTotal':
+                    setLtnTotal(value);
+                    break;
             }
         });
     }
 
     function calculate(arr: Issue[]) {
-        const res = { total: 0, read: 0, study: 0 };
+        const res = { total: 0, read: 0, study: 0, ltnTotal: 0 };
         arr.forEach((it) => {
             const type = routineType.find((type) => type.id === +it.type)?.type;
             if (!type) return;
@@ -101,14 +106,18 @@ export default function Daily() {
             if (StudyType.includes(type)) {
                 res.study += it.duration;
             }
+            if (LTNType.includes(type)) {
+                res.ltnTotal += it.duration;
+            }
         });
+        console.log(res);
         return res;
     }
 
     return (<div className='wrapper'>
         <WeekTitle />
         <div className="flex-around">
-            <TimeRecord total={total} read={read} study={study} onChange={handleFunc} issues={issues} setIssues={setIssues} routineType={routineType} />
+            <TimeRecord total={total} read={read} study={study} ltnTotal={ltnTotal} onChange={handleFunc} issues={issues} setIssues={setIssues} routineType={routineType} />
             <IssueRecord study={study} issueData={issueData} setIssueData={setIssueData} />
         </div></div>)
 }

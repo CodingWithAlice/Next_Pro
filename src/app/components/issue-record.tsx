@@ -22,7 +22,9 @@ function UniformTextAreaWithStyle({ type, placeholder, source, emit }: UniformTe
         style={{
             resize: 'both',
             overflow: 'auto'
-        }} />
+        }}
+        autoSize={{ minRows: 1, maxRows: 12 }}
+         />
 }
 
 export default function IssueRecord({ study, issueData, setIssueData }: { study: number, issueData: IssueRecordProps, setIssueData: (data: IssueRecordProps) => void }) {

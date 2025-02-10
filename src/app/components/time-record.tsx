@@ -12,13 +12,14 @@ interface TimeRecordProps {
     total: number,
     read: number,
     study: number,
+    ltnTotal: number,
     routineType: routineType[],
     issues: Issue[],
     setIssues: (issues: Issue[]) => void,
     onChange: (arr: Issue[]) => void
 }
 
-export default function TimeRecord({ total, read, study, onChange, routineType, issues, setIssues }: TimeRecordProps) {
+export default function TimeRecord({ total, ltnTotal, read, study, onChange, routineType, issues, setIssues }: TimeRecordProps) {
     const { styles } = useStyle();
     const [messageApi, contextHolder] = message.useMessage();
 
@@ -35,8 +36,9 @@ export default function TimeRecord({ total, read, study, onChange, routineType, 
         setIssues([...issues, newIssue]);
     }
 
-    function addTotalIssue(issues: Issue[], totalTime: number, studyTime: number): Issue[] {        
+    function addTotalIssue(issues: Issue[], totalTime: number, studyTime: number, ltnTotal: number): Issue[] {        
         if (totalTime < 0) { totalTime = totalTime + 24 * 60 };
+        if (ltnTotal < 0) { ltnTotal = ltnTotal + 24 * 60 };
         const length = issues.length;
         const totalIssue = {
             ...issues[0],
@@ -47,19 +49,27 @@ export default function TimeRecord({ total, read, study, onChange, routineType, 
         }
         return [...issues, {
             ...totalIssue,
+            // 前端 total
             type: config.frontTotalId+ '',
             daySort: length + 1,
             duration: studyTime,
         }, {
             ...totalIssue,
+            // 全部 total
             type: config.totalId + '',
             daySort: length + 2,
             duration: totalTime
+        }, {
+            ...totalIssue,
+            // ltn total
+            type: config.ltnTotalId + '',
+            daySort: length + 3,
+            duration: ltnTotal
         }]
     }
 
     const handleSave = () => {
-        const addTotal = addTotalIssue(issues, total, study)
+        const addTotal = addTotalIssue(issues, total, study, ltnTotal);
         const transIssues = addTotal.map((it, index) => {
             const { ...rest } = it;
             return {

@@ -13,12 +13,14 @@ export interface WeekDayProps extends IssueRecordProps {
 
 function transformData(data: WeekDayProps) {
     const front = data.daily_time_records.find(item => item.routineTypeId === config.frontTotalId);
-    const ltn = data.daily_time_records.find(item => item.routineTypeId === config.totalId);
+    const ltn = data.daily_time_records.find(item => item.routineTypeId === config.ltnTotalId);
+    const total = data.daily_time_records.find(item => item.routineTypeId === config.totalId);
     const sleep = data.daily_time_records.find(item => item.routineTypeId === 10);
     return {
         ...data,
         frontTotal: formatMinToHM(front?.duration),
-        total: formatMinToHM(ltn?.duration),
+        ltnTotal: formatMinToHM(ltn?.duration),
+        total: formatMinToHM(total?.duration),
         sleep: sleep?.startTime,
         tedShow: data?.ted && data?.ted !== '/',
         read: data?.reading && data?.reading !== '/',
@@ -36,8 +38,8 @@ export function WeekDay({ data, index }: { data: WeekDayProps, index: number }) 
             name: "total",
         },
         {
-            label: "前端学习",
-            name: "frontTotal",
+            label: "LTN做题",
+            name: "ltnTotal",
         },
         {
             label: "入睡时间",
