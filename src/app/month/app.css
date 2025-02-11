@@ -50,3 +50,8 @@ body {
     text-align: center;
     margin-bottom: 2px;
 }
+
+.times-wrap {
+    display: flex;
+    flex-wrap: wrap;
+}

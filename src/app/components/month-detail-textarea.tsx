@@ -46,23 +46,42 @@ function UniformTextAreaWithStyle({ type, desc, init, onChange }: UniformTextAre
             autoSize={{ minRows: 1, maxRows: 15 }} />
     </div>
 }
+
+const transOneTime = (it: { key: string, desc?: string, source: timeTotalByRoutineTypeProps[] }) => {
+    const init = it.source.find((timeTotal: timeTotalByRoutineTypeProps) => timeTotal.routine_type.type === it.key)?.totalDuration || '';
+
+    return <span key={it.key}>
+        {it.desc && <span className="desc">{it.desc}:</span>}
+        {formatMinToHM(+init)}
+    </span>
+}
+
+
+
 export function MonthDetailTextarea({ monthData, setMonthData }: MonthDetailTextareaProps) {
     const [periods, setPeriods] = useState<number[]>([0]);
     const [timeTotalByRoutineType, setTimeTotalByRoutineType] = useState<timeTotalByRoutineTypeProps[]>();
 
-    const transTextArea = (it: { key: string, desc?: string, source: timeTotalByRoutineTypeProps[] }) => {
-        const init = it.source.find((timeTotal: timeTotalByRoutineTypeProps) => timeTotal.routine_type.type === it.key)?.totalDuration || '';
+    const handleTimes = (it: { key: string, desc?: string }[], source?: timeTotalByRoutineTypeProps[]) => {
+        if (!source) return;
+        return <div className="times-wrap">{
+            it.map((item) => {
+                return transOneTime({ key: item.key, desc: item.desc, source });
+            })
+        }</div>
+    }
 
+    const transTextArea = (it: { key: string, desc?: string, source: { [key: string]: string } }) => {
         return <UniformTextAreaWithStyle
             key={it.key}
             type={it.key}
             desc={it.desc || ''}
-            init={formatMinToHM(+init)}
+            init={it.source?.[it.key] || ''}
             onChange={(v) => handleChange(v)}
         />
     };
 
-    const handleTrans = (it: { key: string, desc?: string }, source?: timeTotalByRoutineTypeProps[]) => {
+    const handleTrans = (it: { key: string, desc?: string }, source?: { [key: string]: string }) => {
         if (!source) return;
         return transTextArea({ ...it, source });
     }
@@ -93,16 +112,19 @@ export function MonthDetailTextarea({ monthData, setMonthData }: MonthDetailText
             <SerialsPicker onValueChange={onSerialChange} value={periods} mode='multiple' />
         </section>
         {transTitle('【总计时长】')}
-        {[
+        {handleTimes([
             { key: 'total', desc: '专注总体时长' },
             { key: 'front_total', desc: '前端总时长' },
             { key: 'ltn_total', desc: 'LTN做题总时长' },
-            { key: 'reading', desc: '阅读总时长' },
             { key: 'review', desc: '复盘总时长' },
+        ], timeTotalByRoutineType)}
+        {handleTimes([
+            { key: 'reading', desc: '阅读总时长' },
             { key: 'TED', desc: 'TED总时长' },
             { key: 'strength', desc: '力训总时长' },
             { key: 'aerobic', desc: '有氧总时长' },
-        ].map(it => handleTrans(it, timeTotalByRoutineType))}
+        ], timeTotalByRoutineType)}
+        {handleTrans({ key: 'timeDiffDesc', desc: '时长差异存在原因' }, monthData)}
 
         {/* {transTitle('【睡眠 + 运动 + 电影】')}
         {[
