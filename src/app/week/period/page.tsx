@@ -5,17 +5,17 @@ import { WeekDayProps, WeekDay } from "@/components/week-day";
 import '../app.css';
 import { formatSerialNumber, getUrlParams } from "@/components/tool";
 
-const urlParams = getUrlParams();
-
 export default function Period({ curSerial }: { curSerial: number }) {
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
     const [weekData, setWeekData] = useState([]);
+
+    const urlParams = getUrlParams();
     const serialNumber = curSerial || +(urlParams?.serialNumber || 0);
 
 
     useEffect(() => {
-        if(!serialNumber) return;
+        if (!serialNumber) return;
         Api.getWeekPeriodApi(serialNumber).then(res => {
             setStartTime(res.startTime.slice(5));
             setEndTime(res.endTime.slice(5));

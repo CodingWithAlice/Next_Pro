@@ -34,3 +34,11 @@ h1 {
 .img {
     border-radius: 50%;
 }
+
+.links {
+    font-size: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: rgb(6, 128, 67);
+}

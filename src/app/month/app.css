@@ -1,0 +1,52 @@
+body {
+    color: rgb(6, 128, 67);
+    font-weight: 500;
+    background: transparent;
+    background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+}
+
+.wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 80%;
+}
+.month {
+    display: flex;
+    align-items: center;
+}
+.month h1 {
+    margin: 8px;
+}
+.textarea {
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+.desc {
+    white-space: nowrap;
+    margin: 0 4px 0 12px;
+    color: dimgray;
+}
+.title {
+    font-size: 1.2em;
+}
+
+.btn {
+    margin-top: 8px;
+    background-color: rgb(6, 128, 67);
+}
+
+.select {
+    width: 150px
+}
+
+.week-data-wrap {
+    display: flex;
+    overflow-x: auto;
+}
+
+.week-period {
+    text-align: center;
+    margin-bottom: 2px;
+}

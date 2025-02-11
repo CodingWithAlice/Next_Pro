@@ -55,18 +55,15 @@ function formatSerialNumber(num: number) {
 
 // 计算当前计划周期流逝速度
 function getPassedPercent(startTime: string, cycle: number) {
-    let now = dayjs(startTime).toNow(true);
-    if (now.includes('hours')) {
-        now = '0';
-    }
+    const current = dayjs();
 
     return {
         steps: cycle,
-        percent: parseInt(now) / cycle * 100,
+        percent: current.diff(startTime, 'day') / cycle * 100,
     }
 }
 
-function getGapTime(startTime: string, endTime: string, type: 'hour' | 'minute'| 'day') {
+function getGapTime(startTime: string, endTime: string, type: 'hour' | 'minute' | 'day') {
     const start = dayjs(startTime);
     const end = dayjs(endTime);
     return end.diff(start, type);
@@ -121,6 +118,7 @@ function throttle(fn: Function, delay: number) {
 
 function getUrlParams() {
     const queryString = window.location.search.substring(1); // 去掉 "?"
+    if (!queryString) return {};
     const params = qs.parse(queryString);
     return params;
 }

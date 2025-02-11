@@ -17,6 +17,8 @@ const Api = {
 		return request.post('daily/issue', data)
 	},
 
+    getSerial() {return request.get('serial')},
+
 	getWeekApi(serialNumber: number) {
 		return request.get('week', { serialNumber })
 	},

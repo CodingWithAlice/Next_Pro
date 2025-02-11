@@ -40,7 +40,7 @@ export default function Home() {
     // };
     return (
         <div className="outer">
-            <h1>首页</h1>
+            <h1>J人复盘工具 </h1>
             {/* 1、测试 按钮简单操作 */}
             {status.btn && <MyButton count={count} onClick={handleClick} />}
             {/* 2、ul 展示 列表 */}
@@ -49,18 +49,24 @@ export default function Home() {
                     <li key={product.id}>{product.title}</li>
                 ))}
             </ul>}
-            <Link href='./daily' >
-                Daily 日常记录 <RightOutlined />
-            </Link>
-            <Link href='./square' >
+            <section className="links">
+                <Link href='./daily' >
+                    Daily 日常记录 <RightOutlined />
+                </Link>
+                <Link href='./week' >
+                    LTN周报 <RightOutlined />
+                </Link>
+                <Link href='./month' >
+                    LTN月报 <RightOutlined />
+                </Link>
+            </section>
+
+            {/* <Link href='./square' >
                 井字格【两人玩小游戏】 <RightOutlined />
             </Link>
             <Link href='./stock' >
                 搜索表单 <RightOutlined />
-            </Link>
-            <Link href='./week' >
-                LTN周报 <RightOutlined />
-            </Link>
+            </Link> */}
             {/* <button onClick={handleRouter}>Go to Daily</button> */}
         </div>);
 }

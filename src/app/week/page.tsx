@@ -1,6 +1,6 @@
 "use client";
 import './app.css';
-import { Button } from "antd";
+import { Button, message } from "antd";
 import { useEffect, useState } from "react";
 import Api from "@/service/api";
 import { SerialsPicker } from "@/components/serials-picker";
@@ -10,20 +10,28 @@ import { getGapTime } from '@/components/tool';
 
 export default function Week() {
     const [weekData, setWeekData] = useState<{ [key: string]: string }>({});
-    const [serials, setSerials] = useState([]);
-    const [curSerial, setCurSerial] = useState(0);
+    const [curSerial, setCurSerial] = useState<number>(0);
+    const [serialsLength, setSerialsLength] = useState(0);
+    const [messageApi, contextHolder] = message.useMessage();
+
+    const handleSingleChange = (value: number | number[]) => {
+        if (typeof value === 'number') {
+            setCurSerial(value);
+        }
+    };
 
     const handleSave = () => {
-        const current = +curSerial === 0 ? serials.length + 1 : curSerial;
-        Api.postWeekApi({ ...weekData, serialNumber: current }).then((res) => {
-            console.log('post', res);
+        const current = +curSerial === 0 ? serialsLength + 1 : curSerial;
+        Api.postWeekApi({ ...weekData, serialNumber: current }).then((e) => {
+            messageApi.open({
+                type: 'success',
+                content: e.data.message,
+            });
         })
     }
 
     useEffect(() => {
         Api.getWeekApi(curSerial).then(({ weekData, serialData }) => {
-            setSerials(serialData.reverse());
-
             const currentSerial = serialData.filter((it: { [key: string]: string }) => +it.serialNumber === curSerial)?.[0];
             const gap = getGapTime(currentSerial?.startTime, currentSerial?.endTime, 'day');
             const time = currentSerial ? `${currentSerial?.startTime} 至 ${currentSerial?.endTime} ${gap}天` : '新周期';
@@ -33,9 +41,10 @@ export default function Week() {
     }, [curSerial])
 
     return <div className="outer">
+        {contextHolder}
         <div className="week">
             <h1>LTN 周报</h1>
-            <SerialsPicker serials={serials} setCurSerial={setCurSerial} curSerial={curSerial} />
+            <SerialsPicker onValueChange={handleSingleChange} value={curSerial} onSerialsLength={setSerialsLength} />
         </div>
         <WeekDetailTextarea weekData={weekData} setWeekData={setWeekData} />
         <Button type="primary" className='btn' onClick={handleSave}>保存</Button>
