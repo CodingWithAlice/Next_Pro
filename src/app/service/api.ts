@@ -19,7 +19,7 @@ const Api = {
 
     getSerial() {return request.get('serial')},
 
-	getWeekApi(serialNumber: number) {
+	getWeekApi(serialNumber: number | string) {
 		return request.get('week', { serialNumber })
 	},
 	postWeekApi(data: { [key: string]: string | number }) {

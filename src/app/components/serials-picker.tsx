@@ -1,5 +1,6 @@
 import Api from "@/service/api";
 import { Select } from "antd";
+import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 
 interface SerialsPickerProps {
@@ -23,13 +24,13 @@ export function SerialsPicker({ value, onValueChange, onSerialsLength, mode }: S
 
     const onChange = (v: number | number[]) => {
         onValueChange(v);
-        console.log(serials);
         if (Array.isArray(v)) {
             v.sort((a, b) => a - b); // 排序
             const start = serials.find((serial) => serial.serialNumber === v[0]);
             const end = serials.find((serial) => serial.serialNumber === v[v.length - 1]);
             if (start && end) {
-                setPeriodsDate(`  ${start.startTime} 至 ${end.endTime}`);
+                const gap = dayjs(end.endTime).diff(dayjs(start.startTime), 'day');
+                setPeriodsDate(`   ${start.startTime} 至 ${end.endTime}  共计${gap}天`);
             }
         }
     }

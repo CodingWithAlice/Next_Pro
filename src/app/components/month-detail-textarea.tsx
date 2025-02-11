@@ -1,6 +1,7 @@
 import TextArea from "antd/es/input/TextArea";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SerialsPicker } from "@/components/serials-picker";
+import Api from "@/service/api";
 
 interface MonthDetailTextareaProps {
     monthData: { [key: string]: string },
@@ -63,6 +64,15 @@ export function MonthDetailTextarea({ monthData, setMonthData }: MonthDetailText
             setPeriods(v);
         }
     }
+
+    useEffect(() => {
+        // 更新选择的 LTN 周期后，刷新当前页面数据
+        if (periods.length >= 2) {
+            Api.getWeekApi(periods.join(',')).then(({ weekData }) => {
+                console.log(weekData);
+            })
+        }
+    }, [periods])
 
     return <section className='wrap'>
         <section>

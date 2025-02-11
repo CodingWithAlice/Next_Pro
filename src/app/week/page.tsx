@@ -36,7 +36,7 @@ export default function Week() {
             const gap = getGapTime(currentSerial?.startTime, currentSerial?.endTime, 'day');
             const time = currentSerial ? `${currentSerial?.startTime} 至 ${currentSerial?.endTime} ${gap}天` : '新周期';
 
-            setWeekData({ ...weekData, time });
+            setWeekData({ ...weekData[0], time });
         })
     }, [curSerial])
 

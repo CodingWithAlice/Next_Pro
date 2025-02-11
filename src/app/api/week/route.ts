@@ -1,14 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { SerialModal, WeekModal } from 'db'
+import { Op } from 'sequelize'
 
 async function GET(request: NextRequest) {
 	try {
 		const { searchParams } = request.nextUrl
 		const serialNumber = searchParams.get('serialNumber')
+		let options
+		if (serialNumber) {
+            // 默认查询一个周期
+			options = { where: { serialNumber: +serialNumber } }
+			if (serialNumber?.includes(',')) {
+                // 查询多个周期
+				const serials = serialNumber.split(',').map((it) => +it)
+				options = {
+					where: {
+						serialNumber: {
+							[Op.or]: serials,
+						},
+					},
+				}
+			}
+		}
 
-		const weekList = await WeekModal.findAll({ where: { serialNumber } })
+		const weekList = await WeekModal.findAll(options)
 		const serialData = await SerialModal.findAll()
-		return NextResponse.json({ weekData: weekList[0] || {}, serialData })
+		return NextResponse.json({ weekData: weekList || {}, serialData })
 	} catch (error) {
 		console.error(error)
 		return NextResponse.json(
