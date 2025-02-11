@@ -1,7 +1,7 @@
 import Api from "@/service/api";
 import { Select } from "antd";
-import dayjs from "dayjs";
 import { useEffect, useState } from "react";
+import { getGapTime } from "./tool";
 
 interface SerialsPickerProps {
     onValueChange: (v: number | number[]) => void;
@@ -29,7 +29,7 @@ export function SerialsPicker({ value, onValueChange, onSerialsLength, mode }: S
             const start = serials.find((serial) => serial.serialNumber === v[0]);
             const end = serials.find((serial) => serial.serialNumber === v[v.length - 1]);
             if (start && end) {
-                const gap = dayjs(end.endTime).diff(dayjs(start.startTime), 'day');
+                const gap = getGapTime(start.startTime, end.endTime, 'day');
                 setPeriodsDate(`   ${start.startTime} 至 ${end.endTime}  共计${gap}天`);
             }
         }

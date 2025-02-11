@@ -154,7 +154,7 @@ export const SerialModal: ModelDefined<SerialAttributes, SerialCreationAttribute
 	}
 )
 
-// 关联关系
+// 关联关系1
 IssueModal.hasMany(TimeModal, {
 	foreignKey: 'date',
 	sourceKey: 'date',
@@ -162,4 +162,14 @@ IssueModal.hasMany(TimeModal, {
 TimeModal.belongsTo(IssueModal, {
 	foreignKey: 'date',
 	targetKey: 'date',
+})
+
+// 关联关系 - 一对多
+RoutineTypeModal.hasMany(TimeModal, {
+    foreignKey: 'routineTypeId', // 多的相关联外键
+    sourceKey: 'id', // 一的关联字段
+})
+TimeModal.belongsTo(RoutineTypeModal, {
+    foreignKey: 'routineTypeId', // 多的那个
+    targetKey: 'id', // 一个那个的主键
 })

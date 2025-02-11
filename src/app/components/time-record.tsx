@@ -72,6 +72,7 @@ export default function TimeRecord({ total, ltnTotal, read, study, onChange, rou
             return {
                 ...rest,
                 ...getYesterdayDate(),
+                duration: formatTime(it.duration),
                 routineTypeId: +it.type,
                 startTime: it.startTime.format('HH:mm:ss'),
                 endTime: it.endTime.format('HH:mm:ss'),
