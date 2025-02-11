@@ -9,7 +9,9 @@ interface SerialsPickerProps {
     mode?: 'tags' | 'multiple';
 }
 export function SerialsPicker({ value, onValueChange, onSerialsLength, mode }: SerialsPickerProps) {
-    const [serials, setSerials] = useState<{ serialNumber: number }[]>([]);
+    const [serials, setSerials] = useState<{ serialNumber: number, startTime: string, endTime: string }[]>([]);
+    const [periodsDate, setPeriodsDate] = useState<string>('');
+
     useEffect(() => {
         Api.getSerial().then(({ serialData }) => {
             setSerials(serialData.reverse());
@@ -19,10 +21,23 @@ export function SerialsPicker({ value, onValueChange, onSerialsLength, mode }: S
         })
     }, [])
 
+    const onChange = (v: number | number[]) => {
+        onValueChange(v);
+        console.log(serials);
+        if (Array.isArray(v)) {
+            v.sort((a, b) => a - b); // 排序
+            const start = serials.find((serial) => serial.serialNumber === v[0]);
+            const end = serials.find((serial) => serial.serialNumber === v[v.length - 1]);
+            if (start && end) {
+                setPeriodsDate(`  ${start.startTime} 至 ${end.endTime}`);
+            }
+        }
+    }
+
     return <>
         {!!serials.length && <Select
             className="select"
-            onChange={onValueChange}
+            onChange={onChange}
             value={value}
             mode={mode}
             options={[
@@ -34,5 +49,7 @@ export function SerialsPicker({ value, onValueChange, onSerialsLength, mode }: S
                     value: +it?.serialNumber,
                     label: `LTN周期${it.serialNumber}`
                 }))]}
-        />}</>
+        />}
+        {!!mode && periodsDate}
+    </>
 }

@@ -1,7 +1,17 @@
 import TextArea from "antd/es/input/TextArea";
+import { useState } from "react";
+import { SerialsPicker } from "@/components/serials-picker";
+
 interface MonthDetailTextareaProps {
     monthData: { [key: string]: string },
     setMonthData: (data: { [key: string]: string }) => void
+}
+
+interface UniformTextAreaWithStyleProps {
+    type: string,
+    desc: string,
+    init: string,
+    onChange: (data: { [key: string]: string }) => void
 }
 
 // 统一标题样式
@@ -10,7 +20,7 @@ function transTitle(title: string) {
 }
 
 // 统一 textarea 样式
-function UniformTextAreaWithStyle({ type, desc, init, onChange }: { type: string, desc: string, init: string, onChange: (data: { [key: string]: string }) => void }) {
+function UniformTextAreaWithStyle({ type, desc, init, onChange }: UniformTextAreaWithStyleProps) {
     const handleText = (type: string, value: string) => {
         onChange({ [type]: value });
     }
@@ -28,8 +38,16 @@ function UniformTextAreaWithStyle({ type, desc, init, onChange }: { type: string
     </div>
 }
 export function MonthDetailTextarea({ monthData, setMonthData }: MonthDetailTextareaProps) {
+    const [periods, setPeriods] = useState<number[]>([0]);
+
     const transTextArea = (it: { key: string, desc?: string, source: { [key: string]: string } }) => {
-        return <UniformTextAreaWithStyle key={it.key} type={it.key} desc={it.desc || ''} init={it.source?.[it.key] || ''} onChange={(v) => handleChange(v)} />
+        return <UniformTextAreaWithStyle
+            key={it.key}
+            type={it.key}
+            desc={it.desc || ''}
+            init={it.source?.[it.key] || ''}
+            onChange={(v) => handleChange(v)}
+        />
     };
 
     const handleTrans = (it: { key: string, desc?: string }, source: { [key: string]: string }) => {
@@ -40,8 +58,17 @@ export function MonthDetailTextarea({ monthData, setMonthData }: MonthDetailText
         setMonthData({ ...monthData, ...v });
     }
 
+    const onSerialChange = (v: number | number[]) => {
+        if (Array.isArray(v)) {
+            setPeriods(v);
+        }
+    }
+
     return <section className='wrap'>
-        {handleTrans({ key: 'time', desc: '周期' }, monthData)}
+        <section>
+            本月周期：
+            <SerialsPicker onValueChange={onSerialChange} value={periods} mode='multiple' />
+        </section>
         {transTitle('【学习内容前端】')}
         {[
             { key: 'frontOverview', desc: '前端概况' },
