@@ -2,16 +2,16 @@
 import Api from "@/service/api";
 import { useEffect, useState } from "react";
 import { WeekDayProps, WeekDay } from "@/components/week-day";
-import '../app.css';
-import { formatSerialNumber, getUrlParams } from "@/components/tool";
+import '../week/app.css';
+import { formatSerialNumber, GetUrlParams } from "@/components/tool";
 
 export default function Period({ curSerial }: { curSerial: number }) {
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
     const [weekData, setWeekData] = useState([]);
 
-    const urlParams = getUrlParams();
-    const serialNumber = curSerial || +(urlParams?.serialNumber || 0);
+    const urlParams = GetUrlParams();
+    const serialNumber = curSerial || +(urlParams?.get('serialNumber') || 0);
 
 
     useEffect(() => {

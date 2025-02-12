@@ -6,13 +6,13 @@ import { useEffect, useState } from "react";
 import { MonthDetailTextarea } from "@/components/month-detail-textarea";
 import Api from "@/service/api";
 import config from "config";
-import { getUrlParams } from "@/components/tool";
+import { GetUrlParams } from "@/components/tool";
 
 export default function Month() {
     const [monthData, setMonthData] = useState<{ [key: string]: string }>({});
     const [periods, setPeriods] = useState<number[]>([0]);
-    const urlParams = getUrlParams();
-    const monthId = +(urlParams?.monthId || 0) || config.monthSerial;
+    const urlParams = GetUrlParams();
+    const monthId = +(urlParams?.get('monthId') || 0) || config.monthSerial;
 
     const handleSave = () => {
         Api.postMonthApi({

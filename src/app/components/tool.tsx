@@ -2,8 +2,8 @@ import dayjs, { Dayjs } from "dayjs";
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { createStyles } from 'antd-style';
-import qs from 'qs';
 import config from 'config';
+import { useSearchParams } from 'next/navigation';
 dayjs.extend(relativeTime);
 dayjs.extend(weekOfYear);
 
@@ -127,11 +127,9 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
 //     }
 // }
 
-function getUrlParams() {
-    const queryString = window.location.search.substring(1); // 去掉 "?"
-    if (!queryString) return {};
-    const params = qs.parse(queryString);
-    return params;
+function GetUrlParams() {
+    // nextjs 会服务端渲染，所以会存在没有 window 的情况
+    return useSearchParams();
 }
 
 interface IssueRecordProps {
@@ -171,7 +169,7 @@ export {
     // debounce,
     // throttle,
     getWeek,
-    getUrlParams,
+    GetUrlParams,
     Category,
     CategoryColor,
     getCurrentBySub,
