@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { RoutineTypeModal, SerialModal, TimeModal } from 'db'
+import { RoutineTypeModal, SerialModal, TimeModal, MonthModal } from 'db'
 import { Op, Sequelize } from 'sequelize'
 import { transTwoDateToWhereOptions } from 'utils'
 
@@ -47,10 +47,10 @@ async function GET(request: NextRequest) {
 					end.get('endTime') as string | Date
 				),
 				group: ['routine_type_id'],
-                include: {
-                    model: RoutineTypeModal,
-                    attributes: ['des', 'type'],
-                }
+				include: {
+					model: RoutineTypeModal,
+					attributes: ['des', 'type'],
+				},
 			})
 		}
 
@@ -64,4 +64,31 @@ async function GET(request: NextRequest) {
 	}
 }
 
-export { GET }
+async function POST(request: NextRequest) {
+	try {
+		const body = await request.json()
+		const data = body.data
+		const [issue, created] = await MonthModal.findOrCreate({
+			where: { id: data.id },
+			defaults: data,
+		})
+
+		if (!created) {
+			issue.set(data)
+			// 如果已经存在，更新描述
+			await issue.save()
+		}
+		return NextResponse.json({
+			success: true,
+			message: created ? '观察成功' : '更新成功',
+		})
+	} catch (e) {
+		console.error(e)
+		return NextResponse.json(
+			{ error: 'Internal Server Error' },
+			{ status: 500 }
+		)
+	}
+}
+
+export { GET, POST }

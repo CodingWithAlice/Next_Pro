@@ -34,8 +34,8 @@ export default function MonthTable({ data, study }: { data: any[], study: number
         },
         {
             title: 'TED+阅读+播客',
-            dataIndex: 'sleepSportMovie',
-            key: 'sleepSportMovie',
+            dataIndex: 'TEDRead',
+            key: 'TEDRead',
             render
         },
         {

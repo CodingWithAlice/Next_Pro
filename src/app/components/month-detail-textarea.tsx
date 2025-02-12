@@ -22,7 +22,9 @@ const timeTotal = [
 ]
 interface MonthDetailTextareaProps {
     monthData: { [key: string]: string },
-    setMonthData: (data: { [key: string]: string }) => void
+    setMonthData: (data: { [key: string]: string }) => void,
+    periods: number[],
+    setPeriods: (data: number[]) => void
 }
 
 // 统一标题样式
@@ -30,8 +32,7 @@ function transTitle(title: string) {
     return <span key={title} className="title">{title}</span>
 }
 
-export function MonthDetailTextarea({ monthData, setMonthData }: MonthDetailTextareaProps) {
-    const [periods, setPeriods] = useState<number[]>([0]);
+export function MonthDetailTextarea({ monthData, setMonthData, periods, setPeriods }: MonthDetailTextareaProps) {
     const [timeTotalByRoutineType, setTimeTotalByRoutineType] = useState<timeTotalByRoutineTypeProps[]>();
     const [weeksData, setWeeksData] = useState([]); // 每周数据
     const [studyTotal, setStudyTotal] = useState(0); // 学习总时长
@@ -91,8 +92,8 @@ export function MonthDetailTextarea({ monthData, setMonthData }: MonthDetailText
         {!!weeksData.length && transTitle('【不同LTN周期任务对比】')}
         {!!weeksData.length &&<MonthTable key='table' data={weeksData} study={studyTotal} />}
         {[
-            { key: 'front_desc', desc: '回顾总结 - 前端' },
-            { key: 'other_desc', desc: '回顾总结 - 其他' }
+            { key: 'frontMonthDesc', desc: '回顾总结 - 前端' },
+            { key: 'otherMonthDesc', desc: '回顾总结 - 其他' }
         ].map(it => handleTrans(it, monthData))}
     </section>
 }
