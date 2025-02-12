@@ -23,10 +23,7 @@ export default function Week() {
     const handleSave = () => {
         const current = +curSerial === 0 ? serialsLength + 1 : curSerial;
         Api.postWeekApi({ ...weekData, serialNumber: current }).then((e) => {
-            messageApi.open({
-                type: 'success',
-                content: e.data.message,
-            });
+            messageApi.success(e.data.message);
         })
     }
 

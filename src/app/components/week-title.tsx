@@ -1,10 +1,8 @@
 import ProcessCircle from '@/components/process-circle';
 import config from 'config';
-import dayjs from 'dayjs';
-import weekOfYear from 'dayjs/plugin/weekOfYear';
+import { getCurrentBySub } from './tool';
 
-const now = dayjs();
-dayjs.extend(weekOfYear);
+const now = getCurrentBySub();
 
 export default function WeekTitle() {
     return <h1 className='week'>

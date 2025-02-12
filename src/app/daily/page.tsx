@@ -7,7 +7,7 @@ import WeekTitle from '@/components/week-title';
 import Api from '@/service/api';
 import dayjs from 'dayjs';
 import { type Issue } from '@/components/custom-time-picker';
-import { IssueRecordProps } from '@/components/tool';
+import { getCurrentBySub, IssueRecordProps } from '@/components/tool';
 import config from 'config';
 
 export interface routineType {
@@ -54,7 +54,7 @@ export default function Daily() {
 
 
     useEffect(() => {
-        Api.getDailyApi(dayjs().subtract(config.current, 'day').format('YYYY-MM-DD')).then(({ routineData, dailyData, IssueData }) => {
+        Api.getDailyApi(getCurrentBySub(config.current).format('YYYY-MM-DD')).then(({ routineData, dailyData, IssueData }) => {
             // 过程可以展示的 routine 类别
             const routine = routineData.filter((it: routineType) => it.show);
             const routineIds = routine.map((it: routineType) => it.id);

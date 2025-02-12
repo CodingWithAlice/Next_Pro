@@ -1,5 +1,6 @@
 import { CustomTimePicker, type Issue } from '@/components/custom-time-picker';
 import { routineType } from '@/daily/page';
+import { getGapTime } from './tool';
 
 interface CustomTimePickerListProps {
     list: Issue[],
@@ -15,7 +16,7 @@ export default function CustomTimePickerList({ list, routineTypes, setList, fres
         if (currentIndex > -1) {
             if (currentIndex >= 1) {
                 const preIssue = list[currentIndex - 1];
-                const interval = currentIssue.startTime.diff(preIssue.endTime, 'minute');
+                const interval = getGapTime(preIssue.endTime, currentIssue.startTime, 'minute');
                 // 更新上一项的间隔时间
                 preIssue.interval = interval;
             }

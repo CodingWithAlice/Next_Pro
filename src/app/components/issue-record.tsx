@@ -3,8 +3,8 @@ import { Button, Input, message } from "antd";
 import { FormatDateToMonthDayWeek, formatMinToHM, IssueRecordProps } from "@/components/tool"
 import { ExperimentFilled } from "@ant-design/icons";
 import Api from "@/service/api";
-import dayjs from "dayjs";
 const { TextArea } = Input;
+import { getCurrentBySub } from "@/components/tool";
 
 interface UniformTextAreaWithStyleProps {
     type: keyof IssueRecordProps,
@@ -41,13 +41,10 @@ export default function IssueRecord({ study, issueData, setIssueData }: { study:
             good1: issueData.good.split('\n')[0],
             good2: issueData.good.split('\n')[1],
             good3: issueData.good.split('\n')[2],
-            date: dayjs().subtract(1, 'day').toDate()
+            date: getCurrentBySub(1).toDate()
         }).then((e) => {
             if (e?.data) {
-                messageApi.open({
-                    type: 'success',
-                    content: e.data.message,
-                });
+                messageApi.success(e.data.message);
             }
         })
     }
