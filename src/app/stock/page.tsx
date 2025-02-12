@@ -74,22 +74,23 @@ export default function Outer() {
     const [searchCheck, setSearchCheck] = useState(false);
     const [pros, setPros] = useState(PRODUCTS);
 
-    const filterPros = () => {
-        if (!searchText && !searchCheck) {
-            // 都为空 - 展示全部
-            return PRODUCTS;
-        }
-        if (searchText && searchCheck) {
-            // 都不为空 - 同时筛选
-            return PRODUCTS.filter(it => it.stocked && it.name.includes(searchText));
-        }
-        if (searchCheck) {
-            return PRODUCTS.filter(it => it.stocked);
-        }
-        return PRODUCTS.filter(it => it.name.includes(searchText));
-    }
+
 
     useEffect(() => {
+        const filterPros = () => {
+            if (!searchText && !searchCheck) {
+                // 都为空 - 展示全部
+                return PRODUCTS;
+            }
+            if (searchText && searchCheck) {
+                // 都不为空 - 同时筛选
+                return PRODUCTS.filter(it => it.stocked && it.name.includes(searchText));
+            }
+            if (searchCheck) {
+                return PRODUCTS.filter(it => it.stocked);
+            }
+            return PRODUCTS.filter(it => it.name.includes(searchText));
+        }
         setPros(filterPros());
     }, [searchText, searchCheck])
     // 处理筛选后的数据

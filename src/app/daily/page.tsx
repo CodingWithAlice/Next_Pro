@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import './app.css';
 import IssueRecord from '@/components/issue-record';
 import TimeRecord from '@/components/time-record';
@@ -51,6 +51,46 @@ export default function Daily() {
         good: '',
         better: '',
     });
+    const handleFunc = useCallback((arr: Issue[], types?: routineType[]) => {
+        function calculate(arr: Issue[], types?: routineType[]) {
+            const routineTypes = types || routineType;
+            const res = { total: 0, read: 0, study: 0, ltnTotal: 0 };
+            arr.forEach((it) => {
+                const type = routineTypes.find((type) => type.id === +it.type)?.type;
+                if (!type) return;
+                if (TotalType.includes(type)) {
+                    res.total += it.duration;
+                }
+                if (ReadType.includes(type)) {
+                    res.read += it.duration;
+                }
+                if (StudyType.includes(type)) {
+                    res.study += it.duration;
+                }
+                if (LTNType.includes(type)) {
+                    res.ltnTotal += it.duration;
+                }
+            });
+            return res;
+        }
+        const valueObj = calculate(arr, types);
+        Object.entries(valueObj).forEach(([type, value]) => {
+            switch (type) {
+                case 'total':
+                    setTotal(value);
+                    break;
+                case 'read':
+                    setRead(value);
+                    break;
+                case 'study':
+                    setStudy(value);
+                    break;
+                case 'ltnTotal':
+                    setLtnTotal(value);
+                    break;
+            }
+        });
+    }, [routineType]);
 
 
     useEffect(() => {
@@ -75,49 +115,7 @@ export default function Daily() {
                 good: ([IssueData.good1 || '', IssueData.good2 || '', IssueData.good3 || '']).filter(it => !!it).join('\n'),
             });
         })
-    }, []);
-
-    const handleFunc = (arr: Issue[], types?: routineType[]) => {
-        const valueObj = calculate(arr, types);
-        Object.entries(valueObj).forEach(([type, value]) => {
-            switch (type) {
-                case 'total':
-                    setTotal(value);
-                    break;
-                case 'read':
-                    setRead(value);
-                    break;
-                case 'study':
-                    setStudy(value);
-                    break;
-                case 'ltnTotal':
-                    setLtnTotal(value);
-                    break;
-            }
-        });
-    }
-
-    function calculate(arr: Issue[], types?: routineType[]) {
-        const routineTypes = types || routineType;
-        const res = { total: 0, read: 0, study: 0, ltnTotal: 0 };
-        arr.forEach((it) => {
-            const type = routineTypes.find((type) => type.id === +it.type)?.type;
-            if (!type) return;
-            if (TotalType.includes(type)) {
-                res.total += it.duration;
-            }
-            if (ReadType.includes(type)) {
-                res.read += it.duration;
-            }
-            if (StudyType.includes(type)) {
-                res.study += it.duration;
-            }
-            if (LTNType.includes(type)) {
-                res.ltnTotal += it.duration;
-            }
-        });
-        return res;
-    }
+    }, [handleFunc]);
 
     return (<div className='wrapper'>
         <WeekTitle />

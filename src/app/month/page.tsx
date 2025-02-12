@@ -31,7 +31,7 @@ export default function Month() {
                 setPeriods(monthData.periods.split(',').map((it: string) => +it));
             }
         })
-    }, [])
+    }, [monthId])
 
     return <div className="outer">
         <div className="month">

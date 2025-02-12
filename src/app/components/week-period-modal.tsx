@@ -1,6 +1,6 @@
 import { FieldTimeOutlined, RightOutlined } from "@ant-design/icons";
 import { FloatButton, Modal } from "antd";
-import Period from "@/week/period/page";
+import Period from "@/components/week-period";
 import { useState } from "react";
 import Link from "next/link";
 

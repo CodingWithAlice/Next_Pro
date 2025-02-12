@@ -105,27 +105,27 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
     `,
 }));
 
-function debounce(fn: Function, delay: number) {
-    let timer: NodeJS.Timeout | null = null;
-    return function (...args) {
-        clearTimeout(timer as NodeJS.Timeout);
-        timer = setTimeout(() => {
-            fn(...args);
-        }, delay);
-    }
-}
+// function debounce(fn: () => void, delay: number) {
+//     let timer: NodeJS.Timeout | null = null;
+//     return function (...args) {
+//         clearTimeout(timer as NodeJS.Timeout);
+//         timer = setTimeout(() => {
+//             fn(...args);
+//         }, delay);
+//     }
+// }
 
-function throttle(fn: Function, delay: number) {
-    let timer: NodeJS.Timeout | null = null;
-    return function (...args) {
-        if (!timer) {
-            timer = setTimeout(() => {
-                fn(...args);
-                timer = null;
-            }, delay);
-        }
-    }
-}
+// function throttle(fn: Function, delay: number) {
+//     let timer: NodeJS.Timeout | null = null;
+//     return function (...args) {
+//         if (!timer) {
+//             timer = setTimeout(() => {
+//                 fn(...args);
+//                 timer = null;
+//             }, delay);
+//         }
+//     }
+// }
 
 function getUrlParams() {
     const queryString = window.location.search.substring(1); // 去掉 "?"
@@ -168,8 +168,8 @@ export {
     getPassedPercent,
     getYesterdayDate,
     useStyle,
-    debounce,
-    throttle,
+    // debounce,
+    // throttle,
     getWeek,
     getUrlParams,
     Category,

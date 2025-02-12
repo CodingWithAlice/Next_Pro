@@ -20,7 +20,7 @@ export function SerialsPicker({ value, onValueChange, onSerialsLength, mode }: S
                 onSerialsLength(serialData.length);
             }
         })
-    }, [])
+    }, [onSerialsLength])
 
     const onChange = (v: number | number[]) => {
         onValueChange(v);

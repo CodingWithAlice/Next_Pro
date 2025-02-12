@@ -10,9 +10,23 @@ interface DataType {
     idea: string;
 }
 
+interface dataProps {
+    frontOverview: string;
+    serialNumber: number;
+    startTime: string;
+    endTime: string;
+    sleep: string;
+    sport: string;
+    movie: string;
+    ted: string;
+    improveMethods: string;
+    read: string;
+    id: number;
+}
+
 const render = (text: string) => <div key={text} style={{ whiteSpace: 'pre-wrap' }}>{text}</div> // 换行显示
 
-export default function MonthTable({ data, study }: { data: any[], study: number }) {
+export default function MonthTable({ data, study }: { data: dataProps[], study: number }) {
     const columns: TableProps<DataType>['columns'] = [
         {
             title: '时间',
