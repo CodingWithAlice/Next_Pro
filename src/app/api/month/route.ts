@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { RoutineTypeModal, SerialModal, TimeModal, WeekModal } from 'db'
+import { RoutineTypeModal, SerialModal, TimeModal } from 'db'
 import { Op, Sequelize } from 'sequelize'
 import { transTwoDateToWhereOptions } from 'utils'
 
@@ -14,7 +14,7 @@ async function GET(request: NextRequest) {
 			.sort((a, b) => a - b)
 
 		// 每周周报信息查询 - 查询多个周期
-		const weekList = await WeekModal.findAll({
+		const weekList = await SerialModal.findAll({
 			where: {
 				serialNumber: {
 					[Op.or]: serials,
