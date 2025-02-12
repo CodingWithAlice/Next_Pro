@@ -65,12 +65,12 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
     useEffect(() => {
         // 更新选择的 LTN 周期后，刷新当前页面数据
         if (periods.length >= 1) {
-            Api.getMonthApi(periods.join(',')).then(({ weekList, timeTotalByRoutineType }) => {
+            Api.getMonthDetailApi(periods.join(',')).then(({ weekList, timeTotalByRoutineType }) => {
                 setTimeTotalByRoutineType(timeTotalByRoutineType);
                 setWeeksData(weekList);
                 let study = 0
                 timeTotalByRoutineType?.forEach((it: timeTotalByRoutineTypeProps) => {
-                    if(it.routine_type?.des === '前端总计') {
+                    if (it.routine_type?.des === '前端总计') {
                         study += +it.totalDuration
                     }
                 })
@@ -90,7 +90,7 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
         {handleTrans({ key: 'timeDiffDesc', desc: '时长差异存在原因' }, monthData)}
 
         {!!weeksData.length && transTitle('【不同LTN周期任务对比】')}
-        {!!weeksData.length &&<MonthTable key='table' data={weeksData} study={studyTotal} />}
+        {!!weeksData.length && <MonthTable key={weeksData.length} data={weeksData} study={studyTotal} />}
         {[
             { key: 'frontMonthDesc', desc: '回顾总结 - 前端' },
             { key: 'otherMonthDesc', desc: '回顾总结 - 其他' }

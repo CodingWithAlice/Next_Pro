@@ -3,14 +3,14 @@ import type { TableProps } from 'antd';
 import { formatMinToHM, formatSerialNumber, getGapTime } from './tool';
 
 interface DataType {
-    key: string;
-    name: string;
-    age: number;
-    address: string;
-    tags: string[];
+    time: string;
+    frontOverview: string;
+    sleepSportMovie: string;
+    TEDRead: string;
+    idea: string;
 }
 
-const render = (text: string) => <div style={{ whiteSpace: 'pre-wrap' }}>{text}</div> // 换行显示
+const render = (text: string) => <div key={text} style={{ whiteSpace: 'pre-wrap' }}>{text}</div> // 换行显示
 
 export default function MonthTable({ data, study }: { data: any[], study: number }) {
     const columns: TableProps<DataType>['columns'] = [
@@ -48,7 +48,7 @@ export default function MonthTable({ data, study }: { data: any[], study: number
 
     const source = data.map(it => {
         return {
-            ...it,
+            frontOverview: it.frontOverview,
             time: `LTN ${formatSerialNumber(it.serialNumber)} 
 ${it.startTime.slice(5)} 至 ${it.endTime.slice(5)}
 ${getGapTime(it.startTime, it.endTime)}天`,
@@ -57,10 +57,11 @@ ${it.sport}
 ${it.movie}`,
             TEDRead: `${it.ted}
 ${it.read}`,
-            idea: it.improveMethods
+            idea: it.improveMethods,
+            key: it.id
         }
     })
-    
+
     return <Table<DataType>
         bordered
         pagination={false}
