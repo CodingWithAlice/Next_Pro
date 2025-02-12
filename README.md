@@ -26,4 +26,13 @@
 - 方便国内 git pull 拉取
 2、在 Next_Pro 目录构建：sudo docker build -t next_pro .
 - 本地 npm run build 确认没有问题
+- => => writing image sha256:32f2351a67a8c4704e94e42177f64cdb1e16aa7d1e9eb4bb2c59c3d8ac2c3440
+ => => naming to docker.io/library/next_pro 212.7s
 3、启动服务：sudo docker run -d -p 3000:3000 next_pro
+- 查看运行中的容器 sudo docker ps 如果 找到对应 IMAGES + STATUS为 up 即成功
+- 查看容器日志 sudo docker logs next_pro 获取日志
+- 检查端口占用情况 sudo netstat -tuln | grep :3000 检查主机的 3000 端口是否被监听
+(启动后， 在防火墙配置开放该端口  3000  的入站规则)
+
+http://121.43.164.209:3000
+http://codingwithalice.top:3000/
