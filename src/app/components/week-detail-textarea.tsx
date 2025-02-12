@@ -1,4 +1,4 @@
-import TextArea from "antd/es/input/TextArea";
+import { UniformTextAreaWithStyle } from "./uniform-textarea"
 interface WeekDetailTextareaProps {
     weekData: { [key: string]: string },
     setWeekData: (data: { [key: string]: string }) => void
@@ -9,24 +9,6 @@ function transTitle(title: string) {
     return <span key={title} className="title">{title}</span>
 }
 
-// 统一 textarea 样式
-function UniformTextAreaWithStyle({ type, desc, init, onChange }: { type: string, desc: string, init: string, onChange: (data: { [key: string]: string }) => void }) {
-    const handleText = (type: string, value: string) => {
-        onChange({ [type]: value });
-    }
-
-    return <div className="textarea" key={type}>
-        {desc && <span className="desc">{desc}:</span>}
-        <TextArea
-            key={type}
-            style={{ resize: 'both' }}
-            rows={1}
-            onChange={(e) => handleText(type, e.target.value)}
-            value={init}
-            disabled={type === 'time'}
-            autoSize={{ minRows: 1, maxRows: 15 }} />
-    </div>
-}
 export function WeekDetailTextarea({ weekData, setWeekData }: WeekDetailTextareaProps) {
     const transTextArea = (it: { key: string, desc?: string, source: { [key: string]: string } }) => {
         return <UniformTextAreaWithStyle key={it.key} type={it.key} desc={it.desc || ''} init={it.source?.[it.key] || ''} onChange={(v) => handleChange(v)} />
