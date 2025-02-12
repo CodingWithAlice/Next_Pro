@@ -1,13 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { SerialModal, WeekModal } from 'db'
+import { SerialModal } from 'db'
 
 async function GET(request: NextRequest) {
 	try {
 		const { searchParams } = request.nextUrl
 		const serialNumber = searchParams.get('serialNumber')
+		if (!serialNumber) {
+			return
+		}
 
-		const weekList = await WeekModal.findAll({ where: { serialNumber } })
-		const serialData = await SerialModal.findAll()
+		const serialData = await SerialModal.findAll({
+			attributes: ['serialNumber', 'startTime', 'endTime'],
+		})
+		const weekList = await SerialModal.findAll({ where: { serialNumber } })
 		return NextResponse.json({ weekData: weekList[0] || {}, serialData })
 	} catch (error) {
 		console.error(error)
@@ -22,7 +27,7 @@ async function POST(request: NextRequest) {
 	try {
 		const body = await request.json()
 		const data = body.data
-		const [issue, created] = await WeekModal.findOrCreate({
+		const [issue, created] = await SerialModal.findOrCreate({
 			where: { serialNumber: data.serialNumber },
 			defaults: data,
 		})
