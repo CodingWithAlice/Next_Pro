@@ -1,18 +1,26 @@
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
+import weekOfYear from 'dayjs/plugin/weekOfYear';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { createStyles } from 'antd-style';
 import qs from 'qs';
 import config from 'config';
 dayjs.extend(relativeTime);
+dayjs.extend(weekOfYear);
+
+const getCurrentBySub = (subtractDay?: number) => {
+    if (!subtractDay) {
+        return dayjs()
+    }
+    return dayjs().subtract(subtractDay, 'day')
+};
 
 // 展示 月.日 周几 - 默认展示昨天
 function getYesterdayDate(handle: number = config.current) {
-    const now = dayjs();
-    const date = now.subtract(handle, 'day').format('YYYY-MM-DD');
-
-    const weekday = '六日一二三四五'.charAt(now.day());
-    return { weekday, date }
+    const date = getCurrentBySub(handle);
+    const weekday = '六日一二三四五'.charAt(date.day() + 1);
+    return { weekday, date: date.format('YYYY-MM-DD') }
 }
+
 function FormatDateToMonthDayWeek({ handle = config.current }: { handle?: number }) {
     const { weekday, date } = getYesterdayDate(handle);
     return <div className='flex'>
@@ -20,6 +28,26 @@ function FormatDateToMonthDayWeek({ handle = config.current }: { handle?: number
         &nbsp;
         周{weekday}
     </div>
+}
+
+// 计算当前计划周期流逝速度
+function getPassedPercent(startTime: string, cycle: number) {
+    const current = getCurrentBySub();
+    return {
+        steps: cycle,
+        percent: getGapTime(startTime, current) / cycle * 100,
+    }
+}
+
+function getGapTime(startTime: string | Dayjs, endTime: string | Dayjs, type?: 'hour' | 'minute' | 'day') {
+    const start = dayjs(startTime);
+    const end = dayjs(endTime);
+    return end.diff(start, type || 'day');
+
+}
+
+const getWeek = () => {
+    return dayjs().week()
 }
 
 // 处理时间为负数的情况（跨0点学习导致的）
@@ -51,23 +79,6 @@ function formatSerialNumber(num: number) {
     })
 
     return res
-}
-
-// 计算当前计划周期流逝速度
-function getPassedPercent(startTime: string, cycle: number) {
-    const current = dayjs();
-
-    return {
-        steps: cycle,
-        percent: current.diff(startTime, 'day') / cycle * 100,
-    }
-}
-
-function getGapTime(startTime: string, endTime: string, type: 'hour' | 'minute' | 'day') {
-    const start = dayjs(startTime);
-    const end = dayjs(endTime);
-    return end.diff(start, type);
-
 }
 
 const useStyle = createStyles(({ prefixCls, css }) => ({
@@ -148,10 +159,6 @@ const CategoryColor = {
     Health: 'volcano'
 }
 
-const getWeek = () => {
-    return dayjs().week()
-}
-
 export {
     FormatDateToMonthDayWeek,
     formatMinToHM,
@@ -167,5 +174,6 @@ export {
     getUrlParams,
     Category,
     CategoryColor,
+    getCurrentBySub,
     type IssueRecordProps
 };

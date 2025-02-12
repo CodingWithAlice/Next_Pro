@@ -1,9 +1,8 @@
-import { FormatDateToMonthDayWeek, formatMinToHM, getYesterdayDate, formatTime } from '@/components/tool';
+import { FormatDateToMonthDayWeek, formatMinToHM, getYesterdayDate, formatTime, getCurrentBySub } from '@/components/tool';
 import { Button, Space, message } from 'antd';
 import Api from '@/service/api';
 import { AntDesignOutlined } from '@ant-design/icons';
 import { routineType } from '@/daily/page';
-import dayjs from 'dayjs';
 import CustomTimePickerList from './custom-time-picker-list';
 import { type Issue } from '@/components/custom-time-picker';
 import config from 'config';
@@ -23,7 +22,7 @@ export default function TimeRecord({ total, ltnTotal, read, study, onChange, rou
     const [messageApi, contextHolder] = message.useMessage();
 
     const handleAddIssue = () => {
-        const suggestTime = issues[issues.length - 1]?.endTime || dayjs()
+        const suggestTime = issues[issues.length - 1]?.endTime || getCurrentBySub();
         const newIssue = {
             startTime: suggestTime,
             endTime: suggestTime.add(1, 'minute'),
@@ -39,8 +38,8 @@ export default function TimeRecord({ total, ltnTotal, read, study, onChange, rou
         const length = issues.length;
         const totalIssue = {
             ...issues[0],
-            startTime: dayjs(),
-            endTime: dayjs(),
+            startTime: getCurrentBySub(),
+            endTime: getCurrentBySub(),
             interval: 0,
             id: null
         }
@@ -80,10 +79,7 @@ export default function TimeRecord({ total, ltnTotal, read, study, onChange, rou
             }
         });
         Api.postDailyApi(transIssues).then(() => {
-            messageApi.open({
-                type: 'success',
-                content: '保存成功',
-            });
+            messageApi.success('保存成功');
         })
     }
 

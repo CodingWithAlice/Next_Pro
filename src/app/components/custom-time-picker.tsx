@@ -1,6 +1,6 @@
 import { Select, TimePicker } from "antd";
 import dayjs from "dayjs";
-import { formatMinToHM } from "./tool";
+import { formatMinToHM, getGapTime } from "./tool";
 import classNames from "classnames";
 import './component.css';
 import { routineType } from '@/daily/page';
@@ -33,7 +33,7 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
             newIssue.endTime = newIssue.startTime.add(1, 'minute');
         }
 
-        const dur = (newIssue.endTime as dayjs.Dayjs).diff(newIssue.startTime as dayjs.Dayjs, 'minute');
+        const dur = getGapTime(newIssue.startTime, newIssue.endTime, 'minute');
         if (onIssue) {
             onIssue({ ...newIssue, duration: dur });
         }
