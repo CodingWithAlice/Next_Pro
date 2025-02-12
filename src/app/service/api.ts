@@ -19,8 +19,14 @@ const Api = {
 
     getSerial() {return request.get('serial')},
 
-    getMonthApi(serialNumber: string) {
-		return request.get('month', { serialNumber })
+    getMonthApi(monthId: number) {
+		return request.get('month', { monthId })
+	},
+    getMonthDetailApi(serialNumber: string) {
+		return request.get('month/detail', { serialNumber })
+	},
+    postMonthApi(data: { [key: string]: string | number }) {
+		return request.post('month', data)
 	},
 
 	getWeekApi(serialNumber: number) {

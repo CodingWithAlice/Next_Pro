@@ -92,6 +92,26 @@ export const IssueModal = sequelize.define(
 	}
 )
 
+export const MonthModal = sequelize.define(
+	'month_issue_record',
+	{
+		id: {
+			type: DataTypes.INTEGER,
+			primaryKey: true,
+			autoIncrement: true,
+		},
+		periods: DataTypes.STRING,
+		timeDiffDesc: DataTypes.STRING,
+		frontMonthDesc: DataTypes.STRING,
+		otherMonthDesc: DataTypes.STRING,
+	},
+	{
+		tableName: 'month_issue_record',
+		timestamps: false,
+		underscored: true,
+	}
+)
+
 interface SerialAttributes {
 	id: number
 	serialNumber: number

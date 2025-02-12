@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { RightOutlined } from "@ant-design/icons";
+import config from "config";
 // import { useRouter } from 'next/navigation';
 
 
@@ -56,7 +57,7 @@ export default function Home() {
                 <Link href='./week' >
                     LTN周报 <RightOutlined />
                 </Link>
-                <Link href='./month' >
+                <Link href={`./month?monthId=${config.monthSerial}`} >
                     LTN月报 <RightOutlined />
                 </Link>
             </section>
