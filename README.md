@@ -33,6 +33,14 @@
 - 查看容器日志 sudo docker logs next_pro 获取日志
 - 检查端口占用情况 sudo netstat -tuln | grep :3000 检查主机的 3000 端口是否被监听
 (启动后， 在防火墙配置开放该端口  3000  的入站规则)
+```js
+sudo docker build -t next_pro .
+docker stop next_pro
+docker rm next_pro
+sudo docker run -d -p 3000:3000 next_pro
+// or 安装 Docker Compose
+docker-compose up -d --build
+```
 
 http://121.43.164.209:3000
 http://codingwithalice.top:3000/
