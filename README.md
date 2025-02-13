@@ -36,3 +36,69 @@
 
 http://121.43.164.209:3000
 http://codingwithalice.top:3000/
+
+### 2025.2.13
+
+1、服务器 - 初始化数据盘
+```js
+// 切换为 root 用户，并返回根目录
+sudo su root
+cd
+// 服务器内的数据盘信息
+fdisk -l
+```
+/dev/vda1    2048     6143     4096    2M BIOS boot
+/dev/vda2    6144   415743   409600  200M EFI System
+/dev/vda3  415744 83886046 83470303 39.8G Linux filesystem
+
+2、查看数据盘是否挂载
+```js
+df -h
+```
+查到的设备名，说明对应的分区已经挂载，并且会显示其挂载点
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/vda3        40G  6.1G   32G  17% /
+表示 /dev/vda3 分区已经挂载到根目录 / -> 已经挂载，说明它已经有文件系统了
+
+3、显示文件系统的类型以及磁盘使用情况
+```js
+df -T /dev/vda3
+```
+Filesystem     Type 1K-blocks    Used Available Use% Mounted on
+/dev/vda3      ext4  40900288 6386396  32623616  17% /
+
+4、创建子目录作为挂载点 /data/mysql
+在 /dev/vda3 的挂载路径 / 下创建一个专门用于 MySQL 数据存储的子目录：
+```js
+mkdir -p /data/mysql
+```
+
+5、使用 docker run 命令启动 MySQL 容器，并将刚才创建的目录挂载到容器内的 MySQL 数据存储目录 /var/lib/mysql
+```js
+docker run -d \
+  --name next_pro \
+  -e MYSQL_ROOT_PASSWORD=next_pro_alice \
+  -p 3306:3306 \
+  -v /data/mysql:/var/lib/mysql \
+  mysql:8.0
+```
+
+
+使用 docker exec 命令进入正在运行的 MySQL 容器的命令行界面
+```js
+docker exec -it next_pro bash
+// 使用当前的 root 密码登录 MySQL
+mysql -u root -p
+// 退出 MySQL 和容器
+exit
+```
+
+6、再次遇到 caching_sha2_password 插件问题 // todo 整理成笔记
+- 本地：之前的解决方案是重新安装了 mysql 本地的包版本 - 切换登录插件版本为 Use Legacy Password Encryption
+- 服务器： 将 root 用户的认证插件修改为 mysql_native_password
+```js
+docker exec -it next_pro bash
+mysql -u root -p
+ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY 'next_pro_alice';
+FLUSH PRIVILEGES;
+```

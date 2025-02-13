@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios'
 import { Dayjs } from 'dayjs'
 
-const url = process.env.API_URL || 'http://localhost:3000/api'
+const url = process.env.NEXT_PUBLIC_API_HOST
 
 async function get(
 	api: string,

@@ -1,8 +1,14 @@
 import { Sequelize, DataTypes, ModelDefined, Optional } from 'sequelize'
 import mysql2 from 'mysql2'
 
-export const sequelize = new Sequelize('Daily', 'root', 'localhost', {
-	host: 'localhost',
+// 获取环境变量
+const dbHost = process.env.NEXT_PUBLIC_DB_HOST;
+const dbUser = process.env.NEXT_PUBLIC_DB_USER;
+const dbPassword = process.env.NEXT_PUBLIC_DB_PASSWORD;
+const dbDatabase = process.env.NEXT_PUBLIC_DB_DATABASE;
+
+export const sequelize = new Sequelize(dbDatabase ?? 'Daily', dbUser ?? 'root', dbPassword ?? 'localhost', {
+	host: dbHost,
 	dialect: 'mysql',
 	dialectModule: mysql2,
 })
