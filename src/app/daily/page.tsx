@@ -52,6 +52,9 @@ export default function Daily() {
         better: '',
     });
     const handleFunc = useCallback((arr: Issue[], types?: routineType[]) => {
+        if (!types) {
+            types = routineType;
+        }
         function calculate(arr: Issue[], types?: routineType[]) {
             const routineTypes = types || routineType;
             const res = { total: 0, read: 0, study: 0, ltnTotal: 0 };
@@ -90,7 +93,12 @@ export default function Daily() {
                     break;
             }
         });
-    }, [routineType]);
+    }, [routineType])
+
+    useEffect(() => {
+        if(issues.length === 0 || routineType.length === 0) return;
+        handleFunc(issues, routineType);
+    }, [routineType, issues, handleFunc]);
 
 
     useEffect(() => {
@@ -107,15 +115,13 @@ export default function Daily() {
                 type: data.routineTypeId
             }))
             setIssues(initIssues);
-            // 初始化计算总计时间
-            handleFunc(initIssues, routine);
 
             setIssueData({
                 ...IssueData,
                 good: ([IssueData.good1 || '', IssueData.good2 || '', IssueData.good3 || '']).filter(it => !!it).join('\n'),
             });
         })
-    }, [handleFunc]);
+    }, []);
 
     return (<div className='wrapper'>
         <WeekTitle />
