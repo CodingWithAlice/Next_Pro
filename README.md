@@ -24,6 +24,10 @@
 1、更新 Next_Pro 代码
 - https://gitee.com/CodingWithAlice/Next_Pro 更新
 - 方便国内 git pull 拉取
+```js
+// 当前分支的 commitId
+git rev-parse --short HEAD 
+```
 2、在 Next_Pro 目录构建：sudo docker build -t next_pro .
 - 本地 npm run build 确认没有问题
 - => => writing image sha256:32f2351a67a8c4704e94e42177f64cdb1e16aa7d1e9eb4bb2c59c3d8ac2c3440
@@ -83,7 +87,7 @@ mkdir -p /data/mysql
 
 5、使用 docker run 命令启动 MySQL 容器，并将刚才创建的目录挂载到容器内的 MySQL 数据存储目录 /var/lib/mysql
 ```js
-docker run -d \
+sudo docker run -d \
   --name next_pro \
   -e MYSQL_ROOT_PASSWORD=next_pro_alice \
   -p 3306:3306 \
@@ -101,7 +105,7 @@ mysql -u root -p
 exit
 ```
 
-6、再次遇到 caching_sha2_password 插件问题 // todo 整理成笔记
+6、再次遇到 caching_sha2_password 插件问题
 - 本地：之前的解决方案是重新安装了 mysql 本地的包版本 - 切换登录插件版本为 Use Legacy Password Encryption
 - 服务器： 将 root 用户的认证插件修改为 mysql_native_password
 ```js
