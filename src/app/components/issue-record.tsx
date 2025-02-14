@@ -5,6 +5,7 @@ import { ExperimentFilled } from "@ant-design/icons";
 import Api from "@/service/api";
 const { TextArea } = Input;
 import { getCurrentBySub } from "@/components/tool";
+import config from "config";
 
 interface UniformTextAreaWithStyleProps {
     type: keyof IssueRecordProps,
@@ -41,7 +42,7 @@ export default function IssueRecord({ study, issueData, setIssueData }: { study:
             good1: issueData.good.split('\n')[0],
             good2: issueData.good.split('\n')[1],
             good3: issueData.good.split('\n')[2],
-            date: getCurrentBySub(1).toDate()
+            date: getCurrentBySub(config.current).toDate()
         }).then((e) => {
             if (e?.data) {
                 messageApi.success(e.data.message);

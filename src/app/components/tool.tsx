@@ -21,15 +21,6 @@ function getYesterdayDate(handle: number = config.current) {
     return { weekday, date: date.format('YYYY-MM-DD') }
 }
 
-function FormatDateToMonthDayWeek({ handle = config.current }: { handle?: number }) {
-    const { weekday, date } = getYesterdayDate(handle);
-    return <div className='flex'>
-        <span style={{ color: '#f68084', fontWeight: 800 }}>{date}</span>
-        &nbsp;
-        周{weekday}
-    </div>
-}
-
 // 计算当前计划周期流逝速度
 function getPassedPercent(startTime: string, cycle: number) {
     const current = getCurrentBySub();
@@ -105,33 +96,7 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
     `,
 }));
 
-// function debounce(fn: () => void, delay: number) {
-//     let timer: NodeJS.Timeout | null = null;
-//     return function (...args) {
-//         clearTimeout(timer as NodeJS.Timeout);
-//         timer = setTimeout(() => {
-//             fn(...args);
-//         }, delay);
-//     }
-// }
-
-// function throttle(fn: Function, delay: number) {
-//     let timer: NodeJS.Timeout | null = null;
-//     return function (...args) {
-//         if (!timer) {
-//             timer = setTimeout(() => {
-//                 fn(...args);
-//                 timer = null;
-//             }, delay);
-//         }
-//     }
-// }
-
-function GetUrlParams() {
-    // nextjs 会服务端渲染，所以会存在没有 window 的情况
-    return useSearchParams();
-}
-
+// 定义一些 type 和 interface
 interface IssueRecordProps {
     sport: string,
     video: string,
@@ -157,6 +122,18 @@ const CategoryColor = {
     Health: 'volcano'
 }
 
+// 公共组件
+function FormatDateToMonthDayWeek({ handle = config.current }: { handle?: number }) {
+    const urlParams = useSearchParams();
+    const urlDate = urlParams?.get('date');
+    const { weekday, date } = getYesterdayDate(handle);
+    return <div className='flex'>
+        <span style={{ color: '#f68084', fontWeight: 800 }}>{ urlDate || date}</span>
+        &nbsp;
+        周{weekday}
+    </div>
+}
+
 export {
     FormatDateToMonthDayWeek,
     formatMinToHM,
@@ -166,10 +143,7 @@ export {
     getPassedPercent,
     getYesterdayDate,
     useStyle,
-    // debounce,
-    // throttle,
     getWeek,
-    GetUrlParams,
     Category,
     CategoryColor,
     getCurrentBySub,

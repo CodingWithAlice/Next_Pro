@@ -8,6 +8,7 @@ import Api from '@/service/api';
 import dayjs from 'dayjs';
 import { type Issue } from '@/components/custom-time-picker';
 import { getCurrentBySub, IssueRecordProps } from '@/components/tool';
+import { useSearchParams } from 'next/navigation';
 import config from 'config';
 
 export interface routineType {
@@ -51,6 +52,10 @@ export default function Daily() {
         good: '',
         better: '',
     });
+    const urlParams = useSearchParams();
+    const urlDate = urlParams?.get('date');
+    const currentDate = urlDate || getCurrentBySub(config.current).format('YYYY-MM-DD');
+
     const handleFunc = useCallback((arr: Issue[], types?: routineType[]) => {
         if (!types) {
             types = routineType;
@@ -96,13 +101,13 @@ export default function Daily() {
     }, [routineType])
 
     useEffect(() => {
-        if(issues.length === 0 || routineType.length === 0) return;
+        if (issues.length === 0 || routineType.length === 0) return;
         handleFunc(issues, routineType);
     }, [routineType, issues, handleFunc]);
 
 
     useEffect(() => {
-        Api.getDailyApi(getCurrentBySub(config.current).format('YYYY-MM-DD')).then(({ routineData, dailyData, IssueData }) => {
+        Api.getDailyApi(currentDate).then(({ routineData, dailyData, IssueData }) => {
             // 过程可以展示的 routine 类别
             const routine = routineData.filter((it: routineType) => it.show);
             const routineIds = routine.map((it: routineType) => it.id);
@@ -121,7 +126,7 @@ export default function Daily() {
                 good: ([IssueData.good1 || '', IssueData.good2 || '', IssueData.good3 || '']).filter(it => !!it).join('\n'),
             });
         })
-    }, []);
+    }, [currentDate]);
 
     return (<div className='wrapper'>
         <WeekTitle />
