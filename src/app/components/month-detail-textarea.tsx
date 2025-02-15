@@ -5,6 +5,7 @@ import { UniformTextAreaWithStyle } from "./uniform-textarea";
 import MonthTotalTime from "./month-total-time";
 import { timeTotalByRoutineTypeProps } from "./month-total-time";
 import MonthTable from "./month-table";
+import { transTitle } from "./tool";
 
 const timeTotal = [
     [
@@ -25,11 +26,6 @@ interface MonthDetailTextareaProps {
     setMonthData: (data: { [key: string]: string }) => void,
     periods: number[],
     setPeriods: (data: number[]) => void
-}
-
-// 统一标题样式
-function transTitle(title: string) {
-    return <span key={title} className="title">{title}</span>
 }
 
 export function MonthDetailTextarea({ monthData, setMonthData, periods, setPeriods }: MonthDetailTextareaProps) {

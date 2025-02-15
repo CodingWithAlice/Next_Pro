@@ -53,7 +53,8 @@ export default function Home() {
             <div className='j-title'>
                 J人复盘工具
             </div>
-            {/* <section className="links">
+            {/* 手机端 - 绶带 */}
+            <section className="links">
                 {
                     linksList.map(({ href, title, key }) => {
                         return <div className="ribbon" key={key}>
@@ -63,7 +64,8 @@ export default function Home() {
                         </div>
                     })
                 }
-            </section> */}
+            </section>
+            {/* 电脑端 - 图片集 */}
             <div className="images-wrap">
                 <ul>
                     {linksList.map(({ href, title, key, img }) => {

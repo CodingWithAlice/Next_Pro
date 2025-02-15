@@ -55,84 +55,9 @@ h1 {
     transform: translate(-50%, -50%) skewX(-6deg) rotate(-7deg) skewY(6deg) skewX(-12deg);
 }
 
-/* Link */
 .links {
-    margin-top: 14rem;
-    font-size: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    display: none;
 }
-
-/* #header h1{
-	font-size: 28px;
-	font-weight: 300px;
-	font-family: "Helvetica", sans-serif;
-	line-height: 54px;
-	letter-spacing: 3px;
-	height: 56px;
-	margin: 0;
-	display: inline-block;
-	white-space: nowrap;
-} */
-.ribbon {
-    margin-top: 2.4rem;
-    background-color: #16A085;
-    /* background color for center of ribbon */
-    border: 1px solid rgba(6, 128, 67, 0.2);
-    /* border color for center of ribbon */
-    border-radius: 6px;
-    height: 56px;
-    padding: 0 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-
-    color: rgb(255, 255, 255, .8);
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.ribbon:before,
-.ribbon:after {
-    content: '.';
-    text-indent: -9999em;
-    height: 0;
-    width: 0;
-    border-style: solid;
-    border-width: 28px;
-    position: absolute;
-    left: -45px;
-    top: 10px;
-    display: block;
-    z-index: -1;
-}
-
-.ribbon:before {
-    border-color: #138A72 #138A72 #138A72 transparent;
-    /* bg color for left side of ribbon */
-}
-
-.ribbon:after {
-    border-color: #138A72 transparent #138a73 #138a72;
-    /* bg color for right side of ribbon */
-    right: -45px;
-    left: auto;
-}
-
-.ribbon:active {
-    box-shadow: 1px 3px 0px rgb(106, 221, 129), 0px 3px 6px rgba(0, 0, 0, .9);
-    position: relative;
-    top: 2px;
-}
-
-/*Now the styles*/
-* {
-    margin: 0;
-    padding: 0;
-}
-
 
 .images-wrap {
     margin-top: 16rem;
@@ -174,7 +99,6 @@ h1 {
     width: 40rem;
 }
 
-
 .poster {
     display: block;
 }
@@ -190,4 +114,95 @@ h1 {
     text-decoration: none;
     padding: 2rem;
     font-size: 1.2rem;
+}
+
+.title-top{
+	position: relative;
+	z-index: 1;
+	margin: 0;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 1.25em;
+	line-height: 2.5em;
+	font-weight: 400;
+	letter-spacing: 1px;
+}
+
+.title-top:before{
+	content: "";
+	position: absolute;
+	z-index: -1;
+	background-color: #d7ebba;
+	width: 2.5em;
+	height: 2.5em;
+	border-radius: 50%;
+}
+
+.title-top span{
+	padding-left: 15px;
+}
+
+@media only screen and (max-width: 700px) {
+    .j-title {
+        font-size: 2rem;
+    }
+    .links {
+        margin-top: 10rem;
+        font-size: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .images-wrap {
+        display: none;
+    }
+    
+    .ribbon {
+        margin-top: 2.4rem;
+        background-color: #16A085;
+        border: 1px solid rgba(6, 128, 67, 0.2);
+        border-radius: 6px;
+        height: 56px;
+        padding: 0 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    
+        color: rgb(255, 255, 255, .8);
+        text-decoration: none;
+        cursor: pointer;
+    }
+    
+    .ribbon:before,
+    .ribbon:after {
+        content: '.';
+        text-indent: -9999em;
+        height: 0;
+        width: 0;
+        border-style: solid;
+        border-width: 28px;
+        position: absolute;
+        left: -45px;
+        top: 10px;
+        display: block;
+        z-index: -1;
+    }
+    
+    .ribbon:before {
+        border-color: #138A72 #138A72 #138A72 transparent;
+        /* bg color for left side of ribbon */
+    }
+    
+    .ribbon:after {
+        border-color: #138A72 transparent #138a73 #138a72;
+        /* bg color for right side of ribbon */
+        right: -45px;
+        left: auto;
+    }
+    
+    .ribbon:active {
+        box-shadow: 1px 3px 0px rgb(106, 221, 129), 0px 3px 6px rgba(0, 0, 0, .9);
+        position: relative;
+        top: 2px;
+    }
 }

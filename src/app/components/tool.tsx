@@ -72,6 +72,13 @@ function formatSerialNumber(num: number) {
     return res
 }
 
+// 统一标题样式
+function transTitle(title: string) {
+    return <span key={title} className="title-top">
+        <span>{title}</span>
+    </span>
+}
+
 const useStyle = createStyles(({ prefixCls, css }) => ({
     linearGradientButton: css`
       &.${prefixCls}-btn-primary:not([disabled]):not(.${prefixCls}-btn-dangerous) {
@@ -147,5 +154,6 @@ export {
     Category,
     CategoryColor,
     getCurrentBySub,
+    transTitle,
     type IssueRecordProps
 };
