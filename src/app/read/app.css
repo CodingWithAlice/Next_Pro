@@ -1,0 +1,59 @@
+/* import the fonts */
+@import url('https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700');
+
+.read {
+    text-transform: uppercase;
+    background: #FF5964;
+    height: 100%;
+    overflow: hidden;
+}
+
+.front {
+    background: #FFFBC1;
+}
+
+.read:hover .front {
+    transform: perspective(500px) scale(0.5) translateX(-16.66%) rotateY(25deg);
+}
+
+.books {
+    font-size: 35px;
+    text-align: center;
+}
+
+.layer {
+    display: flex;
+    /* the following two css selectors aren't recognized by all browsers -- you may need to use some -webkit- prefixes */
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* let's create some styling to smooth out the transition when we hover over the body of the page */
+    transition: transform .4s;
+    transform: perspective(800px) scale(1) translateX(0) rotateY(0);
+    transform-style: preserve-3d;
+}
+
+nav {
+    vertical-align: center;
+}
+
+nav ul {
+    padding-left: 66.66%;
+    font-size: larger;
+    /* font-size: larger is a cool trick that sets the font-size to exactly one size larger than the font size of the parent element */
+    line-height: 2;
+}
+
+nav ul li {
+    list-style-type: none;
+}
+
+nav ul li a {
+    /* let's change that ugly default anchor tag styling */
+    text-decoration: none;
+    color: #fff;
+}
