@@ -3,23 +3,23 @@
 @tailwind utilities;
 
 :root {
-  --background: rgba(6,128,67,0.2);
-  --foreground: #171717;
+    --background: rgba(6, 128, 67, 0.2);
+    --foreground: #171717;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+    :root {
+        --background: #0a0a0a;
+        --foreground: #ededed;
+    }
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  color: rgb(6, 128, 67);
-  font-weight: 500;
+    color: var(--foreground);
+    background: var(--background);
+    font-family: Arial, Helvetica, sans-serif;
+    color: rgb(6, 128, 67);
+    font-weight: 500;
 }
 
 .outer {
@@ -33,26 +33,28 @@ h1 {
     font-size: 2rem;
     margin: 50px;
 }
+
 .img {
     border-radius: 50%;
 }
 
 /* J人复盘工具 - 标题 */
 .j-title {
-	padding: 0;
-	margin: 0;
-	text-transform: uppercase;
-	font-size: 4.5rem;
-	font-weight: bold;
-	color: rgba(38, 157, 129, .9);
-	text-shadow: 6px 10px 6px  rgba(107, 194, 53, 0.8);
+    padding: 0;
+    margin: 0;
+    text-transform: uppercase;
+    font-size: 4.5rem;
+    font-weight: bold;
+    color: rgba(38, 157, 129, .9);
+    text-shadow: 6px 10px 6px rgba(107, 194, 53, 0.8);
     white-space: nowrap;
 
     position: absolute;
-	top: 20%;
-	left: 50%;
-	transform: translate(-50%, -50%) skewX(-6deg) rotate(-7deg) skewY(6deg) skewX(-12deg);
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%) skewX(-6deg) rotate(-7deg) skewY(6deg) skewX(-12deg);
 }
+
 /* Link */
 .links {
     margin-top: 14rem;
@@ -73,49 +75,119 @@ h1 {
 	display: inline-block;
 	white-space: nowrap;
 } */
-.ribbon{
+.ribbon {
     margin-top: 2.4rem;
-	background-color: #16A085; /* background color for center of ribbon */
-	border: 1px solid rgba(6,128,67,0.2); /* border color for center of ribbon */
+    background-color: #16A085;
+    /* background color for center of ribbon */
+    border: 1px solid rgba(6, 128, 67, 0.2);
+    /* border color for center of ribbon */
     border-radius: 6px;
-	height: 56px;
-	padding: 0 20px;
-	display: flex;
+    height: 56px;
+    padding: 0 20px;
+    display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
 
-    color: rgb(255,255,255,.8);
-	text-decoration: none;
+    color: rgb(255, 255, 255, .8);
+    text-decoration: none;
     cursor: pointer;
 }
 
-.ribbon:before, .ribbon:after{
-	content: '.';
-	text-indent: -9999em;
-	height: 0;
-	width: 0;
-	border-style: solid;
-	border-width: 28px;
-	position: absolute;
-	left: -45px;
-	top: 10px;
-	display: block;
-	z-index: -1;
+.ribbon:before,
+.ribbon:after {
+    content: '.';
+    text-indent: -9999em;
+    height: 0;
+    width: 0;
+    border-style: solid;
+    border-width: 28px;
+    position: absolute;
+    left: -45px;
+    top: 10px;
+    display: block;
+    z-index: -1;
 }
 
-.ribbon:before{
-	border-color: #138A72 #138A72 #138A72 transparent; /* bg color for left side of ribbon */
+.ribbon:before {
+    border-color: #138A72 #138A72 #138A72 transparent;
+    /* bg color for left side of ribbon */
 }
 
-.ribbon:after{
-	border-color: #138A72 transparent #138a73 #138a72; /* bg color for right side of ribbon */
-	right: -45px;
-	left: auto;
+.ribbon:after {
+    border-color: #138A72 transparent #138a73 #138a72;
+    /* bg color for right side of ribbon */
+    right: -45px;
+    left: auto;
 }
 
-.ribbon:active{
+.ribbon:active {
     box-shadow: 1px 3px 0px rgb(106, 221, 129), 0px 3px 6px rgba(0, 0, 0, .9);
-	position: relative;
-	top: 2px;
+    position: relative;
+    top: 2px;
+}
+
+/*Now the styles*/
+* {
+    margin: 0;
+    padding: 0;
+}
+
+
+.images-wrap {
+    margin-top: 16rem;
+    width: 64rem;
+    overflow: hidden;
+    box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.35);
+    -webkit-box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.35);
+    -moz-box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.35);
+}
+
+.images-wrap ul {
+    width: 2000px;
+}
+
+.images-wrap li {
+    position: relative;
+    display: block;
+    width: 16rem;
+    float: left;
+
+    border-left: 1px solid #888;
+
+    box-shadow: 0 0 25px 10px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: 0 0 25px 10px rgba(0, 0, 0, 0.5);
+    -moz-box-shadow: 0 0 25px 10px rgba(0, 0, 0, 0.5);
+
+    transition: all 0.5s;
+    -webkit-transition: all 0.5s;
+    -moz-transition: all 0.5s;
+}
+
+.images-wrap ul:hover li {
+    width: 10rem;
+}
+
+/*Lets apply hover effects now*/
+/*The LI hover style should override the UL hover style*/
+.images-wrap ul li:hover {
+    width: 40rem;
+}
+
+
+.poster {
+    display: block;
+}
+
+/*Image title styles*/
+.image_title {
+    background: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 40rem;
+    color: #fff;
+    text-decoration: none;
+    padding: 2rem;
+    font-size: 1.2rem;
 }

@@ -3,7 +3,6 @@ import { useState } from "react";
 import Link from "next/link";
 import config from "config";
 
-
 export default function Home() {
     const [count, setCount] = useState(0);
     // const router = useRouter();
@@ -34,9 +33,10 @@ export default function Home() {
     ];
 
     const linksList = [
-        { href: './daily', title: 'Daily日常', key: 'daily' },
-        { href: './week', title: 'LTN周报', key: 'week' },
-        { href: `./month?monthId=${config.monthSerial}`, title: 'LTN月报', key: 'month' },
+        { href: './daily', title: 'Daily日常', key: 'daily', img: "/images/daily.png" },
+        { href: './week', title: 'LTN周报', key: 'week', img: "/images/week.png" },
+        { href: `./month?monthId=${config.monthSerial}`, title: 'LTN月报', key: 'month', img: "/images/month.png" },
+        { href: './read', title: '二次阅读', key: 'read', img: "/images/read.png" },
     ]
 
     return (
@@ -53,7 +53,7 @@ export default function Home() {
             <div className='j-title'>
                 J人复盘工具
             </div>
-            <section className="links">
+            {/* <section className="links">
                 {
                     linksList.map(({ href, title, key }) => {
                         return <div className="ribbon" key={key}>
@@ -63,7 +63,22 @@ export default function Home() {
                         </div>
                     })
                 }
-            </section>
+            </section> */}
+            <div className="images-wrap">
+                <ul>
+                    {linksList.map(({ href, title, key, img }) => {
+                        return <li key={key}>
+                            <Link href={href} >
+                                <div className="image_title">
+                                    {title}
+                                </div>
+                                <img className="poster" src={img} alt={title} />
+                            </Link>
+
+                        </li>
+                    })}
+                </ul>
+            </div>
 
             {/* <Link href='./square' >
                 井字格【两人玩小游戏】 <RightOutlined />
