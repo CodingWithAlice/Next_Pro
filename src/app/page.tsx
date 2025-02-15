@@ -1,9 +1,7 @@
 'use client';
 import { useState } from "react";
 import Link from "next/link";
-import { RightOutlined } from "@ant-design/icons";
 import config from "config";
-// import { useRouter } from 'next/navigation';
 
 
 export default function Home() {
@@ -22,7 +20,6 @@ export default function Home() {
     const status = {
         cat: 'aQiu',
         url: '',
-        // url: 'https://i.imgur.com/yXOvdOSs.jpg',
         width: '100px',
         height: '100px',
         placeholder: 'loading',
@@ -36,12 +33,14 @@ export default function Home() {
         { title: 'Apple', id: 3 },
     ];
 
-    // const handleRouter = () => {
-    //     router.push('/daily');
-    // };
+    const linksList = [
+        { href: './daily', title: 'Daily日常', key: 'daily' },
+        { href: './week', title: 'LTN周报', key: 'week' },
+        { href: `./month?monthId=${config.monthSerial}`, title: 'LTN月报', key: 'month' },
+    ]
+
     return (
         <div className="outer">
-            <h1>J人复盘工具 </h1>
             {/* 1、测试 按钮简单操作 */}
             {status.btn && <MyButton count={count} onClick={handleClick} />}
             {/* 2、ul 展示 列表 */}
@@ -50,16 +49,20 @@ export default function Home() {
                     <li key={product.id}>{product.title}</li>
                 ))}
             </ul>}
+            {/* 日常工具 */}
+            <div className='j-title'>
+                J人复盘工具
+            </div>
             <section className="links">
-                <Link href='./daily' >
-                    Daily 日常记录 <RightOutlined />
-                </Link>
-                <Link href='./week' >
-                    LTN周报 <RightOutlined />
-                </Link>
-                <Link href={`./month?monthId=${config.monthSerial}`} >
-                    LTN月报 <RightOutlined />
-                </Link>
+                {
+                    linksList.map(({ href, title, key }) => {
+                        return <div className="ribbon" key={key}>
+                            <Link href={href} >
+                                {title}
+                            </Link>
+                        </div>
+                    })
+                }
             </section>
 
             {/* <Link href='./square' >

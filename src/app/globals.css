@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
+  --background: rgba(6,128,67,0.2);
   --foreground: #171717;
 }
 
@@ -18,6 +18,8 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+  color: rgb(6, 128, 67);
+  font-weight: 500;
 }
 
 .outer {
@@ -35,10 +37,85 @@ h1 {
     border-radius: 50%;
 }
 
+/* J人复盘工具 - 标题 */
+.j-title {
+	padding: 0;
+	margin: 0;
+	text-transform: uppercase;
+	font-size: 4.5rem;
+	font-weight: bold;
+	color: rgba(38, 157, 129, .9);
+	text-shadow: 6px 10px 6px  rgba(107, 194, 53, 0.8);
+    white-space: nowrap;
+
+    position: absolute;
+	top: 20%;
+	left: 50%;
+	transform: translate(-50%, -50%) skewX(-6deg) rotate(-7deg) skewY(6deg) skewX(-12deg);
+}
+/* Link */
 .links {
+    margin-top: 14rem;
     font-size: 1.5rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    color: rgb(6, 128, 67);
+}
+
+/* #header h1{
+	font-size: 28px;
+	font-weight: 300px;
+	font-family: "Helvetica", sans-serif;
+	line-height: 54px;
+	letter-spacing: 3px;
+	height: 56px;
+	margin: 0;
+	display: inline-block;
+	white-space: nowrap;
+} */
+.ribbon{
+    margin-top: 2.4rem;
+	background-color: #16A085; /* background color for center of ribbon */
+	border: 1px solid rgba(6,128,67,0.2); /* border color for center of ribbon */
+    border-radius: 6px;
+	height: 56px;
+	padding: 0 20px;
+	display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+
+    color: rgb(255,255,255,.8);
+	text-decoration: none;
+    cursor: pointer;
+}
+
+.ribbon:before, .ribbon:after{
+	content: '.';
+	text-indent: -9999em;
+	height: 0;
+	width: 0;
+	border-style: solid;
+	border-width: 28px;
+	position: absolute;
+	left: -45px;
+	top: 10px;
+	display: block;
+	z-index: -1;
+}
+
+.ribbon:before{
+	border-color: #138A72 #138A72 #138A72 transparent; /* bg color for left side of ribbon */
+}
+
+.ribbon:after{
+	border-color: #138A72 transparent #138a73 #138a72; /* bg color for right side of ribbon */
+	right: -45px;
+	left: auto;
+}
+
+.ribbon:active{
+    box-shadow: 1px 3px 0px rgb(106, 221, 129), 0px 3px 6px rgba(0, 0, 0, .9);
+	position: relative;
+	top: 2px;
 }

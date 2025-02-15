@@ -1,7 +1,7 @@
 import { Select, TimePicker } from "antd";
 import dayjs from "dayjs";
 import { formatMinToHM, getGapTime } from "./tool";
-import classNames from "classnames";
+// import classNames from "classnames";
 import './component.css';
 import { routineType } from '@/daily/page';
 
@@ -38,9 +38,9 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
             onIssue({ ...newIssue, duration: dur });
         }
     }
-    const intervalClass = classNames({
-        'purple': init.interval > init.duration
-    })
+    // const intervalClass = classNames({
+    //     'purple': init.interval > init.duration
+    // })
 
     return (
         <div className='time-picker' key={init.daySort}>
@@ -65,7 +65,7 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
                 size='middle'
                 className='select' />
             &nbsp;
-            {!!init.interval && <span className={intervalClass}>{formatMinToHM(init.interval)}</span>}
+            {/* {!!init.interval && <span className={intervalClass}>{formatMinToHM(init.interval)}</span>} */}
         </div>
     );
 }
