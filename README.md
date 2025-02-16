@@ -38,10 +38,10 @@ git rev-parse --short HEAD
 - 检查端口占用情况 sudo netstat -tuln | grep :3000 检查主机的 3000 端口是否被监听
 (启动后， 在防火墙配置开放该端口  3000  的入站规则)
 ```js
-sudo docker build -t next_pro .
 sudo docker stop next_pro
 sudo docker rm next_pro
-sudo docker run -d -p 3000:3000 next_pro
+sudo docker build -t next_pro1 .
+sudo docker run -d -p 3000:3000 next_pro1
 // or 安装 Docker Compose
 docker-compose up -d --build
 ```

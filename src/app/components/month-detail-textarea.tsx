@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { SerialsPicker } from "@/components/serials-picker";
 import Api from "@/service/api";
-import { UniformTextAreaWithStyle } from "./uniform-textarea";
 import MonthTotalTime from "./month-total-time";
 import { timeTotalByRoutineTypeProps } from "./month-total-time";
 import MonthTable from "./month-table";
-import { transTitle } from "./tool";
+import { transTextArea, transTitle } from "./tool";
 
 const timeTotal = [
     [
@@ -33,19 +32,9 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
     const [weeksData, setWeeksData] = useState([]); // 每周数据
     const [studyTotal, setStudyTotal] = useState(0); // 学习总时长
 
-    const transTextArea = (it: { key: string, desc?: string, source: { [key: string]: string } }) => {
-        return <UniformTextAreaWithStyle
-            key={it.key}
-            type={it.key}
-            desc={it.desc || ''}
-            init={it.source?.[it.key] || ''}
-            onChange={(v) => handleChange(v)}
-        />
-    };
-
     const handleTrans = (it: { key: string, desc?: string }, source?: { [key: string]: string }) => {
         if (!source) return;
-        return transTextArea({ ...it, source });
+        return transTextArea({ ...it, source, onChange: handleChange });
     }
 
     const handleChange = (v: { [key: string]: string }) => {

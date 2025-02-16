@@ -8,12 +8,8 @@
     overflow: hidden;
 }
 
-.front {
-    background: #FFFBC1;
-}
-
 .read:hover .front {
-    transform: perspective(500px) scale(0.5) translateX(-16.66%) rotateY(25deg);
+    transform: perspective(600px) scale(0.6) translateX(-40%) rotateY(25deg);
 }
 
 .books {
@@ -23,7 +19,6 @@
 
 .layer {
     display: flex;
-    /* the following two css selectors aren't recognized by all browsers -- you may need to use some -webkit- prefixes */
     align-items: center;
     justify-content: center;
     position: fixed;
@@ -31,29 +26,27 @@
     left: 0;
     right: 0;
     bottom: 0;
-    /* let's create some styling to smooth out the transition when we hover over the body of the page */
     transition: transform .4s;
     transform: perspective(800px) scale(1) translateX(0) rotateY(0);
     transform-style: preserve-3d;
 }
-
-nav {
-    vertical-align: center;
-}
-
-nav ul {
-    padding-left: 66.66%;
-    font-size: larger;
-    /* font-size: larger is a cool trick that sets the font-size to exactly one size larger than the font size of the parent element */
-    line-height: 2;
-}
-
-nav ul li {
-    list-style-type: none;
-}
-
-nav ul li a {
-    /* let's change that ugly default anchor tag styling */
-    text-decoration: none;
+.li-wrap {
+    padding-left: 30%;
     color: #fff;
+    font-size: larger;
+}
+.textarea {
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.desc {
+    white-space: nowrap;
+    margin: 0 4px 0 12px;
+}
+
+.front {
+    /* display: none; */
+    background: #FFFBC1;
 }
