@@ -29,6 +29,7 @@
     transition: transform .4s;
     transform: perspective(800px) scale(1) translateX(0) rotateY(0);
     transform-style: preserve-3d;
+    overflow-y: scroll;
 }
 .li-wrap {
     padding-left: 30%;

@@ -155,6 +155,12 @@ export const BooksTopicRecordModal = sequelize.define(
 	{
 		tableName: 'books_topic_record',
 		underscored: true,
+        indexes: [
+			{
+				unique: true,
+				fields: ['chapter_id', 'sort'], // 为 chapter_id 和 sort 字段组合设置唯一索引
+			},
+		],
 	}
 )
 

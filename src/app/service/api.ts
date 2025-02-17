@@ -17,15 +17,17 @@ const Api = {
 		return request.post('daily/issue', data)
 	},
 
-    getSerial() {return request.get('serial')},
+	getSerial() {
+		return request.get('serial')
+	},
 
-    getMonthApi(monthId: number) {
+	getMonthApi(monthId: number) {
 		return request.get('month', { monthId })
 	},
-    getMonthDetailApi(serialNumber: string) {
+	getMonthDetailApi(serialNumber: string) {
 		return request.get('month/detail', { serialNumber })
 	},
-    postMonthApi(data: { [key: string]: string | number }) {
+	postMonthApi(data: { [key: string]: string | number }) {
 		return request.post('month', data)
 	},
 
@@ -36,9 +38,19 @@ const Api = {
 		return request.post('week', data)
 	},
 
-    getWeekPeriodApi(serialNumber: number) {
-        return request.get('week/period', { serialNumber })
-    }
+	getWeekPeriodApi(serialNumber: number) {
+		return request.get('week/period', { serialNumber })
+	},
+
+	getReadApi() {
+		return request.get('books')
+	},
+	postReadApi(data: {
+		readData: { [key: string]: string | number }
+		chapterData: { [key: string]: string | number }[]
+	}) {
+		return request.post('books', data)
+	},
 }
 
 export default Api

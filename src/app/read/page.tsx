@@ -1,68 +1,58 @@
 'use client';
 import { transTextArea, transTimeStringToType } from '@/components/tool';
 import './app.css';
-import { useState } from 'react';
-import { Button } from 'antd';
+import { useEffect, useState } from 'react';
+import { Button, message } from 'antd';
 import { AntDesignOutlined } from '@ant-design/icons';
+import Api from '@/service/api';
+
+interface ChapterProps {
+    sort: number;
+    firstTimeTopic: string;
+    secondTimeTopic: string;
+    changes: string;
+}
 
 export default function ReadPage() {
-    const [readData, setReadData] = useState<{ title?: string, firstTime?: string, secondTime?: string, plans?: string }>({
-        title: '《有效阅读》',
-        firstTime: '2018-08-01',
-        secondTime: '2025-01-01',
-        plans: '【如何调整行动计划】长期计划，形成个人原则',
-    });
-    const [chapterData, setChapterData] = useState([
-        {
-            sort: '1',
-            firstTimeTopic: '第一次阅读重点',
-            secondTimeTopic: '第二次阅读重点',
-            changes: '变化/聚焦差异',
-        },
-        {
-            sort: '2',
-            firstTimeTopic: '第一次阅读重点',
-            secondTimeTopic: '第二次阅读重点',
-            changes: '变化/聚焦差异',
-        },
-        {
-            sort: '3',
-            firstTimeTopic: '第一次阅读重点',
-            secondTimeTopic: '第二次阅读重点',
-            changes: '变化/聚焦差异',
-        },
-        {
-            sort: '4',
-            firstTimeTopic: '第一次阅读重点',
-            secondTimeTopic: '第二次阅读重点',
-            changes: '变化/聚焦差异',
-        },
-    ]);
 
-    const handleChange = (v: { [key: string]: string }, options?: { type: 'chapterData', sort: string }) => {
+    const [readData, setReadData] = useState<{ [key: string]: string | number }>({});
+    const [chapterData, setChapterData] = useState<{ [key: string]: string | number }[]>([]);
+    const [messageApi, contextHolder] = message.useMessage();
+
+    const handleChange = (v: { [key: string]: string }, options?: { type: 'chapterData', sort: number | string }) => {
         if (!options) {
             setReadData({ ...readData, ...v });
             return;
         }
         // 根据 options.sort 找到对应的章节数据，然后更新
         setChapterData(chapterData.map((it) => {
-            if (+it.sort === parseInt(options.sort)) {
+            if (+it.sort ===  +options.sort) {
                 return { ...it, ...v };
             }
             return it;
         }));
     }
 
-    const handleTrans = (it: { key: string, desc?: string }, source?: { [key: string]: string }, options?: { type: 'chapterData', sort: string }) => {
+    const handleTrans = (it: { key: string, desc?: string }, source?: { [key: string]: string | number }, options?: { type: 'chapterData', sort: string | number }) => {
         if (!source) return;
         return transTextArea({ ...it, source, onChange: (v) => handleChange(v, options) });
     }
 
     const handleSave = () => {
-        console.log(readData, chapterData);
+        Api.postReadApi({ readData, chapterData }).then(e => {
+            messageApi.success(e.data.message);
+        });
     }
 
+    useEffect(() => {
+        Api.getReadApi().then(({ booksData }) => {
+            setReadData(booksData);
+            setChapterData(booksData.books_topic_records.sort((a: ChapterProps, b: ChapterProps) => a.sort - b.sort));
+        })
+    }, []);
+
     return <div className='read'>
+        {contextHolder}
         <nav className="layer">
             <ul className='li-wrap'>
                 {[

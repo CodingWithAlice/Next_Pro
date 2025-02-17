@@ -42,7 +42,7 @@ const getWeek = () => {
     return dayjs().week()
 }
 
-function transTimeStringToType(time: string, type: string) {
+function transTimeStringToType(time: string | number, type: string) {
     return dayjs(time).format(type);
 }
 
@@ -87,7 +87,7 @@ function transTitle(title: string) {
 const transTextArea = ({ key, desc, source, onChange }: {
     key: string,
     desc?: string,
-    source: { [key: string]: string},
+    source: { [key: string]: string | number},
     onChange: (v: { [key: string]: string; }) => void
 }) => {
     return <UniformTextAreaWithStyle

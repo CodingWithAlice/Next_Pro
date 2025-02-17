@@ -4,7 +4,7 @@ import TextArea from "antd/es/input/TextArea";
 interface UniformTextAreaWithStyleProps {
     type: string,
     desc: string,
-    init: string,
+    init: string | number,
     onChange: (data: { [key: string]: string }) => void
 }
 
