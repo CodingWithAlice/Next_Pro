@@ -3,8 +3,8 @@ CREATE TABLE ltn_serial_time (
     start_time DATE COMMENT '记录的开始时间',
     end_time DATE COMMENT '记录的结束时间',
     serial_number INT COMMENT 'LTN周期序号',
-    create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    update_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- 创建 week_issue_record 表

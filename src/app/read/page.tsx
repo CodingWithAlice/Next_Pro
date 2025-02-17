@@ -72,11 +72,11 @@ export default function ReadPage() {
                 ].map(it => handleTrans(it, readData))}
                 {chapterData.map((chapter) => {
                     return <div key={chapter.sort}>
-                        <p className='chapter-title'>Chapter{chapter.sort}：</p>
+                        <p className='chapter-title'>Chapter{chapter.sort} 【聚焦差异】：</p>
                         {[
-                            { key: 'firstTimeTopic', desc: '第一次阅读重点' },
-                            { key: 'secondTimeTopic', desc: '第二次阅读重点' },
-                            { key: 'changes', desc: '变化/聚焦差异' },
+                            { key: 'firstTimeTopic', desc: '第一次阅读 核心观点' },
+                            { key: 'secondTimeTopic', desc: '第二次阅读 核心观点' },
+                            { key: 'changes', desc: '新感悟' },
                         ].map(it => handleTrans(it, chapter, {
                             type: 'chapterData',
                             sort: chapter.sort,
