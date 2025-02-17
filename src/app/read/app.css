@@ -50,3 +50,9 @@
     /* display: none; */
     background: #FFFBC1;
 }
+
+.chapter-title {
+    font-size: 1.2rem;
+    color: rgb(41, 175, 130);
+    font-weight: 600;
+}
