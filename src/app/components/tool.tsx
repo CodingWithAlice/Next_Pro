@@ -4,6 +4,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { createStyles } from 'antd-style';
 import config from 'config';
 import { useSearchParams } from 'next/navigation';
+import { UniformTextAreaWithStyle } from "./uniform-textarea";
 dayjs.extend(relativeTime);
 dayjs.extend(weekOfYear);
 
@@ -41,6 +42,10 @@ const getWeek = () => {
     return dayjs().week()
 }
 
+function transTimeStringToType(time: string | number, type: string) {
+    return dayjs(time).format(type);
+}
+
 // 处理时间为负数的情况（跨0点学习导致的）
 function formatTime(time?: number) {
     if (!time) {
@@ -71,6 +76,30 @@ function formatSerialNumber(num: number) {
 
     return res
 }
+
+// 统一标题样式
+function transTitle(title: string) {
+    return <span key={title} className="title-top">
+        <span>{title}</span>
+    </span>
+}
+
+const transTextArea = ({ key, desc, source, onChange, cols }: {
+    key: string,
+    desc?: string,
+    source: { [key: string]: string | number},
+    onChange: (v: { [key: string]: string; }) => void,
+    cols?: number
+}) => {
+    return <UniformTextAreaWithStyle
+        key={key}
+        type={key}
+        desc={desc || ''}
+        cols={cols}
+        init={source?.[key] || ''}
+        onChange={onChange}
+    />
+};
 
 const useStyle = createStyles(({ prefixCls, css }) => ({
     linearGradientButton: css`
@@ -128,7 +157,7 @@ function FormatDateToMonthDayWeek({ handle = config.current }: { handle?: number
     const urlDate = urlParams?.get('date');
     const { weekday, date } = getYesterdayDate(handle);
     return <div className='flex'>
-        <span style={{ color: '#f68084', fontWeight: 800 }}>{ urlDate || date}</span>
+        <span style={{ color: '#f68084', fontWeight: 800 }}>{urlDate || date}</span>
         &nbsp;
         周{weekday}
     </div>
@@ -139,6 +168,8 @@ export {
     formatMinToHM,
     formatTime,
     getGapTime,
+    transTimeStringToType,
+    transTextArea,
     formatSerialNumber,
     getPassedPercent,
     getYesterdayDate,
@@ -147,5 +178,6 @@ export {
     Category,
     CategoryColor,
     getCurrentBySub,
+    transTitle,
     type IssueRecordProps
 };

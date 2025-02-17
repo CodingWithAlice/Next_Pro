@@ -4,12 +4,13 @@ import TextArea from "antd/es/input/TextArea";
 interface UniformTextAreaWithStyleProps {
     type: string,
     desc: string,
-    init: string,
-    onChange: (data: { [key: string]: string }) => void
+    init: string | number,
+    onChange: (data: { [key: string]: string }) => void,
+    cols?: number
 }
 
 // 统一 textarea 样式
-export function UniformTextAreaWithStyle({ type, desc, init, onChange }: UniformTextAreaWithStyleProps) {
+export function UniformTextAreaWithStyle({ type, desc, init, onChange, cols}: UniformTextAreaWithStyleProps) {
     const handleText = (type: string, value: string) => {
         onChange({ [type]: value });
     }
@@ -22,6 +23,7 @@ export function UniformTextAreaWithStyle({ type, desc, init, onChange }: Uniform
             rows={1}
             onChange={(e) => handleText(type, e.target.value)}
             value={init}
+            cols={cols}
             disabled={type === 'time'}
             autoSize={{ minRows: 1, maxRows: 15 }} />
     </div>

@@ -118,6 +118,53 @@ export const MonthModal = sequelize.define(
 	}
 )
 
+export const BooksRecordModal = sequelize.define(
+	'books_record',
+	{
+		id: {
+			type: DataTypes.INTEGER,
+			primaryKey: true,
+			autoIncrement: true,
+		},
+		firstTime: DataTypes.DATE,
+		secondTime: DataTypes.DATE,
+		title: DataTypes.STRING,
+		plans: DataTypes.STRING,
+		blogUrl: DataTypes.STRING,
+		chapterId: DataTypes.NUMBER,
+	},
+	{
+		tableName: 'books_record',
+		underscored: true,
+	}
+)
+
+export const BooksTopicRecordModal = sequelize.define(
+	'books_topic_record',
+	{
+		id: {
+			type: DataTypes.INTEGER,
+			primaryKey: true,
+			autoIncrement: true,
+		},
+		firstTimeTopic: DataTypes.STRING,
+		secondTimeTopic: DataTypes.STRING,
+		sort: DataTypes.NUMBER,
+		changes: DataTypes.STRING,
+		chapterId: DataTypes.NUMBER,
+	},
+	{
+		tableName: 'books_topic_record',
+		underscored: true,
+        indexes: [
+			{
+				unique: true,
+				fields: ['chapter_id', 'sort'], // 为 chapter_id 和 sort 字段组合设置唯一索引
+			},
+		],
+	}
+)
+
 interface SerialAttributes {
 	id: number
 	serialNumber: number
@@ -212,4 +259,14 @@ RoutineTypeModal.hasMany(TimeModal, {
 TimeModal.belongsTo(RoutineTypeModal, {
 	foreignKey: 'routineTypeId', // 多的那个
 	targetKey: 'id', // 一个那个的主键
+})
+
+// 关联关系3 - 书籍的阅读记录 和 书籍的章节 关联
+BooksRecordModal.hasMany(BooksTopicRecordModal, {
+    foreignKey: 'chapterId',
+    sourceKey: 'chapterId',
+})
+BooksTopicRecordModal.belongsTo(BooksRecordModal, {
+    foreignKey: 'chapterId',
+    targetKey: 'chapterId',
 })

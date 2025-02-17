@@ -1,21 +1,12 @@
-import { UniformTextAreaWithStyle } from "./uniform-textarea"
+import { transTextArea, transTitle } from "./tool"
 interface WeekDetailTextareaProps {
     weekData: { [key: string]: string },
     setWeekData: (data: { [key: string]: string }) => void
 }
 
-// 统一标题样式
-function transTitle(title: string) {
-    return <span key={title} className="title">{title}</span>
-}
-
 export function WeekDetailTextarea({ weekData, setWeekData }: WeekDetailTextareaProps) {
-    const transTextArea = (it: { key: string, desc?: string, source: { [key: string]: string } }) => {
-        return <UniformTextAreaWithStyle key={it.key} type={it.key} desc={it.desc || ''} init={it.source?.[it.key] || ''} onChange={(v) => handleChange(v)} />
-    };
-
     const handleTrans = (it: { key: string, desc?: string }, source: { [key: string]: string }) => {
-        return transTextArea({ ...it, source });
+        return transTextArea({ ...it, source, onChange: handleChange });
     }
 
     const handleChange = (v: { [key: string]: string }) => {
