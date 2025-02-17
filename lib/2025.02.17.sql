@@ -29,3 +29,7 @@ ADD COLUMN id INT AUTO_INCREMENT PRIMARY KEY
 -- 在 books_record 中添加 博客链接
 ALTER TABLE books_record
 ADD COLUMN blog_url VARCHAR(255) COMMENT '博客链接'
+
+-- 为 books_topic_record 添加唯一索引
+ALTER TABLE books_topic_record
+ADD UNIQUE KEY `books_chapter_id_sort` (`chapter_id`, `sort`);
