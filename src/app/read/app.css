@@ -57,3 +57,10 @@
     color: rgb(41, 175, 130);
     font-weight: 600;
 }
+
+.btn-group {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 10px;
+}

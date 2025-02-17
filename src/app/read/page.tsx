@@ -2,7 +2,7 @@
 import { transTextArea, transTimeStringToType } from '@/components/tool';
 import './app.css';
 import { useEffect, useState } from 'react';
-import { Button, message } from 'antd';
+import { Button, message, Space } from 'antd';
 import { AntDesignOutlined } from '@ant-design/icons';
 import Api from '@/service/api';
 
@@ -26,7 +26,7 @@ export default function ReadPage() {
         }
         // 根据 options.sort 找到对应的章节数据，然后更新
         setChapterData(chapterData.map((it) => {
-            if (+it.sort ===  +options.sort) {
+            if (+it.sort === +options.sort) {
                 return { ...it, ...v };
             }
             return it;
@@ -36,6 +36,16 @@ export default function ReadPage() {
     const handleTrans = (it: { key: string, desc?: string }, source?: { [key: string]: string | number }, options?: { type: 'chapterData', sort: string | number }) => {
         if (!source) return;
         return transTextArea({ ...it, source, onChange: (v) => handleChange(v, options) });
+    }
+
+    const handleAddTopic = () => {
+        setChapterData([...chapterData, {
+            sort: chapterData.length + 1,
+            firstTimeTopic: '',
+            secondTimeTopic: '',
+            changes: '',
+            chapterId: readData.id,
+        }]);
     }
 
     const handleSave = () => {
@@ -59,6 +69,7 @@ export default function ReadPage() {
                     { key: 'title', desc: '书名' },
                     { key: 'firstTime', desc: '首次阅读时间' },
                     { key: 'secondTime', desc: '重读时间' },
+                    { key: 'plans', desc: '行动计划' },
                 ].map(it => handleTrans(it, readData))}
                 {chapterData.map((chapter) => {
                     return <div key={chapter.sort}>
@@ -73,9 +84,12 @@ export default function ReadPage() {
                         }))}
                     </div>
                 })}
-                <Button onClick={handleSave} icon={<AntDesignOutlined />}>
-                    保存
-                </Button>
+                <Space className='btn-group'>
+                    <Button onClick={handleAddTopic}>添加一项</Button>
+                    <Button onClick={handleSave} type='primary' icon={<AntDesignOutlined />}>
+                        保存
+                    </Button>
+                </Space>
             </ul>
         </nav>
 
