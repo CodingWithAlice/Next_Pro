@@ -130,6 +130,7 @@ export const BooksRecordModal = sequelize.define(
 		secondTime: DataTypes.DATE,
 		title: DataTypes.STRING,
 		plans: DataTypes.STRING,
+		blogUrl: DataTypes.STRING,
 		chapterId: DataTypes.NUMBER,
 	},
 	{

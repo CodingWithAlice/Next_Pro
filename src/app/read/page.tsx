@@ -14,7 +14,6 @@ interface ChapterProps {
 }
 
 export default function ReadPage() {
-
     const [readData, setReadData] = useState<{ [key: string]: string | number }>({});
     const [chapterData, setChapterData] = useState<{ [key: string]: string | number }[]>([]);
     const [messageApi, contextHolder] = message.useMessage();
@@ -35,7 +34,7 @@ export default function ReadPage() {
 
     const handleTrans = (it: { key: string, desc?: string }, source?: { [key: string]: string | number }, options?: { type: 'chapterData', sort: string | number }) => {
         if (!source) return;
-        return transTextArea({ ...it, source, onChange: (v) => handleChange(v, options) });
+        return transTextArea({ ...it, source, onChange: (v) => handleChange(v, options), cols: 56 });
     }
 
     const handleAddTopic = () => {
@@ -70,6 +69,7 @@ export default function ReadPage() {
                     { key: 'firstTime', desc: '首次阅读时间' },
                     { key: 'secondTime', desc: '重读时间' },
                     { key: 'plans', desc: '行动计划' },
+                    { key: 'blogUrl', desc: '博客链接' },
                 ].map(it => handleTrans(it, readData))}
                 {chapterData.map((chapter) => {
                     return <div key={chapter.sort}>
@@ -98,7 +98,7 @@ export default function ReadPage() {
             <br />
             <h2>首次阅读{readData.firstTime && transTimeStringToType(readData.firstTime, '：YYYY年MM月')}<br />
                 重读时间{readData.secondTime && transTimeStringToType(readData.secondTime, '：YYYY年MM月')}<br />
-                行动计划：{readData.plans}
+                行动计划：<span className='plans-text'>{readData.plans}</span>
             </h2>
         </section>
     </div>

@@ -25,3 +25,7 @@ ADD COLUMN id INT AUTO_INCREMENT PRIMARY KEY
 
 ALTER TABLE books_topic_record
 ADD COLUMN id INT AUTO_INCREMENT PRIMARY KEY
+
+-- 在 books_record 中添加 博客链接
+ALTER TABLE books_record
+ADD COLUMN blog_url VARCHAR(255) COMMENT '博客链接'

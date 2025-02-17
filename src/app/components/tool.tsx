@@ -84,16 +84,18 @@ function transTitle(title: string) {
     </span>
 }
 
-const transTextArea = ({ key, desc, source, onChange }: {
+const transTextArea = ({ key, desc, source, onChange, cols }: {
     key: string,
     desc?: string,
     source: { [key: string]: string | number},
-    onChange: (v: { [key: string]: string; }) => void
+    onChange: (v: { [key: string]: string; }) => void,
+    cols?: number
 }) => {
     return <UniformTextAreaWithStyle
         key={key}
         type={key}
         desc={desc || ''}
+        cols={cols}
         init={source?.[key] || ''}
         onChange={onChange}
     />
