@@ -16,10 +16,11 @@ const getCurrentBySub = (subtractDay?: number) => {
 };
 
 // 展示 月.日 周几 - 默认展示昨天
-function getYesterdayDate(handle: number = config.current) {
+function getYesterdayDate(handle: number = config.current, urlDate?: string) {    
     const date = getCurrentBySub(handle);
-    const weekday = '六日一二三四五'.charAt(date.day() + 1);
-    return { weekday, date: date.format('YYYY-MM-DD') }
+    const current = dayjs(urlDate) || date;
+    const weekday = '六日一二三四五'.charAt((current.day() + 1) % 7);
+    return { weekday, date: current.format('YYYY-MM-DD') }
 }
 
 // 计算当前计划周期流逝速度
@@ -155,7 +156,7 @@ const CategoryColor = {
 function FormatDateToMonthDayWeek({ handle = config.current }: { handle?: number }) {
     const urlParams = useSearchParams();
     const urlDate = urlParams?.get('date');
-    const { weekday, date } = getYesterdayDate(handle);
+    const { weekday, date } = getYesterdayDate(handle, urlDate || '');
     return <div className='flex'>
         <span style={{ color: '#f68084', fontWeight: 800 }}>{urlDate || date}</span>
         &nbsp;
