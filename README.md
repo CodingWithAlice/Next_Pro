@@ -119,3 +119,6 @@ FLUSH PRIVILEGES;
 将服务器的操作 从 docker 切换到 docker-compose
 
 sudo /usr/local/bin/docker-compose up -d
+
+- https://gitee.com/CodingWithAlice/Next_Pro 更新
+- 方便国内 git pull 拉取
