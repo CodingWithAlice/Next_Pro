@@ -4,6 +4,11 @@ services:
     build:
       context: .
       dockerfile: dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'  # 限制使用 50% 的 CPU
+          memory: 512M  # 限制使用 512MB 内存
     ports:
       - "3000:3000"  # 将容器内的 3000 端口映射到主机的 3000 端口
     environment:
