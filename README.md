@@ -1,8 +1,8 @@
 基础信息：
-     Nextjs + API Route + Sequelize + MySQL + Mongodb
+ Nextjs + API Route + Sequelize + MySQL + Mongodb
 
 主要实现的功能：
-    日报[时间序已完成，日总结]、周报[前端已完成，落表 todo]、月报、季报
+日报[时间序已完成，日总结]、周报[前端已完成，落表 todo]、月报、季报
 
 ### 2025.1.17
 
@@ -59,8 +59,8 @@ cd
 // 服务器内的数据盘信息
 fdisk -l
 ```
-/dev/vda1    2048     6143     4096    2M BIOS boot
-/dev/vda2    6144   415743   409600  200M EFI System
+/dev/vda12048 6143 40962M BIOS boot
+/dev/vda26144   415743   409600  200M EFI System
 /dev/vda3  415744 83886046 83470303 39.8G Linux filesystem
 
 2、查看数据盘是否挂载
@@ -68,16 +68,16 @@ fdisk -l
 df -h
 ```
 查到的设备名，说明对应的分区已经挂载，并且会显示其挂载点
-Filesystem      Size  Used Avail Use% Mounted on
-/dev/vda3        40G  6.1G   32G  17% /
+Filesystem  Size  Used Avail Use% Mounted on
+/dev/vda340G  6.1G   32G  17% /
 表示 /dev/vda3 分区已经挂载到根目录 / -> 已经挂载，说明它已经有文件系统了
 
 3、显示文件系统的类型以及磁盘使用情况
 ```js
 df -T /dev/vda3
 ```
-Filesystem     Type 1K-blocks    Used Available Use% Mounted on
-/dev/vda3      ext4  40900288 6386396  32623616  17% /
+Filesystem Type 1K-blocksUsed Available Use% Mounted on
+/dev/vda3  ext4  40900288 6386396  32623616  17% /
 
 4、创建子目录作为挂载点 /data/mysql
 在 /dev/vda3 的挂载路径 / 下创建一个专门用于 MySQL 数据存储的子目录：
