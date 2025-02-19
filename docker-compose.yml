@@ -1,0 +1,16 @@
+version: '3'
+services:
+  daily-app:
+    build:
+      context: .
+      dockerfile: dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'  # 限制使用 50% 的 CPU
+          memory: 512M  # 限制使用 512MB 内存
+    ports:
+      - "3000:3000"  # 将容器内的 3000 端口映射到主机的 3000 端口
+    environment:
+      - NODE_ENV=production  # 设置环境变量
+    restart: always  # 容器退出时自动重启

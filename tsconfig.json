@@ -22,9 +22,9 @@
       "@/*": ["./src/app/*"],
       "db":["./lib/db.ts"],
       "utils":["./lib/utils.ts"],
-      "config":["./config.tsx"],
+      "config":["./config.tsx"]
     },
-    "allowSyntheticDefaultImports": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]

@@ -6,6 +6,7 @@ import { routineType } from '@/daily/page';
 import CustomTimePickerList from './custom-time-picker-list';
 import { type Issue } from '@/components/custom-time-picker';
 import config from 'config';
+import { useSearchParams } from 'next/navigation';
 
 interface TimeRecordProps {
     total: number,
@@ -20,6 +21,8 @@ interface TimeRecordProps {
 
 export default function TimeRecord({ total, ltnTotal, read, study, onChange, routineType, issues, setIssues }: TimeRecordProps) {
     const [messageApi, contextHolder] = message.useMessage();
+    const urlParams = useSearchParams();
+    const urlDate = urlParams?.get('date');
 
     const handleAddIssue = () => {
         const suggestTime = issues[issues.length - 1]?.endTime || getCurrentBySub();
@@ -41,8 +44,9 @@ export default function TimeRecord({ total, ltnTotal, read, study, onChange, rou
             startTime: getCurrentBySub(),
             endTime: getCurrentBySub(),
             interval: 0,
-            id: null
-        }
+            id: null,
+            ...getYesterdayDate(config.current, urlDate || ''),
+        }        
         return [...issues, {
             ...totalIssue,
             // 前端 total
@@ -70,7 +74,7 @@ export default function TimeRecord({ total, ltnTotal, read, study, onChange, rou
             const { ...rest } = it;
             return {
                 ...rest,
-                ...getYesterdayDate(),
+                ...getYesterdayDate(config.current, urlDate || ''),
                 duration: formatTime(it.duration),
                 routineTypeId: +it.type,
                 startTime: it.startTime.format('HH:mm:ss'),
