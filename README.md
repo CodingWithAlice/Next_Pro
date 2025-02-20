@@ -117,8 +117,12 @@ FLUSH PRIVILEGES;
 
 ### 2025.2.19
 将服务器的操作 从 docker 切换到 docker-compose
-
+```js
+// 第一次启动
 sudo /usr/local/bin/docker-compose up -d
-
+// 修改后重新启动
+sudo /usr/local/bin/docker-compose down
+sudo /usr/local/bin/docker-compose up -d --build
+```
 - https://gitee.com/CodingWithAlice/Next_Pro 更新
 - 方便国内 git pull 拉取
