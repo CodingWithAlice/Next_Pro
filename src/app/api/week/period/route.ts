@@ -27,7 +27,7 @@ async function GET(request: NextRequest) {
 			// 周期起始时间
 			const startTime = serialDateInfo.getDataValue('startTime')
 			const endTime = serialDateInfo.getDataValue('endTime')
-			// 查询周期内的时间 + 事项记录			
+			// 查询周期内的时间 + 事项记录	
 			const weekData = await IssueModal.findAll({
                 where: transTwoDateToWhereOptions(startTime, endTime),
 				include: [

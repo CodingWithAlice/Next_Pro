@@ -18,7 +18,7 @@ const getCurrentBySub = (subtractDay?: number) => {
 // 展示 月.日 周几 - 默认展示昨天
 function getYesterdayDate(handle: number = config.current, urlDate?: string) {    
     const date = getCurrentBySub(handle);
-    const current = dayjs(urlDate) || date;
+    const current = urlDate ? dayjs(urlDate) : date;
     const weekday = '六日一二三四五'.charAt((current.day() + 1) % 7);
     return { weekday, date: current.format('YYYY-MM-DD') }
 }

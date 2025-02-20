@@ -70,6 +70,11 @@ export function WeekDay({ data, index }: { data: WeekDayProps, index: number }) 
             render: <Input.TextArea autoSize={{ minRows: 6, maxRows: 15 }} disabled />
         },
         {
+            label: "可以更好",
+            name: "better",
+            render: <Input.TextArea autoSize={{ minRows: 6, maxRows: 15 }} disabled />
+        },
+        {
             label: "做得棒",
             name: "good",
             render: <Input.TextArea autoSize={{ minRows: 2, maxRows: 15 }} disabled />
