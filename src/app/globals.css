@@ -205,4 +205,8 @@ h1 {
         position: relative;
         top: 2px;
     }
+    /* daily 隐藏 */
+    .interval {
+        display: none;
+    }
 }

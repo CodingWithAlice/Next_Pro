@@ -1,7 +1,7 @@
 const config = {
     startTime: {
-        time: '2025-02-10',
-        cycle: 9
+        time: '2025-02-19',
+        cycle: 10
     },
     current: 1, // 每日时间+事项
     frontTotalId: 13,
