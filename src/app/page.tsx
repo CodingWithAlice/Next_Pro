@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import config from "config";
+// import { DoubleRightOutlined } from "@ant-design/icons";
 
 export default function Home() {
     const [count, setCount] = useState(0);
@@ -53,8 +54,14 @@ export default function Home() {
             <div className='j-title'>
                 J人复盘工具
             </div>
+            <br />
+            {/* <Link href={'/ltn'}>
+                莱特纳盒子学习法
+                <DoubleRightOutlined />
+            </Link> */}
             {/* 手机端 - 绶带 */}
             <section className="links">
+
                 {
                     linksList.map(({ href, title, key }) => {
                         return <div className="ribbon" key={key}>
