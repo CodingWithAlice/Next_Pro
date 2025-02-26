@@ -1,5 +1,13 @@
 version: '3'
 services:
+  nginx:
+      image: nginx
+      ports:
+        - "80:80"  # 将宿主机的 80 端口映射到容器的 80 端口
+      volumes:
+        - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf  # 挂载 Nginx 配置文件
+      depends_on:
+        - daily-app  # 依赖于 your-app 服务
   daily-app:
     build:
       context: .
