@@ -95,10 +95,9 @@ export default function ReadPage() {
 
         <section className="front layer">
             <h1 className='books'>{readData.title}</h1>
-            <br />
             <h2>首次阅读{readData.firstTime && transTimeStringToType(readData.firstTime, '：YYYY年MM月')}<br />
                 重读时间{readData.secondTime && transTimeStringToType(readData.secondTime, '：YYYY年MM月')}<br />
-                行动计划：<span className='plans-text'>{readData.plans}</span>
+                行动计划：<div className='plans-text'>{readData.plans}</div>
             </h2>
         </section>
     </div>
