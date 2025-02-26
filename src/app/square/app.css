@@ -2,7 +2,7 @@
     box-sizing: border-box;
   }
   
-  body {
+  /* body {
     font-family: sans-serif;
     margin: 20px;
     padding: 0;
@@ -54,7 +54,7 @@
     font-family: sans-serif;
     margin: 20px;
     padding: 0;
-  }
+  } */
   
   .square {
     background: #fff;
