@@ -27,6 +27,9 @@ const Api = {
 	getMonthDetailApi(serialNumber: string) {
 		return request.get('month/detail', { serialNumber })
 	},
+    getMonthDeepSeekApi(serialNumber: string) {
+		return request.get('deepseek', { serialNumber })
+	},
 	postMonthApi(data: { [key: string]: string | number }) {
 		return request.post('month', data)
 	},

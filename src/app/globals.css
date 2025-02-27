@@ -30,8 +30,9 @@ body {
 }
 
 h1 {
-    font-size: 2rem;
-    margin: 50px;
+    font-size: 2.5rem;
+    margin: 8px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .img {
@@ -123,7 +124,7 @@ h1 {
 	font-family: 'Open Sans', sans-serif;
 	font-size: 1.25em;
 	line-height: 2.5em;
-	font-weight: 400;
+	font-weight: 500;
 	letter-spacing: 1px;
 }
 
@@ -139,6 +140,12 @@ h1 {
 
 .title-top span{
 	padding-left: 15px;
+}
+
+.desc {
+    white-space: nowrap;
+    margin: 0 4px 0 12px;
+    color: dimgray;
 }
 
 @media only screen and (max-width: 700px) {

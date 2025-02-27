@@ -8,19 +8,14 @@
     display: flex;
     align-items: center;
 }
-.month h1 {
-    margin: 8px;
-}
 .textarea {
     width: 100%;
     display: flex;
     align-items: center;
     margin-top: 10px;
 }
-.desc {
-    white-space: nowrap;
-    margin: 0 4px 0 12px;
-    color: dimgray;
+.desc-wrap {
+    min-width: 12em;
 }
 
 .btn {
@@ -45,4 +40,18 @@
 .times-wrap {
     display: flex;
     flex-wrap: wrap;
+}
+
+.section {
+    background-color: rgba(249, 249, 249, .5);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.section:hover {
+    transform: translateY(-5px);
 }

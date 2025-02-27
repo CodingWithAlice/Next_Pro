@@ -43,11 +43,6 @@
     align-items: center;
 }
 
-.desc {
-    white-space: nowrap;
-    margin: 0 4px 0 12px;
-}
-
 .front {
     /* display: none; */
     background: #FFFBC1;
