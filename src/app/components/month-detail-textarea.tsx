@@ -5,6 +5,8 @@ import MonthTotalTime from "./month-total-time";
 import { timeTotalByRoutineTypeProps } from "./month-total-time";
 import MonthTable from "./month-table";
 import { transTextArea, transTitle } from "./tool";
+import { Button } from "antd";
+import { OpenAIOutlined } from "@ant-design/icons";
 
 const timeTotal = [
     [
@@ -47,6 +49,12 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
         }
     }
 
+    const handleDeepSeek = () => {
+        Api.getMonthDeepSeekApi(periods.join(',')).then(res => {
+            console.log(res)
+        })
+    }
+
     useEffect(() => {
         // 更新选择的 LTN 周期后，刷新当前页面数据
         if (periods.length >= 1) {
@@ -80,6 +88,11 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
             {!!weeksData.length && <MonthTable key={weeksData.length} data={weeksData} study={studyTotal} />}
         </section>
         <section className='section'>
+            {!!weeksData.length && transTitle('【回顾总结】')}
+            <Button type="text" color="purple" variant="filled" onClick={handleDeepSeek}>
+                <OpenAIOutlined />
+                获取 deepseek 推荐
+            </Button>
             {[
                 { key: 'frontMonthDesc', desc: '回顾总结 - 前端' },
                 { key: 'otherMonthDesc', desc: '回顾总结 - 其他' }
