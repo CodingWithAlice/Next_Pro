@@ -15,7 +15,7 @@ interface MonthTotalTimeProps {
 const calcOneTime = (it: { key: string, desc?: string, source: timeTotalByRoutineTypeProps[] }) => {
     const init = it.source.find((timeTotal: timeTotalByRoutineTypeProps) => timeTotal.routine_type.type === it.key)?.totalDuration || '';
 
-    return <span key={it.key}>
+    return <span key={it.key} className="desc-wrap">
         {it.desc && <span className="desc">{it.desc}:</span>}
         {formatMinToHM(+init)}
     </span>

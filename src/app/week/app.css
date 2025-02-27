@@ -8,19 +8,11 @@
     display: flex;
     align-items: center;
 }
-.week h1 {
-    margin: 8px;
-}
 .textarea {
     width: 100%;
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-}
-.desc {
-    white-space: nowrap;
-    margin: 0 4px 0 12px;
-    color: dimgray;
 }
 
 .btn {

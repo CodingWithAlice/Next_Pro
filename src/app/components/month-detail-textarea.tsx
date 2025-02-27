@@ -69,16 +69,23 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
             本月周期：
             <SerialsPicker onValueChange={onSerialChange} value={periods} mode='multiple' />
         </section>
-        {transTitle('【总计时长】')}
-        <MonthTotalTime key='total1' times={timeTotal[0]} source={timeTotalByRoutineType} />
-        <MonthTotalTime key='total2' times={timeTotal[1]} source={timeTotalByRoutineType} />
-        {handleTrans({ key: 'timeDiffDesc', desc: '时长差异存在原因' }, monthData)}
+        <section className='section'>
+            {transTitle('【总计时长】')}
+            <MonthTotalTime key='total1' times={timeTotal[0]} source={timeTotalByRoutineType} />
+            <MonthTotalTime key='total2' times={timeTotal[1]} source={timeTotalByRoutineType} />
+            {handleTrans({ key: 'timeDiffDesc', desc: '时长差异存在原因' }, monthData)}
+        </section>
+        <section className='section'>
+            {!!weeksData.length && transTitle('【不同LTN周期任务对比】')}
+            {!!weeksData.length && <MonthTable key={weeksData.length} data={weeksData} study={studyTotal} />}
+        </section>
+        <section className='section'>
+            {[
+                { key: 'frontMonthDesc', desc: '回顾总结 - 前端' },
+                { key: 'otherMonthDesc', desc: '回顾总结 - 其他' }
+            ].map(it => handleTrans(it, monthData))}
+        </section>
 
-        {!!weeksData.length && transTitle('【不同LTN周期任务对比】')}
-        {!!weeksData.length && <MonthTable key={weeksData.length} data={weeksData} study={studyTotal} />}
-        {[
-            { key: 'frontMonthDesc', desc: '回顾总结 - 前端' },
-            { key: 'otherMonthDesc', desc: '回顾总结 - 其他' }
-        ].map(it => handleTrans(it, monthData))}
+
     </section>
 }
