@@ -51,6 +51,7 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
     }
 
     const handleDeepSeek = () => {
+        if(deepseekLoading) return;
         setDeepseekLoading(true);
         Api.getMonthDeepSeekApi(periods.join(',')).then(({ data }) => {
         setDeepseekLoading(false)

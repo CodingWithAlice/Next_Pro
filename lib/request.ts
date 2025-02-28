@@ -1,8 +1,11 @@
 import axios, { AxiosResponse } from 'axios'
 import OpenAI from 'openai'
+
+const apiKey = process.env.DEEPSEEK_API_KEY || 'a';
 const openai = new OpenAI({
 	baseURL: 'https://api.deepseek.com',
-	apiKey: process.env.DEEPSEEK_API_KEY,
+	apiKey,
+    dangerouslyAllowBrowser: true
 })
 
 // 定义请求体的类型

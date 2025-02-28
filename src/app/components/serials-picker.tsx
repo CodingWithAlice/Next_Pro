@@ -18,7 +18,6 @@ export function SerialsPicker({ value, onValueChange, onSerialsLength, mode }: S
             v.sort((a, b) => a - b); // 排序
             const start = serials.find((serial) => serial.serialNumber === v[0]);
             const end = serials.find((serial) => serial.serialNumber === v[v.length - 1]);
-            console.log('start', start, 'end', end);
             
             if (start && end) {
                 const gap = getGapTime(start.startTime, end.endTime, 'day');

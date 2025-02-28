@@ -72,7 +72,7 @@ async function GET(request: NextRequest) {
 	try {
 		const { searchParams } = request.nextUrl
 		const serialNumber = searchParams.get('serialNumber')
-		if (!serialNumber || +serialNumber) return NextResponse.json(
+		if (!serialNumber) return NextResponse.json(
 			{ error: '缺少 serialNumber' },
 			{ status: 500 }
 		)

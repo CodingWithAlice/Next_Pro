@@ -41,7 +41,7 @@ async function GET(request: NextRequest) {
 			{
 				role: 'assistant',
 				content:
-					'返回回答的数据格式为json : {“studyConclude”: ‘’”, “others”: “”}',
+					'返回回答的数据格式为json : {“studyConclude”: ‘’”, “others”: “”},studyConclude 为所有周期的学习内容总结，others 为所有周期的其他事项总结',
 			},
 		])
 		return NextResponse.json({
