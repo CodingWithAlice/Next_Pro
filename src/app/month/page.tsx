@@ -29,7 +29,7 @@ export default function Month() {
 
     useEffect(() => {
         Api.getMonthApi(monthId).then(({ monthData }) => {
-            if (monthData.periods) {
+            if (monthData?.periods) {
                 setMonthData(monthData);
                 setPeriods(monthData.periods.split(',').map((it: string) => +it));
             }
