@@ -2,7 +2,7 @@ import type { NextConfig } from 'next'
 import * as fs from 'fs'
 import * as path from 'path'
 import dotenv from 'dotenv'
-const configPath = path.resolve(__dirname, './config.env')
+const configPath = path.resolve(__dirname, '../../config.env')
 console.log('🌹🌹🌹 configPath:', configPath);
 
 const result = dotenv.config({ path: configPath });
