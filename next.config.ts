@@ -3,17 +3,18 @@ import * as fs from 'fs'
 import * as path from 'path'
 import dotenv from 'dotenv'
 // const configPath = path.resolve(__dirname, '../../config.env')
-const configPath = process.env.CONFIG_PATH
+// 获取当前文件所在目录
+const __dirname = path.dirname(new URL(import.meta.url).pathname)
+
+// 构建正确的配置文件路径
+const configPath = path.resolve(__dirname, './config.env')
 console.log('🌹🌹🌹 configPath:', configPath)
 
-if (configPath) {
-	const fullConfigPath = path.resolve(process.cwd(), configPath)
-	const result = dotenv.config({ path: fullConfigPath })
-	if (result.error) {
-		console.error('🌹🌹🌹 Failed:', result.error)
-	} else {
-		console.log('🌹🌹🌹 successfully')
-	}
+const result = dotenv.config({ path: configPath })
+if (result.error) {
+	console.error('🌹🌹🌹 Failed:', result.error)
+} else {
+	console.log('🌹🌹🌹 successfully')
 }
 
 const tsconfigPath = path.resolve(__dirname, 'tsconfig.json')
