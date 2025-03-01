@@ -1,10 +1,8 @@
 import axios, { AxiosResponse } from 'axios'
 import OpenAI from 'openai'
-import dotenv from 'dotenv';
-dotenv.config({ path: '../config.env' });
 
 const apiKey = process.env.DEEPSEEK_API_KEY || 'a';
-console.log('🌹🌹🌹apiKey:', apiKey)
+console.log('🌹🌹🌹apiKey:',apiKey)
 const openai = new OpenAI({
 	baseURL: 'https://api.deepseek.com',
 	apiKey, 
