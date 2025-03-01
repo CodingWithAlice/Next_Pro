@@ -165,7 +165,7 @@ export const BooksTopicRecordModal = sequelize.define(
 	}
 )
 
-interface SerialAttributes {
+export interface SerialAttributes {
 	id: number
 	serialNumber: number
 	startTime: Date

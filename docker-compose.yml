@@ -22,3 +22,5 @@ services:
     environment:
       - NODE_ENV=production  # 设置环境变量
     restart: always  # 容器退出时自动重启
+    volumes:
+      - ../config.env:/app/config.env  # 将宿主机上的 config.env 挂载到容器内的 /app/config.env
