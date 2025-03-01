@@ -33,9 +33,7 @@ async function GET(request: NextRequest) {
 		const serialNumber = searchParams.get('serialNumber')
 		if (!serialNumber) return
 		const { weekList } = await GetMonthWeekInfosAndTimeTotals(serialNumber)
-		const content = GetAIMonthInputText(weekList)
-        console.log('🌹🌹🌹 调用 AIPOST');
-        
+		const content = GetAIMonthInputText(weekList)        
 
 		//  按照周期获取此月的数据
 		const data = await AIPOST([
