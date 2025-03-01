@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "CONFIG_PATH=../config.env next start",
     "lint": "next lint"
   },
   "dependencies": {

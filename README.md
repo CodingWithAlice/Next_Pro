@@ -123,6 +123,8 @@ sudo /usr/local/bin/docker-compose up -d
 // 修改后重新启动
 sudo /usr/local/bin/docker-compose down
 sudo /usr/local/bin/docker-compose up -d --build
+// 日志
+sudo /usr/local/bin/docker-compose logs daily-app
 ```
 - https://gitee.com/CodingWithAlice/Next_Pro 更新
 - 方便国内 git pull 拉取

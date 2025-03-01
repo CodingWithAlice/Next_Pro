@@ -2,16 +2,19 @@ import type { NextConfig } from 'next'
 import * as fs from 'fs'
 import * as path from 'path'
 import dotenv from 'dotenv'
-const configPath = path.resolve(__dirname, '../../config.env')
-console.log('🌹🌹🌹 configPath:', configPath);
+// const configPath = path.resolve(__dirname, '../../config.env')
+const configPath = process.env.CONFIG_PATH
+console.log('🌹🌹🌹 configPath:', configPath)
 
-const result = dotenv.config({ path: configPath });
-if (result.error) {
-    console.error('🌹🌹🌹 Failed:', result.error);
-} else {
-    console.log('🌹🌹🌹 successfully');
+if (configPath) {
+	const fullConfigPath = path.resolve(process.cwd(), configPath)
+	const result = dotenv.config({ path: fullConfigPath })
+	if (result.error) {
+		console.error('🌹🌹🌹 Failed:', result.error)
+	} else {
+		console.log('🌹🌹🌹 successfully')
+	}
 }
-
 
 const tsconfigPath = path.resolve(__dirname, 'tsconfig.json')
 const tsconfigRaw = fs.readFileSync(tsconfigPath, 'utf-8')
@@ -40,6 +43,6 @@ const nextConfig: NextConfig = {
 		CHECK_AUTH: process.env.CHECK_AUTH,
 	},
 }
-console.log('🌹🌹🌹next.config.ts:', nextConfig?.env?.PASSWORD);
+console.log('🌹🌹🌹next.config.ts:', nextConfig?.env?.PASSWORD)
 
 export default nextConfig
