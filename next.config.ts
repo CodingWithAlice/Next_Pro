@@ -2,8 +2,7 @@ import type { NextConfig } from 'next'
 import * as fs from 'fs'
 import * as path from 'path'
 import dotenv from 'dotenv'
-const configPath = path.resolve(__dirname, '../config.env') // 线上打印出来是 /config.env
-// const configPath = path.resolve(process.cwd(), '../config.env'); // /config.env
+const configPath = path.resolve(__dirname, './config.env')
 console.log('🌹🌹🌹 configPath:', configPath);
 
 const result = dotenv.config({ path: configPath });
