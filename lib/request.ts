@@ -9,7 +9,7 @@ const openai = new OpenAI({
 })
 
 // 定义请求体的类型
-interface MessageProp {
+export interface MessageProp {
 	role: 'system' | 'user' | 'assistant'
 	content: string
 }
@@ -43,7 +43,7 @@ async function post<T>(api: string, data: T) {
 }
 
 export async function AIPOST(messages: MessageProp[]) {
-	try {
+	try {        
 		// 获取客户端发送的数据
 		const completion = await openai.chat.completions.create({
 			messages: messages,

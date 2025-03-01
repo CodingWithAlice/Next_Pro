@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { AIPOST } from '../../../../lib/request'
+import { AIPOST, MessageProp } from '../../../../lib/request'
 import { GetMonthWeekInfosAndTimeTotals } from '../month/detail/route'
 import { SerialAttributes } from 'db'
 
@@ -33,17 +33,17 @@ async function GET(request: NextRequest) {
 		const serialNumber = searchParams.get('serialNumber')
 		if (!serialNumber) return
 		const { weekList } = await GetMonthWeekInfosAndTimeTotals(serialNumber)
-		const content = GetAIMonthInputText(weekList)        
-
-		//  按照周期获取此月的数据
-		const data = await AIPOST([
+		const content = GetAIMonthInputText(weekList)
+		const messages: MessageProp[] = [
 			{ role: 'user', content },
 			{
 				role: 'assistant',
-				content:
-					'返回回答的数据格式为json : {“studyConclude”: ‘’”, “others”: “”},studyConclude 为所有周期的学习内容总结，others 为所有周期的其他事项总结',
+				content: process.env.EXAMPLE || '',
 			},
-		])
+		]
+
+		//  按照周期获取此月的数据
+		const data = await AIPOST(messages)
 		return NextResponse.json({
 			data,
 		})
