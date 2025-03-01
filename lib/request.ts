@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '../config.env' });
 
 const apiKey = process.env.DEEPSEEK_API_KEY || 'a';
+console.log('🌹🌹🌹apiKey:', apiKey)
 const openai = new OpenAI({
 	baseURL: 'https://api.deepseek.com',
 	apiKey, 
@@ -54,7 +55,7 @@ export async function AIPOST(messages: MessageProp[]) {
 				type: 'json_object',
 			},
 		})
-		console.log(completion.choices[0].message.content)
+		console.log('🌹🌹🌹',completion.choices[0].message.content)
 
 		// 返回 API 响应给客户端
 		return completion.choices[0].message.content
