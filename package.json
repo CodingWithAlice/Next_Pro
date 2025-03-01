@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "CONFIG_PATH=../config.env next dev",
+    "build": "CONFIG_PATH=../config.env next build",
     "start": "CONFIG_PATH=../config.env next start",
     "lint": "next lint"
   },
