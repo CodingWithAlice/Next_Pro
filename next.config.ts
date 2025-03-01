@@ -2,7 +2,8 @@ import type { NextConfig } from 'next'
 import * as fs from 'fs'
 import * as path from 'path'
 import dotenv from 'dotenv'
-const configPath = path.resolve(__dirname, '../config.env')
+// const configPath = path.resolve(__dirname, '../config.env') 线上打印出来是 /config.env
+const configPath = path.resolve(process.cwd(), '../config.env'); // 项目根目录
 dotenv.config({ path: configPath })
 console.log('🌹🌹🌹 configPath:', configPath);
 
