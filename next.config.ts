@@ -4,6 +4,8 @@ import * as path from 'path'
 import dotenv from 'dotenv'
 const configPath = path.resolve(__dirname, '../config.env')
 dotenv.config({ path: configPath })
+console.log('🌹🌹🌹 configPath:', configPath);
+
 
 const tsconfigPath = path.resolve(__dirname, 'tsconfig.json')
 const tsconfigRaw = fs.readFileSync(tsconfigPath, 'utf-8')
@@ -32,5 +34,6 @@ const nextConfig: NextConfig = {
 		CHECK_AUTH: process.env.CHECK_AUTH,
 	},
 }
+console.log('🌹🌹🌹next.config.ts:', nextConfig?.env?.PASSWORD);
 
 export default nextConfig
