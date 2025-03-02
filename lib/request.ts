@@ -1,11 +1,11 @@
-import axios, { AxiosResponse } from 'axios'
+import axios, { AxiosResponse, AxiosRequestConfig } from 'axios'
 import OpenAI from 'openai'
 
-const apiKey = process.env.DEEPSEEK_API_KEY || 'a';
+const apiKey = process.env.DEEPSEEK_API_KEY || 'a'
 const openai = new OpenAI({
 	baseURL: 'https://api.deepseek.com',
-	apiKey, 
-    dangerouslyAllowBrowser: true
+	apiKey,
+	dangerouslyAllowBrowser: true,
 })
 
 // 定义请求体的类型
@@ -15,6 +15,15 @@ export interface MessageProp {
 }
 
 const url = process.env.NEXT_PUBLIC_API_HOST
+// 解析 请求链接 / localstorage 的查询参数
+const localStorageType = localStorage.getItem('type')
+
+const postConfig: AxiosRequestConfig = {
+	headers: {},
+}
+if (localStorageType === 'owner-alice') {
+    postConfig.headers = { Authorization: 'owner' }
+}
 
 async function get(
 	api: string,
@@ -35,15 +44,15 @@ async function postList(
 	api: string,
 	data: { [key: string]: string | number | boolean }[]
 ) {
-	return await axios.post(`${url}/${api}`, { data })
+	return await axios.post(`${url}/${api}`, { data }, postConfig)
 }
 
 async function post<T>(api: string, data: T) {
-	return await axios.post(`${url}/${api}`, { data })
+	return await axios.post(`${url}/${api}`, { data }, postConfig)
 }
 
 export async function AIPOST(messages: MessageProp[]) {
-	try {        
+	try {
 		// 获取客户端发送的数据
 		const completion = await openai.chat.completions.create({
 			messages: messages,
