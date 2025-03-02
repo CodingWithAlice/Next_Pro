@@ -18,12 +18,16 @@ async function POST(request: NextRequest) {
 					'interval',
 				],
 			})
-			return NextResponse.json({ success: true })
+			return NextResponse.json({ success: true, message: '操作成功' })
 		}
-	} catch (e) {
-		console.error(e)
+	} catch (error) {
+		console.error(error)
 		return NextResponse.json(
-			{ error: 'Internal Server Error' },
+			{
+				success: false,
+				message: '操作失败',
+				error: (error as Error).message,
+			},
 			{ status: 500 }
 		)
 	}
@@ -42,11 +46,17 @@ async function GET(request: NextRequest) {
 			dailyData,
 			routineData,
 			IssueData: IssueList?.[0] || {},
+			success: true,
+			message: '操作成功',
 		})
 	} catch (error) {
 		console.error(error)
 		return NextResponse.json(
-			{ error: 'Internal Server Error' },
+			{
+				success: false,
+				message: '操作失败',
+				error: (error as Error).message,
+			},
 			{ status: 500 }
 		)
 	}

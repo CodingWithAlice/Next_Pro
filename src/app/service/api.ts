@@ -7,7 +7,7 @@ const Api = {
 	},
 
 	postDailyApi(data: { [key: string]: string | number | boolean }[]) {
-		return request.postList('daily', data)
+		return request.post('daily', data)
 	},
 	getDailyApi(date: string) {
 		return request.get('daily', { date })

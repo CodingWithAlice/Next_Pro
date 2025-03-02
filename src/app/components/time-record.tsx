@@ -37,7 +37,7 @@ export default function TimeRecord({ total, ltnTotal, read, study, onChange, rou
         setIssues([...issues, newIssue]);
     }
 
-    function addTotalIssue(issues: Issue[], totalTime: number, studyTime: number, ltnTotal: number): Issue[] {        
+    function addTotalIssue(issues: Issue[], totalTime: number, studyTime: number, ltnTotal: number): Issue[] {
         const length = issues.length;
         const totalIssue = {
             ...issues[0],
@@ -46,11 +46,11 @@ export default function TimeRecord({ total, ltnTotal, read, study, onChange, rou
             interval: 0,
             id: null,
             ...getYesterdayDate(config.current, urlDate || ''),
-        }        
+        }
         return [...issues, {
             ...totalIssue,
             // 前端 total
-            type: config.frontTotalId+ '',
+            type: config.frontTotalId + '',
             daySort: length + 1,
             duration: formatTime(studyTime),
         }, {
@@ -84,6 +84,8 @@ export default function TimeRecord({ total, ltnTotal, read, study, onChange, rou
         });
         Api.postDailyApi(transIssues).then(() => {
             messageApi.success('保存成功');
+        }).catch((e) => {
+            messageApi.error(e.message || '保存失败');
         })
     }
 
@@ -101,12 +103,12 @@ export default function TimeRecord({ total, ltnTotal, read, study, onChange, rou
             routineTypes={routineType}
             setList={setIssues}
             freshTime={onChange} />}
-            <Space className='btn-group'>
-                <Button onClick={handleAddIssue}>添加一项</Button>
-                <Button onClick={handleSave} icon={<AntDesignOutlined />}>
-                    保存
-                </Button>
-            </Space>
+        <Space className='btn-group'>
+            <Button onClick={handleAddIssue}>添加一项</Button>
+            <Button onClick={handleSave} icon={<AntDesignOutlined />}>
+                保存
+            </Button>
+        </Space>
     </div>)
 
 }

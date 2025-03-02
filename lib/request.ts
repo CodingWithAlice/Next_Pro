@@ -1,4 +1,4 @@
-import axios, { AxiosResponse, AxiosRequestConfig } from 'axios'
+import axios, { AxiosResponse, AxiosRequestConfig, AxiosError } from 'axios'
 import OpenAI from 'openai'
 
 const apiKey = process.env.DEEPSEEK_API_KEY || 'a'
@@ -16,13 +16,27 @@ export interface MessageProp {
 
 const url = process.env.NEXT_PUBLIC_API_HOST
 // 解析 请求链接 / localstorage 的查询参数
-const localStorageType = localStorage.getItem('type')
-
 const postConfig: AxiosRequestConfig = {
 	headers: {},
 }
-if (localStorageType === 'owner-alice') {
-    postConfig.headers = { Authorization: 'owner' }
+if (typeof localStorage !== 'undefined') {
+	const localStorageType = localStorage.getItem('type')
+	if (localStorageType === 'owner-alice') {
+		postConfig.headers = { Authorization: 'owner' }
+	}
+}
+
+function handleAxiosError(error: unknown): { status: number; message: string } {
+	if (axios.isAxiosError(error)) {
+		const axiosError = error as AxiosError
+		const status = axiosError.response?.status || 500
+		const message =
+			(axiosError.response?.data as { message?: string })?.message ||
+			axiosError.message
+		return { status, message }
+	}
+	// 非 Axios 错误
+	return { status: 500, message: '未知错误' }
 }
 
 async function get(
@@ -35,20 +49,19 @@ async function get(
 		})
 		return response.data
 	} catch (error) {
-		console.error('请求出错:', error)
-		throw error
+		const errorObj = handleAxiosError(error)
+		throw errorObj
 	}
 }
 
-async function postList(
-	api: string,
-	data: { [key: string]: string | number | boolean }[]
-) {
-	return await axios.post(`${url}/${api}`, { data }, postConfig)
-}
-
 async function post<T>(api: string, data: T) {
-	return await axios.post(`${url}/${api}`, { data }, postConfig)
+	try {
+		const response = await axios.post(`${url}/${api}`, { data }, postConfig)
+		return response.data
+	} catch (error) {
+		const errorObj = handleAxiosError(error)
+		throw errorObj
+	}
 }
 
 export async function AIPOST(messages: MessageProp[]) {
@@ -71,7 +84,6 @@ export async function AIPOST(messages: MessageProp[]) {
 
 const request = {
 	get,
-	postList,
 	post,
 	AIPOST,
 }

@@ -8,9 +8,12 @@ export const config = {
 export default function middleware(request: NextRequest) {
 	if (request.method === 'POST') {
 		const authHeader = request.headers.get('Authorization')
-
+        console.log(3333);
+        
 		if (!authHeader || authHeader !== 'owner') {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+            console.log(44444);
+            
+			return NextResponse.json({ message: '达咩！你没有权限操作哦' }, { status: 401 })
 		}
 	}
 

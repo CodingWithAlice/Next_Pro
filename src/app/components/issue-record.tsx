@@ -44,9 +44,11 @@ export default function IssueRecord({ study, issueData, setIssueData }: { study:
             good3: issueData.good.split('\n')[2],
             date: getCurrentBySub(config.current).toDate()
         }).then((e) => {
-            if (e?.data) {
-                messageApi.success(e.data.message);
+            if (e?.success) {
+                messageApi.success(e.message);
             }
+        }).catch((e) => {
+            messageApi.error(e.message || '保存失败');
         })
     }
     const getTextArea = (key: keyof IssueRecordProps, placeholder: string, source: IssueRecordProps) => (<UniformTextAreaWithStyle key={key} type={key} placeholder={placeholder} source={source} emit={handleInput} />)

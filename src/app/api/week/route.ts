@@ -13,11 +13,20 @@ async function GET(request: NextRequest) {
 			attributes: ['serialNumber', 'startTime', 'endTime'],
 		})
 		const weekList = await SerialModal.findAll({ where: { serialNumber } })
-		return NextResponse.json({ weekData: weekList[0] || {}, serialData })
+		return NextResponse.json({
+			weekData: weekList[0] || {},
+			serialData,
+			success: true,
+			message: '操作成功',
+		})
 	} catch (error) {
 		console.error(error)
 		return NextResponse.json(
-			{ error: 'Internal Server Error' },
+			{
+				success: false,
+				message: '操作失败',
+				error: (error as Error).message,
+			},
 			{ status: 500 }
 		)
 	}
@@ -40,10 +49,14 @@ async function POST(request: NextRequest) {
 			success: true,
 			message: created ? '观察成功' : '更新成功',
 		})
-	} catch (e) {
-		console.error(e)
+	} catch (error) {
+		console.error(error)
 		return NextResponse.json(
-			{ error: 'Internal Server Error' },
+			{
+				success: false,
+				message: '操作失败',
+				error: (error as Error).message,
+			},
 			{ status: 500 }
 		)
 	}

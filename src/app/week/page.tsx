@@ -24,6 +24,8 @@ export default function Week() {
         const current = +curSerial === 0 ? serialsLength + 1 : curSerial;
         Api.postWeekApi({ ...weekData, serialNumber: current }).then((e) => {
             messageApi.success(e.data.message);
+        }).catch((e) => {
+            messageApi.error(e.message || '保存失败');
         })
     }
 
