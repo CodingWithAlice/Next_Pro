@@ -1,8 +1,10 @@
+'use client';
 import Link from "next/link";
 import config from "config";
+import withTypeStorage from "@/components/with-type-storage";
 // import { DoubleRightOutlined } from "@ant-design/icons";
 
-export default function Home() {
+ function Home() {
     const linksList = [
         { href: './daily', title: 'Daily日常', key: 'daily', img: "/images/daily.png" },
         { href: './week', title: 'LTN周报', key: 'week', img: "/images/week.png" },
@@ -60,3 +62,5 @@ export default function Home() {
             {/* <button onClick={handleRouter}>Go to Daily</button> */}
         </div>);
 }
+
+export default withTypeStorage(Home);    
