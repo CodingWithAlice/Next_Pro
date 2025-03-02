@@ -3,7 +3,7 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 
 const withTypeStorage = (WrappedComponent: React.ComponentType) => {
-    const EnhancedComponent = (props: {[key: string]: string | number }) => {
+    const EnhancedComponent = () => {
         const searchParams = useSearchParams();
         const type = searchParams.get('type');
 
@@ -13,7 +13,7 @@ const withTypeStorage = (WrappedComponent: React.ComponentType) => {
             }
         }, [type]);
 
-        return <WrappedComponent {...props} />;
+        return <WrappedComponent />;
     };
 
     return EnhancedComponent;
