@@ -21,7 +21,7 @@ interface Issue {
 }
 
 function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps) {
-    const options = routineTypes.map((type:routineType) => ({
+    const options = routineTypes.map((type: routineType) => ({
         value: type.id,
         label: type.des,
     }));
@@ -29,7 +29,7 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
     const handleChange = (daySort: number, value: string | dayjs.Dayjs | null, changeType: keyof Issue) => {
         const newIssue = { ...init, daySort, [changeType]: value };
         // 优化：如果开始时间大于结束时间，则结束时间+1分钟
-        if(changeType === 'startTime' && newIssue.endTime.isBefore(newIssue.startTime)) {
+        if (changeType === 'startTime' && newIssue.endTime.isBefore(newIssue.startTime)) {
             newIssue.endTime = newIssue.startTime.add(1, 'minute');
         }
 
@@ -45,7 +45,8 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
     return (
         <div className='time-picker' key={init.daySort}>
             {['startTime', 'endTime'].map((timeType, index) => {
-                return <div key={`${init.daySort}-${timeType}`}>
+                return <div key={`${init.daySort}-${timeType}`} className={index === 0 ? 'time-picker-item' : ''
+                }>
                     <TimePicker
                         key={init.daySort}
                         className="picker"
@@ -53,11 +54,11 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
                         value={init[timeType as keyof Issue] as dayjs.Dayjs}
                         onChange={(value) => handleChange(init.daySort, value, timeType as keyof Issue)}
                         needConfirm={false} />
-                    {index === 0 && <span className='duration'>
+                    {index === 0 && <div className='duration'>
                         <span className="phone-hidden">-</span>
-                        {formatMinToHM(init.duration)}
+                        <span className="duration-time"> {formatMinToHM(init.duration)}</span>
                         <span className="phone-hidden">{'->'}</span>
-                    </span>}
+                    </div>}
                 </div>
             })}
             <Select
@@ -65,9 +66,9 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
                 options={options}
                 onChange={value => handleChange(init.daySort, value, 'type')}
                 size='middle'
-                className='select' />
-            {!!init.interval && <span className={`${intervalClass} interval phone-hidden`}> &nbsp; {formatMinToHM(init.interval)}</span>}
-        </div>
+                style={{ width: 150 }} />
+            {!!init.interval && <span className={`${intervalClass} interval phone-hidden`}> {formatMinToHM(init.interval)}</span>}
+        </div >
     );
 }
 

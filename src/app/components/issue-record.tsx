@@ -58,7 +58,7 @@ export default function IssueRecord({ study, issueData, setIssueData }: { study:
         <b>二、事项统计</b>
         <FormatDateToMonthDayWeek />
         <h4>前端学习时长：{formatMinToHM(study)} 🎉🎉🎉</h4>
-        <section className='wrap'>
+        <section className='issue-wrap'>
             【复盘】
             ①运动 + 电影：
             <section className='flex'>

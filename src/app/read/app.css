@@ -57,13 +57,6 @@
     font-weight: 600;
 }
 
-.btn-group {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    margin-top: 10px;
-}
-
 .plans-text {
     white-space: wrap;
 }

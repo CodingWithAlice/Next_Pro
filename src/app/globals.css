@@ -7,13 +7,6 @@
     --foreground: #171717;
 }
 
-/* @media (prefers-color-scheme: dark) {
-    :root {
-        --background: #0a0a0a;
-        --foreground: #ededed;
-    }
-} */
-
 body {
     color: var(--foreground);
     background: var(--background);
@@ -102,6 +95,9 @@ h1 {
 .images-wrap ul {
     width: 2000px;
 }
+.interval {
+    margin-left: 1px;
+}
 
 .images-wrap li {
     position: relative;
@@ -178,76 +174,4 @@ h1 {
     color: dimgray;
 }
 
-@media only screen and (max-width: 700px) {
-    .j-title {
-        font-size: 2rem;
-    }
-    .links {
-        margin-top: 6rem;
-        font-size: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-    .images-wrap {
-        display: none;
-    }
 
-    .ribbon {
-        margin-top: 2.4rem;
-        position: relative;
-        z-index: 2;
-
-        color: rgb(255, 255, 255, .8);
-        text-decoration: none;
-        cursor: pointer;
-    }
-    .ribbon-link {
-        background-color: #16A085;
-        border: 1px solid rgba(6, 128, 67, 0.2);
-        height: 56px;
-        padding: 0 20px;
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .ribbon:before,
-    .ribbon:after {
-        content: '.';
-        text-indent: -9999em;
-        height: 0;
-        width: 0;
-        border-style: solid;
-        border-width: 28px;
-        position: absolute;
-        left: -45px;
-        top: 10px;
-        display: block;
-        z-index: -1;
-    }
-
-    .ribbon:before {
-        border-color: #138A72 #138A72 #138A72 transparent;
-    }
-
-    .ribbon:after {
-        border-color: #138A72 transparent #138a73 #138a72;
-        right: -45px;
-        left: auto;
-    }
-
-    .ribbon:active {
-        box-shadow: 1px 3px 0px rgb(106, 221, 129), 0px 3px 6px rgba(0, 0, 0, .9);
-        position: relative;
-        top: 2px;
-    }
-    /* daily 隐藏 */
-    .phone-hidden {
-        display: none;
-    }
-    .duration {
-        min-width: 2rem;
-    }
-}

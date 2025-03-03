@@ -11,12 +11,14 @@
     display: flex;
     justify-content: space-around;
     flex-wrap: wrap;
+    width: 100%;
 }
 
 .wrap {
     display: flex;
     flex-direction: column;
     margin-top: 1rem;
+    min-width: 25%;
 }
 
 .front {
@@ -49,13 +51,7 @@
 }
 
 .select {
-    width: 102px;
-}
-
-.duration {
-    display: inline-block;
-    min-width: 5rem;
-    text-align: center;
+    width: 8em;
 }
 
 .purple {

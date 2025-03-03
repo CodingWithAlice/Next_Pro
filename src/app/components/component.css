@@ -15,3 +15,30 @@
 .input {
     width: 80%;
 }
+
+.btn-group {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 10px;
+}
+
+/* daily */
+.issue-wrap {
+    display: flex;
+    flex-direction: column;
+}
+
+.time-picker-item {
+    display: flex;
+}
+
+.duration {
+    display: inline-block;
+    text-align: center;
+    line-height: 2em;
+}
+.duration-time {
+    display: inline-block;
+    width: 3.5rem;
+}
