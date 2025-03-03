@@ -72,7 +72,8 @@
         display: none;
     }
 
-    .wrap, .wrap-week {
+    .wrap,
+    .wrap-week {
         width: 100%;
     }
 
@@ -80,12 +81,23 @@
         width: 6em;
     }
 
+    /* week */
     .serial-week {
         width: 8rem;
     }
+
     .serial-month-br {
         display: block;
     }
+
+    .week-period-time {
+        display: block;
+    }
+
+    .week-day {
+        width: 80%;
+    }
+
     /* month */
     .textarea {
         flex-direction: column;

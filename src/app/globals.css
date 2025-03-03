@@ -185,16 +185,12 @@ h1 {
 
 .week-day {
     background-color: rgb(245, 244, 242);
-    width: 320px;
+    width: 30%;
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 0 8px;
     margin: 0 4px;
     flex: none;
-}
-
-.input {
-    width: 80%;
 }
 
 .btn-group {
@@ -239,6 +235,10 @@ h1 {
 }
 
 .serial-month-br {
+    display: none;
+}
+
+.week-period-time {
     display: none;
 }
 
