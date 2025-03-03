@@ -10,11 +10,19 @@ async function GET() {
 				},
 			],
 		})
-		return NextResponse.json({ booksData: booksData[0] })
+		return NextResponse.json({
+			booksData: booksData[0],
+			success: true,
+			message: '操作成功',
+		})
 	} catch (error) {
 		console.error(error)
 		return NextResponse.json(
-			{ error: 'Internal Server Error' },
+			{
+				success: false,
+				message: '操作失败',
+				error: (error as Error).message,
+			},
 			{ status: 500 }
 		)
 	}
@@ -44,10 +52,14 @@ async function POST(request: NextRequest) {
 			success: true,
 			message: created ? '观察成功' : '更新成功',
 		})
-	} catch (e) {
-		console.error(e)
+	} catch (error) {
+		console.error(error)
 		return NextResponse.json(
-			{ error: 'Internal Server Error' },
+			{
+				success: false,
+				message: '操作失败',
+				error: (error as Error).message,
+			},
 			{ status: 500 }
 		)
 	}

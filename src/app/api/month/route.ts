@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import {  MonthModal } from 'db'
+import { MonthModal } from 'db'
 
 async function GET(request: NextRequest) {
 	try {
@@ -8,11 +8,19 @@ async function GET(request: NextRequest) {
 		if (!monthId) return
 		// 每个周期的时长信息查询 - 查询起始时间
 		const monthData = await MonthModal.findAll({ where: { id: monthId } })
-		return NextResponse.json({ monthData: monthData[0] })
+		return NextResponse.json({
+			monthData: monthData[0],
+			success: true,
+			message: '操作成功',
+		})
 	} catch (error) {
 		console.error(error)
 		return NextResponse.json(
-			{ error: 'Internal Server Error' },
+			{
+				success: false,
+				message: '操作失败',
+				error: (error as Error).message,
+			},
 			{ status: 500 }
 		)
 	}
@@ -36,10 +44,14 @@ async function POST(request: NextRequest) {
 			success: true,
 			message: created ? '观察成功' : '更新成功',
 		})
-	} catch (e) {
-		console.error(e)
+	} catch (error) {
+		console.error(error)
 		return NextResponse.json(
-			{ error: 'Internal Server Error' },
+			{
+				success: false,
+				message: '操作失败',
+				error: (error as Error).message,
+			},
 			{ status: 500 }
 		)
 	}

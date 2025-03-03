@@ -24,6 +24,8 @@ export default function Month() {
             if (e?.data) {
                 messageApi.success(e.data.message);
             }
+        }).catch((e) => {
+            messageApi.error(e.message || '保存失败');
         })
     }
 
