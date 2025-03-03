@@ -53,7 +53,7 @@ export default function IssueRecord({ study, issueData, setIssueData }: { study:
     }
     const getTextArea = (key: keyof IssueRecordProps, placeholder: string, source: IssueRecordProps) => (<UniformTextAreaWithStyle key={key} type={key} placeholder={placeholder} source={source} emit={handleInput} />)
 
-    return (<div className='wrap'>
+    return (<div className='wrap-week'>
         {contextHolder}
         <b>二、事项统计</b>
         <FormatDateToMonthDayWeek />

@@ -2,7 +2,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    width: 80%;
+    width: 100%;
 }
 .month {
     display: flex;
@@ -21,10 +21,6 @@
 .btn {
     margin-top: 8px;
     background-color: rgb(6, 128, 67);
-}
-
-.select {
-    width: 350px
 }
 
 .week-data-wrap {

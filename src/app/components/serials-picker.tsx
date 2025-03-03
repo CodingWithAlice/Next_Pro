@@ -48,7 +48,7 @@ export function SerialsPicker({ value, onValueChange, onSerialsLength, mode }: S
 
     return <>
         {!!serials.length && <Select
-            className="select"
+            className="serial-select"
             onChange={onChange}
             value={value}
             mode={mode}
@@ -59,7 +59,7 @@ export function SerialsPicker({ value, onValueChange, onSerialsLength, mode }: S
                 },
                 ...serials.map((it: { serialNumber: number }) => ({
                     value: +it?.serialNumber,
-                    label: `LTN周期${it.serialNumber}`
+                    label: `周期${it.serialNumber}`
                 }))]}
         />}
         {!!mode && periodsDate}

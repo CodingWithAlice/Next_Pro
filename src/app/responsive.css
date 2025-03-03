@@ -4,7 +4,7 @@
     }
 
     .links {
-        margin-top: 6rem;
+        margin-top: 3rem;
         font-size: 1.5rem;
         display: flex;
         flex-direction: column;
@@ -72,7 +72,15 @@
         display: none;
     }
 
-    .wrap {
+    .wrap, .wrap-week {
         width: 100%;
+    }
+
+    .routine-select {
+        width: 5em;
+    }
+
+    .serial-select {
+        width: 8rem;
     }
 }

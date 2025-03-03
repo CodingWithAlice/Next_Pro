@@ -29,6 +29,10 @@
     flex-direction: column;
 }
 
+.routine-select {
+    width: 6em;
+}
+
 .time-picker-item {
     display: flex;
 }
@@ -38,7 +42,13 @@
     text-align: center;
     line-height: 2em;
 }
+
 .duration-time {
     display: inline-block;
     width: 3.5rem;
+}
+
+/* week */
+.serial-select {
+    width: 8rem;
 }

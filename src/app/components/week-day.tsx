@@ -2,7 +2,6 @@ import { DailyDataProps } from "@/daily/page";
 import { IssueRecordProps } from "./tool";
 import { Form, Input, Switch } from "antd";
 import { formatMinToHM } from "./tool";
-import './component.css';
 import config from "config";
 
 export interface WeekDayProps extends IssueRecordProps {
