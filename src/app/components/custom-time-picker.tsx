@@ -2,7 +2,6 @@ import { Select, TimePicker } from "antd";
 import dayjs from "dayjs";
 import { formatMinToHM, getGapTime } from "./tool";
 import classNames from "classnames";
-import './component.css';
 import { routineType } from '@/daily/page';
 
 interface CustomTimePickerProps {
@@ -21,15 +20,15 @@ interface Issue {
 }
 
 function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps) {
-    const options = routineTypes.map((type:routineType) => ({
+    const options = routineTypes.map((type: routineType) => ({
         value: type.id,
         label: type.des,
     }));
 
-    const handleChange = (daySort: number, value: string | dayjs.Dayjs | null, changeType: keyof Issue) => {        
+    const handleChange = (daySort: number, value: string | dayjs.Dayjs | null, changeType: keyof Issue) => {
         const newIssue = { ...init, daySort, [changeType]: value };
         // 优化：如果开始时间大于结束时间，则结束时间+1分钟
-        if(changeType === 'startTime' && newIssue.endTime.isBefore(newIssue.startTime)) {
+        if (changeType === 'startTime' && newIssue.endTime.isBefore(newIssue.startTime)) {
             newIssue.endTime = newIssue.startTime.add(1, 'minute');
         }
 
@@ -45,7 +44,8 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
     return (
         <div className='time-picker' key={init.daySort}>
             {['startTime', 'endTime'].map((timeType, index) => {
-                return <div key={`${init.daySort}-${timeType}`}>
+                return <div key={`${init.daySort}-${timeType}`} className={index === 0 ? 'time-picker-item' : ''
+                }>
                     <TimePicker
                         key={init.daySort}
                         className="picker"
@@ -53,20 +53,21 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
                         value={init[timeType as keyof Issue] as dayjs.Dayjs}
                         onChange={(value) => handleChange(init.daySort, value, timeType as keyof Issue)}
                         needConfirm={false} />
-                    {index === 0 && <>-
-                        <span className='duration'>{formatMinToHM(init.duration)}</span>{` ->`}</>}
+                    {index === 0 && <div className='duration'>
+                        <span className="phone-hidden">-</span>
+                        <span className="duration-time"> {formatMinToHM(init.duration)}</span>
+                        <span className="phone-hidden">{'->'}</span>
+                    </div>}
                 </div>
             })}
-            &nbsp;
             <Select
                 value={init.type}
                 options={options}
                 onChange={value => handleChange(init.daySort, value, 'type')}
                 size='middle'
-                className='select' />
-            &nbsp;
-            {!!init.interval && <span className={`${intervalClass} interval`}>{formatMinToHM(init.interval)}</span>}
-        </div>
+                className="routine-select" />
+            {!!init.interval && <span className={`${intervalClass} interval phone-hidden`}> {formatMinToHM(init.interval)}</span>}
+        </div >
     );
 }
 

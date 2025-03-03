@@ -53,12 +53,12 @@ export default function IssueRecord({ study, issueData, setIssueData }: { study:
     }
     const getTextArea = (key: keyof IssueRecordProps, placeholder: string, source: IssueRecordProps) => (<UniformTextAreaWithStyle key={key} type={key} placeholder={placeholder} source={source} emit={handleInput} />)
 
-    return (<div className='wrap'>
+    return (<div className='wrap-week'>
         {contextHolder}
         <b>二、事项统计</b>
         <FormatDateToMonthDayWeek />
         <h4>前端学习时长：{formatMinToHM(study)} 🎉🎉🎉</h4>
-        <section className='wrap'>
+        <section className='issue-wrap'>
             【复盘】
             ①运动 + 电影：
             <section className='flex'>

@@ -8,8 +8,9 @@ interface SerialsPickerProps {
     value: number | number[];
     onSerialsLength?: (v: number) => void;
     mode?: 'tags' | 'multiple';
+    className: 'serial-week' | 'serial-month';
 }
-export function SerialsPicker({ value, onValueChange, onSerialsLength, mode }: SerialsPickerProps) {
+export function SerialsPicker({ value, onValueChange, onSerialsLength, mode, className }: SerialsPickerProps) {
     const [serials, setSerials] = useState<{ serialNumber: number, startTime: string, endTime: string }[]>([]);
     const [periodsDate, setPeriodsDate] = useState<string>('');
 
@@ -48,7 +49,7 @@ export function SerialsPicker({ value, onValueChange, onSerialsLength, mode }: S
 
     return <>
         {!!serials.length && <Select
-            className="select"
+            className={className}
             onChange={onChange}
             value={value}
             mode={mode}
@@ -59,9 +60,10 @@ export function SerialsPicker({ value, onValueChange, onSerialsLength, mode }: S
                 },
                 ...serials.map((it: { serialNumber: number }) => ({
                     value: +it?.serialNumber,
-                    label: `LTN周期${it.serialNumber}`
+                    label: `周期${it.serialNumber}`
                 }))]}
         />}
+        <div className={`${className}-br`}></div>
         {!!mode && periodsDate}
     </>
 }

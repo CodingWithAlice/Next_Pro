@@ -7,13 +7,6 @@
     --foreground: #171717;
 }
 
-/* @media (prefers-color-scheme: dark) {
-    :root {
-        --background: #0a0a0a;
-        --foreground: #ededed;
-    }
-} */
-
 body {
     color: var(--foreground);
     background: var(--background);
@@ -22,11 +15,50 @@ body {
     font-weight: 500;
 }
 
+.home {
+    margin: 0;
+    padding: 0;
+    background-color: #000;
+    overflow: hidden;
+    height: 100vh;
+}
+
+.star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle 3s infinite;
+}
+
+@keyframes twinkle {
+    0% {
+        opacity: 0.2;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.2;
+    }
+}
+
 .outer {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    padding: 2rem;
+}
+
+.wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 80%;
 }
 
 h1 {
@@ -41,19 +73,15 @@ h1 {
 
 /* J人复盘工具 - 标题 */
 .j-title {
-    padding: 0;
-    margin: 0;
     text-transform: uppercase;
     font-size: 4.5rem;
     font-weight: bold;
-    color: rgba(38, 157, 129, .9);
-    text-shadow: 6px 10px 6px rgba(107, 194, 53, 0.8);
+    color: rgba(107, 194, 53, 0.8);
+    text-shadow: 3px 8px 6px rgba(107, 194, 53, 0.8);
     white-space: nowrap;
 
     position: absolute;
     top: 20%;
-    left: 50%;
-    transform: translate(-50%, -50%) skewX(-6deg) rotate(-7deg) skewY(6deg) skewX(-12deg);
 }
 
 .links {
@@ -61,16 +89,22 @@ h1 {
 }
 
 .images-wrap {
-    margin-top: 16rem;
+    margin-top: 8rem;
     width: 64rem;
     overflow: hidden;
     box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.35);
     -webkit-box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.35);
     -moz-box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.35);
+    position: relative;
+    z-index: 1;
 }
 
 .images-wrap ul {
     width: 2000px;
+}
+
+.interval {
+    margin-left: 1px;
 }
 
 .images-wrap li {
@@ -94,8 +128,6 @@ h1 {
     width: 10rem;
 }
 
-/*Lets apply hover effects now*/
-/*The LI hover style should override the UL hover style*/
 .images-wrap ul li:hover {
     width: 40rem;
 }
@@ -104,7 +136,6 @@ h1 {
     display: block;
 }
 
-/*Image title styles*/
 .image_title {
     background: rgba(0, 0, 0, 0.5);
     position: absolute;
@@ -117,29 +148,29 @@ h1 {
     font-size: 1.2rem;
 }
 
-.title-top{
-	position: relative;
-	z-index: 1;
-	margin: 0;
-	font-family: 'Open Sans', sans-serif;
-	font-size: 1.25em;
-	line-height: 2.5em;
-	font-weight: 500;
-	letter-spacing: 1px;
+.title-top {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1.25em;
+    line-height: 2.5em;
+    font-weight: 500;
+    letter-spacing: 1px;
 }
 
-.title-top:before{
-	content: "";
-	position: absolute;
-	z-index: -1;
-	background-color: #d7ebba;
-	width: 2.5em;
-	height: 2.5em;
-	border-radius: 50%;
+.title-top:before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    background-color: #d7ebba;
+    width: 2.5em;
+    height: 2.5em;
+    border-radius: 50%;
 }
 
-.title-top span{
-	padding-left: 15px;
+.title-top span {
+    padding-left: 15px;
 }
 
 .desc {
@@ -148,72 +179,127 @@ h1 {
     color: dimgray;
 }
 
-@media only screen and (max-width: 700px) {
-    .j-title {
-        font-size: 2rem;
-    }
-    .links {
-        margin-top: 10rem;
-        font-size: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-    .images-wrap {
-        display: none;
-    }
-    
-    .ribbon {
-        margin-top: 2.4rem;
-        background-color: #16A085;
-        border: 1px solid rgba(6, 128, 67, 0.2);
-        border-radius: 6px;
-        height: 56px;
-        padding: 0 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-    
-        color: rgb(255, 255, 255, .8);
-        text-decoration: none;
-        cursor: pointer;
-    }
-    
-    .ribbon:before,
-    .ribbon:after {
-        content: '.';
-        text-indent: -9999em;
-        height: 0;
-        width: 0;
-        border-style: solid;
-        border-width: 28px;
-        position: absolute;
-        left: -45px;
-        top: 10px;
-        display: block;
-        z-index: -1;
-    }
-    
-    .ribbon:before {
-        border-color: #138A72 #138A72 #138A72 transparent;
-        /* bg color for left side of ribbon */
-    }
-    
-    .ribbon:after {
-        border-color: #138A72 transparent #138a73 #138a72;
-        /* bg color for right side of ribbon */
-        right: -45px;
-        left: auto;
-    }
-    
-    .ribbon:active {
-        box-shadow: 1px 3px 0px rgb(106, 221, 129), 0px 3px 6px rgba(0, 0, 0, .9);
-        position: relative;
-        top: 2px;
-    }
-    /* daily 隐藏 */
-    .interval {
-        display: none;
-    }
+.picker {
+    width: 88px;
+}
+
+.week-day {
+    background-color: rgb(245, 244, 242);
+    width: 30%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0 8px;
+    margin: 0 4px;
+    flex: none;
+}
+
+.btn-group {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 10px;
+}
+
+/* daily */
+.issue-wrap {
+    display: flex;
+    flex-direction: column;
+}
+
+.routine-select {
+    width: 6em;
+}
+
+.time-picker-item {
+    display: flex;
+}
+
+.duration {
+    display: inline-block;
+    text-align: center;
+    line-height: 2em;
+}
+
+.duration-time {
+    display: inline-block;
+    width: 3.5rem;
+}
+
+/* week */
+.serial-week {
+    width: 8rem;
+}
+
+.serial-week-br {
+    display: none;
+}
+
+.serial-month-br {
+    display: none;
+}
+
+.week-period-time {
+    display: none;
+}
+
+/* month */
+.textarea {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.month-review {
+    display: flex;
+    align-items: center;
+}
+
+/* read */
+.layer {
+    display: flex;
+    margin: 2rem 2rem 0 0;
+    justify-content: flex-end;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transition: transform .4s;
+    transform: perspective(800px) scale(1) translateX(0) rotateY(0);
+    transform-style: preserve-3d;
+    overflow-y: scroll;
+}
+
+.read-cover-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transition: transform .4s;
+    transform: perspective(800px) scale(1) translateX(0) rotateY(0);
+    transform-style: preserve-3d;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.read-cover {
+    background: #FFFBC1;
+    margin: 0;
+    align-items: center;
+    padding: 0 4rem;
+}
+
+.read:hover .read-cover {
+    transform: perspective(600px) scale(0.6) translateX(-40%) rotateY(25deg);
+    flex-direction: column;
+    justify-content: center;
+    padding-left: 25rem;
+}
+
+.li-wrap {
+    padding-left: 30%;
+    color: #fff;
+    font-size: larger;
 }

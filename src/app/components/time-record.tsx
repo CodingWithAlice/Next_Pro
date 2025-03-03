@@ -89,12 +89,12 @@ export default function TimeRecord({ total, ltnTotal, read, study, onChange, rou
         })
     }
 
-    return (<div className='wrap'>
+    return (<div className='wrap-week'>
         {contextHolder}
         <b>一、时间统计</b>
         <p>总计：{formatMinToHM(total)}
             (阅读：{formatMinToHM(read)}
-            <span className='front'>前端：{formatMinToHM(study)}</span>)
+            <span className='front-time'>前端：{formatMinToHM(study)}</span>)
         </p>
         <FormatDateToMonthDayWeek />
         {!!issues.length && <CustomTimePickerList
