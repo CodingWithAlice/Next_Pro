@@ -62,7 +62,7 @@ export default function ReadPage() {
         })
     }, []);
 
-    return <div className='read'>
+    return <div className='outer read'>
         {contextHolder}
         <nav className="layer">
             <ul className='li-wrap'>
@@ -74,7 +74,7 @@ export default function ReadPage() {
                     { key: 'blogUrl', desc: '博客链接' },
                 ].map(it => handleTrans(it, readData))}
                 {chapterData.map((chapter) => {
-                    return <div key={chapter.sort}>
+                    return <div key={chapter.sort} className='chapter-wrap'>
                         <p className='chapter-title'>Chapter{chapter.sort} 【聚焦差异】：</p>
                         {[
                             { key: 'firstTimeTopic', desc: '第一次阅读 核心观点' },
@@ -95,13 +95,13 @@ export default function ReadPage() {
             </ul>
         </nav>
 
-        <section className="front layer">
+        <section className="read-cover read-cover-layer">
             <h1 className='books'>{readData.title}</h1>
-            <br />
-            <h2>首次阅读{readData.firstTime && transTimeStringToType(readData.firstTime, '：YYYY年MM月')}<br />
-                重读时间{readData.secondTime && transTimeStringToType(readData.secondTime, '：YYYY年MM月')}<br />
-                行动计划：<span className='plans-text'>{readData.plans}</span>
-            </h2>
+            <div className='cover-detail'>
+                <p> 首次阅读{readData.firstTime && transTimeStringToType(readData.firstTime, '：YYYY年MM月')}</p>
+                <p>重读时间{readData.secondTime && transTimeStringToType(readData.secondTime, '：YYYY年MM月')}</p>
+                <p>行动计划：<span className='plans-text'>{readData.plans}</span></p>
+            </div>
         </section>
     </div>
 }

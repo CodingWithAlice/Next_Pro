@@ -249,7 +249,57 @@ h1 {
     align-items: center;
     margin-top: 10px;
 }
+
 .month-review {
     display: flex;
     align-items: center;
+}
+
+/* read */
+.layer {
+    display: flex;
+    margin: 2rem 2rem 0 0;
+    justify-content: flex-end;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transition: transform .4s;
+    transform: perspective(800px) scale(1) translateX(0) rotateY(0);
+    transform-style: preserve-3d;
+    overflow-y: scroll;
+}
+
+.read-cover-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transition: transform .4s;
+    transform: perspective(800px) scale(1) translateX(0) rotateY(0);
+    transform-style: preserve-3d;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.read-cover {
+    background: #FFFBC1;
+    margin: 0;
+    align-items: center;
+    padding: 0 4rem;
+}
+
+.read:hover .read-cover {
+    transform: perspective(600px) scale(0.6) translateX(-40%) rotateY(25deg);
+    flex-direction: column;
+    justify-content: center;
+    padding-left: 25rem;
+}
+
+.li-wrap {
+    padding-left: 30%;
+    color: #fff;
+    font-size: larger;
 }

@@ -103,4 +103,19 @@
         flex-direction: column;
         align-items: flex-start;
     }
+
+    /* read */
+    .read-cover {
+        display: none;
+    }
+    .layer {
+        position: static;
+        margin: 0;
+    }
+    .li-wrap {
+        padding: 0;
+    }
+    .desc {
+        font-size: 1rem;
+    }
 }

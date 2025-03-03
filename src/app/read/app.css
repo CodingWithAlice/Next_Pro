@@ -1,54 +1,17 @@
-/* import the fonts */
-@import url('https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700');
-
-.read {
-    text-transform: uppercase;
-    height: 100vh;
-    overflow: hidden;
-}
-
-.read:hover .front {
-    transform: perspective(600px) scale(0.6) translateX(-40%) rotateY(25deg);
-}
-
 .books {
     font-size: 35px;
     text-align: center;
+    white-space: nowrap;
 }
 
-.layer {
+.cover-detail {
     display: flex;
-    margin: 2rem 2rem 0 0;
-    justify-content: flex-end;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    transition: transform .4s;
-    transform: perspective(800px) scale(1) translateX(0) rotateY(0);
-    transform-style: preserve-3d;
-    overflow-y: scroll;
+    justify-content: center;
+    flex-direction: column;
 }
 
-.li-wrap {
-    padding-left: 30%;
-    color: #fff;
-    font-size: larger;
-}
-
-.textarea {
-    width: 100%;
-    display: flex;
-    align-items: center;
-}
-
-.front {
-    /* display: none; */
-    background: #FFFBC1;
-    margin: 0;
-    align-items: center;
-    padding: 0 2rem;
+.chapter-wrap {
+    margin-top: 1rem;
 }
 
 .chapter-title {
