@@ -1,19 +1,8 @@
-.wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-}
 .month {
     display: flex;
     align-items: center;
 }
-.textarea {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    margin-top: 10px;
-}
+
 .desc-wrap {
     min-width: 12em;
 }

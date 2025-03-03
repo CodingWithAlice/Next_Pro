@@ -32,6 +32,8 @@ export default function MonthTable({ data, study }: { data: dataProps[], study: 
             title: '时间',
             dataIndex: 'time',
             key: 'time',
+            fixed: 'left',
+            width: 140,
             render
         },
         {

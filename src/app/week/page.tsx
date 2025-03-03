@@ -43,7 +43,7 @@ export default function Week() {
         {contextHolder}
         <div className="week">
             <h1 className='week-title'>LTN 周报</h1>
-            <SerialsPicker onValueChange={handleSingleChange} value={curSerial} onSerialsLength={setSerialsLength} />
+            <SerialsPicker onValueChange={handleSingleChange} value={curSerial} onSerialsLength={setSerialsLength} className='serial-week' />
         </div>
         <WeekDetailTextarea weekData={weekData} setWeekData={setWeekData} />
         <Button type="primary" className='btn' onClick={handleSave}>保存</Button>

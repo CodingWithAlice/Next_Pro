@@ -8,13 +8,6 @@
     white-space: nowrap;
 }
 
-.textarea {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
 .btn {
     margin-top: 8px;
     background-color: rgb(6, 128, 67);

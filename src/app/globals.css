@@ -51,7 +51,7 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 2rem; 
+    padding: 2rem;
 }
 
 .wrap {
@@ -102,6 +102,7 @@ h1 {
 .images-wrap ul {
     width: 2000px;
 }
+
 .interval {
     margin-left: 1px;
 }
@@ -127,8 +128,6 @@ h1 {
     width: 10rem;
 }
 
-/*Lets apply hover effects now*/
-/*The LI hover style should override the UL hover style*/
 .images-wrap ul li:hover {
     width: 40rem;
 }
@@ -137,7 +136,6 @@ h1 {
     display: block;
 }
 
-/*Image title styles*/
 .image_title {
     background: rgba(0, 0, 0, 0.5);
     position: absolute;
@@ -150,7 +148,7 @@ h1 {
     font-size: 1.2rem;
 }
 
-.title-top{
+.title-top {
     position: relative;
     z-index: 1;
     margin: 0;
@@ -161,7 +159,7 @@ h1 {
     letter-spacing: 1px;
 }
 
-.title-top:before{
+.title-top:before {
     content: "";
     position: absolute;
     z-index: -1;
@@ -171,7 +169,7 @@ h1 {
     border-radius: 50%;
 }
 
-.title-top span{
+.title-top span {
     padding-left: 15px;
 }
 
@@ -181,4 +179,77 @@ h1 {
     color: dimgray;
 }
 
+.picker {
+    width: 88px;
+}
 
+.week-day {
+    background-color: rgb(245, 244, 242);
+    width: 320px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0 8px;
+    margin: 0 4px;
+    flex: none;
+}
+
+.input {
+    width: 80%;
+}
+
+.btn-group {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 10px;
+}
+
+/* daily */
+.issue-wrap {
+    display: flex;
+    flex-direction: column;
+}
+
+.routine-select {
+    width: 6em;
+}
+
+.time-picker-item {
+    display: flex;
+}
+
+.duration {
+    display: inline-block;
+    text-align: center;
+    line-height: 2em;
+}
+
+.duration-time {
+    display: inline-block;
+    width: 3.5rem;
+}
+
+/* week */
+.serial-week {
+    width: 8rem;
+}
+
+.serial-week-br {
+    display: none;
+}
+
+.serial-month-br {
+    display: none;
+}
+
+/* month */
+.textarea {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+.month-review {
+    display: flex;
+    align-items: center;
+}
