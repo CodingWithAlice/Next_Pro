@@ -42,7 +42,7 @@ export default function Week() {
     return <div className="outer">
         {contextHolder}
         <div className="week">
-            <h1>LTN 周报</h1>
+            <h1 className='week-title'>LTN 周报</h1>
             <SerialsPicker onValueChange={handleSingleChange} value={curSerial} onSerialsLength={setSerialsLength} />
         </div>
         <WeekDetailTextarea weekData={weekData} setWeekData={setWeekData} />

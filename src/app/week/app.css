@@ -8,6 +8,12 @@
     display: flex;
     align-items: center;
 }
+
+.week-title {
+    flex: auto;
+    white-space: nowrap;
+}
+
 .textarea {
     width: 100%;
     display: flex;

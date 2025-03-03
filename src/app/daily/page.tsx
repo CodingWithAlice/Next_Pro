@@ -128,7 +128,7 @@ export default function Daily() {
         })
     }, [currentDate]);
 
-    return (<div className='wrapper'>
+    return (<div className='outer'>
         <WeekTitle />
         <div className="flex-around">
             <TimeRecord total={total} read={read} study={study} ltnTotal={ltnTotal} onChange={handleFunc} issues={issues} setIssues={setIssues} routineType={routineType} />

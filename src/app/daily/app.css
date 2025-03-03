@@ -16,6 +16,7 @@
 .wrap {
     display: flex;
     flex-direction: column;
+    margin-top: 1rem;
 }
 
 .front {
@@ -44,7 +45,7 @@
     display: flex;
     align-items: center;
     margin-top: 4px;
-    flex-wrap: nowrap;
+    white-space: nowrap;
 }
 
 .select {
@@ -53,7 +54,7 @@
 
 .duration {
     display: inline-block;
-    width: 45px;
+    min-width: 5rem;
     text-align: center;
 }
 

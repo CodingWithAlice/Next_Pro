@@ -26,10 +26,12 @@ export default function WeekTitle() {
             setSerialCycle(cycle);
         })
     }, [])
-    
+
     return <h1 className='week'>
         Week {now.week()}
         <br />
-        <ProcessCircle startTime={serialStartTime} cycle={serialCycle} />
+        <div className='phone-hidden'>
+            <ProcessCircle startTime={serialStartTime} cycle={serialCycle} />
+        </div>
     </h1>
 }

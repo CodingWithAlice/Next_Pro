@@ -2,18 +2,32 @@
 import Link from "next/link";
 import config from "config";
 import withTypeStorage from "@/components/with-type-storage";
+import { useEffect } from "react";
 // import { DoubleRightOutlined } from "@ant-design/icons";
 
- function Home() {
+function Home() {
     const linksList = [
         { href: './daily', title: 'Daily日常', key: 'daily', img: "/images/daily.png" },
         { href: './week', title: 'LTN周报', key: 'week', img: "/images/week.png" },
         { href: `./month?monthId=${config.monthSerial}`, title: 'LTN月报', key: 'month', img: "/images/month.png" },
         { href: './read', title: '二次阅读', key: 'read', img: "/images/read.png" },
     ]
+    useEffect(() => {
+        // 星空背景
+        const numStars = 200;
+        for (let i = 0; i < numStars; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            star.style.left = Math.random() * window.innerWidth + 'px';
+            star.style.top = Math.random() * window.innerHeight + 'px';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            document.body.appendChild(star);
+        }
+    }, [])
+
 
     return (
-        <div className="outer">
+        <div className="home outer">
             {/* 日常工具 */}
             <div className='j-title'>
                 J人复盘工具
@@ -29,7 +43,7 @@ import withTypeStorage from "@/components/with-type-storage";
                 {
                     linksList.map(({ href, title, key }) => {
                         return <div className="ribbon" key={key}>
-                            <Link href={href} >
+                            <Link href={href} className="ribbon-link">
                                 {title}
                             </Link>
                         </div>

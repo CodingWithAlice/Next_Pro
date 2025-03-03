@@ -26,7 +26,7 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
         label: type.des,
     }));
 
-    const handleChange = (daySort: number, value: string | dayjs.Dayjs | null, changeType: keyof Issue) => {        
+    const handleChange = (daySort: number, value: string | dayjs.Dayjs | null, changeType: keyof Issue) => {
         const newIssue = { ...init, daySort, [changeType]: value };
         // 优化：如果开始时间大于结束时间，则结束时间+1分钟
         if(changeType === 'startTime' && newIssue.endTime.isBefore(newIssue.startTime)) {
@@ -53,19 +53,20 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
                         value={init[timeType as keyof Issue] as dayjs.Dayjs}
                         onChange={(value) => handleChange(init.daySort, value, timeType as keyof Issue)}
                         needConfirm={false} />
-                    {index === 0 && <>-
-                        <span className='duration'>{formatMinToHM(init.duration)}</span>{` ->`}</>}
+                    {index === 0 && <span className='duration'>
+                        <span className="phone-hidden">-</span>
+                        {formatMinToHM(init.duration)}
+                        <span className="phone-hidden">{'->'}</span>
+                    </span>}
                 </div>
             })}
-            &nbsp;
             <Select
                 value={init.type}
                 options={options}
                 onChange={value => handleChange(init.daySort, value, 'type')}
                 size='middle'
                 className='select' />
-            &nbsp;
-            {!!init.interval && <span className={`${intervalClass} interval`}>{formatMinToHM(init.interval)}</span>}
+            {!!init.interval && <span className={`${intervalClass} interval phone-hidden`}> &nbsp; {formatMinToHM(init.interval)}</span>}
         </div>
     );
 }
