@@ -118,13 +118,25 @@ FLUSH PRIVILEGES;
 ### 2025.2.19
 将服务器的操作 从 docker 切换到 docker-compose
 ```js
+sudo su root
 // 第一次启动
 sudo /usr/local/bin/docker-compose up -d
 // 修改后重新启动
 sudo /usr/local/bin/docker-compose down
+// sudo /usr/local/bin/docker-compose down --rmi all
 sudo /usr/local/bin/docker-compose up -d --build
 // 日志
 sudo /usr/local/bin/docker-compose logs daily-app
 ```
 - https://gitee.com/CodingWithAlice/Next_Pro 更新
-- 方便国内 git pull 拉取
+- 方便国内 git pull 拉取 
+
+<!-- 清理 docker镜像 -->
+```js
+docker image ls 
+// 清理所有悬空（dangling）镜像，悬空镜像指的是没有被任何标签引用的镜像
+docker image prune
+docker system prune
+// 若要删除所有未被使用的镜像（不仅仅是悬空镜像）
+docker image prune -a
+``` 

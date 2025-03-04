@@ -8,7 +8,6 @@ export const config = {
 export default function middleware(request: NextRequest) {
 	if (request.method === 'POST') {
 		const authHeader = request.headers.get('Authorization')
-        console.log(3333);
         
 		if (!authHeader || authHeader !== 'owner') {
             console.log(44444);
