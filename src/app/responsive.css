@@ -10,6 +10,11 @@
         flex-direction: column;
         justify-content: center;
     }
+    .a-link{
+        font-size: 1.2rem;
+        position: static;
+        transform: translate(0, 0);
+    }
 
     .images-wrap {
         display: none;
