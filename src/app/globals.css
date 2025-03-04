@@ -104,7 +104,8 @@ h1 {
 }
 
 .interval {
-    margin-left: 1px;
+    margin-left: 2px;
+    width: 4rem;
 }
 
 .images-wrap li {
