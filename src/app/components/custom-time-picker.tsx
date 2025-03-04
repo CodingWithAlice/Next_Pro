@@ -66,7 +66,7 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
                 onChange={value => handleChange(init.daySort, value, 'type')}
                 size='middle'
                 className="routine-select" />
-            {!!init.interval && <span className={`${intervalClass} interval phone-hidden`}> {formatMinToHM(init.interval)}</span>}
+            {<span className={`${intervalClass} interval phone-hidden`}> {!!init.interval && formatMinToHM(init.interval)}</span>}
         </div >
     );
 }
