@@ -9,9 +9,7 @@ export default function middleware(request: NextRequest) {
 	if (request.method === 'POST') {
 		const authHeader = request.headers.get('Authorization')
         
-		if (!authHeader || authHeader !== 'owner') {
-            console.log(44444);
-            
+		if (!authHeader || authHeader !== process.env.CHECK_AUTH) {
 			return NextResponse.json({ message: '达咩！你没有权限操作哦' }, { status: 401 })
 		}
 	}
