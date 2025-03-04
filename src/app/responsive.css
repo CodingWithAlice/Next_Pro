@@ -10,6 +10,11 @@
         flex-direction: column;
         justify-content: center;
     }
+    .a-link{
+        font-size: 1.2rem;
+        left: 50%;
+        transform: translateX(-50%);
+    }
 
     .images-wrap {
         display: none;

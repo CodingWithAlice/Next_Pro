@@ -29,6 +29,9 @@ function Home() {
     return (
         <div className="home outer">
             {/* 日常工具 */}
+            <a className='a-link' href="http://codingwithalice.top:4001">
+                莱特纳盒子学习法
+            </a>
             <div className='j-title'>
                 J人复盘工具
             </div>
