@@ -2,7 +2,6 @@ import axios, { AxiosResponse, AxiosRequestConfig, AxiosError } from 'axios'
 import OpenAI from 'openai'
 
 const apiKey = process.env.DEEPSEEK_API_KEY || 'a'
-const CHECK_AUTH = process.env.CHECK_AUTH
 const openai = new OpenAI({
 	baseURL: 'https://api.deepseek.com',
 	apiKey,
@@ -21,10 +20,7 @@ const postConfig: AxiosRequestConfig = {
 	headers: {},
 }
 if (typeof localStorage !== 'undefined') {
-	const localStorageType = localStorage.getItem('type')
-	if (localStorageType === CHECK_AUTH) {        
-		postConfig.headers = { Authorization: CHECK_AUTH }
-	}
+	postConfig.headers = { Authorization: localStorage.getItem('type') }
 }
 
 function handleAxiosError(error: unknown): { status: number; message: string } {
