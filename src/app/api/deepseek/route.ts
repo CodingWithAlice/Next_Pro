@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { AIPOST, MessageProp } from '../../../../lib/request'
 import { GetMonthWeekInfosAndTimeTotals } from '../month/detail/route'
 import { IssueAttributes, SerialAttributes } from 'db'
-import { GetWeekData } from '../week/period/route'
+import { GetWeekData } from 'utils'
 import { DailyDataProps } from '@/daily/page'
 
 export interface WeekDataProps extends IssueAttributes {

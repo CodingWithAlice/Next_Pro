@@ -21,7 +21,7 @@
     "paths": {
       "@/*": ["./src/app/*"],
       "db":["./lib/db.ts"],
-      "utils":["./lib/utils.ts"],
+      "utils":["./src/utils"],
       "config":["./config.tsx"]
     },
     "allowSyntheticDefaultImports": true
