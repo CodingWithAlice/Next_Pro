@@ -17,8 +17,7 @@ export function WeekDetailTextarea({ weekData, setWeekData, curSerial }: WeekDet
     }
 
     const handleDeepSeek = (data: string) => {
-        console.log('deepseek', data);
-
+        setWeekData({ ...weekData, ...JSON.parse(data) });
     }
 
     return <section className='wrap'>
