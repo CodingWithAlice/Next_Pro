@@ -22,8 +22,7 @@ export async function GetWeekData(serialNumber: string) {
 					routineTypeId: [9, 10, 13, 14, 16], // 9-总计 10-入睡时间 13-前端总计 14-总时长 16-LTN时长
 				},
 			},
-		],
-		raw: true,
+		]
 	})) as unknown as WeekDataProps[]
 	return { startTime, endTime, weekData }
 }
