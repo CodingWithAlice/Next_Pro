@@ -16,7 +16,7 @@ const getCurrentBySub = (subtractDay?: number) => {
 };
 
 // 展示 月.日 周几 - 默认展示昨天
-function getYesterdayDate(handle: number = config.current, urlDate?: string) {    
+function getYesterdayDate(handle: number = config.current, urlDate?: string) {
     const date = getCurrentBySub(handle);
     const current = urlDate ? dayjs(urlDate) : date;
     const weekday = '六日一二三四五'.charAt((current.day() + 1) % 7);
@@ -88,7 +88,7 @@ function transTitle(title: string) {
 const transTextArea = ({ key, desc, source, onChange, cols }: {
     key: string,
     desc?: string,
-    source: { [key: string]: string | number},
+    source: { [key: string]: string | number },
     onChange: (v: { [key: string]: string; }) => void,
     cols?: number
 }) => {
@@ -138,6 +138,7 @@ interface IssueRecordProps {
     good: string,
     good3?: string,
     better: string,
+    date?: string
 }
 
 // 分类共三类：Learning、Life、Health

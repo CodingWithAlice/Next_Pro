@@ -132,6 +132,6 @@ export default function Daily() {
         <WeekTitle />
         <div className="flex-around">
             <TimeRecord total={total} read={read} study={study} ltnTotal={ltnTotal} onChange={handleFunc} issues={issues} setIssues={setIssues} routineType={routineType} />
-            <IssueRecord study={study} issueData={issueData} setIssueData={setIssueData} />
+            <IssueRecord study={study} issueData={issueData} setIssueData={setIssueData} currentDate={currentDate} />
         </div></div>)
 }
