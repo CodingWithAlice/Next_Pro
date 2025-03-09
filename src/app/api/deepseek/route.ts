@@ -27,15 +27,24 @@ function GetAIMonthInputText(weekList: SerialAttributes[]) {
 	)}`
 }
 
+async function GetContentDesc(serialNumber: string, type: string) {
+	if (type === 'month') {
+		const { weekList } = await GetMonthWeekInfosAndTimeTotals(serialNumber)
+		return GetAIMonthInputText(weekList)
+	} else if (type === 'week') {
+	}
+}
+
 async function GET(request: NextRequest) {
 	try {
 		const { searchParams } = request.nextUrl
 		const serialNumber = searchParams.get('serialNumber')
+		const type = searchParams.get('type')
 		if (!serialNumber) return
-		const { weekList } = await GetMonthWeekInfosAndTimeTotals(serialNumber)
-		const content = GetAIMonthInputText(weekList)
+
+		const content = await GetContentDesc(serialNumber, type || 'month')
 		const messages: MessageProp[] = [
-			{ role: 'user', content },
+			{ role: 'user', content: content || '' },
 			{
 				role: 'assistant',
 				content: process.env.EXAMPLE || '',

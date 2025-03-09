@@ -238,6 +238,12 @@ h1 {
     width: 3.5rem;
 }
 
+.deep-seek {
+    display: flex;
+    align-items: flex-end;
+    width: 100%;
+}
+
 /* week */
 .serial-week {
     width: 8rem;

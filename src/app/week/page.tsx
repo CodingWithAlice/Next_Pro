@@ -45,7 +45,7 @@ export default function Week() {
             <h1 className='week-title'>LTN 周报</h1>
             <SerialsPicker onValueChange={handleSingleChange} value={curSerial} onSerialsLength={setSerialsLength} className='serial-week' />
         </div>
-        <WeekDetailTextarea weekData={weekData} setWeekData={setWeekData} />
+        <WeekDetailTextarea weekData={weekData} setWeekData={setWeekData} curSerial={curSerial} />
         <Button type="primary" className='btn' onClick={handleSave}>保存</Button>
         {curSerial !== 0 && <WeekPeriodModal curSerial={curSerial} />}
     </div>

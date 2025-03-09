@@ -5,8 +5,7 @@ import MonthTotalTime from "./month-total-time";
 import { timeTotalByRoutineTypeProps } from "./month-total-time";
 import MonthTable from "./month-table";
 import { transTextArea, transTitle } from "./tool";
-import { Button } from "antd";
-import { LoadingOutlined, OpenAIOutlined } from "@ant-design/icons";
+import DeepSeek from "./deep-seek";
 
 const timeTotal = [
     [
@@ -33,7 +32,6 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
     const [timeTotalByRoutineType, setTimeTotalByRoutineType] = useState<timeTotalByRoutineTypeProps[]>();
     const [weeksData, setWeeksData] = useState([]); // 每周数据
     const [studyTotal, setStudyTotal] = useState(0); // 学习总时长
-    const [deepseekLoading, setDeepseekLoading] = useState(false);
 
     const handleTrans = (it: { key: string, desc?: string }, source?: { [key: string]: string }) => {
         if (!source) return;
@@ -44,20 +42,18 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
         setMonthData({ ...monthData, ...v });
     }
 
+    const handleDeepSeek = (data: string) => {
+        const { studyConclude, others } = JSON.parse(data);
+        handleChange({
+            frontMonthDesc: studyConclude,
+            otherMonthDesc: others
+        })
+    }
+
     const onSerialChange = (v: number | number[]) => {
         if (Array.isArray(v)) {
             setPeriods(v);
         }
-    }
-
-    const handleDeepSeek = () => {
-        if (deepseekLoading) return;
-        setDeepseekLoading(true);
-        Api.getMonthDeepSeekApi(periods.join(',')).then(({ data }) => {
-            setDeepseekLoading(false)
-            const { studyConclude, others } = JSON.parse(data);
-            handleChange({ frontMonthDesc: studyConclude, otherMonthDesc: others });
-        })
     }
 
     useEffect(() => {
@@ -95,17 +91,12 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
         <section className='section'>
             <div className="month-review">
                 {!!weeksData.length && transTitle('【总结】')}
-                <Button type="text" color="purple" variant="filled" onClick={handleDeepSeek}>
-                    <OpenAIOutlined />
-                    获取 deepseek 推荐 {deepseekLoading && <LoadingOutlined />}
-                </Button>
+                <DeepSeek periods={periods} handleChange={handleDeepSeek} type='month' />
             </div>
             {[
                 { key: 'frontMonthDesc', desc: '回顾总结 - 前端' },
                 { key: 'otherMonthDesc', desc: '回顾总结 - 其他' }
             ].map(it => handleTrans(it, monthData))}
         </section>
-
-
     </section>
 }
