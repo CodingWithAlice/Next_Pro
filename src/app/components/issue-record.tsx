@@ -4,14 +4,19 @@ import { FormatDateToMonthDayWeek, formatMinToHM, IssueRecordProps } from "@/com
 import { ExperimentFilled } from "@ant-design/icons";
 import Api from "@/service/api";
 const { TextArea } = Input;
-import { getCurrentBySub } from "@/components/tool";
-import config from "config";
 
 interface UniformTextAreaWithStyleProps {
     type: keyof IssueRecordProps,
     placeholder: string,
     source: IssueRecordProps,
     emit: (type: string, value: string) => void
+}
+
+interface IssueRecordFuncProps {
+    study: number;
+    issueData: IssueRecordProps;
+    setIssueData: (data: IssueRecordProps) => void;
+    currentDate: string;
 }
 
 function UniformTextAreaWithStyle({ type, placeholder, source, emit }: UniformTextAreaWithStyleProps) {
@@ -27,7 +32,7 @@ function UniformTextAreaWithStyle({ type, placeholder, source, emit }: UniformTe
     />
 }
 
-export default function IssueRecord({ study, issueData, setIssueData }: { study: number, issueData: IssueRecordProps, setIssueData: (data: IssueRecordProps) => void }) {
+export default function IssueRecord({ study, issueData, setIssueData, currentDate }: IssueRecordFuncProps) {
     const [messageApi, contextHolder] = message.useMessage();
     // const { styles } = useStyle();
 
@@ -42,7 +47,7 @@ export default function IssueRecord({ study, issueData, setIssueData }: { study:
             good1: issueData.good.split('\n')[0],
             good2: issueData.good.split('\n')[1],
             good3: issueData.good.split('\n')[2],
-            date: getCurrentBySub(config.current).toDate()
+            date: issueData?.date || currentDate
         }).then((e) => {
             if (e?.success) {
                 messageApi.success(e.message);

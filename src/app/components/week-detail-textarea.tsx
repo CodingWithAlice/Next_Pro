@@ -1,10 +1,13 @@
+import DeepSeek from "./deep-seek";
 import { transTextArea, transTitle } from "./tool"
 interface WeekDetailTextareaProps {
     weekData: { [key: string]: string },
-    setWeekData: (data: { [key: string]: string }) => void
+    setWeekData: (data: { [key: string]: string }) => void,
+    curSerial: number
 }
 
-export function WeekDetailTextarea({ weekData, setWeekData }: WeekDetailTextareaProps) {
+export function WeekDetailTextarea({ weekData, setWeekData, curSerial }: WeekDetailTextareaProps) {
+    console.log('weekData=', weekData);
     const handleTrans = (it: { key: string, desc?: string }, source: { [key: string]: string }) => {
         return transTextArea({ ...it, source, onChange: handleChange });
     }
@@ -13,8 +16,15 @@ export function WeekDetailTextarea({ weekData, setWeekData }: WeekDetailTextarea
         setWeekData({ ...weekData, ...v });
     }
 
+    const handleDeepSeek = (data: string) => {
+        setWeekData({ ...weekData, ...JSON.parse(data) });
+    }
+
     return <section className='wrap'>
-        {handleTrans({ key: 'time', desc: '周期' }, weekData)}
+        <div className='deep-seek'>
+            <DeepSeek type='week' handleChange={handleDeepSeek} periods={[curSerial]} />
+            {handleTrans({ key: 'time', desc: '周期' }, weekData)}
+        </div>
         {transTitle('【学习内容前端】')}
         {[
             { key: 'frontOverview', desc: '前端概况' },

@@ -1,5 +1,6 @@
 import { Dayjs } from 'dayjs'
 import request from '../../../lib/request'
+import { SearchType } from '@/components/tool'
 
 const Api = {
 	getRoutineApi(params?: { [key: string]: string | number | boolean }) {
@@ -27,8 +28,8 @@ const Api = {
 	getMonthDetailApi(serialNumber: string) {
 		return request.get('month/detail', { serialNumber })
 	},
-    getMonthDeepSeekApi(serialNumber: string) {
-		return request.get('deepseek', { serialNumber })
+    getDeepSeekApi(serialNumber: string, searchType: SearchType) {
+		return request.get('deepseek', { serialNumber, type: searchType })
 	},
 	postMonthApi(data: { [key: string]: string | number }) {
 		return request.post('month', data)

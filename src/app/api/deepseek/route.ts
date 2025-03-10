@@ -1,7 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { AIPOST, MessageProp } from '../../../../lib/request'
 import { GetMonthWeekInfosAndTimeTotals } from '../month/detail/route'
-import { SerialAttributes } from 'db'
+import { IssueAttributes, SerialAttributes } from 'db'
+import { GetWeekData } from 'utils'
+import { DailyDataProps } from '@/daily/page'
+
+export interface WeekDataProps extends IssueAttributes {
+	daily_time_records?: DailyDataProps[]
+}
+interface WeekInputProps {
+	startTime: Date
+	endTime: Date
+	weekData: WeekDataProps[]
+}
 
 function GetAIMonthInputText(weekList: SerialAttributes[]) {
 	const start = weekList[0].startTime
@@ -27,18 +38,65 @@ function GetAIMonthInputText(weekList: SerialAttributes[]) {
 	)}`
 }
 
+function GetWeekInputText({ startTime, endTime, weekData }: WeekInputProps) {
+	const weekListText = (weekData || [])?.map((week: WeekDataProps) => {
+		const getDuration = (typeId: number) => {
+			const filed = week?.daily_time_records?.find(
+				(it) => it.routineTypeId === typeId
+			)
+
+			return filed?.duration
+		}
+		const getSleepTime = () => {
+			const filed = week?.daily_time_records?.find(
+				(it) => it.routineTypeId === 10
+			)
+			return filed?.startTime
+		}
+		return `### 时间：${week.date}
+        ####前端学习时长
+        - 前端总计学习时长${getDuration(
+			13
+		)}分钟，其中 LTN 做题时长${getDuration(16)}分钟
+        ####各事项的关键内容
+        - 1、前端情况：${week.front}
+        - 2、运动情况：${week.sport}
+        - 3、睡眠情况：入睡时间点 ${getSleepTime()}
+        - 4、娱乐情况：${week.video}
+        - 5、TED学习情况：${week.ted}
+        - 6、阅读情况：${week.reading}
+        ####当天的总结
+        - 觉得做得好的事项 ${week.good1} ${week.good2} ${week.good3}
+        - 可以做得更好的事项${week.better}`
+	})
+	return `我有一组数据，是我 ${startTime} 至 ${endTime} 的日常事项的记录，我想要汇总、总结这段时间我的每项情况。每天数据如下： \n ${weekListText.join(
+		'\n'
+	)}`
+}
+
+async function GetContentDesc(serialNumber: string, type: string) {
+	if (type === 'month') {
+		const { weekList } = await GetMonthWeekInfosAndTimeTotals(serialNumber)
+		return GetAIMonthInputText(weekList)
+	} else if (type === 'week') {
+		const data: WeekInputProps = await GetWeekData(serialNumber)
+		return GetWeekInputText(data as WeekInputProps)
+	}
+}
+
 async function GET(request: NextRequest) {
 	try {
 		const { searchParams } = request.nextUrl
 		const serialNumber = searchParams.get('serialNumber')
+		const type = searchParams.get('type')
 		if (!serialNumber) return
-		const { weekList } = await GetMonthWeekInfosAndTimeTotals(serialNumber)
-		const content = GetAIMonthInputText(weekList)
+
+		const content = await GetContentDesc(serialNumber, type || 'month')
 		const messages: MessageProp[] = [
-			{ role: 'user', content },
+			{ role: 'user', content: content || '' },
 			{
 				role: 'assistant',
-				content: process.env.EXAMPLE || '',
+				content: process.env?.[`${type}_EXAMPLE`] || '',
 			},
 		]
 
@@ -46,6 +104,7 @@ async function GET(request: NextRequest) {
 		const data = await AIPOST(messages)
 		return NextResponse.json({
 			data,
+			content,
 		})
 	} catch (error) {
 		console.error(error)

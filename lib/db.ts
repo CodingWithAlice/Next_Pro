@@ -2,16 +2,21 @@ import { Sequelize, DataTypes, ModelDefined, Optional } from 'sequelize'
 import mysql2 from 'mysql2'
 
 // 获取环境变量
-const dbHost = process.env.NEXT_PUBLIC_DB_HOST;
-const dbUser = process.env.NEXT_PUBLIC_DB_USER;
-const dbPassword = process.env.NEXT_PUBLIC_DB_PASSWORD;
-const dbDatabase = process.env.NEXT_PUBLIC_DB_DATABASE;
+const dbHost = process.env.NEXT_PUBLIC_DB_HOST
+const dbUser = process.env.NEXT_PUBLIC_DB_USER
+const dbPassword = process.env.NEXT_PUBLIC_DB_PASSWORD
+const dbDatabase = process.env.NEXT_PUBLIC_DB_DATABASE
 
-export const sequelize = new Sequelize(dbDatabase ?? 'Daily', dbUser ?? 'root', dbPassword ?? 'localhost', {
-	host: dbHost,
-	dialect: 'mysql',
-	dialectModule: mysql2,
-})
+export const sequelize = new Sequelize(
+	dbDatabase ?? 'Daily',
+	dbUser ?? 'root',
+	dbPassword ?? 'localhost',
+	{
+		host: dbHost,
+		dialect: 'mysql',
+		dialectModule: mysql2,
+	}
+)
 
 export const RoutineTypeModal = sequelize.define(
 	'routine_type',
@@ -67,8 +72,26 @@ export const TimeModal = sequelize.define(
 		],
 	}
 )
+export interface IssueAttributes {
+	id: number
+	better: string
+	front: string
+	good1: string
+	good2: string
+	good3: string
+	reading: string
+	sport: string
+	ted: string
+	video: string
+	date: Date
+}
 
-export const IssueModal = sequelize.define(
+type IssueCreationAttributes = Partial<IssueAttributes>;
+
+export const IssueModal: ModelDefined<
+	IssueAttributes,
+	IssueCreationAttributes
+> = sequelize.define(
 	'daily_issue_record',
 	{
 		id: {
@@ -156,7 +179,7 @@ export const BooksTopicRecordModal = sequelize.define(
 	{
 		tableName: 'books_topic_record',
 		underscored: true,
-        indexes: [
+		indexes: [
 			{
 				unique: true,
 				fields: ['chapter_id', 'sort'], // 为 chapter_id 和 sort 字段组合设置唯一索引
@@ -263,10 +286,10 @@ TimeModal.belongsTo(RoutineTypeModal, {
 
 // 关联关系3 - 书籍的阅读记录 和 书籍的章节 关联
 BooksRecordModal.hasMany(BooksTopicRecordModal, {
-    foreignKey: 'chapterId',
-    sourceKey: 'chapterId',
+	foreignKey: 'chapterId',
+	sourceKey: 'chapterId',
 })
 BooksTopicRecordModal.belongsTo(BooksRecordModal, {
-    foreignKey: 'chapterId',
-    targetKey: 'chapterId',
+	foreignKey: 'chapterId',
+	targetKey: 'chapterId',
 })
