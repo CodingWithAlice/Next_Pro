@@ -4,7 +4,7 @@ import { routineType } from '@/daily/page';
 import { Radio, RadioChangeEvent, Tag } from 'antd';
 import { useState } from 'react';
 import TimeRecordDayPicker from './time-record-day-picker';
-import TimeRecordWorkPicker from './time-record-work-picker';
+import { modeType } from 'config';
 
 interface TimeRecordProps {
     total: number,
@@ -18,11 +18,6 @@ interface TimeRecordProps {
 }
 
 export default function TimeRecord({ total, ltnTotal, read, study, onChange, routineType, issues, setIssues }: TimeRecordProps) {
-    const modePicker = {
-        allDay: <TimeRecordDayPicker issues={issues} setIssues={setIssues} routineType={routineType} total={total} study={study} ltnTotal={ltnTotal} onChange={onChange} />,
-        workDay: <TimeRecordWorkPicker issues={issues} setIssues={setIssues} routineType={routineType} total={total} study={study} ltnTotal={ltnTotal} onChange={onChange} />
-    }
-    type modeType = keyof typeof modePicker;
     const [mode, setMode] = useState<modeType>('allDay');
     const onRadioChange = ({ target: { value } }: RadioChangeEvent) => {
         setMode(value);
@@ -44,7 +39,7 @@ export default function TimeRecord({ total, ltnTotal, read, study, onChange, rou
             ]}
             onChange={onRadioChange}
         />
-        {modePicker[mode]}
+        <TimeRecordDayPicker issues={issues} setIssues={setIssues} routineType={routineType} total={total} study={study} ltnTotal={ltnTotal} onChange={onChange} mode={mode} />
     </div>)
 
 }

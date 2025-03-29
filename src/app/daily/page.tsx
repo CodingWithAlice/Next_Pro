@@ -123,7 +123,7 @@ export default function Daily() {
 
             setIssueData({
                 ...IssueData,
-                front: IssueData.front || '1、LTN： \n2、BOX1： \n3、在线工具：',
+                front: IssueData.front || '1、LTN：做？题 + 错题重做(时长) \n2、BOX1： \n3、在线工具：',
                 good: ([IssueData.good1 || '', IssueData.good2 || '', IssueData.good3 || '']).filter(it => !!it).join('\n'),
             });
         })
