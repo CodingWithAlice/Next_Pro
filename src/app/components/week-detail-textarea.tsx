@@ -7,7 +7,6 @@ interface WeekDetailTextareaProps {
 }
 
 export function WeekDetailTextarea({ weekData, setWeekData, curSerial }: WeekDetailTextareaProps) {
-    console.log('weekData=', weekData);
     const handleTrans = (it: { key: string, desc?: string }, source: { [key: string]: string }) => {
         return transTextArea({ ...it, source, onChange: handleChange });
     }
