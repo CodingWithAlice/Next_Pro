@@ -1,6 +1,5 @@
 import { Input, Select } from "antd";
 import dayjs from "dayjs";
-import { getGapTime } from "./tool";
 import { routineType } from '@/daily/page';
 
 interface CustomTimePickerProps {
@@ -24,22 +23,15 @@ function RoutinePicker({ init, onIssue, routineTypes }: CustomTimePickerProps) {
         label: type.des,
     }));
 
-    const handleChange = (daySort: number, value: string | dayjs.Dayjs | null, changeType: keyof Issue) => {
-        const newIssue = { ...init, daySort, [changeType]: value };
-        // 优化：如果开始时间大于结束时间，则结束时间+1分钟
-        if (changeType === 'startTime' && newIssue.endTime.isBefore(newIssue.startTime)) {
-            newIssue.endTime = newIssue.startTime.add(1, 'minute');
-        }
-
-        const dur = getGapTime(newIssue.startTime, newIssue.endTime, 'minute');
+    const handleChange = (daySort: number, value: string| number | dayjs.Dayjs | null, changeType: keyof Issue) => {
         if (onIssue) {
-            onIssue({ ...newIssue, duration: dur });
+            onIssue({ ...init, daySort, [changeType]: value });
         }
     }
 
     return (
         <div className='time-picker' key={init.daySort}>
-            <Input suffix="m(分)" defaultValue="m" value={init.duration} style={{ width: 150 }} />
+            <Input suffix="m(分)" defaultValue="m" value={init.duration} style={{ width: 150 }} onChange={(e) => handleChange(init.daySort, +e.target.value, 'duration')} />
             <Select
                 value={init.type}
                 options={options}

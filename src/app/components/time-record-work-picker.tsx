@@ -98,8 +98,8 @@ export default function TimeRecordWorkPicker({ issues, setIssues, routineType, t
             freshTime={onChange} />}
 
         <Space className='btn-group'>
-            <Button onClick={handleAddIssue}>添加一项</Button>
-            <Button onClick={handleSave} icon={<AntDesignOutlined />}>
+            <Button disabled={!routineType.length} onClick={handleAddIssue}>添加一项</Button>
+            <Button disabled={!routineType.length} onClick={handleSave} icon={<AntDesignOutlined />}>
                 保存
             </Button>
         </Space>
