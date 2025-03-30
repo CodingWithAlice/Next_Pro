@@ -1,13 +1,15 @@
-import { Select, TimePicker } from "antd";
+import { Input, Select, TimePicker } from "antd";
 import dayjs from "dayjs";
 import { formatMinToHM, getGapTime } from "./tool";
 import classNames from "classnames";
 import { routineType } from '@/daily/page';
+import { modeType } from "config";
 
 interface CustomTimePickerProps {
     onIssue?: (issue: Issue) => void;
     init: Issue;
     routineTypes: routineType[];
+    mode: modeType
 }
 
 interface Issue {
@@ -19,13 +21,13 @@ interface Issue {
     interval: number;
 }
 
-function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps) {
+function CustomTimePicker({ init, onIssue, routineTypes, mode }: CustomTimePickerProps) {
     const options = routineTypes.map((type: routineType) => ({
         value: type.id,
         label: type.des,
     }));
 
-    const handleChange = (daySort: number, value: string | dayjs.Dayjs | null, changeType: keyof Issue) => {
+    const handleChange = (daySort: number, value: string | number | dayjs.Dayjs | null, changeType: keyof Issue) => {
         const newIssue = { ...init, daySort, [changeType]: value };
         // 优化：如果开始时间大于结束时间，则结束时间+1分钟
         if (changeType === 'startTime' && newIssue.endTime.isBefore(newIssue.startTime)) {
@@ -34,7 +36,11 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
 
         const dur = getGapTime(newIssue.startTime, newIssue.endTime, 'minute');
         if (onIssue) {
-            onIssue({ ...newIssue, duration: dur });
+            if (changeType !== 'duration') {
+                onIssue({ ...newIssue, duration: dur });
+                return;
+            }
+            onIssue(newIssue)
         }
     }
     const intervalClass = classNames({
@@ -43,7 +49,7 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
 
     return (
         <div className='time-picker' key={init.daySort}>
-            {['startTime', 'endTime'].map((timeType, index) => {
+            {mode === 'allDay' && ['startTime', 'endTime'].map((timeType, index) => {
                 return <div key={`${init.daySort}-${timeType}`} className={index === 0 ? 'time-picker-item' : ''
                 }>
                     <TimePicker
@@ -59,7 +65,12 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
                         <span className="phone-hidden">{'->'}</span>
                     </div>}
                 </div>
-            })}
+            })}{mode === 'workDay' &&
+                <Input suffix="m(分)" defaultValue="m" value={init.duration} style={{ width: 150 }} onChange={(e) => {
+                    const value = +e.target.value;
+                    handleChange(init.daySort, isNaN(value) ? 0 : value, 'duration')
+                }} />
+            }
             <Select
                 value={init.type}
                 options={options}

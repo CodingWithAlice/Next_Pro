@@ -6,4 +6,6 @@ const config = {
     monthSerial: 2, // 月报，手动切换
 };
 
+export type modeType = 'allDay' | 'workDay';
+
 export default config;
