@@ -38,6 +38,7 @@ function CustomTimePicker({ init, onIssue, routineTypes, mode }: CustomTimePicke
         if (onIssue) {
             if (changeType !== 'duration') {
                 onIssue({ ...newIssue, duration: dur });
+                return;
             }
             onIssue(newIssue)
         }
