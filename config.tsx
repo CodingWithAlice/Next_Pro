@@ -3,7 +3,7 @@ const config = {
     frontTotalId: 13,
     totalId: 14,
     ltnTotalId: 16,
-    monthSerial: 2, // 月报，手动切换
+    monthSerial: 3, // 月报，手动切换
 };
 
 export type modeType = 'allDay' | 'workDay';
