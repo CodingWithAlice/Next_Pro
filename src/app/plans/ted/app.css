@@ -1,0 +1,10 @@
+.ted {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.item {
+    margin-top: 2px;
+    width: 88%;
+}
