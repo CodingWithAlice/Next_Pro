@@ -282,6 +282,25 @@ export const TedModal = sequelize.define(
 	}
 )
 
+export const TedRecordModal = sequelize.define(
+	'ted_record',
+	{
+		id: {
+			type: DataTypes.INTEGER,
+			primaryKey: true,
+			autoIncrement: true,
+		},
+		ted_id: DataTypes.NUMBER,
+		record: DataTypes.STRING,
+        date: DataTypes.DATE
+	},
+	{
+		tableName: 'ted_record',
+		timestamps: true,
+		underscored: true,
+	}
+)
+
 // 关联关系1 每日 - 时间和事件 关联
 IssueModal.hasMany(TimeModal, {
 	foreignKey: 'date',
@@ -310,4 +329,14 @@ BooksRecordModal.hasMany(BooksTopicRecordModal, {
 BooksTopicRecordModal.belongsTo(BooksRecordModal, {
 	foreignKey: 'chapterId',
 	targetKey: 'chapterId',
+})
+
+// 关联关系4 - ted的题目列表 和 ted的感受记录 关联
+TedModal.hasMany(TedRecordModal, {
+    foreignKey: 'ted_id',
+    sourceKey: 'id'
+})
+TedRecordModal.belongsTo(TedModal, {
+    foreignKey: 'ted_id',
+    targetKey: 'id'
 })

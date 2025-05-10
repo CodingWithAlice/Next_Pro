@@ -2,6 +2,13 @@ import { Dayjs } from 'dayjs'
 import request from '../../../lib/request'
 import { SearchType } from '@/components/tool'
 
+export interface TedRecordDTO {
+    date: Date;
+    record: string;
+    tedId: number;
+    id?: number;
+}
+
 const Api = {
 	getRoutineApi(params?: { [key: string]: string | number | boolean }) {
 		return request.get('routine', params)
@@ -25,6 +32,10 @@ const Api = {
     getTedList() {
 		return request.get('ted')
 	},
+
+    postTedRecord(data: TedRecordDTO) {
+        return request.post('ted/record', data)
+    },
 
 	getMonthApi(monthId: number) {
 		return request.get('month', { monthId })

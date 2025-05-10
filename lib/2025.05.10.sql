@@ -42,3 +42,20 @@ INSERT INTO `ted_list` (`title`) VALUES
 ('人生不只是要快乐'), 
 ('如何在没有信心、动力或治愈的情况下取得成功'), 
 ('性格的迷思 - 你究竟是谁')
+
+
+-- 新建 ted_record 表 用于存储 TED听后感 记录
+CREATE TABLE `ted_record` (
+  `id` smallint NOT NULL AUTO_INCREMENT COMMENT '记录id',
+  `ted_id` tinyint NOT NULL COMMENT 'TED ID',
+  `record` TEXT COMMENT '感想',
+  `date` DATE COMMENT '记录时间',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='TED听后感';
+
+
+-- 为 ted_record 添加唯一索引
+ALTER TABLE ted_record
+ADD UNIQUE KEY `ted_record` (`ted_id`, `date`);

@@ -3,17 +3,21 @@ import './app.css';
 import { Tabs } from 'antd';
 import type { TabsProps } from 'antd';
 import TedPage from './ted/page';
+import { useState } from 'react';
 
+export type TabTypes = 'ted' | 'sport' | 'book'
 
 export default function PlanPage() {
+    const [tab, setTab] = useState<TabTypes>('ted')
+
     const onChange = (key: string) => {
-        console.log(key);
+        setTab(key as TabTypes);
     };
     const items: TabsProps['items'] = [
         {
             key: 'ted',
             label: '🎧 TED',
-            children: <TedPage />,
+            children: <TedPage tab={tab} />,
         },
         {
             key: 'sport',
@@ -26,6 +30,6 @@ export default function PlanPage() {
             children: 'Content of Tab Pane 3',
         },
     ];
-    return <Tabs defaultActiveKey="1" centered items={items} onChange={onChange} />
-    
+    return <Tabs activeKey={tab} centered items={items} onChange={onChange} />
+
 }
