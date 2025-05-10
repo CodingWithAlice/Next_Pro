@@ -22,6 +22,10 @@ const Api = {
 		return request.get('serial')
 	},
 
+    getTedList() {
+		return request.get('ted')
+	},
+
 	getMonthApi(monthId: number) {
 		return request.get('month', { monthId })
 	},

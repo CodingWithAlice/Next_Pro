@@ -264,6 +264,24 @@ export const SerialModal: ModelDefined<
 	}
 )
 
+export const TedModal = sequelize.define(
+	'ted_list',
+	{
+		id: {
+			type: DataTypes.INTEGER,
+			primaryKey: true,
+			autoIncrement: true,
+		},
+		title: DataTypes.STRING,
+		times: DataTypes.STRING,
+	},
+	{
+		tableName: 'ted_list',
+		timestamps: true,
+		underscored: true,
+	}
+)
+
 // 关联关系1 每日 - 时间和事件 关联
 IssueModal.hasMany(TimeModal, {
 	foreignKey: 'date',
