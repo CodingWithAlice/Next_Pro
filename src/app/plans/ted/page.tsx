@@ -5,7 +5,6 @@ import Api, { TedRecordDTO } from '@/service/api';
 import type { CollapseProps } from 'antd';
 import { Collapse, message } from 'antd';
 import { CopyOutlined } from '@ant-design/icons';
-import { TabTypes } from '../page';
 import TedNewRecord from '@/components/ted-new-record';
 import dayjs from 'dayjs';
 
@@ -16,9 +15,7 @@ interface TedDTO {
     ted_records?: TedRecordDTO[];
 }
 
-
-
-export default function TedPage({ tab }: { tab: TabTypes }) {
+export default function TedPage() {
     const [messageApi, contextHolder] = message.useMessage();
     const [tedList, setTedList] = useState<TedDTO[]>([]);
 
@@ -69,9 +66,8 @@ export default function TedPage({ tab }: { tab: TabTypes }) {
     }
 
     useEffect(() => {
-        if (tab !== 'ted') { return }
         init();
-    }, [tab])
+    }, [])
 
     return <div className='ted'>
         {contextHolder}
