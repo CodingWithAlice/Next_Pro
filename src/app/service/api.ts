@@ -3,10 +3,10 @@ import request from '../../../lib/request'
 import { SearchType } from '@/components/tool'
 
 export interface TedRecordDTO {
-    date: Date;
-    record: string;
-    tedId: number;
-    id?: number;
+	date: Date | string
+	record: string
+	tedId: number
+	id?: number
 }
 
 const Api = {
@@ -29,13 +29,13 @@ const Api = {
 		return request.get('serial')
 	},
 
-    getTedList() {
+	getTedList() {
 		return request.get('ted')
 	},
 
-    postTedRecord(data: TedRecordDTO) {
-        return request.post('ted/record', data)
-    },
+	postTedRecord(data: TedRecordDTO) {
+		return request.post('ted/record', data)
+	},
 
 	getMonthApi(monthId: number) {
 		return request.get('month', { monthId })
@@ -43,7 +43,7 @@ const Api = {
 	getMonthDetailApi(serialNumber: string) {
 		return request.get('month/detail', { serialNumber })
 	},
-    getDeepSeekApi(serialNumber: string, searchType: SearchType) {
+	getDeepSeekApi(serialNumber: string, searchType: SearchType) {
 		return request.get('deepseek', { serialNumber, type: searchType })
 	},
 	postMonthApi(data: { [key: string]: string | number }) {

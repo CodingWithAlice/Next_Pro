@@ -5,7 +5,7 @@ async function POST(request: NextRequest) {
 	try {
 		const body = await request.json()
 		const data = body.data
-		await TedRecordModal.bulkCreate(data, {updateOnDuplicate: ['record']})
+		await TedRecordModal.bulkCreate([data], {updateOnDuplicate: ['record']})
 		
 		return NextResponse.json({
 			success: true,

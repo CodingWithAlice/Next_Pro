@@ -9,17 +9,17 @@ export default function TedNewRecord({ id, fresh }: { id: number, fresh: () => v
 
     // 提交新的ted记录
     const handleAddNotes = () => {
-        Api.postTedRecord({ tedId: id, record, date: dayjs().toDate() }).then((res) => {            
+        Api.postTedRecord({ tedId: id, record, date: dayjs().format('YYYY-MM-DD') }).then((res) => {
             if (res?.message) {
                 messageApi.success(res?.message)
+                serRecord('')
             }
             fresh()
         })
     }
 
     return <Space.Compact style={{ width: '100%' }}>
-                {contextHolder}
-
+        {contextHolder}
         <Input onChange={(e) => serRecord(e.target.value)} />
         <Button color="cyan" variant="filled" onClick={handleAddNotes}>新增</Button>
     </Space.Compact>

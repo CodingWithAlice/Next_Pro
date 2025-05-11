@@ -290,7 +290,7 @@ export const TedRecordModal = sequelize.define(
 			primaryKey: true,
 			autoIncrement: true,
 		},
-		ted_id: DataTypes.NUMBER,
+		tedId: DataTypes.NUMBER,
 		record: DataTypes.STRING,
         date: DataTypes.DATE
 	},
@@ -333,10 +333,10 @@ BooksTopicRecordModal.belongsTo(BooksRecordModal, {
 
 // 关联关系4 - ted的题目列表 和 ted的感受记录 关联
 TedModal.hasMany(TedRecordModal, {
-    foreignKey: 'ted_id',
+    foreignKey: 'tedId',
     sourceKey: 'id'
 })
 TedRecordModal.belongsTo(TedModal, {
-    foreignKey: 'ted_id',
+    foreignKey: 'tedId',
     targetKey: 'id'
 })
