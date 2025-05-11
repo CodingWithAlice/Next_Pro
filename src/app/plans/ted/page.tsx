@@ -3,10 +3,12 @@ import './app.css';
 import { useEffect, useState } from 'react';
 import Api, { TedRecordDTO } from '@/service/api';
 import type { CollapseProps } from 'antd';
-import { Collapse, message } from 'antd';
+import { Collapse, message, Tag } from 'antd';
 import { CopyOutlined } from '@ant-design/icons';
 import TedNewRecord from '@/components/ted-new-record';
 import dayjs from 'dayjs';
+
+const colors = ["magenta", "red", "volcano", "orange", "gold", "lime", "green", "cyan", "blue", "purple"];
 
 interface TedDTO {
     id: number;
@@ -38,7 +40,10 @@ export default function TedPage() {
     const getChildren = (id: number, arr?: TedRecordDTO[]) => {
         return <>
             {
-                arr && arr?.length > 0 && arr.map((it: TedRecordDTO) => (<div key={it.id}>{dayjs(it.date).format('YYYYMMDD')} - {it.record}</div>))
+                arr && arr?.length > 0 && arr.map((it: TedRecordDTO, index: number) => (<div key={it.id} >
+                    <Tag color={colors[index % 10]}>{dayjs(it.date).format('YYYYMMDD')}</Tag>
+                    <div className='ted-record'>{it.record}</div>
+                </div>))
             }
             <TedNewRecord id={id} fresh={init} />
         </>

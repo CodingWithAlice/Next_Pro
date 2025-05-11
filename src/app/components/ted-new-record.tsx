@@ -1,7 +1,8 @@
 import Api from "@/service/api";
-import { Button, Input, message, Space } from "antd";
+import { Button, message, Space } from "antd";
 import dayjs from "dayjs";
 import { useState } from "react";
+import { transTextArea } from "./tool"
 
 export default function TedNewRecord({ id, fresh }: { id: number, fresh: () => void }) {
     const [record, serRecord] = useState('')
@@ -20,8 +21,12 @@ export default function TedNewRecord({ id, fresh }: { id: number, fresh: () => v
 
     return <Space.Compact style={{ width: '100%' }}>
         {contextHolder}
-        <Input onChange={(e) => serRecord(e.target.value)} />
-        <Button color="cyan" variant="filled" onClick={handleAddNotes}>新增</Button>
+        {transTextArea({
+            key: `record_${id}`,
+            onChange: (v) => serRecord(v[`record_${id}`]),
+            source: { [`record_${id}`]: record }
+        })}
+        <Button className="button" color="cyan" variant="filled" onClick={handleAddNotes}>新增</Button>
     </Space.Compact>
 
 }

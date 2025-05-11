@@ -25,6 +25,6 @@ export function UniformTextAreaWithStyle({ type, desc, init, onChange, cols}: Un
             value={init}
             cols={cols}
             disabled={type === 'time'}
-            autoSize={{ minRows: 1, maxRows: 15 }} />
+            autoSize={{ minRows: 1, maxRows: 20 }} />
     </div>
 }
