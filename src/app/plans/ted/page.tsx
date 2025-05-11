@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Api, { TedRecordDTO } from '@/service/api';
 import type { CollapseProps } from 'antd';
 import { Collapse, message, Tag } from 'antd';
-import { CopyOutlined } from '@ant-design/icons';
+import { CheckSquareTwoTone, CopyOutlined } from '@ant-design/icons';
 import TedNewRecord from '@/components/ted-new-record';
 import dayjs from 'dayjs';
 
@@ -20,6 +20,7 @@ interface TedDTO {
 export default function TedPage() {
     const [messageApi, contextHolder] = message.useMessage();
     const [tedList, setTedList] = useState<TedDTO[]>([]);
+    const [lastTedId, setLastTedId] = useState();
 
     // 复制功能
     const copy = async (text: string) => {
@@ -32,8 +33,10 @@ export default function TedPage() {
     };
 
     // 复制按钮
-    const genExtra = (text: string) => {
-        return <CopyOutlined onClick={(e) => { e.stopPropagation(); copy(text) }} />
+    const genExtra = (id: number, text: string) => {
+        return <>
+            {id === lastTedId && <CheckSquareTwoTone />} &nbsp;
+            <CopyOutlined onClick={(e) => { e.stopPropagation(); copy(text) }} /></>
     }
 
     // 展示历史感想和输入框
@@ -41,7 +44,7 @@ export default function TedPage() {
         return <>
             {
                 arr && arr?.length > 0 && arr.map((it: TedRecordDTO, index: number) => (<div key={it.id} >
-                    <Tag color={colors[index % 10]}>{dayjs(it.date).format('YYYYMMDD')}</Tag>
+                    <Tag color={colors[index % 10]}>{dayjs(it.date).format('YYYY/MM/DD')}</Tag>
                     <div className='ted-record'>{it.record}</div>
                 </div>))
             }
@@ -57,7 +60,7 @@ export default function TedPage() {
                 key: id,
                 label: `${id}、${title}`,
                 children: getChildren(id, ted_records),
-                extra: genExtra(title)
+                extra: genExtra(id, title)
             },
         ];
         return items
@@ -65,9 +68,10 @@ export default function TedPage() {
 
     // 初始化查询接口
     const init = () => {
-        Api.getTedList().then(({ tedList }) => {
-            setTedList(tedList || [])
-        })
+        Api.getTedList().then(({ tedList, recentTedRecord }) => {
+            setTedList(tedList || []);
+            setLastTedId(recentTedRecord?.tedId)
+        });
     }
 
     useEffect(() => {
