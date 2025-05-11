@@ -7,10 +7,10 @@ import { useEffect } from "react";
 
 function Home() {
     const linksList = [
-        { href: './daily', title: 'Daily日常', key: 'daily', img: "/images/daily.png" },
-        { href: './week', title: 'LTN周报', key: 'week', img: "/images/week.png" },
-        { href: `./month?monthId=${config.monthSerial}`, title: 'LTN月报', key: 'month', img: "/images/month.png" },
-        { href: './read', title: '二次阅读', key: 'read', img: "/images/read.png" },
+        { href: './daily', title: '晨昏日志', key: 'daily', img: "/images/daily.png", subTitle: '每日系统自检协议' },
+        { href: './week', title: '周频扫描', key: 'week', img: "/images/week.png", subTitle: '每周期诊断报告' },
+        { href: `./month?monthId=${config.monthSerial}`, title: '月度沙盘', key: 'month', img: "/images/month.png", subTitle: '布局、推演和重塑' },
+        { href: './plans', title: '知行录', key: 'read', img: "/images/read.png", subTitle: '思维培养皿、身体电源' },
     ]
     useEffect(() => {
         // 星空背景
@@ -33,7 +33,8 @@ function Home() {
                 莱特纳盒子学习法
             </a>
             <div className='j-title'>
-                J人复盘工具
+                J型生存终端
+                {/* J型人机耦合 */}
             </div>
             <br />
             {/* <Link href={'/ltn'}>

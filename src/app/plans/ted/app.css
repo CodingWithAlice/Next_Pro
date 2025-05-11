@@ -1,0 +1,18 @@
+.ted {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.item {
+    margin-top: 2px;
+    width: 88%;
+}
+
+.button {
+    margin-top: 10px;
+}
+
+.ted-record {
+    white-space: pre-wrap;
+}
