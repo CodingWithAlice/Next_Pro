@@ -17,7 +17,7 @@ export default function PlanPage() {
         {
             key: 'ted',
             label: '🎧 TED',
-            children: <TedPage tab={tab} />,
+            children: <TedPage />,
         },
         {
             key: 'sport',
