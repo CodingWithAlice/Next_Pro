@@ -16,12 +16,20 @@ const items = [
         name: "total",
     },
     {
+        label: "下班时间",
+        name: "work",
+    },
+    {
         label: "LTN做题",
         name: "ltnTotal",
     },
     {
         label: "入睡时间",
         name: "sleep",
+    },
+    {
+        label: "起床时间",
+        name: "wake",
     },
     {
         label: "TED",
@@ -36,7 +44,6 @@ const items = [
     {
         label: "运动",
         name: "sport",
-        render: <Switch disabled />
     },
     {
         label: "电影",
@@ -63,17 +70,22 @@ function transformData(data: WeekDayProps) {
     const front = data.daily_time_records.find(item => item.routineTypeId === config.frontTotalId);
     const ltn = data.daily_time_records.find(item => item.routineTypeId === config.ltnTotalId);
     const total = data.daily_time_records.find(item => item.routineTypeId === config.totalId);
-    const sleep = data.daily_time_records.find(item => item.routineTypeId === 10);
+    const sleep = data.daily_time_records.find(item => item.routineTypeId === config.sleepId);
+    const work = data.daily_time_records.find(item => item.routineTypeId === config.workId);
+    const sport = data.daily_time_records.find(item => item.routineTypeId === config.sportId);
+    console.log({data, work, sport});
     return {
         ...data,
         frontTotal: formatMinToHM(front?.duration),
         ltnTotal: formatMinToHM(ltn?.duration),
         total: formatMinToHM(total?.duration),
         sleep: sleep?.startTime,
+        wake: sleep?.endTime,
         tedShow: data?.ted && data?.ted !== '/',
         read: data?.reading && data?.reading !== '/',
-        sport: data?.sport && data?.sport !== '/',
+        sport: formatMinToHM(sport?.duration),
         good: (data?.good1 || '') + (data?.good2 || '') + (data?.good3 || ''),
+        work: work?.endTime
     }
 }
 
