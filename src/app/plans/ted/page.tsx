@@ -7,6 +7,7 @@ import { Collapse, message, Tag } from 'antd';
 import { CheckSquareTwoTone, CopyOutlined } from '@ant-design/icons';
 import TedNewRecord from '@/components/ted-new-record';
 import dayjs from 'dayjs';
+import * as clipboard from "clipboard-polyfill";
 
 const colors = ["magenta", "red", "volcano", "orange", "gold", "lime", "green", "cyan", "blue", "purple"];
 
@@ -24,12 +25,10 @@ export default function TedPage() {
 
     // 复制功能
     const copy = async (text: string) => {
-        try {
-            await navigator.clipboard.writeText(text);
-            messageApi.success('复制成功');
-        } catch {
-            messageApi.error('复制失败');
-        }
+        clipboard.writeText(text).then(
+            () => messageApi.success('复制成功'),
+            () => messageApi.error('复制失败')
+        );
     };
 
     // 复制按钮
