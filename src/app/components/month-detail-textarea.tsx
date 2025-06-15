@@ -12,13 +12,15 @@ const timeTotal = [
         { key: 'total', desc: '专注总体时长' },
         { key: 'front_total', desc: '前端总时长' },
         { key: 'ltn_total', desc: 'LTN做题总时长' },
-        { key: 'review', desc: '复盘总时长' },
+        { key: 'work', desc: '工作总时长' },
     ],
     [
         { key: 'reading', desc: '阅读总时长' },
         { key: 'TED', desc: 'TED总时长' },
-        { key: 'strength', desc: '力训总时长' },
-        { key: 'aerobic', desc: '有氧总时长' },
+        { key: 'sport', desc: '运动总时长' },
+        { key: 'review', desc: '复盘总时长' },
+        // { key: 'strength', desc: '力训总时长' },
+        // { key: 'aerobic', desc: '有氧总时长' },
     ]
 ]
 interface MonthDetailTextareaProps {

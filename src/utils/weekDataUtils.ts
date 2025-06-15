@@ -19,7 +19,7 @@ export async function GetWeekData(serialNumber: string) {
 			{
 				model: TimeModal,
 				where: {
-					routineTypeId: [9, 10, 13, 14, 16], // 9-总计 10-入睡时间 13-前端总计 14-总时长 16-LTN时长
+					routineTypeId: [9, 10, 13, 14, 16, 17, 18], // 9-总计 10-入睡时间 13-前端总计 14-总时长 16-LTN时长 17-运动 18-工作
 				},
 			},
 		]
