@@ -1,15 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { BooksRecordModal, BooksTopicRecordModal } from 'db'
+import { BooksRecordModal } from 'db'
 
 async function GET() {
 	try {
-		const booksData = await BooksRecordModal.findAll({
-			include: [
-				{
-					model: BooksTopicRecordModal,
-				},
-			],
-		})
+		const booksData = await BooksRecordModal.findAll()
 		return NextResponse.json({
 			booksData: booksData[0],
 			success: true,
@@ -32,7 +26,7 @@ async function POST(request: NextRequest) {
 	try {
 		const body = await request.json()
 		const data = body.data
-		const { readData, chapterData } = data
+		const { readData } = data
 
 		const [issue, created] = await BooksRecordModal.findOrCreate({
 			where: { id: readData.id },
@@ -43,10 +37,6 @@ async function POST(request: NextRequest) {
 			// 如果已经存在，更新描述
 			await issue.save()
 		}
-
-		await BooksTopicRecordModal.bulkCreate(chapterData, {
-			updateOnDuplicate: ['firstTimeTopic', 'secondTimeTopic', 'changes'],
-		})
 
 		return NextResponse.json({
 			success: true,
