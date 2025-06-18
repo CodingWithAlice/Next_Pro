@@ -8,3 +8,7 @@
     margin-top: 2px;
     width: 88%;
 }
+
+.record {
+    white-space: pre-wrap;
+}

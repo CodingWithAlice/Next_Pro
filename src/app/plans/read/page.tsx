@@ -41,8 +41,9 @@ export default function ReadPage() {
             {
                 key: id,
                 label,
-                children: <div>
+                children: <div className='record'>
                     {blogUrl}
+                    {blogUrl && <br />}
                     {record}
                 </div>,
             },
