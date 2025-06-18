@@ -5,7 +5,7 @@ async function GET() {
 	try {
 		const booksData = await BooksRecordModal.findAll()
 		return NextResponse.json({
-			booksData: booksData[0],
+			booksData,
 			success: true,
 			message: '操作成功',
 		})

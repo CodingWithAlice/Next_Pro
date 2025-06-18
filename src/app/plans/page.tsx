@@ -3,6 +3,7 @@ import './app.css';
 import { Tabs } from 'antd';
 import type { TabsProps } from 'antd';
 import TedPage from './ted/page';
+import ReadPage from './read/page';
 import { useState } from 'react';
 
 export type TabTypes = 'ted' | 'sport' | 'book'
@@ -27,7 +28,7 @@ export default function PlanPage() {
         {
             key: 'book',
             label: '📖 书/电影',
-            children: 'Content of Tab Pane 3',
+            children: <ReadPage />,
         },
     ];
     return <Tabs activeKey={tab} centered items={items} onChange={onChange} />
