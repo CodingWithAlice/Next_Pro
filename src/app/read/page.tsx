@@ -48,7 +48,7 @@ export default function ReadPage() {
     }
 
     const handleSave = () => {
-        Api.postReadApi({ readData, chapterData }).then(e => {
+        Api.postReadApi(readData).then(e => {
             messageApi.success(e.data.message);
         }).catch((e) => {
             messageApi.error(e.message || '保存失败');
