@@ -7,10 +7,11 @@ import Api from '@/service/api';
 import dayjs from 'dayjs';
 
 const colorMap = {
-    '电影': 'blue',
-    '话剧': 'purple',
+    '电影': 'cyan',
+    '阅读': 'gold',
+    '话剧': 'magenta',
     '综艺': 'orange',
-    '电视剧': 'red',
+    '电视剧': 'purple',
     '音乐剧': 'green'
 }
 interface BooksDTO {
