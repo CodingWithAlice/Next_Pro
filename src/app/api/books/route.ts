@@ -26,8 +26,8 @@ async function POST(request: NextRequest) {
 	try {
 		const body = await request.json()
 		const data = body.data
-		const { readData } = data        
-		await BooksRecordModal.bulkCreate(readData, { validate: true })
+		const { readData } = data
+		await BooksRecordModal.create(readData, { validate: true })
 
 		return NextResponse.json({
 			success: true,
