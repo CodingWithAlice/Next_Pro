@@ -12,3 +12,14 @@
 .record {
     white-space: pre-wrap;
 }
+
+.card {
+    margin-bottom: 16;
+    border-radius: 8;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: 'all 0.3s';
+}
+
+.books-add {
+    width: 88%;
+}

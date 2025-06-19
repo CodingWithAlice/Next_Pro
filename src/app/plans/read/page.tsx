@@ -5,6 +5,7 @@ import Api from '@/service/api';
 import type { CollapseProps } from 'antd';
 import { Collapse, Tag, Typography } from 'antd';
 import dayjs from 'dayjs';
+import BooksAdd from '@/components/books-add';
 
 interface BooksDTO {
     id: number;
@@ -68,6 +69,7 @@ export default function ReadPage() {
     }, [])
 
     return <div className='read'>
+        <BooksAdd fresh={init} />
         {booksList.map(it => (<Collapse
             className='item'
             key={it.id}

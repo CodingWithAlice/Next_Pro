@@ -64,11 +64,8 @@ const Api = {
 	getReadApi() {
 		return request.get('books')
 	},
-	postReadApi(data: {
-		readData: { [key: string]: string | number }
-		chapterData: { [key: string]: string | number }[]
-	}) {
-		return request.post('books', data)
+	postReadApi(readData: { [key: string]: string | number }) {
+		return request.post('books', { readData })
 	},
 }
 

@@ -26,21 +26,12 @@ async function POST(request: NextRequest) {
 	try {
 		const body = await request.json()
 		const data = body.data
-		const { readData } = data
-
-		const [issue, created] = await BooksRecordModal.findOrCreate({
-			where: { id: readData.id },
-			defaults: readData,
-		})
-		if (!created) {
-			issue.set(readData)
-			// 如果已经存在，更新描述
-			await issue.save()
-		}
+		const { readData } = data        
+		await BooksRecordModal.bulkCreate(readData, { validate: true })
 
 		return NextResponse.json({
 			success: true,
-			message: created ? '观察成功' : '更新成功',
+			message: '体验 + 1',
 		})
 	} catch (error) {
 		console.error(error)
