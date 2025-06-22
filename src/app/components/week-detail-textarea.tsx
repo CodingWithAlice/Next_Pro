@@ -27,30 +27,30 @@ export function WeekDetailTextarea({ weekData, setWeekData, curSerial }: WeekDet
         {transTitle('【学习内容前端】')}
         {[
             { key: 'frontOverview', desc: '前端概况' },
-            { key: 'frontWellDone', desc: '做得棒的地方' },
-            { key: 'toBeBetter', desc: '可以做得更好的地方' }
+            { key: 'frontWellDone', desc: '前端做得棒的地方' },
+            { key: 'toBeBetter', desc: '学习/工作改进方向' }
         ].map(it => handleTrans(it, weekData))}
 
         {transTitle('【睡眠 + 运动 + 电影】')}
         {[
             { key: 'sleep', desc: '睡眠情况' },
             { key: 'sport', desc: '运动情况' },
-            { key: 'movie', desc: '电影' }
+            { key: 'movie', desc: '电影/纪录片' }
         ].map(it => handleTrans(it, weekData))}
-        {transTitle('【TED + 阅读 + 播客】')}
+        {transTitle('【TED + 阅读】')}
 
         {[
             { key: 'ted', desc: 'TED主题' },
             { key: 'read', desc: '阅读情况' }
         ].map(it => handleTrans(it, weekData))}
 
-        {transTitle('【学习方法复盘和改进】')}
+        {transTitle('【生活事件复盘与改进】')}
         {handleTrans({ key: 'improveMethods' }, weekData)}
 
-        {transTitle('【本周期做得不错的地方】')}
+        {transTitle('【生活中做得好的事儿】')}
         {handleTrans({ key: 'wellDone' }, weekData)}
 
-        {transTitle('【下周主要学习的内容】')}
+        {transTitle('【下周期主要精进的内容】')}
         {handleTrans({ key: 'nextWeek' }, weekData)}
     </section>
 }

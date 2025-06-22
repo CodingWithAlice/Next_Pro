@@ -47,6 +47,7 @@ export default function Daily() {
         sport: '',
         video: '',
         front: '',
+        work: '',
         ted: '',
         reading: '',
         good: '',
@@ -123,7 +124,8 @@ export default function Daily() {
 
             setIssueData({
                 ...IssueData,
-                front: IssueData.front || '1、LTN：做？题 + 错题重做(时长) \n2、BOX1： \n3、在线工具：\n4、WORK：',
+                front: IssueData.front || '1、LTN：做？题 + 错题重做(时长) \n2、BOX1： \n3、在线工具：',
+                work: IssueData.work || '1、技术方向： \n2、业务方向：',
                 good: ([IssueData.good1 || '', IssueData.good2 || '', IssueData.good3 || '']).filter(it => !!it).join('\n'),
             });
         })
