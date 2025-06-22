@@ -72,9 +72,11 @@ export default function IssueRecord({ study, issueData, setIssueData, currentDat
                     { key: 'video', placeholder: '电影' }
                 ].map(it => getTextArea(it.key as keyof IssueRecordProps, it.placeholder, issueData))}
             </section>
-            ② 前端：
+            ② 学习：
             {getTextArea('front', '前端学习情况', issueData)}
-            ③ TED+阅读：
+            ③ 工作：
+            {getTextArea('work', '前端工作情况', issueData)}
+            ④ TED+阅读：
             <section className='flex'>
                 {[
                     { key: 'ted', placeholder: 'TED主题' },

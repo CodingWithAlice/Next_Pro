@@ -131,6 +131,7 @@ interface IssueRecordProps {
     sport: string,
     video: string,
     front: string,
+    work: string,
     ted: string,
     reading: string,
     good1?: string,

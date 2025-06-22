@@ -55,7 +55,7 @@ export default function MonthTable({ data, study }: { data: dataProps[], study: 
             render
         },
         {
-            title: '学习方法复盘和改进',
+            title: '学习/工作方法复盘和改进',
             dataIndex: 'idea',
             key: 'idea',
             render

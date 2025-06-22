@@ -76,6 +76,7 @@ export interface IssueAttributes {
 	id: number
 	better: string
 	front: string
+	work: string
 	good1: string
 	good2: string
 	good3: string
@@ -101,6 +102,7 @@ export const IssueModal: ModelDefined<
 		},
 		better: DataTypes.STRING,
 		front: DataTypes.STRING,
+		work: DataTypes.STRING,
 		good1: DataTypes.STRING,
 		good2: DataTypes.STRING,
 		good3: DataTypes.STRING,

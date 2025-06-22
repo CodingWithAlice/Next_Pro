@@ -50,8 +50,13 @@ const items = [
         name: "video",
     },
     {
-        label: "前端",
+        label: "学习",
         name: "front",
+        render: <Input.TextArea autoSize={{ minRows: 6, maxRows: 15 }} disabled />
+    },
+    {
+        label: "工作",
+        name: "work",
         render: <Input.TextArea autoSize={{ minRows: 6, maxRows: 15 }} disabled />
     },
     {

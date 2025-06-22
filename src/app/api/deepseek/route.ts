@@ -59,12 +59,13 @@ function GetWeekInputText({ startTime, endTime, weekData }: WeekInputProps) {
 			13
 		)}分钟，其中 LTN 做题时长${getDuration(16)}分钟
         ####各事项的关键内容
-        - 1、前端情况：${week.front}
-        - 2、运动情况：${week.sport}
-        - 3、睡眠情况：入睡时间点 ${getSleepTime()}
-        - 4、娱乐情况：${week.video}
-        - 5、TED学习情况：${week.ted}
-        - 6、阅读情况：${week.reading}
+        - 1、前端学习情况：${week.front}
+        - 2、前端工作情况：${week.work}
+        - 3、运动情况：${week.sport}
+        - 4、睡眠情况：入睡时间点 ${getSleepTime()}
+        - 5、娱乐情况：${week.video}
+        - 6、TED学习情况：${week.ted}
+        - 7、阅读情况：${week.reading}
         ####当天的总结
         - 觉得做得好的事项 ${week.good1} ${week.good2} ${week.good3}
         - 可以做得更好的事项${week.better}`
