@@ -13,7 +13,7 @@
     .a-link{
         font-size: 1.2rem;
         position: static;
-        transform: translate(0, 0);
+        transform: translate(60%, -250%);
     }
 
     .images-wrap {
