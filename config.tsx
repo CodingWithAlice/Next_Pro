@@ -6,7 +6,7 @@ const config = {
     sportId: 17,
     workId: 18,
     sleepId: 10,
-    monthSerial: 4, // 月报，手动切换
+    monthSerial: 5, // 月报，手动切换
 };
 
 export type modeType = 'allDay' | 'workDay';
