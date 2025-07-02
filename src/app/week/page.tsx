@@ -23,7 +23,9 @@ export default function Week() {
     const handleSave = () => {
         const current = +curSerial === 0 ? serialsLength + 1 : curSerial;
         Api.postWeekApi({ ...weekData, serialNumber: current }).then((e) => {
-            messageApi.success(e.data.message);
+            messageApi.success(e?.data?.message || e?.message);
+        }).catch((e) => {
+            messageApi.error(e.message || '保存失败');
         })
     }
 
@@ -31,7 +33,7 @@ export default function Week() {
         Api.getWeekApi(curSerial).then(({ weekData, serialData }) => {
             const currentSerial = serialData.filter((it: { [key: string]: string }) => +it.serialNumber === curSerial)?.[0];
             const gap = getGapTime(currentSerial?.startTime, currentSerial?.endTime, 'day');
-            const time = currentSerial ? `${currentSerial?.startTime} 至 ${currentSerial?.endTime} ${gap}天` : '新周期';
+            const time = currentSerial ? `${currentSerial?.startTime} 至 ${currentSerial?.endTime} ${gap + 1}天` : '新周期';
 
             setWeekData({ ...weekData, time });
         })
@@ -40,10 +42,10 @@ export default function Week() {
     return <div className="outer">
         {contextHolder}
         <div className="week">
-            <h1>LTN 周报</h1>
-            <SerialsPicker onValueChange={handleSingleChange} value={curSerial} onSerialsLength={setSerialsLength} />
+            <h1 className='week-title'>LTN 周报</h1>
+            <SerialsPicker onValueChange={handleSingleChange} value={curSerial} onSerialsLength={setSerialsLength} className='serial-week' />
         </div>
-        <WeekDetailTextarea weekData={weekData} setWeekData={setWeekData} />
+        <WeekDetailTextarea weekData={weekData} setWeekData={setWeekData} curSerial={curSerial} />
         <Button type="primary" className='btn' onClick={handleSave}>保存</Button>
         {curSerial !== 0 && <WeekPeriodModal curSerial={curSerial} />}
     </div>

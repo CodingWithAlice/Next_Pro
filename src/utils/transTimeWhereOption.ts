@@ -1,11 +1,13 @@
 import dayjs from 'dayjs'
 import { Op } from 'sequelize'
+import utc from 'dayjs/plugin/utc'
+dayjs.extend(utc);
 
 function transOneDateToWhereOptions(date: string) {
 	// 日期转换 - startOf('date') 东八区自动减去 8小时
 	const dateObj = new Date(date)
-	const startDate = dayjs(dateObj).startOf('date').add(8, 'hours').toDate()
-	const endDate = dayjs(dateObj).endOf('date').add(8, 'hours').toDate()
+    const startDate = dayjs.utc(dateObj).startOf('day').toDate()
+	const endDate = dayjs.utc(dateObj).endOf('day').toDate()
 	// 方法1：使用 DATE_FORMAT 来转换成 YYYY-MM-DD 匹配是否和 参数相等
 	// const where1 = Sequelize.where(
 	// 	Sequelize.fn('DATE_FORMAT', Sequelize.col('date'), '%Y-%m-%d'),
@@ -30,8 +32,8 @@ function transOneDateToWhereOptions(date: string) {
 function transTwoDateToWhereOptions(start: string | Date, end: string | Date) {
 	const startObj = new Date(start)
 	const endObj = new Date(end)
-	const startDate = dayjs(startObj).startOf('date').add(8, 'hours').toDate()
-	const endDate = dayjs(endObj).endOf('date').add(8, 'hours').toDate()
+	const startDate = dayjs.utc(startObj).startOf('day').toDate()
+	const endDate = dayjs.utc(endObj).endOf('day').toDate()
 	return {
 		date: {
 			[Op.between]: [startDate, endDate],

@@ -4,13 +4,19 @@ import { FormatDateToMonthDayWeek, formatMinToHM, IssueRecordProps } from "@/com
 import { ExperimentFilled } from "@ant-design/icons";
 import Api from "@/service/api";
 const { TextArea } = Input;
-import { getCurrentBySub } from "@/components/tool";
 
 interface UniformTextAreaWithStyleProps {
     type: keyof IssueRecordProps,
     placeholder: string,
     source: IssueRecordProps,
     emit: (type: string, value: string) => void
+}
+
+interface IssueRecordFuncProps {
+    study: number;
+    issueData: IssueRecordProps;
+    setIssueData: (data: IssueRecordProps) => void;
+    currentDate: string;
 }
 
 function UniformTextAreaWithStyle({ type, placeholder, source, emit }: UniformTextAreaWithStyleProps) {
@@ -26,7 +32,7 @@ function UniformTextAreaWithStyle({ type, placeholder, source, emit }: UniformTe
     />
 }
 
-export default function IssueRecord({ study, issueData, setIssueData }: { study: number, issueData: IssueRecordProps, setIssueData: (data: IssueRecordProps) => void }) {
+export default function IssueRecord({ study, issueData, setIssueData, currentDate }: IssueRecordFuncProps) {
     const [messageApi, contextHolder] = message.useMessage();
     // const { styles } = useStyle();
 
@@ -41,21 +47,23 @@ export default function IssueRecord({ study, issueData, setIssueData }: { study:
             good1: issueData.good.split('\n')[0],
             good2: issueData.good.split('\n')[1],
             good3: issueData.good.split('\n')[2],
-            date: getCurrentBySub(1).toDate()
+            date: issueData?.date || currentDate
         }).then((e) => {
-            if (e?.data) {
-                messageApi.success(e.data.message);
+            if (e?.success) {
+                messageApi.success(e.message);
             }
+        }).catch((e) => {
+            messageApi.error(e.message || '保存失败');
         })
     }
     const getTextArea = (key: keyof IssueRecordProps, placeholder: string, source: IssueRecordProps) => (<UniformTextAreaWithStyle key={key} type={key} placeholder={placeholder} source={source} emit={handleInput} />)
 
-    return (<div className='wrap'>
+    return (<div className='wrap-week'>
         {contextHolder}
         <b>二、事项统计</b>
         <FormatDateToMonthDayWeek />
         <h4>前端学习时长：{formatMinToHM(study)} 🎉🎉🎉</h4>
-        <section className='wrap'>
+        <section className='issue-wrap'>
             【复盘】
             ①运动 + 电影：
             <section className='flex'>
@@ -64,9 +72,11 @@ export default function IssueRecord({ study, issueData, setIssueData }: { study:
                     { key: 'video', placeholder: '电影' }
                 ].map(it => getTextArea(it.key as keyof IssueRecordProps, it.placeholder, issueData))}
             </section>
-            ② 前端：
+            ② 学习：
             {getTextArea('front', '前端学习情况', issueData)}
-            ③ TED+阅读：
+            ③ 工作：
+            {getTextArea('work', '前端工作情况', issueData)}
+            ④ TED+阅读：
             <section className='flex'>
                 {[
                     { key: 'ted', placeholder: 'TED主题' },

@@ -1,0 +1,26 @@
+version: '3'
+services:
+  nginx:
+      image: nginx
+      ports:
+        - "80:80"  # 将宿主机的 80 端口映射到容器的 80 端口
+      volumes:
+        - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf  # 挂载 Nginx 配置文件
+      depends_on:
+        - daily-app  # 依赖于 your-app 服务
+  daily-app:
+    build:
+      context: .
+      dockerfile: dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'  # 限制使用 50% 的 CPU
+          memory: 512M  # 限制使用 512MB 内存
+    ports:
+      - "3000:3000"  # 将容器内的 3000 端口映射到主机的 3000 端口
+    environment:
+      - NODE_ENV=production  # 设置环境变量
+    restart: always  # 容器退出时自动重启
+    volumes:
+      - ../config.env:/app/config.env  # 将宿主机上的 config.env 挂载到容器内的 /app/config.env

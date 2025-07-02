@@ -1,14 +1,15 @@
-import { Select, TimePicker } from "antd";
+import { Input, Select, TimePicker } from "antd";
 import dayjs from "dayjs";
 import { formatMinToHM, getGapTime } from "./tool";
 import classNames from "classnames";
-import './component.css';
 import { routineType } from '@/daily/page';
+import { modeType } from "config";
 
 interface CustomTimePickerProps {
     onIssue?: (issue: Issue) => void;
     init: Issue;
     routineTypes: routineType[];
+    mode: modeType
 }
 
 interface Issue {
@@ -20,22 +21,26 @@ interface Issue {
     interval: number;
 }
 
-function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps) {
-    const options = routineTypes.map((type:routineType) => ({
+function CustomTimePicker({ init, onIssue, routineTypes, mode }: CustomTimePickerProps) {
+    const options = routineTypes.map((type: routineType) => ({
         value: type.id,
         label: type.des,
     }));
 
-    const handleChange = (daySort: number, value: string | dayjs.Dayjs | null, changeType: keyof Issue) => {        
+    const handleChange = (daySort: number, value: string | number | dayjs.Dayjs | null, changeType: keyof Issue) => {
         const newIssue = { ...init, daySort, [changeType]: value };
         // 优化：如果开始时间大于结束时间，则结束时间+1分钟
-        if(changeType === 'startTime' && newIssue.endTime.isBefore(newIssue.startTime)) {
+        if (changeType === 'startTime' && newIssue.endTime.isBefore(newIssue.startTime)) {
             newIssue.endTime = newIssue.startTime.add(1, 'minute');
         }
 
         const dur = getGapTime(newIssue.startTime, newIssue.endTime, 'minute');
         if (onIssue) {
-            onIssue({ ...newIssue, duration: dur });
+            if (changeType !== 'duration') {
+                onIssue({ ...newIssue, duration: dur });
+                return;
+            }
+            onIssue(newIssue)
         }
     }
     const intervalClass = classNames({
@@ -44,8 +49,9 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
 
     return (
         <div className='time-picker' key={init.daySort}>
-            {['startTime', 'endTime'].map((timeType, index) => {
-                return <div key={`${init.daySort}-${timeType}`}>
+            {mode === 'allDay' && ['startTime', 'endTime'].map((timeType, index) => {
+                return <div key={`${init.daySort}-${timeType}`} className={index === 0 ? 'time-picker-item' : ''
+                }>
                     <TimePicker
                         key={init.daySort}
                         className="picker"
@@ -53,20 +59,26 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
                         value={init[timeType as keyof Issue] as dayjs.Dayjs}
                         onChange={(value) => handleChange(init.daySort, value, timeType as keyof Issue)}
                         needConfirm={false} />
-                    {index === 0 && <>-
-                        <span className='duration'>{formatMinToHM(init.duration)}</span>{` ->`}</>}
+                    {index === 0 && <div className='duration'>
+                        <span className="phone-hidden">-</span>
+                        <span className="duration-time"> {formatMinToHM(init.duration)}</span>
+                        <span className="phone-hidden">{'->'}</span>
+                    </div>}
                 </div>
-            })}
-            &nbsp;
+            })}{mode === 'workDay' &&
+                <Input suffix="m(分)" defaultValue="m" value={init.duration} style={{ width: 150 }} onChange={(e) => {
+                    const value = +e.target.value;
+                    handleChange(init.daySort, isNaN(value) ? 0 : value, 'duration')
+                }} />
+            }
             <Select
                 value={init.type}
                 options={options}
                 onChange={value => handleChange(init.daySort, value, 'type')}
                 size='middle'
-                className='select' />
-            &nbsp;
-            {!!init.interval && <span className={intervalClass}>{formatMinToHM(init.interval)}</span>}
-        </div>
+                className="routine-select" />
+            {<span className={`${intervalClass} interval phone-hidden`}> {!!init.interval && formatMinToHM(init.interval)}</span>}
+        </div >
     );
 }
 

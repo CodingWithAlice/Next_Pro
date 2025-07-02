@@ -1,6 +1,6 @@
 import Api from "@/service/api";
 import { Select } from "antd";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getGapTime } from "./tool";
 
 interface SerialsPickerProps {
@@ -8,10 +8,30 @@ interface SerialsPickerProps {
     value: number | number[];
     onSerialsLength?: (v: number) => void;
     mode?: 'tags' | 'multiple';
+    className: 'serial-week' | 'serial-month';
 }
-export function SerialsPicker({ value, onValueChange, onSerialsLength, mode }: SerialsPickerProps) {
+export function SerialsPicker({ value, onValueChange, onSerialsLength, mode, className }: SerialsPickerProps) {
     const [serials, setSerials] = useState<{ serialNumber: number, startTime: string, endTime: string }[]>([]);
     const [periodsDate, setPeriodsDate] = useState<string>('');
+
+    const calcPeriods = useCallback((v: number[]) => {
+        if (Array.isArray(v)) {
+            v.sort((a, b) => a - b); // 排序
+            const start = serials.find((serial) => serial.serialNumber === v[0]);
+            const end = serials.find((serial) => serial.serialNumber === v[v.length - 1]);
+            
+            if (start && end) {
+                const gap = getGapTime(start.startTime, end.endTime, 'day');
+                setPeriodsDate(`   ${start.startTime} 至 ${end.endTime}  共计${gap}天`);
+            }
+        }
+    }, [serials])
+
+    useEffect(() => {
+        if (Array.isArray(value)) {
+            calcPeriods(value);
+        }
+    }, [value, calcPeriods])
 
     useEffect(() => {
         Api.getSerial().then(({ serialData }) => {
@@ -20,24 +40,16 @@ export function SerialsPicker({ value, onValueChange, onSerialsLength, mode }: S
                 onSerialsLength(serialData.length);
             }
         })
-    }, [])
+    }, [onSerialsLength])
 
     const onChange = (v: number | number[]) => {
         onValueChange(v);
-        if (Array.isArray(v)) {
-            v.sort((a, b) => a - b); // 排序
-            const start = serials.find((serial) => serial.serialNumber === v[0]);
-            const end = serials.find((serial) => serial.serialNumber === v[v.length - 1]);
-            if (start && end) {
-                const gap = getGapTime(start.startTime, end.endTime, 'day');
-                setPeriodsDate(`   ${start.startTime} 至 ${end.endTime}  共计${gap}天`);
-            }
-        }
+        calcPeriods(v as number[]);
     }
 
     return <>
         {!!serials.length && <Select
-            className="select"
+            className={className}
             onChange={onChange}
             value={value}
             mode={mode}
@@ -48,9 +60,10 @@ export function SerialsPicker({ value, onValueChange, onSerialsLength, mode }: S
                 },
                 ...serials.map((it: { serialNumber: number }) => ({
                     value: +it?.serialNumber,
-                    label: `LTN周期${it.serialNumber}`
+                    label: `周期${it.serialNumber}`
                 }))]}
         />}
+        <div className={`${className}-br`}></div>
         {!!mode && periodsDate}
     </>
 }

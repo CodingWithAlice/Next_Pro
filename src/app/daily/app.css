@@ -1,10 +1,3 @@
-body {
-    color: rgb(6, 128, 67);
-    font-weight: 500;
-    background: transparent;
-    background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
-}
-
 .week {
     text-align: center;
     margin: 0 5px;
@@ -17,14 +10,18 @@ body {
 .flex-around {
     display: flex;
     justify-content: space-around;
+    flex-wrap: wrap;
+    width: 100%;
 }
 
-.wrap {
+.wrap-week {
     display: flex;
     flex-direction: column;
+    margin-top: 1rem;
+    min-width: 25%;
 }
 
-.front {
+.front-time {
     background-color: rgb(174, 221, 129, 0.5);
     padding: 2px;
     border-radius: 15%;
@@ -50,16 +47,8 @@ body {
     display: flex;
     align-items: center;
     margin-top: 4px;
-}
-
-.select {
-    width: 102px;
-}
-
-.duration {
-    display: inline-block;
-    width: 45px;
-    text-align: center;
+    white-space: nowrap;
+    justify-content: space-between;
 }
 
 .purple {
@@ -68,4 +57,5 @@ body {
     border-radius: 15%;
     color: rgb(38, 157, 128);
     font-weight: 400;
+    text-align: center;
 }

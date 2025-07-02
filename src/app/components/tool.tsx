@@ -2,8 +2,9 @@ import dayjs, { Dayjs } from "dayjs";
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { createStyles } from 'antd-style';
-import qs from 'qs';
 import config from 'config';
+import { useSearchParams } from 'next/navigation';
+import { UniformTextAreaWithStyle } from "./uniform-textarea";
 dayjs.extend(relativeTime);
 dayjs.extend(weekOfYear);
 
@@ -15,19 +16,11 @@ const getCurrentBySub = (subtractDay?: number) => {
 };
 
 // 展示 月.日 周几 - 默认展示昨天
-function getYesterdayDate(handle: number = config.current) {
+function getYesterdayDate(handle: number = config.current, urlDate?: string) {
     const date = getCurrentBySub(handle);
-    const weekday = '六日一二三四五'.charAt(date.day() + 1);
-    return { weekday, date: date.format('YYYY-MM-DD') }
-}
-
-function FormatDateToMonthDayWeek({ handle = config.current }: { handle?: number }) {
-    const { weekday, date } = getYesterdayDate(handle);
-    return <div className='flex'>
-        <span style={{ color: '#f68084', fontWeight: 800 }}>{date}</span>
-        &nbsp;
-        周{weekday}
-    </div>
+    const current = urlDate ? dayjs(urlDate) : date;
+    const weekday = '六日一二三四五'.charAt((current.day() + 1) % 7);
+    return { weekday, date: current.format('YYYY-MM-DD') }
 }
 
 // 计算当前计划周期流逝速度
@@ -48,6 +41,10 @@ function getGapTime(startTime: string | Dayjs, endTime: string | Dayjs, type?: '
 
 const getWeek = () => {
     return dayjs().week()
+}
+
+function transTimeStringToType(time: string | number, type: string) {
+    return dayjs(time).format(type);
 }
 
 // 处理时间为负数的情况（跨0点学习导致的）
@@ -81,6 +78,30 @@ function formatSerialNumber(num: number) {
     return res
 }
 
+// 统一标题样式
+function transTitle(title: string) {
+    return <span key={title} className="title-top">
+        <span>{title}</span>
+    </span>
+}
+
+const transTextArea = ({ key, desc, source, onChange, cols }: {
+    key: string,
+    desc?: string,
+    source: { [key: string]: string | number },
+    onChange: (v: { [key: string]: string; }) => void,
+    cols?: number
+}) => {
+    return <UniformTextAreaWithStyle
+        key={key}
+        type={key}
+        desc={desc || ''}
+        cols={cols}
+        init={source?.[key] || ''}
+        onChange={onChange}
+    />
+};
+
 const useStyle = createStyles(({ prefixCls, css }) => ({
     linearGradientButton: css`
       &.${prefixCls}-btn-primary:not([disabled]):not(.${prefixCls}-btn-dangerous) {
@@ -105,39 +126,12 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
     `,
 }));
 
-function debounce(fn: Function, delay: number) {
-    let timer: NodeJS.Timeout | null = null;
-    return function (...args) {
-        clearTimeout(timer as NodeJS.Timeout);
-        timer = setTimeout(() => {
-            fn(...args);
-        }, delay);
-    }
-}
-
-function throttle(fn: Function, delay: number) {
-    let timer: NodeJS.Timeout | null = null;
-    return function (...args) {
-        if (!timer) {
-            timer = setTimeout(() => {
-                fn(...args);
-                timer = null;
-            }, delay);
-        }
-    }
-}
-
-function getUrlParams() {
-    const queryString = window.location.search.substring(1); // 去掉 "?"
-    if (!queryString) return {};
-    const params = qs.parse(queryString);
-    return params;
-}
-
+// 定义一些 type 和 interface
 interface IssueRecordProps {
     sport: string,
     video: string,
     front: string,
+    work: string,
     ted: string,
     reading: string,
     good1?: string,
@@ -145,7 +139,11 @@ interface IssueRecordProps {
     good: string,
     good3?: string,
     better: string,
+    date?: string
 }
+
+// deepSeek 类别，读取不同的提示词
+type SearchType = 'month' | 'week';
 
 // 分类共三类：Learning、Life、Health
 const Category = {
@@ -159,21 +157,34 @@ const CategoryColor = {
     Health: 'volcano'
 }
 
+// 公共组件
+function FormatDateToMonthDayWeek({ handle = config.current }: { handle?: number }) {
+    const urlParams = useSearchParams();
+    const urlDate = urlParams?.get('date');
+    const { weekday, date } = getYesterdayDate(handle, urlDate || '');
+    return <div className='flex'>
+        <span style={{ color: '#f68084', fontWeight: 800 }}>{urlDate || date}</span>
+        &nbsp;
+        周{weekday}
+    </div>
+}
+
 export {
     FormatDateToMonthDayWeek,
     formatMinToHM,
     formatTime,
     getGapTime,
+    transTimeStringToType,
+    transTextArea,
     formatSerialNumber,
     getPassedPercent,
     getYesterdayDate,
     useStyle,
-    debounce,
-    throttle,
     getWeek,
-    getUrlParams,
     Category,
     CategoryColor,
     getCurrentBySub,
-    type IssueRecordProps
+    transTitle,
+    type IssueRecordProps,
+    type SearchType
 };

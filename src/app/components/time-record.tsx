@@ -1,11 +1,10 @@
-import { FormatDateToMonthDayWeek, formatMinToHM, getYesterdayDate, formatTime, getCurrentBySub } from '@/components/tool';
-import { Button, Space, message } from 'antd';
-import Api from '@/service/api';
-import { AntDesignOutlined } from '@ant-design/icons';
-import { routineType } from '@/daily/page';
-import CustomTimePickerList from './custom-time-picker-list';
+import { FormatDateToMonthDayWeek, formatMinToHM } from '@/components/tool';
 import { type Issue } from '@/components/custom-time-picker';
-import config from 'config';
+import { routineType } from '@/daily/page';
+import { Radio, RadioChangeEvent, Tag } from 'antd';
+import { useState } from 'react';
+import TimeRecordDayPicker from './time-record-day-picker';
+import { modeType } from 'config';
 
 interface TimeRecordProps {
     total: number,
@@ -19,90 +18,28 @@ interface TimeRecordProps {
 }
 
 export default function TimeRecord({ total, ltnTotal, read, study, onChange, routineType, issues, setIssues }: TimeRecordProps) {
-    const [messageApi, contextHolder] = message.useMessage();
-
-    const handleAddIssue = () => {
-        const suggestTime = issues[issues.length - 1]?.endTime || getCurrentBySub();
-        const newIssue = {
-            startTime: suggestTime,
-            endTime: suggestTime.add(1, 'minute'),
-            type: '',
-            daySort: issues.length,
-            duration: 0,
-            interval: 0
-        };
-        setIssues([...issues, newIssue]);
+    const [mode, setMode] = useState<modeType>('allDay');
+    const onRadioChange = ({ target: { value } }: RadioChangeEvent) => {
+        setMode(value);
+        setIssues(issues)
     }
 
-    function addTotalIssue(issues: Issue[], totalTime: number, studyTime: number, ltnTotal: number): Issue[] {        
-        const length = issues.length;
-        const totalIssue = {
-            ...issues[0],
-            startTime: getCurrentBySub(),
-            endTime: getCurrentBySub(),
-            interval: 0,
-            id: null
-        }
-        return [...issues, {
-            ...totalIssue,
-            // 前端 total
-            type: config.frontTotalId+ '',
-            daySort: length + 1,
-            duration: formatTime(studyTime),
-        }, {
-            ...totalIssue,
-            // 全部 total
-            type: config.totalId + '',
-            daySort: length + 2,
-            duration: formatTime(totalTime)
-        }, {
-            ...totalIssue,
-            // ltn total
-            type: config.ltnTotalId + '',
-            daySort: length + 3,
-            duration: formatTime(ltnTotal)
-        }]
-    }
-
-    const handleSave = () => {
-        const addTotal = addTotalIssue(issues, total, study, ltnTotal);
-        const transIssues = addTotal.map((it, index) => {
-            const { ...rest } = it;
-            return {
-                ...rest,
-                ...getYesterdayDate(),
-                duration: formatTime(it.duration),
-                routineTypeId: +it.type,
-                startTime: it.startTime.format('HH:mm:ss'),
-                endTime: it.endTime.format('HH:mm:ss'),
-                daySort: index,
-            }
-        });
-        Api.postDailyApi(transIssues).then(() => {
-            messageApi.success('保存成功');
-        })
-    }
-
-    return (<div className='wrap'>
-        {contextHolder}
+    return (<div className='wrap-week'>
         <b>一、时间统计</b>
         <p>总计：{formatMinToHM(total)}
             (阅读：{formatMinToHM(read)}
-            <span className='front'>前端：{formatMinToHM(study)}</span>)
+            <span className='front-time'>前端：{formatMinToHM(study)}</span>)
         </p>
         <FormatDateToMonthDayWeek />
-        {!!issues.length && <CustomTimePickerList
-            key={issues[issues.length - 1].daySort}
-            list={issues}
-            routineTypes={routineType}
-            setList={setIssues}
-            freshTime={onChange} />}
-            <Space className='btn-group'>
-                <Button onClick={handleAddIssue}>添加一项</Button>
-                <Button onClick={handleSave} icon={<AntDesignOutlined />}>
-                    保存
-                </Button>
-            </Space>
+        <Radio.Group
+            value={mode}
+            options={[
+                { value: 'allDay', label: <Tag color="green">自学模式</Tag> },
+                { value: 'workDay', label: <Tag color="green">工作模式</Tag> },
+            ]}
+            onChange={onRadioChange}
+        />
+        <TimeRecordDayPicker issues={issues} setIssues={setIssues} routineType={routineType} total={total} study={study} ltnTotal={ltnTotal} onChange={onChange} mode={mode} />
     </div>)
 
 }

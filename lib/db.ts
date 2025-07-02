@@ -1,11 +1,22 @@
 import { Sequelize, DataTypes, ModelDefined, Optional } from 'sequelize'
 import mysql2 from 'mysql2'
 
-export const sequelize = new Sequelize('Daily', 'root', 'localhost', {
-	host: 'localhost',
-	dialect: 'mysql',
-	dialectModule: mysql2,
-})
+// 获取环境变量
+const dbHost = process.env.NEXT_PUBLIC_DB_HOST
+const dbUser = process.env.NEXT_PUBLIC_DB_USER
+const dbPassword = process.env.NEXT_PUBLIC_DB_PASSWORD
+const dbDatabase = process.env.NEXT_PUBLIC_DB_DATABASE
+
+export const sequelize = new Sequelize(
+	dbDatabase ?? 'Daily',
+	dbUser ?? 'root',
+	dbPassword ?? 'localhost',
+	{
+		host: dbHost,
+		dialect: 'mysql',
+		dialectModule: mysql2,
+	}
+)
 
 export const RoutineTypeModal = sequelize.define(
 	'routine_type',
@@ -61,8 +72,27 @@ export const TimeModal = sequelize.define(
 		],
 	}
 )
+export interface IssueAttributes {
+	id: number
+	better: string
+	front: string
+	work: string
+	good1: string
+	good2: string
+	good3: string
+	reading: string
+	sport: string
+	ted: string
+	video: string
+	date: Date
+}
 
-export const IssueModal = sequelize.define(
+type IssueCreationAttributes = Partial<IssueAttributes>;
+
+export const IssueModal: ModelDefined<
+	IssueAttributes,
+	IssueCreationAttributes
+> = sequelize.define(
 	'daily_issue_record',
 	{
 		id: {
@@ -72,6 +102,7 @@ export const IssueModal = sequelize.define(
 		},
 		better: DataTypes.STRING,
 		front: DataTypes.STRING,
+		work: DataTypes.STRING,
 		good1: DataTypes.STRING,
 		good2: DataTypes.STRING,
 		good3: DataTypes.STRING,
@@ -112,7 +143,28 @@ export const MonthModal = sequelize.define(
 	}
 )
 
-interface SerialAttributes {
+export const BooksRecordModal = sequelize.define(
+	'books_record',
+	{
+		id: {
+			type: DataTypes.INTEGER,
+			primaryKey: true,
+			autoIncrement: true,
+		},
+		recent: DataTypes.DATE,
+		lastTime: DataTypes.DATE,
+		title: DataTypes.STRING,
+		record: DataTypes.STRING,
+		blogUrl: DataTypes.STRING,
+		tag: DataTypes.STRING,
+	},
+	{
+		tableName: 'books_record',
+		underscored: true,
+	}
+)
+
+export interface SerialAttributes {
 	id: number
 	serialNumber: number
 	startTime: Date
@@ -188,6 +240,43 @@ export const SerialModal: ModelDefined<
 	}
 )
 
+export const TedModal = sequelize.define(
+	'ted_list',
+	{
+		id: {
+			type: DataTypes.INTEGER,
+			primaryKey: true,
+			autoIncrement: true,
+		},
+		title: DataTypes.STRING,
+		times: DataTypes.STRING,
+	},
+	{
+		tableName: 'ted_list',
+		timestamps: true,
+		underscored: true,
+	}
+)
+
+export const TedRecordModal = sequelize.define(
+	'ted_record',
+	{
+		id: {
+			type: DataTypes.INTEGER,
+			primaryKey: true,
+			autoIncrement: true,
+		},
+		tedId: DataTypes.NUMBER,
+		record: DataTypes.STRING,
+        date: DataTypes.DATE
+	},
+	{
+		tableName: 'ted_record',
+		timestamps: true,
+		underscored: true,
+	}
+)
+
 // 关联关系1 每日 - 时间和事件 关联
 IssueModal.hasMany(TimeModal, {
 	foreignKey: 'date',
@@ -206,4 +295,14 @@ RoutineTypeModal.hasMany(TimeModal, {
 TimeModal.belongsTo(RoutineTypeModal, {
 	foreignKey: 'routineTypeId', // 多的那个
 	targetKey: 'id', // 一个那个的主键
+})
+
+// 关联关系4 - ted的题目列表 和 ted的感受记录 关联
+TedModal.hasMany(TedRecordModal, {
+    foreignKey: 'tedId',
+    sourceKey: 'id'
+})
+TedRecordModal.belongsTo(TedModal, {
+    foreignKey: 'tedId',
+    targetKey: 'id'
 })

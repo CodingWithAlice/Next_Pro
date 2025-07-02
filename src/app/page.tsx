@@ -1,66 +1,75 @@
 'use client';
-import { useState } from "react";
 import Link from "next/link";
-import { RightOutlined } from "@ant-design/icons";
 import config from "config";
-// import { useRouter } from 'next/navigation';
+import withTypeStorage from "@/components/with-type-storage";
+import { useEffect } from "react";
+// import { DoubleRightOutlined } from "@ant-design/icons";
+
+function Home() {
+    const linksList = [
+        { href: './daily', title: '晨昏日志', key: 'daily', img: "/images/daily.png", subTitle: '每日系统自检协议' },
+        { href: './week', title: '周频扫描', key: 'week', img: "/images/week.png", subTitle: '每周期诊断报告' },
+        { href: `./month?monthId=${config.monthSerial}`, title: '月度沙盘', key: 'month', img: "/images/month.png", subTitle: '布局、推演和重塑' },
+        { href: './plans', title: '知行录', key: 'read', img: "/images/read.png", subTitle: '思维培养皿、身体电源' },
+    ]
+    useEffect(() => {
+        // 星空背景
+        const numStars = 200;
+        for (let i = 0; i < numStars; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            star.style.left = Math.random() * window.innerWidth + 'px';
+            star.style.top = Math.random() * window.innerHeight + 'px';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            document.body.appendChild(star);
+        }
+    }, [])
 
 
-export default function Home() {
-    const [count, setCount] = useState(0);
-    // const router = useRouter();
-    function handleClick() {
-        alert('You clicked me!');
-        setCount(count + 1);
-    }
-
-    function MyButton({ count, onClick }: { count: number, onClick: () => void }) {
-        return (
-            <button onClick={onClick}>Click {count} times</button>
-        );
-    }
-    const status = {
-        cat: 'aQiu',
-        url: '',
-        // url: 'https://i.imgur.com/yXOvdOSs.jpg',
-        width: '100px',
-        height: '100px',
-        placeholder: 'loading',
-        btn: false,
-        ul: false
-    };
-
-    const products = [
-        { title: 'Cabbage', id: 1 },
-        { title: 'Garlic', id: 2 },
-        { title: 'Apple', id: 3 },
-    ];
-
-    // const handleRouter = () => {
-    //     router.push('/daily');
-    // };
     return (
-        <div className="outer">
-            <h1>J人复盘工具 </h1>
-            {/* 1、测试 按钮简单操作 */}
-            {status.btn && <MyButton count={count} onClick={handleClick} />}
-            {/* 2、ul 展示 列表 */}
-            {status.ul && <ul>
-                {products.map(product => (
-                    <li key={product.id}>{product.title}</li>
-                ))}
-            </ul>}
+        <div className="home outer">
+            {/* 日常工具 */}
+            <a className='a-link' href="http://codingwithalice.top:4001">
+                莱特纳盒子学习法
+            </a>
+            <div className='j-title'>
+                J型生存终端
+                {/* J型人机耦合 */}
+            </div>
+            <br />
+            {/* <Link href={'/ltn'}>
+                莱特纳盒子学习法
+                <DoubleRightOutlined />
+            </Link> */}
+            {/* 手机端 - 绶带 */}
             <section className="links">
-                <Link href='./daily' >
-                    Daily 日常记录 <RightOutlined />
-                </Link>
-                <Link href='./week' >
-                    LTN周报 <RightOutlined />
-                </Link>
-                <Link href={`./month?monthId=${config.monthSerial}`} >
-                    LTN月报 <RightOutlined />
-                </Link>
+
+                {
+                    linksList.map(({ href, title, key }) => {
+                        return <div className="ribbon" key={key}>
+                            <Link href={href} className="ribbon-link">
+                                {title}
+                            </Link>
+                        </div>
+                    })
+                }
             </section>
+            {/* 电脑端 - 图片集 */}
+            <div className="images-wrap">
+                <ul>
+                    {linksList.map(({ href, title, key, img }) => {
+                        return <li key={key}>
+                            <Link href={href} >
+                                <div className="image_title">
+                                    {title}
+                                </div>
+                                <img className="poster" src={img} alt={title} />
+                            </Link>
+
+                        </li>
+                    })}
+                </ul>
+            </div>
 
             {/* <Link href='./square' >
                 井字格【两人玩小游戏】 <RightOutlined />
@@ -71,3 +80,5 @@ export default function Home() {
             {/* <button onClick={handleRouter}>Go to Daily</button> */}
         </div>);
 }
+
+export default withTypeStorage(Home);    

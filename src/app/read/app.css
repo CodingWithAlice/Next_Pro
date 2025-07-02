@@ -1,0 +1,25 @@
+.books {
+    font-size: 35px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.cover-detail {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.chapter-wrap {
+    margin-top: 1rem;
+}
+
+.chapter-title {
+    font-size: 1.2rem;
+    color: rgb(41, 175, 130);
+    font-weight: 600;
+}
+
+.plans-text {
+    white-space: wrap;
+}
