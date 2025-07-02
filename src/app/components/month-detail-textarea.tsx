@@ -35,7 +35,7 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
     const [weeksData, setWeeksData] = useState([]); // 每周数据
     const [studyTotal, setStudyTotal] = useState(0); // 学习总时长
 
-    const handleTrans = (it: { key: string, desc?: string }, source?: { [key: string]: string }) => {
+    const handleTrans = (it: { key: string, desc?: string, tip?: string }, source?: { [key: string]: string }) => {
         if (!source) return;
         return transTextArea({ ...it, source, onChange: handleChange });
     }
@@ -79,6 +79,12 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
         <section>
             本月周期：
             <SerialsPicker onValueChange={onSerialChange} value={periods} mode='multiple' className="serial-month" />
+        </section>
+        <section className='section'>
+            {transTitle('【战况速览】')}
+            {[
+                { key: 'processMonth', desc: '年度目标完成度', tip: '2025年度计划完成度记录' },
+            ].map(it => handleTrans(it, monthData))}
         </section>
         <section className='section'>
             {transTitle('【总计时长】')}
