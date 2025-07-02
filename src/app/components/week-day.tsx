@@ -17,7 +17,7 @@ const items = [
     },
     {
         label: "下班时间",
-        name: "work",
+        name: "workTime",
     },
     {
         label: "LTN做题",
@@ -90,7 +90,7 @@ function transformData(data: WeekDayProps) {
         read: data?.reading && data?.reading !== '/',
         sport: formatMinToHM(sport?.duration),
         good: (data?.good1 || '') + (data?.good2 || '') + (data?.good3 || ''),
-        work: work?.endTime
+        workTime: work?.endTime
     }
 }
 
