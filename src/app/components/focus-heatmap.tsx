@@ -55,7 +55,10 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
             yAxis: {
                 type: 'category',
                 data: hours,
-                splitArea: { show: true }
+                splitArea: { show: true },
+                axisLabel: {
+                    interval: 1, // 强制显示所有小时标签
+                },
             },
             xAxis: {
                 type: 'category',
@@ -67,22 +70,41 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
             },
             visualMap: {
                 min: 0,
-                max: Math.max(...data.map(item => item.duration), 60),
+                // max: Math.max(...data.map(item => item.duration), 60),
+                max: 120, // 固定最大值120分钟（2小时），超过部分按最高色阶显示
                 calculable: true,
                 orient: 'horizontal',
                 left: 'center',
                 bottom: 0,
                 inRange: {
-                    color: ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127']
-                }
+                    color: [
+                        '#f3e5ff', // 极浅紫（接近白）
+                        '#d7b7ff', // 香芋紫
+                        '#b388ff', // 标准紫
+                        '#7c4dff', // 深紫
+                        '#4a148c'  // 暗紫
+                    ]
+                },
+                // 添加分段标签
+                pieces: [
+                    { min: 0, max: 15, label: '碎片化' },
+                    { min: 15, max: 45, label: '轻度专注' },
+                    { min: 45, max: 90, label: '深度专注' },
+                    { min: 90, label: '超强聚焦' }
+                ]
             },
             series: [{
                 name: '专注时长',
                 type: 'heatmap',
                 data: generateHeatmapData(),
+                // 增加单元格大小
+                itemStyle: {
+                    borderWidth: 1,
+                    borderColor: '#fff'
+                },
                 label: { show: false },
                 emphasis: {
-                    itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0, 0, 0, 0.5)' }
+                    itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0, 0, 0, 0.8)' }
                 }
             }]
         };
