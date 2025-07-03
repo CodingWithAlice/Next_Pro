@@ -1,6 +1,7 @@
 import { Table } from 'antd';
 import type { TableProps } from 'antd';
 import { formatMinToHM, formatSerialNumber, getGapTime } from './tool';
+import { dataProps } from './month-detail-textarea';
 
 interface DataType {
     time: string;
@@ -8,20 +9,6 @@ interface DataType {
     sleepSportMovie: string;
     TEDRead: string;
     idea: string;
-}
-
-interface dataProps {
-    frontOverview: string;
-    serialNumber: number;
-    startTime: string;
-    endTime: string;
-    sleep: string;
-    sport: string;
-    movie: string;
-    ted: string;
-    improveMethods: string;
-    read: string;
-    id: number;
 }
 
 const render = (text: string) => <div key={text} style={{ whiteSpace: 'pre-wrap' }}>{text}</div> // 换行显示

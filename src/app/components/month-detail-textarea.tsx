@@ -6,6 +6,7 @@ import { timeTotalByRoutineTypeProps } from "./month-total-time";
 import MonthTable from "./month-table";
 import { transTextArea, transTitle } from "./tool";
 import DeepSeek from "./deep-seek";
+import FocusHeatmap from "./focus-heatmap";
 
 const timeTotal = [
     [
@@ -23,6 +24,28 @@ const timeTotal = [
         // { key: 'aerobic', desc: '有氧总时长' },
     ]
 ]
+
+export interface dataProps {
+    frontOverview: string;
+    serialNumber: number;
+    startTime: string;
+    endTime: string;
+    sleep: string;
+    sport: string;
+    movie: string;
+    ted: string;
+    improveMethods: string;
+    read: string;
+    id: number;
+}
+
+export interface rawRecord {
+    date: string, 
+    duration: number,
+    startTime: string,
+    routineTypeId: number,
+    'routine_type.des': string
+}
 interface MonthDetailTextareaProps {
     monthData: { [key: string]: string },
     setMonthData: (data: { [key: string]: string }) => void,
@@ -32,7 +55,8 @@ interface MonthDetailTextareaProps {
 
 export function MonthDetailTextarea({ monthData, setMonthData, periods, setPeriods }: MonthDetailTextareaProps) {
     const [timeTotalByRoutineType, setTimeTotalByRoutineType] = useState<timeTotalByRoutineTypeProps[]>();
-    const [weeksData, setWeeksData] = useState([]); // 每周数据
+    const [weeksData, setWeeksData] = useState<dataProps[]>([]); // 每周数据
+    const [rawRecords, setRawRecords] = useState<rawRecord[]>([]); // 每周数据
     const [studyTotal, setStudyTotal] = useState(0); // 学习总时长
 
     const handleTrans = (it: { key: string, desc?: string, tip?: string }, source?: { [key: string]: string }) => {
@@ -52,6 +76,12 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
         })
     }
 
+    // 获取周期的起始时间
+    const handlePeriodTime = (weeksData: dataProps[]) => {
+        const sort = weeksData.sort((a, b) => a.serialNumber - b.serialNumber);        
+        return { start: sort?.[0]?.startTime, end: sort?.[sort?.length - 1]?.endTime }
+    }
+
     const onSerialChange = (v: number | number[]) => {
         if (Array.isArray(v)) {
             setPeriods(v);
@@ -61,7 +91,8 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
     useEffect(() => {
         // 更新选择的 LTN 周期后，刷新当前页面数据
         if (periods.length >= 1) {
-            Api.getMonthDetailApi(periods.join(',')).then(({ weekList, timeTotalByRoutineType }) => {
+            Api.getMonthDetailApi(periods.join(',')).then(({ weekList, timeTotalByRoutineType, rawRecords }) => {
+                setRawRecords(rawRecords)
                 setTimeTotalByRoutineType(timeTotalByRoutineType);
                 setWeeksData(weekList);
                 let study = 0
@@ -85,6 +116,7 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
             {[
                 { key: 'processMonth', desc: '年度目标完成度', tip: '2025年度计划完成度记录' },
             ].map(it => handleTrans(it, monthData))}
+            <FocusHeatmap data={rawRecords} periodTime={handlePeriodTime(weeksData)} />
         </section>
         <section className='section'>
             {transTitle('【总计时长】')}
