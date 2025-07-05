@@ -116,7 +116,7 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
             {[
                 { key: 'processMonth', desc: '年度目标完成度', tip: '2025年度计划完成度记录' },
             ].map(it => handleTrans(it, monthData))}
-            <FocusHeatmap data={rawRecords} periodTime={handlePeriodTime(weeksData)} />
+            {!!weeksData?.length && <FocusHeatmap data={rawRecords} periodTime={handlePeriodTime(weeksData)} />}
         </section>
         <section className='section'>
             {transTitle('【总计时长】')}

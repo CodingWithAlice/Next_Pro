@@ -50,7 +50,7 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
                 top: 20,
                 left: 60,
                 right: 30,
-                bottom: 30
+                bottom: 60
             },
             yAxis: {
                 type: 'category',

@@ -10,7 +10,7 @@ import { useSearchParams } from 'next/navigation';
 
 export default function Month() {
     const [monthData, setMonthData] = useState<{ [key: string]: string }>({});
-    const [periods, setPeriods] = useState<number[]>([0]);
+    const [periods, setPeriods] = useState<number[]>([]);
     const [messageApi, contextHolder] = message.useMessage();
     const urlParams = useSearchParams();
     const monthId = +(urlParams?.get('monthId') || 0) || config.monthSerial;
@@ -43,7 +43,7 @@ export default function Month() {
         <div className="month">
             <h1>LTN {monthId} 月报</h1>
         </div>
-        <MonthDetailTextarea monthData={monthData} setMonthData={setMonthData} periods={periods} setPeriods={setPeriods} />
+        {!!periods?.length && <MonthDetailTextarea monthData={monthData} setMonthData={setMonthData} periods={periods} setPeriods={setPeriods} />}
         <Button type="primary" className='btn' onClick={handleSave}>保存</Button>
     </div>
 }
