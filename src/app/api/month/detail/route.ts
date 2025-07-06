@@ -39,7 +39,7 @@ async function GetTimeTotalByRoutineType(serials: number[]) {
 
 	// 2. 获取原始记录数据（热力图专用）
 	const rawRecords = await TimeModal.findAll({
-		attributes: ['date', 'startTime', 'duration', 'routineTypeId'],
+		attributes: ['date', 'startTime', 'duration', 'routineTypeId', 'endTime'],
 		where: {
 			[Op.and]: [
 				transTwoDateToWhereOptions(startDate, endDate),

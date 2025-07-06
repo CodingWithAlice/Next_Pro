@@ -43,6 +43,7 @@ export interface rawRecord {
     date: string, 
     duration: number,
     startTime: string,
+    endTime: string,
     routineTypeId: number,
     'routine_type.des': string,
     isWorkDay: number
@@ -114,7 +115,7 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
         </section>
         <section className='section'>
             {transTitle('【战况速览】')}
-            {[
+            {!!weeksData?.length && [
                 { key: 'processMonth', desc: '年度目标完成度', tip: '2025年度计划完成度记录' },
             ].map(it => handleTrans(it, monthData))}
             {!!weeksData?.length && <FocusHeatmap data={rawRecords} periodTime={handlePeriodTime(weeksData)} />}

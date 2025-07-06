@@ -17,7 +17,7 @@ const TYPE_COLORS: { [key: number]: string } = {
 const getTypeColor = (typeId: number) =>
     TYPE_COLORS[typeId] || '#9e9e9e'; // 默认灰色
 
-const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, end: string } }> = ({ data, periodTime }) => {
+const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, end: string } }> = ({ data, periodTime }) => {    
     const [activeTypes, setActiveTypes] = useState<number[]>([]); // 当前选中的类型ID
     // 获取所有类型用于图例
     const allTypes = (() => {
@@ -55,27 +55,41 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
     // 计算学习效率曲线
     const getEfficiencyData = () => {
         const groupByDate = groupBy(data, 'date');
-        return Object.keys(groupByDate).map(date => {
+        const efficiencyValues: number[] = []; // 存储所有效率值用于计算范围
+
+        const result = Object.keys(groupByDate).map(date => {
             const curDay = groupByDate[date];
             const workItem = curDay.filter(it => +it.routineTypeId === 18); // 工作日
             const ltnTotal = curDay.find(it => +it.routineTypeId === 16)?.duration || 0; // LTN做题时长
             const frontTotal = curDay.find(it => +it.routineTypeId === 13)?.duration || 0; // 前端总计做题时长
+
             // 日学习效率分 计算
             const isWorkDay = !!workItem?.length; // 工作日
             const suffix = isWorkDay ? 1.2 : 1; // 系数1 - 工作日下班1.2/休息日1
             const addFixScore = (ltnTotal * 1.2 + (frontTotal - ltnTotal)) * suffix; // 日学习效率分
+
             // 有效时长 计算
             const lastWorkItem = workItem[workItem?.length - 1];
-            const start = isWorkDay ? lastWorkItem?.startTime : curDay?.[0]?.startTime
+            const start = isWorkDay ? lastWorkItem?.endTime : curDay?.[0]?.startTime
             const times = dayjs(date + '23:00:00').diff(dayjs(date + start), 'minute') // 休息日
+            const efficiency = frontTotal > 30 ? Math.min(Number((addFixScore / times).toFixed(2)), 1) * 100 : null;
+
+            if (efficiency !== null) {
+                efficiencyValues.push(efficiency);
+            }
             // [日期, 学习效率分, 是否有效日, 原始分钟数]
             const value = [
                 formatDate(date), // 月.日
-                frontTotal > 30 ? Math.min(Number((addFixScore / times).toFixed(2)), 1) * 100 : null, // 前端学习时长超低于 30min 判定为非有效时长
+                efficiency, // 前端学习时长超低于 30min 判定为非有效时长
                 !!isWorkDay,
                 frontTotal > 30 ? 1 : 0]
             return { value, itemStyle: { color: isWorkDay ? '#FFC107' : '#4CAF50' } }
         })
+        return {
+            data: result,
+            min: Math.min(...efficiencyValues),
+            max: Math.max(...efficiencyValues)
+        };
     }
 
     // 生成日期范围数组（格式：M.D）
@@ -97,7 +111,8 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
     const getOption = () => {
         const hours = Array.from({ length: 24 }, (_, i) => `${i}:00`);
         const days = generateDaysArray(periodTime);
-
+        const efficiencyData = getEfficiencyData(); // 获取数据和范围
+        
         return {
             tooltip: {
                 // trigger: 'axis', // 坐标轴触发
@@ -125,12 +140,13 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
                 // 效率曲线Y轴
                 {
                     gridIndex: 1,
-                    min: 0,
-                    max: 100,
-                    interval: 30, // 每 20 一个刻度
                     axisLabel: {
                         formatter: '{value}%',
                     },
+                    min: Math.floor(efficiencyData.min / 10) * 10, // 向下取整到最近的10
+                    max: Math.ceil(efficiencyData.max / 10) * 10,  // 向上取整到最近的10
+                    interval: (Math.ceil(efficiencyData.max / 10) * 10 -
+                        Math.floor(efficiencyData.min / 10) * 10) / 5, // 分成5个区间
                 }],
             xAxis: [
                 // 热力图X轴（日期）
@@ -197,7 +213,7 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
                 type: 'line',
                 xAxisIndex: 1, // 使用第二个x轴
                 yAxisIndex: 1,
-                data: getEfficiencyData(),
+                data: getEfficiencyData().data,
                 symbol: 'circle',
                 symbolSize: 8,
                 lineStyle: { color: '#FFD54F' },
@@ -210,7 +226,7 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
                     formatter: (params: any) => {
                         const data = params.data || {};
                         const value = data.value || [];
-                        
+
                         return `
                             日期: ${value[0]}<br/>
                             学习效率: ${value[1].toFixed(0)}%<br/>
@@ -232,14 +248,14 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
 
     return (
         <div className="heatmap-container">
-            <ReactECharts
+            {data?.length &&  <ReactECharts
                 option={getOption()}
                 onEvents={{
                     legendselectchanged: handleLegendSelect // 绑定图例选择事件
                 }}
                 theme="light"
                 className="heatmap-table"
-            />
+            />}
         </div>
     );
 };
