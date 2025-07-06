@@ -17,7 +17,7 @@ const TYPE_COLORS: { [key: number]: string } = {
 const getTypeColor = (typeId: number) =>
     TYPE_COLORS[typeId] || '#9e9e9e'; // 默认灰色
 
-const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, end: string } }> = ({ data, periodTime }) => {    
+const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, end: string } }> = ({ data, periodTime }) => {
     const [activeTypes, setActiveTypes] = useState<number[]>([]); // 当前选中的类型ID
     // 获取所有类型用于图例
     const allTypes = (() => {
@@ -112,7 +112,7 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
         const hours = Array.from({ length: 24 }, (_, i) => `${i}:00`);
         const days = generateDaysArray(periodTime);
         const efficiencyData = getEfficiencyData(); // 获取数据和范围
-        
+
         return {
             tooltip: {
                 // trigger: 'axis', // 坐标轴触发
@@ -122,9 +122,21 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
             },
             grid: [
                 // 热力图网格
-                { top: '3%', height: '65%' },
+                {
+                    top: '3%',
+                    height: '65%',
+                    left: '6%',    // 减少左侧留白
+                    right: '3%',   // 减少右侧留白
+                    width: '91%'   // 显式设置宽度
+                },
                 // 效率曲线网格
-                { top: '81%', height: '11%' }
+                {
+                    top: '81%',
+                    height: '11%',
+                    left: '6%',    // 减少左侧留白
+                    right: '3%',   // 减少右侧留白
+                    width: '91%'   // 显式设置宽度
+                }
             ],
             yAxis: [
                 // 热力图Y轴（时段）
@@ -136,6 +148,14 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
                     axisLabel: {
                         interval: 2, // 小时间隔
                     },
+                    name: '热力图', // 添加Y轴名称
+                    nameLocation: 'middle', // 名称位置
+                    nameGap: 50, // 名称与轴的距离
+                    nameTextStyle: { // 名称文本样式
+                        color: '#666',
+                        fontWeight: 'bold',
+                        padding: [0, 0, 0, -40] // 调整位置
+                    }
                 },
                 // 效率曲线Y轴
                 {
@@ -145,8 +165,16 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
                     },
                     min: Math.floor(efficiencyData.min / 10) * 10, // 向下取整到最近的10
                     max: Math.ceil(efficiencyData.max / 10) * 10,  // 向上取整到最近的10
-                    interval: (Math.ceil(efficiencyData.max / 10) * 10 -
-                        Math.floor(efficiencyData.min / 10) * 10) / 5, // 分成5个区间
+                    interval: Math.ceil((Math.ceil(efficiencyData.max / 10) * 10 -
+                        Math.floor(efficiencyData.min / 10) * 10) / 3), // 分成5个区间
+                    name: '学习效率', // 添加Y轴名称
+                    nameLocation: 'middle',
+                    nameGap: 50,
+                    nameTextStyle: {
+                        color: '#666',
+                        fontWeight: 'bold',
+                        padding: [0, 0, 0, -5]
+                    }
                 }],
             xAxis: [
                 // 热力图X轴（日期）
@@ -248,7 +276,7 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
 
     return (
         <div className="heatmap-container">
-            {data?.length &&  <ReactECharts
+            {data?.length && <ReactECharts
                 option={getOption()}
                 onEvents={{
                     legendselectchanged: handleLegendSelect // 绑定图例选择事件
