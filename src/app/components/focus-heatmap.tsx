@@ -72,18 +72,26 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
             const lastWorkItem = workItem[workItem?.length - 1];
             const start = isWorkDay ? lastWorkItem?.endTime : curDay?.[0]?.startTime
             const times = dayjs(date + '23:00:00').diff(dayjs(date + start), 'minute') // 休息日
+            // 前端学习时长超低于 30min 判定为非有效时长
             const efficiency = frontTotal > 30 ? Math.min(Number((addFixScore / times).toFixed(2)), 1) * 100 : null;
 
             if (efficiency !== null) {
                 efficiencyValues.push(efficiency);
             }
-            // [日期, 学习效率分, 是否有效日, 原始分钟数]
+            // [日期, 学习效率分, 工作日：开始时间, 前端学习总数]
             const value = [
-                formatDate(date), // 月.日
-                efficiency, // 前端学习时长超低于 30min 判定为非有效时长
+                formatDate(date), // 日期
+                efficiency, // 学习效率
                 !!isWorkDay,
                 frontTotal > 30 ? 1 : 0]
-            return { value, itemStyle: { color: isWorkDay ? '#FFC107' : '#4CAF50' } }
+            return {
+                value,
+                itemStyle: { color: isWorkDay ? '#FFC107' : '#4CAF50' },
+                extraData: {  // 非坐标数据放在额外字段
+                    start, // 学习开始时间
+                    frontTotal, // 前端学习时长
+                }
+            }
         })
         return {
             data: result,
@@ -253,12 +261,13 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
                     // eslint-disable-next-line
                     formatter: (params: any) => {
                         const data = params.data || {};
+                        const extraData = data.extraData || {};
                         const value = data.value || [];
 
                         return `
-                            日期: ${value[0]}<br/>
                             学习效率: ${value[1].toFixed(0)}%<br/>
-                            ${value[2] ? '工作日' : '休息日'}
+                            ${value[2] ? '工作日' : '休息日'}：${extraData.start}<br/>
+                            学习时长: ${extraData.frontTotal}min
                         `;
                     }
                 }
