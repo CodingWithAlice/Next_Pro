@@ -200,7 +200,7 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
                     type: 'category',
                     gridIndex: 1,
                     data: days,
-                    axisLabel: { interval: 5 } // 稀疏显示日期
+                    axisLabel: { interval: 1 } // 稀疏显示日期
                 }],
             visualMap: {
                 type: 'piecewise', // 改为分段式

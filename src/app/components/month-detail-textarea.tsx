@@ -116,9 +116,13 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
         <section className='section'>
             {transTitle('【战况速览】')}
             {!!weeksData?.length && [
-                { key: 'processMonth', desc: '年度目标完成度', tip: '2025年度计划完成度记录' },
+                { key: 'processMonth', desc: '年度目标完成度', tip: '参看、对齐2025年度计划，填写完成度记录' },
             ].map(it => handleTrans(it, monthData))}
             {!!weeksData?.length && <FocusHeatmap data={rawRecords} periodTime={handlePeriodTime(weeksData)} />}
+            {[
+                { key: 'frontHighEfficiency', desc: '效率峰值场景复刻条件' },
+                { key: 'frontLowEfficiency', desc: '效率低谷共同干扰因素' }
+            ].map(it => handleTrans(it, monthData))}
         </section>
         <section className='section'>
             {transTitle('【总计时长】')}
