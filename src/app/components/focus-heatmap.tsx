@@ -56,27 +56,26 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
     const getEfficiencyData = () => {
         const groupByDate = groupBy(data, 'date');
         return Object.keys(groupByDate).map(date => {
-                const curDay = groupByDate[date];
-                const workItem = curDay.filter(it => +it.routineTypeId === 18); // 工作日
-                const ltnTotal = curDay.find(it => +it.routineTypeId === 16)?.duration || 0; // LTN做题时长
-                const frontTotal = curDay.find(it => +it.routineTypeId === 13)?.duration || 0; // 前端总计做题时长
-                // 日学习效率分 计算
-                const isWorkDay = !!workItem?.length; // 工作日
-                const suffix = isWorkDay ? 1.2 : 1; // 系数1 - 工作日下班1.2/休息日1
-                const addFixScore = (ltnTotal * 1.2 + (frontTotal - ltnTotal)) * suffix; // 日学习效率分
-                // 有效时长 计算
-                const lastWorkItem = workItem[workItem?.length - 1];
-                const start = isWorkDay ? lastWorkItem?.startTime : curDay?.[0]?.startTime
-                const times = dayjs(date + '23:00:00').diff(dayjs(date + start), 'minute') // 休息日
-                
-                // [日期, 学习效率分, 是否有效日, 原始分钟数]
-                const value = [
-                    formatDate(date), // 月.日
-                    frontTotal > 30 ? Number((addFixScore / times).toFixed(2)) * 100 : null, // 前端学习时长超低于 30min 判定为非有效时长
-                    !!isWorkDay,
-                    frontTotal > 30 ? 1 : 0]
-                return { value, itemStyle: { color: isWorkDay ? '#FFC107' : '#4CAF50' } }
-            })
+            const curDay = groupByDate[date];
+            const workItem = curDay.filter(it => +it.routineTypeId === 18); // 工作日
+            const ltnTotal = curDay.find(it => +it.routineTypeId === 16)?.duration || 0; // LTN做题时长
+            const frontTotal = curDay.find(it => +it.routineTypeId === 13)?.duration || 0; // 前端总计做题时长
+            // 日学习效率分 计算
+            const isWorkDay = !!workItem?.length; // 工作日
+            const suffix = isWorkDay ? 1.2 : 1; // 系数1 - 工作日下班1.2/休息日1
+            const addFixScore = (ltnTotal * 1.2 + (frontTotal - ltnTotal)) * suffix; // 日学习效率分
+            // 有效时长 计算
+            const lastWorkItem = workItem[workItem?.length - 1];
+            const start = isWorkDay ? lastWorkItem?.startTime : curDay?.[0]?.startTime
+            const times = dayjs(date + '23:00:00').diff(dayjs(date + start), 'minute') // 休息日
+            // [日期, 学习效率分, 是否有效日, 原始分钟数]
+            const value = [
+                formatDate(date), // 月.日
+                frontTotal > 30 ? Math.min(Number((addFixScore / times).toFixed(2)), 1) * 100 : null, // 前端学习时长超低于 30min 判定为非有效时长
+                !!isWorkDay,
+                frontTotal > 30 ? 1 : 0]
+            return { value, itemStyle: { color: isWorkDay ? '#FFC107' : '#4CAF50' } }
+        })
     }
 
     // 生成日期范围数组（格式：M.D）
@@ -101,21 +100,16 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
 
         return {
             tooltip: {
-                position: 'top',
-                // eslint-disable-next-line
-                formatter: (params: any) => {
-                    return `
-                    类型: ${allTypes[params.data[3]]}<br/>
-                    时间: ${params.data[1]}:00<br/>
-                    专注时长: ${params.data[2]}分钟
-                  `;
-                }
+                // trigger: 'axis', // 坐标轴触发
+                // axisPointer: {
+                //     type: 'cross'
+                // }
             },
             grid: [
                 // 热力图网格
                 { top: '3%', height: '65%' },
                 // 效率曲线网格
-                { top: '80%', height: '12%' }
+                { top: '81%', height: '11%' }
             ],
             yAxis: [
                 // 热力图Y轴（时段）
@@ -131,8 +125,12 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
                 // 效率曲线Y轴
                 {
                     gridIndex: 1,
-                    min: 20,
-                    max: 70,
+                    min: 0,
+                    max: 100,
+                    interval: 30, // 每 20 一个刻度
+                    axisLabel: {
+                        formatter: '{value}%',
+                    },
                 }],
             xAxis: [
                 // 热力图X轴（日期）
@@ -154,7 +152,7 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
                 }],
             visualMap: {
                 type: 'piecewise', // 改为分段式
-                pieces: Object.keys(allTypes).map(id => ({
+                pieces: Object.keys(TYPE_COLORS).map(id => ({
                     value: +id,
                     label: allTypes[+id],
                     color: getTypeColor(+id)
@@ -182,7 +180,18 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
                 },
                 emphasis: {
                     itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0, 0, 0, 0.8)' }
-                }
+                },
+                tooltip: {
+                    // position: 'top',
+                    // eslint-disable-next-line
+                    formatter: (params: any) => {
+                        return `
+                    类型: ${allTypes[params.data[3]]}<br/>
+                    时间: ${params.data[1]}:00<br/>
+                    专注时长: ${params.data[2]}分钟
+                  `;
+                    }
+                },
             }, {
                 name: '学习效率',
                 type: 'line',
@@ -194,6 +203,20 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
                 lineStyle: { color: '#FFD54F' },
                 markLine: {
                     data: [{ type: 'average', name: '平均线' }]
+                },
+                tooltip: {
+                    // 曲线图特定的 tooltip 配置
+                    // eslint-disable-next-line
+                    formatter: (params: any) => {
+                        const data = params.data || {};
+                        const value = data.value || [];
+                        
+                        return `
+                            日期: ${value[0]}<br/>
+                            学习效率: ${value[1].toFixed(0)}%<br/>
+                            ${value[2] ? '工作日' : '休息日'}
+                        `;
+                    }
                 }
             }],
         };
