@@ -43,7 +43,7 @@ async function GetTimeTotalByRoutineType(serials: number[]) {
 		where: {
 			[Op.and]: [
 				transTwoDateToWhereOptions(startDate, endDate),
-				{ routineTypeId: { [Op.not]: [14, 10, 13, 16, 18] } },
+				{ routineTypeId: { [Op.not]: [14, 10] } },
 			],
 		},
 		raw: true,

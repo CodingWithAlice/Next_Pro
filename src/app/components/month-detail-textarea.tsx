@@ -44,7 +44,8 @@ export interface rawRecord {
     duration: number,
     startTime: string,
     routineTypeId: number,
-    'routine_type.des': string
+    'routine_type.des': string,
+    isWorkDay: number
 }
 interface MonthDetailTextareaProps {
     monthData: { [key: string]: string },
