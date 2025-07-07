@@ -7,6 +7,7 @@ import MonthTable from "./month-table";
 import { transTextArea, transTitle } from "./tool";
 import DeepSeek from "./deep-seek";
 import FocusHeatmap from "./focus-heatmap";
+import CoreMetricsTable from "./core-metric-table";
 
 const timeTotal = [
     [
@@ -125,9 +126,10 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
             ].map(it => handleTrans(it, monthData))}
         </section>
         <section className='section'>
-            {transTitle('【总计时长】')}
+            {transTitle('【核心指标】')}
             <MonthTotalTime key='total1' times={timeTotal[0]} source={timeTotalByRoutineType} />
             <MonthTotalTime key='total2' times={timeTotal[1]} source={timeTotalByRoutineType} />
+            {false && <CoreMetricsTable />}
             {handleTrans({ key: 'timeDiffDesc', desc: '时长差异存在原因' }, monthData)}
         </section>
         <section className='section'>
