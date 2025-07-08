@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { RoutineTypeModal, SerialAttributes, SerialModal, TimeModal } from 'db'
+import {
+	MonthModal,
+	RoutineTypeModal,
+	SerialAttributes,
+	SerialModal,
+	TimeModal,
+} from 'db'
 import { Op, Sequelize } from 'sequelize'
 import { transTwoDateToWhereOptions } from 'utils'
 
@@ -39,7 +45,13 @@ async function GetTimeTotalByRoutineType(serials: number[]) {
 
 	// 2. 获取原始记录数据（热力图专用）
 	const rawRecords = await TimeModal.findAll({
-		attributes: ['date', 'startTime', 'duration', 'routineTypeId', 'endTime'],
+		attributes: [
+			'date',
+			'startTime',
+			'duration',
+			'routineTypeId',
+			'endTime',
+		],
 		where: {
 			[Op.and]: [
 				transTwoDateToWhereOptions(startDate, endDate),
@@ -67,6 +79,35 @@ async function transSerialsToStartAndEnd(serials: number[]) {
 	return { start, end }
 }
 
+// 根据周期查询 - 每个周期环比数据
+async function GetMetricDataCompareLastMonth(serials: number[]) {
+	const currentSerials = serials
+	// 根据最小的周数，查询对应的上一周期
+	const currentMonth = await MonthModal.findOne({
+		where: {
+			periods: {
+				[Op.substring]: serials[0] + '',
+			},
+		},
+		attributes: ['id', 'periods'], // 只返回id字段
+	})
+
+    let lastSerials: number[] = []
+    // 查得到就差，查不到就取
+    const lastMonthId = currentMonth?.get({ plain: true })?.id - 1
+	if (lastMonthId > 0) {
+		const monthData = await MonthModal.findOne({
+			where: { id: lastMonthId },
+		})
+        lastSerials = monthData?.get({ plain: true })?.periods.split(',').map((it: string) => +it)
+	} else {
+        const lastMonthData = await MonthModal.findOne({ order: ['id', 'periods'] })
+        lastSerials = lastMonthData?.get({ plain: true })?.periods.split(',').map((it: string) => +it)
+    }
+
+	return { serials, currentMonth, currentSerials, lastSerials}
+}
+
 // 将输入的周期号转换为排序后的周期号数组
 function getSortedSerials(serialNumber: string) {
 	return serialNumber
@@ -84,7 +125,10 @@ export async function GetMonthWeekInfosAndTimeTotals(serialNumber: string) {
 	// 根据周期查询 - 每日时长总计
 	const { timeTotalByRoutineType, rawRecords } =
 		await GetTimeTotalByRoutineType(serials)
-	return { weekList, timeTotalByRoutineType, rawRecords }
+
+	// 根据周期查询 - 每个周期环比数据
+	const metricData = GetMetricDataCompareLastMonth(serials)
+	return { weekList, timeTotalByRoutineType, rawRecords, metricData }
 }
 
 async function GET(request: NextRequest) {
@@ -96,13 +140,14 @@ async function GET(request: NextRequest) {
 				{ error: '缺少 serialNumber' },
 				{ status: 500 }
 			)
-		const { weekList, timeTotalByRoutineType, rawRecords } =
+		const { weekList, timeTotalByRoutineType, rawRecords, metricData } =
 			await GetMonthWeekInfosAndTimeTotals(serialNumber)
 
 		return NextResponse.json({
 			weekList,
 			timeTotalByRoutineType,
 			rawRecords,
+			metricData,
 		})
 	} catch (error) {
 		console.error(error)

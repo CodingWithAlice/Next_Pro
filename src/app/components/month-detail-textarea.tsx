@@ -56,10 +56,21 @@ interface MonthDetailTextareaProps {
     setPeriods: (data: number[]) => void
 }
 
+export interface Metric {
+    name: string;
+    current: number | string;
+    lastMonth: number | string;
+    threshold: [number, number];
+    annualTarget: number;
+    unit?: string;
+    isDimension?: boolean; // 标记是否为维度标题行
+}
+
 export function MonthDetailTextarea({ monthData, setMonthData, periods, setPeriods }: MonthDetailTextareaProps) {
     const [timeTotalByRoutineType, setTimeTotalByRoutineType] = useState<timeTotalByRoutineTypeProps[]>();
     const [weeksData, setWeeksData] = useState<dataProps[]>([]); // 每周数据
     const [rawRecords, setRawRecords] = useState<rawRecord[]>([]); // 每周数据
+    const [metricData, setMetricData] = useState<Record<string, Metric[]>>(); // 每周数据
     const [studyTotal, setStudyTotal] = useState(0); // 学习总时长
 
     const handleTrans = (it: { key: string, desc?: string, tip?: string }, source?: { [key: string]: string }) => {
@@ -98,6 +109,22 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
                 setRawRecords(rawRecords)
                 setTimeTotalByRoutineType(timeTotalByRoutineType);
                 setWeeksData(weekList);
+        //         const metricsDataMock: Record<string, Metric[]> = {
+        //     '前端维度': [
+        //         { name: '技术任务占比', current: 68, lastMonth: 62, threshold: [50, 80], annualTarget: 70, unit: '%' },
+        //         { name: '专注时长', current: 42, lastMonth: 38, threshold: [30, 50], annualTarget: 500, unit: '小时' },
+        //         { name: '复盘时长', current: 8, lastMonth: 6, threshold: [5, 10], annualTarget: 100, unit: '小时' },
+        //         { name: 'LTN做题时长', current: 15, lastMonth: 12, threshold: [10, 20], annualTarget: 200, unit: '小时' },
+        //     ],
+        //     '健康维度': [
+        //         { name: '平均入睡时间', current: '23:20', lastMonth: '23:45', threshold: [22, 24], annualTarget: 365 },
+        //         { name: '平均起床时间', current: '6:40', lastMonth: '7:15', threshold: [6, 7.5], annualTarget: 365 },
+        //         { name: '运动次数', current: 12, lastMonth: 8, threshold: [8, 16], annualTarget: 150 },
+        //         { name: 'TED观看时长', current: 3.5, lastMonth: 2.8, threshold: [2, 5], annualTarget: 50, unit: '小时' },
+        //         { name: '阅读时长', current: 6, lastMonth: 4, threshold: [4, 10], annualTarget: 80, unit: '小时' },
+        //     ]
+        // };
+                setMetricData(metricData || {})
                 let study = 0
                 timeTotalByRoutineType?.forEach((it: timeTotalByRoutineTypeProps) => {
                     if (it.routine_type?.des === '前端总计') {
@@ -129,7 +156,7 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
             {transTitle('【核心指标】')}
             <MonthTotalTime key='total1' times={timeTotal[0]} source={timeTotalByRoutineType} />
             <MonthTotalTime key='total2' times={timeTotal[1]} source={timeTotalByRoutineType} />
-            {false && <CoreMetricsTable />}
+            <CoreMetricsTable source={metricData || {}} />
             {handleTrans({ key: 'timeDiffDesc', desc: '时长差异存在原因' }, monthData)}
         </section>
         <section className='section'>

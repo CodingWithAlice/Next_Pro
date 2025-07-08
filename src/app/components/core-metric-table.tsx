@@ -1,36 +1,12 @@
 import { Table, Progress } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
+import { Metric } from './month-detail-textarea';
 
-interface Metric {
-    name: string;
-    current: number | string;
-    lastMonth: number | string;
-    threshold: [number, number];
-    annualTarget: number;
-    unit?: string;
-    isDimension?: boolean; // 标记是否为维度标题行
-}
 
-const CoreMetricsTable: React.FC = () => {
+const CoreMetricsTable = ({source}: {source: Record<string, Metric[]>}) => {
     // 转换数据格式为AntD Table需要的扁平结构
-    const generateTableData = () => {
-        const metricsData: Record<string, Metric[]> = {
-            '前端维度': [
-                { name: '技术任务占比', current: 68, lastMonth: 62, threshold: [50, 80], annualTarget: 70, unit: '%' },
-                { name: '专注时长', current: 42, lastMonth: 38, threshold: [30, 50], annualTarget: 500, unit: '小时' },
-                { name: '复盘时长', current: 8, lastMonth: 6, threshold: [5, 10], annualTarget: 100, unit: '小时' },
-                { name: 'LTN做题时长', current: 15, lastMonth: 12, threshold: [10, 20], annualTarget: 200, unit: '小时' },
-            ],
-            '健康维度': [
-                { name: '平均入睡时间', current: '23:20', lastMonth: '23:45', threshold: [22, 24], annualTarget: 365 },
-                { name: '平均起床时间', current: '6:40', lastMonth: '7:15', threshold: [6, 7.5], annualTarget: 365 },
-                { name: '运动次数', current: 12, lastMonth: 8, threshold: [8, 16], annualTarget: 150 },
-                { name: 'TED观看时长', current: 3.5, lastMonth: 2.8, threshold: [2, 5], annualTarget: 50, unit: '小时' },
-                { name: '阅读时长', current: 6, lastMonth: 4, threshold: [4, 10], annualTarget: 80, unit: '小时' },
-            ]
-        };
-
-        return Object.entries(metricsData).flatMap(([dimension, metrics]) => [
+    const generateTableData = (data: Record<string, Metric[]>) => {        
+        return Object.entries(data).flatMap(([dimension, metrics]) => [
             // 维度标题行
             {
                 key: `dimension-${dimension}`,
@@ -138,7 +114,7 @@ const CoreMetricsTable: React.FC = () => {
         <Table
             size="small"
             columns={columns}
-            dataSource={generateTableData()}
+            dataSource={generateTableData(source)}
             pagination={false}
             bordered
             rowClassName={(record) => record.isDimension ? 'dimension-row' : 'metric-row'}
