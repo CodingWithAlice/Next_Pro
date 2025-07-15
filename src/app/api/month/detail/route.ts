@@ -116,7 +116,7 @@ function getSortedSerials(serialNumber: string) {
 		.sort((a, b) => a - b)
 }
 
-export async function GetMonthWeekInfosAndTimeTotals(serialNumber: string) {
+async function GetMonthWeekInfosAndTimeTotals(serialNumber: string) {
 	const serials = getSortedSerials(serialNumber)
 
 	// 每周周报信息查询 - 查询多个周期
@@ -158,4 +158,4 @@ async function GET(request: NextRequest) {
 	}
 }
 
-export { GET }
+export { GET, GetMonthWeekInfosAndTimeTotals }
