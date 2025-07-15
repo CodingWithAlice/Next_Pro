@@ -158,4 +158,4 @@ async function GET(request: NextRequest) {
 	}
 }
 
-export { GET, GetMonthWeekInfosAndTimeTotals }
+export { GET }
