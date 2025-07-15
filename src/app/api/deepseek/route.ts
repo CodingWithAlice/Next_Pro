@@ -17,19 +17,18 @@ interface WeekInputProps {
 interface WeekAIProps {
 	[key: string]: string | Date | string | undefined
 	date: Date
-	frontDuration?: string
-	ltnDuration?: string
-	sleepTime?: string
-	frontIssue: string
-	workIssue: string
-	sport: string
-	entertain: string
-	ted: string
-	reading: string
-	good: string
-	better: string
-	startTime: Date
+    startTime: Date
 	endTime: Date
+    frontOverview: string
+	frontWellDone: string
+	toBeBetter: string
+	sleep?: string
+	sport: string
+	movie: string
+	ted: string
+	read: string
+	improveMethods: string
+	wellDone: string
 }
 
 function GetAIMonthInputText(weekList: SerialAttributes[]) {
@@ -81,28 +80,28 @@ function transDaysData({
 		}
 		return {
 			date: week.date,
-			frontDuration: getDuration(13)?.toString(),
-			ltnDuration: getDuration(16)?.toString(),
-			sleepTime: getSleepTime()?.toString(),
-			frontIssue: week.front,
-			workIssue: week.work,
-			sport: week.sport,
-			entertain: week.video,
-			ted: week.ted,
-			reading: week.reading,
-			good: [week.good1, week.good2, week.good3].join(','),
-			better: week.better,
-			startTime, // 本周期的第一天
+            startTime, // 本周期的第一天
 			endTime, // 本周期的最后一天
+			frontOverview: `- 前端时长 ${getDuration(13)?.toString()}min / LTN 时长 ${getDuration(16)?.toString()}min \n  前端事项${week.front || ''} \n - 工作${week.work || ''}`,
+			frontWellDone: [week.good1, week.good2, week.good3].join(','),
+			toBeBetter: week.better || '',
+			sleep: getSleepTime()?.toString(),
+			sport: week.sport,
+			movie: week.video,
+			ted: week.ted,
+			read: week.reading,
+			improveMethods: week.better || '',
+			wellDone: [week.good1, week.good2, week.good3].join(','),			
 		}
 	})
 }
 
 async function GetRawContentByType(serialNumber: string, type: string) {
-	// if (type === 'month') {
-	// 	const { weekList } = await GetMonthWeekInfosAndTimeTotals(serialNumber)
-	// 	return GetAIMonthInputText(weekList)
-	// }
+	if (type === 'month') {
+        throw Error('暂时关闭月报 AI 查询通道，改版后重新开放')
+		// const { weekList } = await GetMonthWeekInfosAndTimeTotals(serialNumber)
+		// return GetAIMonthInputText(weekList)
+	}
 	if (type === 'week') {
 		const data: WeekInputProps = await GetWeekData(serialNumber)
 		return transDaysData(data as WeekInputProps)
@@ -114,18 +113,19 @@ function calcPeriodData(source: WeekAIProps[]) {
 	const result: { [key: string]: string } = {}
 	source.forEach((day: WeekAIProps) => {
 		Object.keys(day).forEach((item) => {
+			if (!result[item]) {
+				result[item] = ''
+			}
 			if (
 				day[item] &&
 				day[item] !== '/' &&
+				typeof day[item] === 'string' &&
 				!['date', 'startTime', 'endTime'].includes(item)
 			) {
-				if (!result[item]) {
-					result[item] = ''
-				}
 				result[item] += `${day.date}: ${day[item]} \n`
 			} else {
-                result[item] = day[item]?.toString() || ''
-            }
+				result[item] += day[item]?.toString() || ''
+			}
 		})
 	})
 	return result
