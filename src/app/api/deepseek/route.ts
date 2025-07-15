@@ -4,7 +4,7 @@ import { GetMonthWeekInfosAndTimeTotals } from '../month/detail/route'
 import { IssueAttributes, SerialAttributes } from 'db'
 import { GetWeekData } from 'utils'
 import { DailyDataProps } from '@/daily/page'
-import { WeekDataProcessor } from './dataProcessor'
+import { processWeekData } from './dataProcessor'
 
 export interface WeekDataProps extends IssueAttributes {
 	daily_time_records?: DailyDataProps[]
@@ -211,8 +211,9 @@ async function GET(request: NextRequest) {
 		const dataArray = cleanAI(cleanJson || '')
 
 		// 阶段3：本地处理
-		const processor = new WeekDataProcessor(dataArray)
-		const finalOutput = processor.generateStructuredOutput()
+		const finalOutput = processWeekData(dataArray)
+
+        
 
 		return NextResponse.json({
 			data: dataArray,
