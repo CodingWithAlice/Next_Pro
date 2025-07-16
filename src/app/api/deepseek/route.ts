@@ -231,7 +231,29 @@ async function GET(request: NextRequest) {
 			},
 		]
 		const aiResponse = await AIPOST(messages)
-		const aiData = transToString(JSON.parse(aiResponse || ''))
+
+		// 添加验证
+		if (!aiResponse || aiResponse.trim() === '') {
+			console.error('AI 返回空响应')
+			return NextResponse.json(
+				{ error: 'AI service returned empty response' },
+				{ status: 500 }
+			)
+		}
+		let aiData
+		try {
+			aiData = transToString(JSON.parse(aiResponse))
+		} catch (parseError) {
+			console.error('解析 AI 响应失败:', parseError)
+			console.error('原始响应内容:', aiResponse)
+			return NextResponse.json(
+				{
+					error: 'Failed to parse AI response',
+					rawResponse: aiResponse, // 可选：返回原始响应用于调试
+				},
+				{ status: 500 }
+			)
+		}
 
 		return NextResponse.json({
 			daysData,
