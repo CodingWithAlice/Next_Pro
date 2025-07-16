@@ -4,7 +4,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { IssueAttributes } from 'db'
 import { GetWeekData } from 'utils'
 import { DailyDataProps } from '@/daily/page'
-// import { AIPOST, MessageProp } from '../../../../lib/request'
+import { AIPOST, MessageProp } from '../../../../lib/request'
+
+type Primitive = string | number | boolean | null | undefined
+type Flatten = Primitive | { [key: string]: Flatten } | Flatten[]
 
 export interface WeekDataProps extends IssueAttributes {
 	daily_time_records?: DailyDataProps[]
@@ -18,9 +21,9 @@ interface WeekInputProps {
 interface WeekAIProps {
 	[key: string]: string | Date | string | undefined
 	date: Date
-    startTime: Date
+	startTime: Date
 	endTime: Date
-    frontOverview: string
+	frontOverview: string
 	frontWellDone: string
 	toBeBetter: string
 	sleep?: string
@@ -36,7 +39,7 @@ interface WeekAIProps {
 // 	const start = weekList[0].startTime
 // 	const end = weekList[weekList.length - 1].endTime
 // 	const weekListText = weekList.map((week) => {
-// 		return `### 周期时间：${week.startTime} 至 ${week.endTime} 
+// 		return `### 周期时间：${week.startTime} 至 ${week.endTime}
 //         ####学习内容
 //         - 完成的学习任务 ${week.frontOverview}
 //         - 每个周期有简单为学习任务总结：${week.frontWellDone}
@@ -77,13 +80,19 @@ function transDaysData({
 			const filed = week?.daily_time_records?.find(
 				(it) => it.routineTypeId === 10
 			)
-            return filed?.startTime
+			return filed?.startTime
 		}
 		return {
 			date: week.date,
-            startTime, // 本周期的第一天
+			startTime, // 本周期的第一天
 			endTime, // 本周期的最后一天
-			frontOverview: `前端时长 ${getDuration(13)?.toString()}min / LTN 时长 ${getDuration(16)?.toString()}min \n  前端事项：${week.front || ''} ${!!week?.work ? '\n - 工作：' + week?.work : ''}`,
+			frontOverview: `前端时长 ${getDuration(
+				13
+			)?.toString()}min / LTN 时长 ${getDuration(
+				16
+			)?.toString()}min \n  前端事项：${week.front || ''} ${
+				!!week?.work ? '\n - 工作：' + week?.work : ''
+			}`,
 			frontWellDone: [week.good1, week.good2, week.good3].join(','),
 			toBeBetter: week.better || '',
 			sleep: getSleepTime(),
@@ -92,14 +101,14 @@ function transDaysData({
 			ted: week.ted,
 			read: week.reading,
 			improveMethods: week.better || '',
-			wellDone: [week.good1, week.good2, week.good3].join(','),			
+			wellDone: [week.good1, week.good2, week.good3].join(','),
 		}
 	})
 }
 
 async function GetRawContentByType(serialNumber: string, type: string) {
 	if (type === 'month') {
-        throw Error('暂时关闭月报 AI 查询通道，改版后重新开放')
+		throw Error('暂时关闭月报 AI 查询通道，改版后重新开放')
 		// const { weekList } = await GetMonthWeekInfosAndTimeTotals(serialNumber)
 		// return GetAIMonthInputText(weekList)
 	}
@@ -132,6 +141,64 @@ function calcPeriodData(source: WeekAIProps[]) {
 	return result
 }
 
+/**
+ * 递归展平数据为字符串，保留完整属性路径
+ * @param data 要处理的数据
+ * @param path 当前属性路径（内部使用）
+ * @returns 拼接后的字符串，每行格式为 "完整路径, 值"
+ */
+function flattenDataToString(data: Flatten, path: string[] = []): string {
+	// 处理基础类型
+	if (data === null || data === undefined) {
+		return ''
+	}
+	if (typeof data !== 'object') {
+		return path.length > 0 ? `${path.join('.')}, ${data}` : String(data)
+	}
+
+	const result: string[] = []
+
+	// 处理数组
+	if (Array.isArray(data)) {
+		if (data.every((item) => typeof item !== 'object')) {
+			// 纯基础类型数组直接拼接
+			return path.length > 0
+				? `${path.join('.')}, ${data.join(',')}`
+				: data.join(',')
+		} else {
+			// 递归处理数组元素
+			data.forEach((item, index) => {
+				const itemResult = flattenDataToString(item, [
+					...path,
+					String(index),
+				])
+				if (itemResult) result.push(itemResult)
+			})
+			return result.join('\n')
+		}
+	}
+
+	// 处理对象
+	for (const [key, value] of Object.entries(data)) {
+		const newPath = [...path, key]
+		const valueResult = flattenDataToString(value, newPath)
+		if (valueResult) result.push(valueResult)
+	}
+
+	return result.join('\n')
+}
+
+// ai 数据按照 对象返回，需转换为方便展示的数据
+const transToString = (aiData: { [key: string]: Flatten }) => {
+	const originFrontOverview = aiData?.frontOverview || {}
+	const originFrontWellDone = aiData?.frontWellDone || {}
+
+	return {
+		frontOverview: flattenDataToString(originFrontOverview),
+		frontWellDone: flattenDataToString(originFrontWellDone),
+	}
+}
+
 async function GET(request: NextRequest) {
 	try {
 		const { searchParams } = request.nextUrl
@@ -149,22 +216,26 @@ async function GET(request: NextRequest) {
 		const weekData = daysData && calcPeriodData(daysData)
 
 		// 阶段3：AI 获取建议
-		// const messages: MessageProp[] = [
-		// 	{
-		// 		role: 'assistant',
-		// 		content: process.env?.[`${type}_EXAMPLE`] || '',
-		// 	},
-		// 	{
-		// 		role: 'user',
-		// 		content: JSON.stringify(weekData),
-		// 	},
-		// ]
-		// const aiResponse = await AIPOST(messages)
+		const messages: MessageProp[] = [
+			{
+				role: 'assistant',
+				content: process.env?.[`${type}_EXAMPLE`] || '',
+			},
+			{
+				role: 'user',
+				content: JSON.stringify({
+					frontOverview: weekData?.frontOverview,
+					frontWellDone: weekData?.frontWellDone,
+				}),
+			},
+		]
+		const aiResponse = await AIPOST(messages)
+		const aiData = transToString(JSON.parse(aiResponse || ''))
 
 		return NextResponse.json({
 			daysData,
-			data: weekData,
-            aiResponse: JSON.stringify(weekData)
+			data: { ...weekData, ...aiData },
+			aiResponse: JSON.parse(aiResponse || ''),
 		})
 	} catch (error) {
 		console.error(error)

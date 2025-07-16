@@ -67,9 +67,9 @@ export async function AIPOST(messages: MessageProp[]) {
 		const completion = await openai.chat.completions.create({
 			messages: messages,
 			model: 'deepseek-chat',
-			// response_format: {
-			// 	type: 'json_object',
-			// },
+			response_format: {
+				type: 'json_object',
+			},
 		})
 
 		// 返回 API 响应给客户端
