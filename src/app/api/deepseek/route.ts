@@ -196,6 +196,7 @@ const transToString = (aiData: { [key: string]: Flatten }) => {
 	return {
 		frontOverview: flattenDataToString(originFrontOverview),
 		frontWellDone: flattenDataToString(originFrontWellDone),
+		wellDone: flattenDataToString(originFrontWellDone),
 	}
 }
 
