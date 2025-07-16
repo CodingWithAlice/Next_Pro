@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { IssueAttributes } from 'db'
 import { GetWeekData } from 'utils'
 import { DailyDataProps } from '@/daily/page'
+// import { AIPOST, MessageProp } from '../../../../lib/request'
 
 export interface WeekDataProps extends IssueAttributes {
 	daily_time_records?: DailyDataProps[]
@@ -76,16 +77,16 @@ function transDaysData({
 			const filed = week?.daily_time_records?.find(
 				(it) => it.routineTypeId === 10
 			)
-			return filed?.startTime
+            return filed?.startTime
 		}
 		return {
 			date: week.date,
             startTime, // 本周期的第一天
 			endTime, // 本周期的最后一天
-			frontOverview: `- 前端时长 ${getDuration(13)?.toString()}min / LTN 时长 ${getDuration(16)?.toString()}min \n  前端事项${week.front || ''} \n - 工作${week.work || ''}`,
+			frontOverview: `前端时长 ${getDuration(13)?.toString()}min / LTN 时长 ${getDuration(16)?.toString()}min \n  前端事项：${week.front || ''} ${!!week?.work ? '\n - 工作：' + week?.work : ''}`,
 			frontWellDone: [week.good1, week.good2, week.good3].join(','),
 			toBeBetter: week.better || '',
-			sleep: getSleepTime()?.toString(),
+			sleep: getSleepTime(),
 			sport: week.sport,
 			movie: week.video,
 			ted: week.ted,
@@ -150,16 +151,12 @@ async function GET(request: NextRequest) {
 		// 阶段3：AI 获取建议
 		// const messages: MessageProp[] = [
 		// 	{
-		// 		role: 'system',
-		// 		content: processData?.prompt || '',
-		// 	},
-		// 	{
 		// 		role: 'assistant',
 		// 		content: process.env?.[`${type}_EXAMPLE`] || '',
 		// 	},
 		// 	{
 		// 		role: 'user',
-		// 		content: JSON.stringify(processData?.rawData),
+		// 		content: JSON.stringify(weekData),
 		// 	},
 		// ]
 		// const aiResponse = await AIPOST(messages)
@@ -167,6 +164,7 @@ async function GET(request: NextRequest) {
 		return NextResponse.json({
 			daysData,
 			data: weekData,
+            aiResponse: JSON.stringify(weekData)
 		})
 	} catch (error) {
 		console.error(error)
