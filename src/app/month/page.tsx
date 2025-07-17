@@ -43,7 +43,7 @@ export default function Month() {
         <div className="month">
             <h1>LTN {monthId} 月报</h1>
         </div>
-        <MonthDetailTextarea monthData={monthData} setMonthData={setMonthData} periods={periods} setPeriods={setPeriods} />
+         <MonthDetailTextarea monthData={monthData} setMonthData={setMonthData} periods={periods} setPeriods={setPeriods} />
         <Button type="primary" className='btn' onClick={handleSave}>保存</Button>
     </div>
 }

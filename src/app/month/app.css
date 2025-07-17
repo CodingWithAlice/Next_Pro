@@ -40,3 +40,25 @@
 .section:hover {
     transform: translateY(-5px);
 }
+
+.heatmap-container {
+    margin-top: 8px;
+    background-color: #fff;
+    border-radius: 6px;
+}
+
+.heatmap-table {
+    width: 100%;
+    height: 350px;
+}
+
+/* 核心指标表 */
+
+.metric-row:hover {
+    background-color: #f9f9f9;
+}
+
+.dimension-row {
+    background-color: #fafafa !important;
+    font-weight: 500;
+}

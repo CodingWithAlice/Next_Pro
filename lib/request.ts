@@ -73,7 +73,7 @@ export async function AIPOST(messages: MessageProp[]) {
 		})
 
 		// 返回 API 响应给客户端
-		return completion.choices[0].message.content
+		return completion.choices[0].message?.content
 	} catch (error) {
 		console.error('Error calling DeepSeek API:', error)
 	}

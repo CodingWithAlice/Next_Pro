@@ -44,7 +44,7 @@ const Api = {
 		return request.get('month/detail', { serialNumber })
 	},
 	getDeepSeekApi(serialNumber: string, searchType: SearchType) {
-		return request.get('deepseek', { serialNumber, type: searchType })
+		return request.get('deepseek', { serialNumber, type: searchType, timeout: 300000 }) // 300秒
 	},
 	postMonthApi(data: { [key: string]: string | number }) {
 		return request.post('month', data)

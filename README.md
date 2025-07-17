@@ -140,3 +140,9 @@ docker system prune
 // 若要删除所有未被使用的镜像（不仅仅是悬空镜像）
 docker image prune -a
 ``` 
+
+### 2025.7.9
+- 运行过程中查看接口调用日志
+```js
+sudo /usr/local/bin/docker-compose logs -f daily-app
+```

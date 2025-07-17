@@ -1,22 +1,29 @@
+import { QuestionCircleOutlined } from "@ant-design/icons";
+import { Tooltip } from "antd";
 import TextArea from "antd/es/input/TextArea";
 
 
 interface UniformTextAreaWithStyleProps {
     type: string,
     desc: string,
+    tip?: string,
     init: string | number,
     onChange: (data: { [key: string]: string }) => void,
     cols?: number
 }
 
 // 统一 textarea 样式
-export function UniformTextAreaWithStyle({ type, desc, init, onChange, cols}: UniformTextAreaWithStyleProps) {
+export function UniformTextAreaWithStyle({ type, desc, tip, init, onChange, cols }: UniformTextAreaWithStyleProps) {
     const handleText = (type: string, value: string) => {
         onChange({ [type]: value });
     }
 
     return <div className="textarea" key={type}>
-        {desc && <span className="desc">{desc}:</span>}
+        {desc && <span className="desc">
+            {desc}
+            {tip && <Tooltip title={tip}> <QuestionCircleOutlined /> </Tooltip>}
+            :
+        </span>}
         <TextArea
             key={type}
             style={{ resize: 'both' }}
