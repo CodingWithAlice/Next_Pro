@@ -246,6 +246,7 @@ async function GET(request: NextRequest) {
 		} catch (parseError) {
 			console.error('解析 AI 响应失败:', parseError)
 			console.error('原始响应内容:', aiResponse)
+            console.log(`AI响应大小: ${aiResponse?.length}字符`);
 			return NextResponse.json(
 				{
 					error: 'Failed to parse AI response',
@@ -257,7 +258,12 @@ async function GET(request: NextRequest) {
 
 		return NextResponse.json({
 			daysData,
-			data: { ...weekData, ...aiData },
+			data: { 
+                ...weekData, 
+                ...aiData, 
+                startTime: daysData?.[0]?.startTime,
+                endTime: daysData?.[0]?.endTime,
+             },
 			aiResponse: JSON.parse(aiResponse || ''),
 		})
 	} catch (error) {
