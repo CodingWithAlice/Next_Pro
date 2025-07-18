@@ -79,8 +79,9 @@ function transDaysData({
 		const getSleepTime = () => {
 			const filed = week?.daily_time_records?.find(
 				(it) => it.routineTypeId === 10
-			)
-			return filed?.startTime
+			)            
+            const { startTime, endTime } = filed || {}
+			return [startTime, endTime].join(' -- ')
 		}
 		return {
 			date: week.date,
