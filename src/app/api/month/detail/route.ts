@@ -197,7 +197,7 @@ function GetMetricStatic() {
 	const reviewTime = 15960
 	const artTime = 1825
 	const sportTime = 7800
-	const hourUnit = '分钟'
+	const hourUnit = '分钟/天'
 	// const percentUnit = '%'
 	// 获取健康阈值
 	// const getThreshold = (arr: number[], origin: number) =>
@@ -274,7 +274,9 @@ function GetMetricStatic() {
 async function CalcMetricFromTwoSerials(
 	metricType: MetricTypeProps[],
 	currentData: TimeTotalByRoutineType[],
-	lastData: TimeTotalByRoutineType[]
+	lastData: TimeTotalByRoutineType[],
+    currentGapTime: number,
+    lastGapTime: number, 
 ) {
 	const compareData: Record<string, MetricDataProps[]> = {}
 
@@ -290,13 +292,13 @@ async function CalcMetricFromTwoSerials(
 						(it: TimeTotalByRoutineType) =>
 							+it?.routine_type_id === item.typeId
 					)?.totalDuration || ''
-				)
+				) / currentGapTime
 				data.lastMonth = +(
 					lastData.find(
 						(it: TimeTotalByRoutineType) =>
 							+it?.routine_type_id === item.typeId
 					)?.totalDuration || ''
-				)
+				) / lastGapTime
 
 				// 塞进结果里
 				if (!compareData?.[it.metricDesc]) {
@@ -311,11 +313,13 @@ async function CalcMetricFromTwoSerials(
 
 // 根据周期查询 - 每个周期环比数据
 async function GetMetricDataCompareLastMonth(
-	currentSerials: number[]
-	// gapTime: number
+	currentSerials: number[],
+	currentGapTime: number
 ) {
 	// 1、上个月的周期 ids
 	const lastSerials = await getLastSerialId(currentSerials)
+    const { gapTime: lastGapTime} = await GetWeeListAndGapTime(lastSerials)
+
 
 	// 2、根据周期查询每周数据 - 每日时长总计【用于环比计算】
 	const {
@@ -336,7 +340,9 @@ async function GetMetricDataCompareLastMonth(
 	const compareData = await CalcMetricFromTwoSerials(
 		metricType,
 		currentTimeTotalByRoutineType,
-		lastTimeTotalByRoutineType
+		lastTimeTotalByRoutineType,
+        currentGapTime,
+        lastGapTime
 	)
 
 	return {
@@ -360,9 +366,7 @@ function getSortedSerials(serialNumber: string) {
 		.sort((a, b) => a - b)
 }
 
-async function GetMonthWeekInfosAndTimeTotals(serialNumber: string) {
-	const serials = getSortedSerials(serialNumber)
-
+async function GetWeeListAndGapTime(serials: number[]) {
 	// 每周周报信息查询 - 查询多个周期
 	const weekList = await GetWeekInfo(serials)
 
@@ -370,23 +374,32 @@ async function GetMonthWeekInfosAndTimeTotals(serialNumber: string) {
 	const startTime = weekList?.[0]?.startTime
 	const endTime = weekList?.[0]?.endTime
 	const gapTime = dayjs(endTime).diff(dayjs(startTime), 'day')
+	return { weekList, gapTime }
+}
+
+async function GetMonthWeekInfosAndTimeTotals(serialNumber: string) {
+	const serials = getSortedSerials(serialNumber)
+
+    const {weekList, gapTime} = await GetWeeListAndGapTime(serials)
+
 	// 根据周期查询 - 每个周期环比数据
-	const result = await GetMetricDataCompareLastMonth(serials)
+	const result = await GetMetricDataCompareLastMonth(serials, gapTime)
 	const {
 		currentTimeTotalByRoutineType,
 		currentRawRecords,
 		compareData: metricData,
-        currentSleepTimes,
-        lastSleepTimes,
+		currentSleepTimes,
+		lastSleepTimes,
 	} = result || {}
+
 	return {
 		weekList,
 		currentTimeTotalByRoutineType,
 		currentRawRecords,
 		metricData,
 		gapTime,
-        currentSleepTimes,
-        lastSleepTimes,
+		currentSleepTimes,
+		lastSleepTimes,
 	}
 }
 
