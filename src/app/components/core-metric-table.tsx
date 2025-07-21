@@ -1,4 +1,4 @@
-import { Table } from 'antd';
+import { Progress, Table } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import { Metric } from './month-detail-textarea';
 
@@ -35,13 +35,9 @@ const CoreMetricsTable = ({source}: {source: Record<string, Metric[]>}) => {
         };
     };
 
-    // const getAnnualProgress = (current: number, target: number) => {
-    //     return Math.min(Math.round((current / target) * 100), 100);
-    // };
-
-    // const formatThreshold = (threshold: [number, number], unit?: string) => {
-    //     return `${threshold[0]}${unit || ''}~${threshold[1]}${unit || ''}`;
-    // };
+    const getAnnualProgress = (current: number, target: number) => {
+        return Math.round((current / target) * 100);
+    };
 
     const columns = [
         {
@@ -80,34 +76,23 @@ const CoreMetricsTable = ({source}: {source: Record<string, Metric[]>}) => {
                 );
             }
         },
-        // {
-        //     title: '健康阈值',
-        //     key: 'threshold',
-        //     render: (_: number[], record: Metric) => (
-        //         record.isDimension ? null : (
-        //             Array.isArray(record.threshold) ?
-        //                 formatThreshold(record.threshold, record.unit) :
-        //                 '-'
-        //         )
-        //     )
-        // },
-        // {
-        //     title: '年度目标进度',
-        //     key: 'progress',
-        //     render: (_: number, record: Metric) => {
-        //         if (record.isDimension) return null;
-        //         if (typeof record.current !== 'number') return '-';
+        {
+            title: '年度目标阈值',
+            key: 'progress',
+            render: (_: number, record: Metric) => {
+                if (record.isDimension) return null;
+                if (typeof record.current !== 'number') return '-';
 
-        //         const percent = getAnnualProgress(record.current, record.annualTarget);
-        //         return (
-        //             <Progress
-        //                 percent={percent}
-        //                 strokeColor={percent >= 100 ? '#52c41a' : '#1890ff'}
-        //                 format={() => `${percent}%`}
-        //             />
-        //         );
-        //     }
-        // }
+                const percent = getAnnualProgress(record.current, record.annualTarget);
+                return (
+                    <Progress
+                        percent={percent}
+                        strokeColor={percent >= 100 ? '#52c41a' : '#1890ff'}
+                        format={() => `${percent}%`}
+                    />
+                );
+            }
+        }
     ];
 
     return (

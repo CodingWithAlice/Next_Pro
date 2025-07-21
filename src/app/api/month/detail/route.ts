@@ -193,15 +193,12 @@ const getLastSerialId = async (currentSerials: number[]) => {
 // 拼接核心数据的需要数据
 function GetMetricStatic() {
 	// 核心数据的分配
-	const frontTime = 25000
-	const reviewTime = 15960
-	const artTime = 1825
-	const sportTime = 7800
+	const frontTime = 25000 / 365
+	const reviewTime = 15960 / 365
+	const artTime = 1825 / 365
+	const sportTime = 7800  / 365
 	const hourUnit = '分钟/天'
 	// const percentUnit = '%'
-	// 获取健康阈值
-	// const getThreshold = (arr: number[], origin: number) =>
-	// arr.map((percent) => ((origin * gapTime / 26) * percent).toFixed(0))
 	return [
 		{
 			metricDesc: '前端维度',
@@ -210,21 +207,18 @@ function GetMetricStatic() {
 					desc: '学习专注时长',
 					typeId: 13,
 					annualTarget: frontTime,
-					// threshold: getThreshold([0.8, 1], frontTime),
 					unit: hourUnit,
 				},
 				{
 					desc: 'LTN做题时长',
 					typeId: 16,
 					annualTarget: frontTime,
-					// threshold: getThreshold([0.6, 1], frontTime),
 					unit: hourUnit,
 				},
 				{
 					desc: '复盘时长',
 					typeId: 7,
 					annualTarget: reviewTime,
-					// threshold: getThreshold([0.9, 1], reviewTime),
 					unit: hourUnit,
 				},
 				{ desc: '技术任务占比', typeId: 18 }, // todo
@@ -237,14 +231,12 @@ function GetMetricStatic() {
 					desc: 'TED观看时长',
 					typeId: 4,
 					annualTarget: artTime,
-					// threshold: getThreshold([0.6, 1], artTime),
 					unit: hourUnit,
 				},
 				{
 					desc: '阅读时长',
 					typeId: 8,
 					annualTarget: artTime,
-					// threshold: getThreshold([0.6, 1], artTime),
 					unit: hourUnit,
 				},
 				{
@@ -263,7 +255,6 @@ function GetMetricStatic() {
 					desc: '运动时长',
 					typeId: 17,
 					annualTarget: sportTime,
-					// threshold: getThreshold([0.8, 1], sportTime),
 					unit: hourUnit,
 				},
 			],
