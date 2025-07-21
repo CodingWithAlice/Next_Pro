@@ -8,7 +8,7 @@ interface SerialsPickerProps {
     onSerialsLength?: (v: number) => void;
     mode?: 'tags' | 'multiple';
     className: 'serial-week' | 'serial-month';
-    duration: number
+    duration?: number
 }
 export function SerialsPicker({ value, onValueChange, onSerialsLength, mode, className, duration }: SerialsPickerProps) {
     const [serials, setSerials] = useState<{ serialNumber: number, startTime: string, endTime: string }[]>([]);
