@@ -21,10 +21,17 @@ interface TimeTotalByRoutineType {
 	RoutineType?: RoutineType // 来自 include 的关联模型
 }
 
+interface TimeModalForSleep {
+	routine_type_id: number
+	startTime: string // 根据实际数据库类型定义
+	endTime: string
+	duration: number
+}
+
 interface MetricDataProps {
 	name?: string
-	current?: number
-	lastMonth?: number
+	current?: number | string
+	lastMonth?: number | string
 	threshold?: number[]
 	annualTarget?: number
 	unit?: 'string'
@@ -52,54 +59,61 @@ async function GetSleepAvgTime(
 	startDate: string | Date,
 	endDate: string | Date
 ) {
-	return await TimeModal.findAll({
+	const timeRecords = (await TimeModal.findAll({
 		attributes: [
 			'routine_type_id',
-			[Sequelize.fn('SUM', Sequelize.col('duration')), 'totalDuration'],
-			// 计算平均开始时间（格式化为HH:mm）
 			[
 				Sequelize.fn(
 					'TIME_FORMAT',
-					Sequelize.fn(
-						'SEC_TO_TIME',
-						Sequelize.fn(
-							'AVG',
-							Sequelize.fn(
-								'TIME_TO_SEC',
-								Sequelize.col('start_time')
-							)
-						)
-					),
+					Sequelize.col('start_time'),
 					'%H:%i'
 				),
-				'avgStartTime',
+				'startTime',
 			],
-			// 计算平均结束时间
 			[
-				Sequelize.fn(
-					'TIME_FORMAT',
-					Sequelize.fn(
-						'SEC_TO_TIME',
-						Sequelize.fn(
-							'AVG',
-							Sequelize.fn(
-								'TIME_TO_SEC',
-								Sequelize.col('end_time')
-							)
-						)
-					),
-					'%H:%i'
-				),
-				'avgEndTime',
+				Sequelize.fn('TIME_FORMAT', Sequelize.col('end_time'), '%H:%i'),
+				'endTime',
 			],
 		],
 		where: {
 			...transTwoDateToWhereOptions(startDate, endDate),
 			routine_type_id: 10,
 		},
-		group: ['routine_type_id'],
 		raw: true,
-	})
+	})) as unknown as TimeModalForSleep[]
+
+	// 圆形平均时间计算函数
+	function calculateCircularAverage(times: string[]) {
+		const totalMinutes = times.map((time) => {
+			const [h, m] = time.split(':').map(Number)
+			return h * 60 + m
+		})
+
+		const radians = totalMinutes.map((m) => (m / 1440) * 2 * Math.PI)
+
+		const avgSin =
+			radians.reduce((sum, r) => sum + Math.sin(r), 0) / radians.length
+		const avgCos =
+			radians.reduce((sum, r) => sum + Math.cos(r), 0) / radians.length
+
+		let angle = Math.atan2(avgSin, avgCos)
+		if (angle < 0) angle += 2 * Math.PI
+
+		const avgMinutes = Math.round((angle / (2 * Math.PI)) * 1440) % 1440
+		return `${String(Math.floor(avgMinutes / 60)).padStart(
+			2,
+			'0'
+		)}:${String(avgMinutes % 60).padStart(2, '0')}`
+	}
+
+	// 计算并汇总结果
+	const result = {
+		startTime: calculateCircularAverage(
+			timeRecords.map((r) => r.startTime)
+		),
+		endTime: calculateCircularAverage(timeRecords.map((r) => r.endTime)),
+	}
+	return result
 }
 
 async function GetTimeTotalByRoutineType(serials: number[]) {
@@ -196,7 +210,7 @@ function GetMetricStatic() {
 	const frontTime = 25000 / 365
 	const reviewTime = 15960 / 365
 	const artTime = 1825 / 365
-	const sportTime = 7800  / 365
+	const sportTime = 7800 / 365
 	const hourUnit = '分钟/天'
 	// const percentUnit = '%'
 	return [
@@ -221,7 +235,7 @@ function GetMetricStatic() {
 					annualTarget: reviewTime,
 					unit: hourUnit,
 				},
-				{ desc: '技术任务占比', typeId: 18 }, // todo
+				// { desc: '技术任务占比', typeId: 18 }, // todo
 			],
 		},
 		{
@@ -242,15 +256,17 @@ function GetMetricStatic() {
 				{
 					desc: '平均入睡时间',
 					typeId: 10,
+					type: 'sleep',
 					target: 'startTime',
-					annualTarget: 24,
-				}, // todo
+					annualTarget: '24:00',
+				},
 				{
 					desc: '平均起床时间',
 					typeId: 10,
+					type: 'sleep',
 					target: 'endTime',
-					annualTarget: 8,
-				}, // todo
+					annualTarget: '07:30',
+				},
 				{
 					desc: '运动时长',
 					typeId: 17,
@@ -262,34 +278,56 @@ function GetMetricStatic() {
 	]
 }
 
-async function CalcMetricFromTwoSerials(
-	metricType: MetricTypeProps[],
-	currentData: TimeTotalByRoutineType[],
-	lastData: TimeTotalByRoutineType[],
-    currentGapTime: number,
-    lastGapTime: number, 
-) {
+async function CalcMetricFromTwoSerials({
+	metricType,
+	currentData,
+	currentSleep,
+	currentGapTime,
+	lastData,
+	lastGapTime,
+	lastSleep,
+}: {
+	metricType: MetricTypeProps[]
+	currentData: TimeTotalByRoutineType[]
+	lastData: TimeTotalByRoutineType[]
+	currentGapTime: number
+	lastGapTime: number
+	currentSleep?: { [key: string]: string; startTime: string; endTime: string }
+	lastSleep?: { [key: string]: string; startTime: string; endTime: string }
+}) {
 	const compareData: Record<string, MetricDataProps[]> = {}
 
 	// 遍历配置 - 组装数据
 	metricType.forEach((it: MetricTypeProps) => {
 		const currentType = it.type
 		currentType.forEach(
-			(item: { desc: string; typeId: number; target?: string }) => {
+			(item: {
+				desc: string
+				typeId: number
+				target?: string
+				type?: 'sleep'
+			}) => {
 				const data: MetricDataProps = {}
 				data.name = item.desc
-				data.current = +(
-					currentData.find(
-						(it: TimeTotalByRoutineType) =>
-							+it?.routine_type_id === item.typeId
-					)?.totalDuration || ''
-				) / currentGapTime
-				data.lastMonth = +(
-					lastData.find(
-						(it: TimeTotalByRoutineType) =>
-							+it?.routine_type_id === item.typeId
-					)?.totalDuration || ''
-				) / lastGapTime
+				data.current =
+					+(
+						currentData.find(
+							(it: TimeTotalByRoutineType) =>
+								+it?.routine_type_id === item.typeId
+						)?.totalDuration || ''
+					) / currentGapTime
+				data.lastMonth =
+					+(
+						lastData.find(
+							(it: TimeTotalByRoutineType) =>
+								+it?.routine_type_id === item.typeId
+						)?.totalDuration || ''
+					) / lastGapTime
+
+				if (item.type === 'sleep' && item?.target && currentSleep) {
+					data.current = currentSleep?.[item.target]
+					data.lastMonth = lastSleep?.[item.target]
+				}
 
 				// 塞进结果里
 				if (!compareData?.[it.metricDesc]) {
@@ -309,8 +347,7 @@ async function GetMetricDataCompareLastMonth(
 ) {
 	// 1、上个月的周期 ids
 	const lastSerials = await getLastSerialId(currentSerials)
-    const { gapTime: lastGapTime} = await GetWeeListAndGapTime(lastSerials)
-
+	const { gapTime: lastGapTime } = await GetWeeListAndGapTime(lastSerials)
 
 	// 2、根据周期查询每周数据 - 每日时长总计【用于环比计算】
 	const {
@@ -328,13 +365,15 @@ async function GetMetricDataCompareLastMonth(
 	const metricType = GetMetricStatic()
 
 	// 4、计算环比数据
-	const compareData = await CalcMetricFromTwoSerials(
+	const compareData = await CalcMetricFromTwoSerials({
 		metricType,
-		currentTimeTotalByRoutineType,
-		lastTimeTotalByRoutineType,
-        currentGapTime,
-        lastGapTime
-	)
+		currentData: currentTimeTotalByRoutineType,
+		currentSleep: currentSleepTimes,
+		currentGapTime,
+		lastData: lastTimeTotalByRoutineType,
+		lastGapTime,
+		lastSleep: lastSleepTimes,
+	})
 
 	return {
 		currentSerials, // 当前月周期 ids
@@ -371,7 +410,7 @@ async function GetWeeListAndGapTime(serials: number[]) {
 async function GetMonthWeekInfosAndTimeTotals(serialNumber: string) {
 	const serials = getSortedSerials(serialNumber)
 
-    const {weekList, gapTime} = await GetWeeListAndGapTime(serials)
+	const { weekList, gapTime } = await GetWeeListAndGapTime(serials)
 
 	// 根据周期查询 - 每个周期环比数据
 	const result = await GetMetricDataCompareLastMonth(serials, gapTime)
@@ -379,8 +418,6 @@ async function GetMonthWeekInfosAndTimeTotals(serialNumber: string) {
 		currentTimeTotalByRoutineType,
 		currentRawRecords,
 		compareData: metricData,
-		currentSleepTimes,
-		lastSleepTimes,
 	} = result || {}
 
 	return {
@@ -389,8 +426,6 @@ async function GetMonthWeekInfosAndTimeTotals(serialNumber: string) {
 		currentRawRecords,
 		metricData,
 		gapTime,
-		currentSleepTimes,
-		lastSleepTimes,
 	}
 }
 
