@@ -65,7 +65,7 @@ const CoreMetricsTable = ({source}: {source: Record<string, Metric[]>}) => {
             key: 'comparison',
             render: (_: number, record: Metric) => {
                 if (record.isDimension) return null;
-                if (typeof record.current !== 'number' || typeof record.lastMonth !== 'number') return '-';
+                if (typeof record.current !== 'number' || typeof record.lastMonth !== 'number') return record.lastMonth;
 
                 const mom = getMonthOverMonth(record.current, record.lastMonth);
                 return (

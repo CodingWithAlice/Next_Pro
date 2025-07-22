@@ -92,9 +92,7 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
             Api.getMonthDetailApi(periods.join(',')).then(({ weekList, currentRawRecords, currentTimeTotalByRoutineType, metricData, gapTime }) => {
                 setRawRecords(currentRawRecords)
                 setTimeTotalByRoutineType(currentTimeTotalByRoutineType);
-                setWeeksData(weekList);
-                console.log(1111, {metricData});
-                
+                setWeeksData(weekList);                
                 setMetricData(metricData);
                 setDuration(gapTime)
                 let study = 0
