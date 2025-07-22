@@ -179,8 +179,8 @@ async function transSerialsToStartAndEnd(serials: number[]) {
 }
 
 const getLastSerialId = async (currentSerials: number[]) => {
-	// 根据最小的周数，查询对应的上一周期
-	const currentMonth = await MonthModal.findOne({
+	// 1、根据最小的周数，查询对应的月份
+	let currentMonth = await MonthModal.findOne({
 		where: {
 			periods: {
 				[Op.substring]: currentSerials[0] + '',
@@ -188,11 +188,23 @@ const getLastSerialId = async (currentSerials: number[]) => {
 		},
 		attributes: ['id', 'periods'], // 只返回id字段
 	})
+	let currentMonthId = currentMonth?.get({ plain: true })?.id
 
-	const currentMonthId = currentMonth?.get({ plain: true })?.id
+	// 2. 如果查询不到，则获取最新月份
+	if (!currentMonthId) {
+		currentMonth = await MonthModal.findOne({
+			attributes: ['id', 'periods'],
+			order: [['id', 'DESC']], // 按ID降序获取最新
+		})
+		currentMonthId = currentMonth?.get({ plain: true })?.id
+	}
+
+	// 上个月
 	const lastMonthId =
-		currentMonthId > 0 ? currentMonthId - 1 : +currentMonthId
-	// 查询上个月信息
+		(currentMonthId &&
+			(currentMonthId > 0 ? currentMonthId - 1 : +currentMonthId)) ||
+		currentMonthId
+
 	const monthData = await MonthModal.findOne({
 		where: { id: lastMonthId },
 	})

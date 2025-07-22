@@ -255,6 +255,10 @@ h1 {
     display: none;
 }
 
+.serial-month {
+    min-width: 108px;
+}
+
 .serial-month-br {
     display: none;
 }
