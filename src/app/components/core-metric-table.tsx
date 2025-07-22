@@ -56,7 +56,7 @@ const CoreMetricsTable = ({source}: {source: Record<string, Metric[]>}) => {
             key: 'current',
             render: (value: number | string, record: Metric) => (
                 record.isDimension ? null : (
-                    typeof value === 'string' ? value : `${value}${record.unit || ''}`
+                    typeof value === 'string' ? value : `${value.toFixed(2)}${record.unit || ''}`
                 )
             )
         },

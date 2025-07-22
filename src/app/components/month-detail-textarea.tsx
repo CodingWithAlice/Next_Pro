@@ -92,7 +92,7 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
             Api.getMonthDetailApi(periods.join(',')).then(({ weekList, currentRawRecords, currentTimeTotalByRoutineType, metricData, gapTime }) => {
                 setRawRecords(currentRawRecords)
                 setTimeTotalByRoutineType(currentTimeTotalByRoutineType);
-                setWeeksData(weekList);                
+                setWeeksData(weekList);
                 setMetricData(metricData);
                 setDuration(gapTime)
                 let study = 0
@@ -123,28 +123,28 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
             ].map(it => handleTrans(it, monthData))}
             {!!weeksData?.length && <FocusHeatmap data={rawRecords} periodTime={handlePeriodTime(weeksData)} />}
             {[
-                { key: 'frontHighEfficiency', desc: '效率峰值场景复刻条件' },
-                { key: 'frontLowEfficiency', desc: '效率低谷共同干扰因素' }
+                { key: 'frontHighEfficiency', desc: '[效率峰值]可复用的方法论', tip: "是否在其他场景重复出现？→ 记录可迁移经验" },
+                { key: 'frontLowEfficiency', desc: '[效率低谷]执行漏洞', tip: "是否在其他场景重复出现？→ 记录可迁移经验" }
             ].map(it => handleTrans(it, monthData))}
         </section>
         <section className='section'>
             {transTitle('【核心指标】')}
             <CoreMetricsTable source={metricData || {}} />
-            {handleTrans({ key: 'timeDiffDesc', desc: '时长差异存在原因' }, monthData)}
-        </section>
-        <section className='section'>
-            {!!weeksData.length && transTitle('【不同LTN周期任务对比】')}
-            {!!weeksData.length && <MonthTable key={weeksData.length} data={weeksData} study={studyTotal} />}
+            {/* {handleTrans({ key: 'timeDiffDesc', desc: '非短期决策' }, monthData)} */}
         </section>
         <section className='section'>
             <div className="month-review">
-                {!!weeksData.length && transTitle('【总结】')}
+                {!!weeksData.length && transTitle('【决策】')}
                 <DeepSeek periods={periods} handleChange={handleDeepSeek} type='month' />
             </div>
             {[
-                { key: 'frontMonthDesc', desc: '回顾总结 - 前端' },
-                { key: 'otherMonthDesc', desc: '回顾总结 - 其他' }
+                { key: 'frontMonthDesc', desc: '非短期决策 - 前端' },
+                { key: 'otherMonthDesc', desc: '非短期决策 - 其他' }
             ].map(it => handleTrans(it, monthData))}
+        </section>
+        <section className='section'>
+            {!!weeksData.length && transTitle('【月度详情：不同LTN周期任务对比】')}
+            {!!weeksData.length && <MonthTable key={weeksData.length} data={weeksData} study={studyTotal} />}
         </section>
     </section>
 }

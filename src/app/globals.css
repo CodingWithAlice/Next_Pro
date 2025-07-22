@@ -190,6 +190,8 @@ h1 {
     white-space: nowrap;
     margin: 0 4px 0 12px;
     color: dimgray;
+    display: flex;
+    align-items: center;
 }
 
 .picker {

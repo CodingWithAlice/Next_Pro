@@ -32,7 +32,13 @@ export default function Month() {
     useEffect(() => {
         Api.getMonthApi(monthId).then(({ monthData }) => {
             if (monthData?.periods) {
-                setMonthData(monthData);
+                const longTimeDecision = `【保持】已验证有效模式：
+【尝试】方法论迁移场景：
+【放弃】低ROI事项：
+【纠正】偏离年度目标：`
+                let editMonth = monthData?.frontMonthDesc ? monthData :  {...monthData, frontMonthDesc: longTimeDecision}
+                editMonth = monthData?.otherMonthDesc ? monthData :  {...monthData, otherMonthDesc: longTimeDecision}
+                setMonthData(editMonth);
                 setPeriods(monthData.periods.split(',').map((it: string) => +it));
             }
         })
