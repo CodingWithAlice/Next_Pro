@@ -1,3 +1,4 @@
+// 当前组件暂时废弃【月报 当前月的学习时长】
 import { formatMinToHM } from "./tool";
 import { routineType } from '@/daily/page';
 

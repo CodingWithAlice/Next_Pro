@@ -79,8 +79,9 @@ function transDaysData({
 		const getSleepTime = () => {
 			const filed = week?.daily_time_records?.find(
 				(it) => it.routineTypeId === 10
-			)
-			return filed?.startTime
+			)            
+            const { startTime, endTime } = filed || {}
+			return [startTime, endTime].join(' -- ')
 		}
 		return {
 			date: week.date,
@@ -244,9 +245,7 @@ async function GET(request: NextRequest) {
 		try {
 			aiData = transToString(JSON.parse(aiResponse))
 		} catch (parseError) {
-			console.error('解析 AI 响应失败:', parseError)
-			console.error('原始响应内容:', aiResponse)
-            console.log(`AI响应大小: ${aiResponse?.length}字符`);
+			console.error(`解析 AI 响应失败:${parseError}, 原始响应内容:${aiResponse}, AI响应大小: ${aiResponse?.length}字符`)
 			return NextResponse.json(
 				{
 					error: 'Failed to parse AI response',

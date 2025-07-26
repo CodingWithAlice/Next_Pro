@@ -1,4 +1,4 @@
-import { Table, Progress } from 'antd';
+import { Progress, Table } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import { Metric } from './month-detail-textarea';
 
@@ -36,11 +36,7 @@ const CoreMetricsTable = ({source}: {source: Record<string, Metric[]>}) => {
     };
 
     const getAnnualProgress = (current: number, target: number) => {
-        return Math.min(Math.round((current / target) * 100), 100);
-    };
-
-    const formatThreshold = (threshold: [number, number], unit?: string) => {
-        return `${threshold[0]}${unit || ''}~${threshold[1]}${unit || ''}`;
+        return Math.round((current / target) * 100);
     };
 
     const columns = [
@@ -60,7 +56,7 @@ const CoreMetricsTable = ({source}: {source: Record<string, Metric[]>}) => {
             key: 'current',
             render: (value: number | string, record: Metric) => (
                 record.isDimension ? null : (
-                    typeof value === 'string' ? value : `${value}${record.unit || ''}`
+                    typeof value === 'string' ? value : `${value.toFixed(2)}${record.unit || ''}`
                 )
             )
         },
@@ -69,7 +65,7 @@ const CoreMetricsTable = ({source}: {source: Record<string, Metric[]>}) => {
             key: 'comparison',
             render: (_: number, record: Metric) => {
                 if (record.isDimension) return null;
-                if (typeof record.current !== 'number' || typeof record.lastMonth !== 'number') return '-';
+                if (typeof record.current !== 'number' || typeof record.lastMonth !== 'number') return record.lastMonth;
 
                 const mom = getMonthOverMonth(record.current, record.lastMonth);
                 return (
@@ -81,18 +77,7 @@ const CoreMetricsTable = ({source}: {source: Record<string, Metric[]>}) => {
             }
         },
         {
-            title: '健康阈值',
-            key: 'threshold',
-            render: (_: number[], record: Metric) => (
-                record.isDimension ? null : (
-                    Array.isArray(record.threshold) ?
-                        formatThreshold(record.threshold, record.unit) :
-                        '-'
-                )
-            )
-        },
-        {
-            title: '年度目标进度',
+            title: '年度目标阈值',
             key: 'progress',
             render: (_: number, record: Metric) => {
                 if (record.isDimension) return null;

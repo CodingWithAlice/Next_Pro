@@ -58,7 +58,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    width: 80%;
+    width: 92%;
 }
 
 h1 {
@@ -190,6 +190,8 @@ h1 {
     white-space: nowrap;
     margin: 0 4px 0 12px;
     color: dimgray;
+    display: flex;
+    align-items: center;
 }
 
 .picker {
@@ -251,6 +253,10 @@ h1 {
 
 .serial-week-br {
     display: none;
+}
+
+.serial-month {
+    min-width: 108px;
 }
 
 .serial-month-br {

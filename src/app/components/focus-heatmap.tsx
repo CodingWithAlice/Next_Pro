@@ -131,19 +131,19 @@ const FocusHeatmap: React.FC<{ data: rawRecord[], periodTime: { start: string, e
             grid: [
                 // 热力图网格
                 {
-                    top: '3%',
-                    height: '65%',
-                    left: '6%',    // 减少左侧留白
-                    right: '3%',   // 减少右侧留白
-                    width: '91%'   // 显式设置宽度
+                    top: '2%',
+                    height: '66%',
+                    left: '7%',    // 减少左侧留白
+                    right: '4%',   // 减少右侧留白
+                    width: '89%'   // 显式设置宽度
                 },
                 // 效率曲线网格
                 {
-                    top: '81%',
+                    top: '82%',
                     height: '11%',
-                    left: '6%',    // 减少左侧留白
-                    right: '3%',   // 减少右侧留白
-                    width: '91%'   // 显式设置宽度
+                    left: '7%',    // 减少左侧留白
+                    right: '4%',   // 减少右侧留白
+                    width: '89%'   // 显式设置宽度
                 }
             ],
             yAxis: [
