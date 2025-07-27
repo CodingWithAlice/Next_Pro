@@ -35,7 +35,7 @@ export default function TedPage() {
     const genExtra = (id: number, text: string) => {
         return <>
             {id === lastTedId && <CheckSquareTwoTone />} &nbsp;
-            <CopyOutlined onClick={(e) => { e.stopPropagation(); copy(text) }} /></>
+            <CopyOutlined onClick={(e) => { e.stopPropagation(); copy(`${id}、${text}`) }} /></>
     }
 
     // 展示历史感想和输入框
