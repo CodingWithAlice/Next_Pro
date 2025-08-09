@@ -414,8 +414,8 @@ async function GetWeeListAndGapTime(serials: number[]) {
 
 	// 计算当前周期的时长
 	const startTime = weekList?.[0]?.startTime
-	const endTime = weekList?.[0]?.endTime
-	const gapTime = dayjs(endTime).diff(dayjs(startTime), 'day')
+	const endTime = weekList?.[weekList?.length - 1]?.endTime
+	const gapTime = dayjs(endTime).diff(dayjs(startTime), 'day')    
 	return { weekList, gapTime }
 }
 
