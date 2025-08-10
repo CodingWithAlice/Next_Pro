@@ -186,24 +186,18 @@ const getLastSerialId = async (currentSerials: number[]) => {
 				[Op.substring]: currentSerials[0] + '',
 			},
 		},
-		attributes: ['id', 'periods'], // 只返回id字段
+		attributes: ['id', 'periods'],
 	})
-	let currentMonthId = currentMonth?.get({ plain: true })?.id
+    
+	// 2. 获取全部月份 获取上一月id
+    const allMonths = await MonthModal.findAll({ attributes: ['id'], order: [['id', 'ASC']] });
+	const ids = allMonths.map(m => m.get('id'));
+    const currentIdx = ids.indexOf(currentMonth?.get('id'));
 
-	// 2. 如果查询不到，则获取最新月份
-	if (!currentMonthId) {
-		currentMonth = await MonthModal.findOne({
-			attributes: ['id', 'periods'],
-			order: [['id', 'DESC']], // 按ID降序获取最新
-		})
-		currentMonthId = currentMonth?.get({ plain: true })?.id
-	}
-
-	// 上个月
-	const lastMonthId =
-		(currentMonthId &&
-			(currentMonthId > 0 ? currentMonthId - 1 : +currentMonthId)) ||
-		currentMonthId
+    let lastMonthId = currentMonth?.get({ plain: true })?.id; // 默认当前月 id
+    if (currentIdx > 0) {
+        lastMonthId = ids[currentIdx - 1];
+    }
 
 	const monthData = await MonthModal.findOne({
 		where: { id: lastMonthId },
@@ -421,6 +415,7 @@ async function GetWeeListAndGapTime(serials: number[]) {
 
 async function GetMonthWeekInfosAndTimeTotals(serialNumber: string) {
 	const serials = getSortedSerials(serialNumber)
+    if(!serials) return {}
 
 	const { weekList, gapTime } = await GetWeeListAndGapTime(serials)
 
