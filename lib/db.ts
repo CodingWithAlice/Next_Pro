@@ -135,6 +135,9 @@ export const MonthModal = sequelize.define(
 		timeDiffDesc: DataTypes.STRING,
 		frontMonthDesc: DataTypes.STRING,
 		otherMonthDesc: DataTypes.STRING,
+		processMonth: DataTypes.STRING,
+		frontHighEfficiency: DataTypes.STRING,
+		frontLowEfficiency: DataTypes.STRING,
 	},
 	{
 		tableName: 'month_issue_record',

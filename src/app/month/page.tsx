@@ -20,9 +20,9 @@ export default function Month() {
             ...monthData,
             periods: periods.join(','),
             id: monthId,
-        }).then((e) => {
-            if (e?.data) {
-                messageApi.success(e.data.message);
+        }).then((e) => {            
+            if (e) {
+                messageApi.success(e.message);
             }
         }).catch((e) => {
             messageApi.error(e.message || '保存失败');
