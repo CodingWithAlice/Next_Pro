@@ -7,6 +7,7 @@ import { SerialsPicker } from "@/components/serials-picker";
 import { WeekDetailTextarea } from '@/components/week-detail-textarea';
 import { WeekPeriodModal } from '@/components/week-period-modal';
 import { getGapTime } from '@/components/tool';
+import SerialsRangeEditModal from '@/components/serials-range-edit-modal';
 
 export default function Week() {
     const [weekData, setWeekData] = useState<{ [key: string]: string }>({});
@@ -46,6 +47,7 @@ export default function Week() {
             <SerialsPicker onValueChange={handleSingleChange} value={curSerial} onSerialsLength={setSerialsLength} className='serial-week' />
         </div>
         <WeekDetailTextarea weekData={weekData} setWeekData={setWeekData} curSerial={curSerial} />
+        <SerialsRangeEditModal curSerial={curSerial} />
         <Button type="primary" className='btn' onClick={handleSave}>保存</Button>
         {curSerial !== 0 && <WeekPeriodModal curSerial={curSerial} />}
     </div>

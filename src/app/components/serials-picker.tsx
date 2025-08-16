@@ -6,20 +6,21 @@ interface SerialsPickerProps {
     onValueChange: (v: number | number[]) => void;
     value: number | number[];
     onSerialsLength?: (v: number) => void;
+    onRange?: (map: Record<number, { startTime: string; endTime: string }>) => void;
     mode?: 'tags' | 'multiple';
     className: 'serial-week' | 'serial-month';
     duration?: number
 }
-export function SerialsPicker({ value, onValueChange, onSerialsLength, mode, className, duration }: SerialsPickerProps) {
+export function SerialsPicker({ value, onValueChange, onSerialsLength, onRange, mode, className, duration }: SerialsPickerProps) {
     const [serials, setSerials] = useState<{ serialNumber: number, startTime: string, endTime: string }[]>([]);
-    const [periodsDate, setPeriodsDate] = useState<string>('');    
+    const [periodsDate, setPeriodsDate] = useState<string>('');
 
     const calcPeriods = useCallback((v: number[]) => {
         if (Array.isArray(v)) {
             v.sort((a, b) => a - b); // 排序
             const start = serials.find((serial) => serial.serialNumber === v[0]);
             const end = serials.find((serial) => serial.serialNumber === v[v.length - 1]);
-            
+
             if (start && end) {
                 setPeriodsDate(`   ${start.startTime} 至 ${end.endTime}  共计${duration}天`);
             }
@@ -33,11 +34,19 @@ export function SerialsPicker({ value, onValueChange, onSerialsLength, mode, cla
     }, [value, calcPeriods])
 
     useEffect(() => {
-        Api.getSerial().then(({ serialData }) => {
+        Api.getSerial().then(({ serialData = [] }) => {
             setSerials(serialData.reverse());
-            if (onSerialsLength) {
-                onSerialsLength(serialData.length);
-            }
+            // 获取周期长度返回
+            onSerialsLength && onSerialsLength(serialData.length);
+            // 获取周期时间范围返回
+            const rangeMap: Record<number, { startTime: string; endTime: string }> = {}
+            serialData.forEach((it: any) => {
+                rangeMap[it.serialNumber] = {
+                    startTime: it?.startTime,
+                    endTime: it?.endTime
+                }
+            })
+            onRange && onRange(rangeMap);
         })
     }, [onSerialsLength])
 
