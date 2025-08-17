@@ -28,6 +28,9 @@ const Api = {
 	getSerial() {
 		return request.get('serial')
 	},
+    postSerialApi(params: { [key: string]: string | number }) {        
+        return request.post('serial', params)
+    },
 
 	getTedList() {
 		return request.get('ted')
