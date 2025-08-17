@@ -56,6 +56,8 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
     const [metricData, setMetricData] = useState<Record<string, Metric[]>>(); // 每周数据
     const [studyTotal, setStudyTotal] = useState(0); // 学习总时长
     const [duration, setDuration] = useState(0); // 学习总时长
+    const [serials, setSerials] = useState<{ serialNumber: number, startTime: string, endTime: string }[]>([]);
+ 
 
     const handleTrans = (it: { key: string, desc?: string, tip?: string }, source?: { [key: string]: string }) => {
         if (!source) return;
@@ -86,6 +88,12 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
         }
     }
 
+    const handleSerials = () => {
+        Api.getSerial().then(({ serialData = [] }) => {
+            setSerials(serialData.reverse())
+        })
+    }
+
     useEffect(() => {
         // 更新选择的 LTN 周期后，刷新当前页面数据
         if (periods.length >= 1 && +periods[0] !== 0) {
@@ -105,6 +113,11 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
             })
         }
     }, [periods])
+    
+    // 初始化周期数据
+    useEffect(() => {
+        handleSerials()
+    }, [])
 
     return <section className='wrap'>
         <section>
@@ -114,6 +127,7 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
                 value={periods} mode='multiple'
                 className="serial-month"
                 duration={duration}
+                serials={serials}
             />
         </section>
         <section className='section'>

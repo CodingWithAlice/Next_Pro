@@ -5,14 +5,12 @@ import { useCallback, useEffect, useState } from "react";
 interface SerialsPickerProps {
     onValueChange: (v: number | number[]) => void;
     value: number | number[];
-    onSerialsLength?: (v: number) => void;
-    onRange?: (map: Record<number, { startTime: string; endTime: string }>) => void;
     mode?: 'tags' | 'multiple';
     className: 'serial-week' | 'serial-month';
-    duration?: number
+    duration?: number;
+    serials: { serialNumber: number, startTime: string, endTime: string }[]
 }
-export function SerialsPicker({ value, onValueChange, onSerialsLength, onRange, mode, className, duration }: SerialsPickerProps) {
-    const [serials, setSerials] = useState<{ serialNumber: number, startTime: string, endTime: string }[]>([]);
+export function SerialsPicker({ value, onValueChange, mode, className, duration, serials }: SerialsPickerProps) {
     const [periodsDate, setPeriodsDate] = useState<string>('');
 
     const calcPeriods = useCallback((v: number[]) => {
@@ -32,23 +30,6 @@ export function SerialsPicker({ value, onValueChange, onSerialsLength, onRange, 
             calcPeriods(value);
         }
     }, [value, calcPeriods])
-
-    useEffect(() => {
-        Api.getSerial().then(({ serialData = [] }) => {
-            setSerials(serialData.reverse());
-            // 获取周期长度返回
-            onSerialsLength && onSerialsLength(serialData.length);
-            // 获取周期时间范围返回
-            const rangeMap: Record<number, { startTime: string; endTime: string }> = {}
-            serialData.forEach((it: any) => {
-                rangeMap[it.serialNumber] = {
-                    startTime: it?.startTime,
-                    endTime: it?.endTime
-                }
-            })
-            onRange && onRange(rangeMap);
-        })
-    }, [onSerialsLength])
 
     const onChange = (v: number | number[]) => {
         onValueChange(v);

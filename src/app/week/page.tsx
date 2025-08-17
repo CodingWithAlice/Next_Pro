@@ -14,6 +14,7 @@ export default function Week() {
     const [curSerial, setCurSerial] = useState<number>(0);
     const [serialsLength, setSerialsLength] = useState(0);
     const [messageApi, contextHolder] = message.useMessage();
+    const [serials, setSerials] = useState<{ serialNumber: number, startTime: string, endTime: string }[]>([]);
 
     const handleSingleChange = (value: number | number[]) => {
         if (typeof value === 'number') {
@@ -30,24 +31,49 @@ export default function Week() {
         })
     }
 
-    useEffect(() => {
-        Api.getWeekApi(curSerial).then(({ weekData, serialData }) => {
+    const handleTargetSerial = (target: number) => {
+        setCurSerial(target);
+    }
+
+    const handleSerialRange = () => {
+        Api.getSerial().then(({ serialData = [] }) => {
+            setSerials(serialData.reverse())
+            // 获取周期长度返回
+            setSerialsLength(serialData.length)
+            // 获取周期时间范围返回
+            const rangeMap: Record<number, { startTime: string; endTime: string }> = {}
+            serialData.forEach((it: any) => {
+                rangeMap[it.serialNumber] = {
+                    startTime: it?.startTime,
+                    endTime: it?.endTime
+                }
+            })
+        })
+    }
+
+    const initData = (serial: number) => {
+        Api.getWeekApi(serial).then(({ weekData, serialData }) => {
             const currentSerial = serialData.filter((it: { [key: string]: string }) => +it.serialNumber === curSerial)?.[0];
             const gap = getGapTime(currentSerial?.startTime, currentSerial?.endTime, 'day');
             const time = currentSerial ? `${currentSerial?.startTime} 至 ${currentSerial?.endTime} ${gap + 1}天` : '新周期';
 
             setWeekData({ ...weekData, time });
         })
+    }
+
+    useEffect(() => {
+        initData(curSerial)
+        handleSerialRange()
     }, [curSerial])
 
     return <div className="outer">
         {contextHolder}
         <div className="week">
             <h1 className='week-title'>LTN 周报</h1>
-            <SerialsPicker onValueChange={handleSingleChange} value={curSerial} onSerialsLength={setSerialsLength} className='serial-week' />
+            <SerialsPicker onValueChange={handleSingleChange} value={curSerial} className='serial-week' serials={serials} />
         </div>
         <WeekDetailTextarea weekData={weekData} setWeekData={setWeekData} curSerial={curSerial} />
-        <SerialsRangeEditModal curSerial={curSerial} />
+        <SerialsRangeEditModal curSerial={curSerial} serials={serials} onFresh={handleTargetSerial} />
         <Button type="primary" className='btn' onClick={handleSave}>保存</Button>
         {curSerial !== 0 && <WeekPeriodModal curSerial={curSerial} />}
     </div>

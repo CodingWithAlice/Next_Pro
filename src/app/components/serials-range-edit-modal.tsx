@@ -1,16 +1,17 @@
 import { FormOutlined } from "@ant-design/icons";
-import { FloatButton, Input, Modal } from "antd";
+import { FloatButton, Input, Modal, message } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import Api from "@/service/api";
 import { SerialsPicker } from "./serials-picker";
 
-export default function SerialsRangeEditModal({ curSerial = 0 }: { curSerial?: number }) {
+export default function SerialsRangeEditModal({ curSerial = 0, onFresh, serials = [] }: { curSerial?: number, onFresh?: (serial: number) => void, serials: { serialNumber: number, startTime: string, endTime: string }[] }) {
     const [modalShow, setModalShow] = useState(false);
-    const [serial, setSerial] = useState<number>(curSerial);
+    const [currentSerial, setCurrentSerial] = useState<number>(curSerial);
+    const [rangeMap, setRangeMap] = useState<Record<string, { value: string; onChange: (e: any) => void }>>({});
     const [start, setStart] = useState<string>(dayjs().format('YYYY-MM-DD'));
     const [end, setEnd] = useState<string>(dayjs().format('YYYY-MM-DD'));
-    const [serialsMap, setSerialsMap] = useState<Record<number, { startTime: string; endTime: string }>>({});
+    const [messageApi, contextHolder] = message.useMessage();
 
     // 切换弹窗状态
     const changeModalShow = (status: boolean) => {
@@ -18,47 +19,43 @@ export default function SerialsRangeEditModal({ curSerial = 0 }: { curSerial?: n
     };
 
     const updateRange = () => {
+        const validSerial = currentSerial === 0 ? Math.max(...serials.map(it => +it?.serialNumber)) + 1 : currentSerial;
         const params = {
-            serialNumber: serial,
+            serialNumber: validSerial,
             startTime: start,
             endTime: end
         }
-        // Api.getDailyApi(params).then(res => { // todo
-        //     changeModalShow(false)
-        // }).catch(e => {
-        //     console.error('更新周期时间失败:', e);
-        // })
+
+        Api.postSerialApi(params).then(e => {
+            changeModalShow(false)
+            onFresh && onFresh(e?.data?.targetSerial);
+            messageApi.success(e?.data?.message || e?.message);
+        }).catch(e => {
+            messageApi.error('更新周期时间失败:', e);
+        })
     }
 
     // 切换周期
     const handleSerialChange = (value: number | number[]) => {
         if (typeof value === 'number') {
-            setSerial(value);
+            setCurrentSerial(value);
         }
     };
 
-    // 周期范围
-    const handleRangeChange = (range: Record<number, { startTime: string; endTime: string }>) => {
-        setSerialsMap(range);
-    }
+    useEffect(() => {
+        const getTargetSerial = (cur: number) => serials.find(it => +it.serialNumber === cur);
+        setRangeMap({
+            start: {
+                value: getTargetSerial(currentSerial)?.startTime || start,
+                onChange: (e: any) => { setStart(e.target.value) },
+            },
+            end: {
+                value: getTargetSerial(currentSerial)?.endTime || end,
+                onChange: (e: any) => { setEnd(e.target.value) },
+            },
+        })
+    }, [serials, currentSerial, start, end])
 
-    // 初始化查询今日做题记录
-    // useEffect(() => {
-    //     if (modalShow) {
-    //         updateRange();
-    //     }
-    // }, [modalShow])
-
-    const rangeMap: Record<string, { value: string; onChange: (e: any) => void }> = {
-        start: {
-            value: serialsMap[serial]?.startTime || start,
-            onChange: (e: any) => { setStart(e.target.value) },
-        },
-        end: {
-            value: serialsMap[serial]?.endTime || end,
-            onChange: (e: any) => { setEnd(e.target.value) },
-        }
-    }
     return <>
         <FloatButton
             shape="square"
@@ -76,17 +73,17 @@ export default function SerialsRangeEditModal({ curSerial = 0 }: { curSerial?: n
             onOk={updateRange}
             onCancel={() => changeModalShow(false)}
         >
+            {contextHolder}
             <div className="serial-range-edit">
-                <SerialsPicker onValueChange={handleSerialChange} value={serial} onRange={handleRangeChange} className='serial-week' />
-
-                {Object.keys(rangeMap).map((it) => {
-                    const { value = '', onChange = () => { } } = rangeMap?.[it] || {};
+                <SerialsPicker onValueChange={handleSerialChange} serials={serials} value={currentSerial} className='serial-week' />
+                {Object.keys(rangeMap)?.length > 0 && Object.keys(rangeMap).map((it) => {
+                    const { value: targetValue = '', onChange: targetChange = () => { } } = rangeMap?.[it] || {};
                     return <Input
                         key={it}
                         placeholder={`周期${it}时间`}
-                        value={value}
+                        value={targetValue}
                         style={{ width: '30%' }}
-                        onChange={onChange}
+                        onChange={targetChange}
                         allowClear
                     />
                 })}
