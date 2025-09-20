@@ -79,8 +79,8 @@ function transDaysData({
 		const getSleepTime = () => {
 			const filed = week?.daily_time_records?.find(
 				(it) => it.routineTypeId === 10
-			)            
-            const { startTime, endTime } = filed || {}
+			)
+			const { startTime, endTime } = filed || {}
 			return [startTime, endTime].join(' -- ')
 		}
 		return {
@@ -121,7 +121,7 @@ async function GetRawContentByType(serialNumber: string, type: string) {
 
 // 将每日数据整合为周期数据
 function calcPeriodData(source: WeekAIProps[]) {
-	const result: { [key: string]: string } = {}
+	let result: { [key: string]: string } = {}
 	source.forEach((day: WeekAIProps) => {
 		Object.keys(day).forEach((item) => {
 			if (!result[item]) {
@@ -139,7 +139,106 @@ function calcPeriodData(source: WeekAIProps[]) {
 			}
 		})
 	})
+	result = transSleep(result)
 	return result
+}
+
+const transSleep = (result: { [key: string]: string }) => {
+	result.sleep = analyzeSleepData(result.sleep || '')
+	return result
+}
+
+const analyzeSleepData = (sleepData: string) => {
+	// 1. 解析数据行
+	const lines = sleepData.trim().split('\n')
+	const sleepRecords = []
+
+	for (const line of lines) {
+		const match = line.match(
+			/:\s*(\d{2}:\d{2}):\d{2}\s*--\s*(\d{2}:\d{2}):\d{2}/
+		)
+		if (match) {
+			sleepRecords.push({
+				sleepTime: match[1],
+				wakeTime: match[2],
+			})
+		}
+	}
+
+	// 2. 计算睡眠时长和统计
+	let total7h = 0
+	let total6_5h = 0
+	let beforeMidnightSleep = 0 // 12:00前入睡
+	let after1amSleep = 0 // 1点后入睡
+	let before7_46Wake = 0 // 7:46前起床
+	let before7amWake = 0 // 7点前起床
+    
+	const sleepTimes = []
+	const wakeTimes = []
+
+	for (const record of sleepRecords) {
+		// 提取入睡和起床时间
+		sleepTimes.push(record.sleepTime)
+		wakeTimes.push(record.wakeTime)
+
+		// 计算睡眠时长（小时）
+		const [sleepHour, sleepMinute] = record.sleepTime.split(':').map(Number)
+		const [wakeHour, wakeMinute] = record.wakeTime.split(':').map(Number)
+
+		let sleepDuration =
+			wakeHour - sleepHour + (wakeMinute - sleepMinute) / 60
+
+		// 处理跨夜情况
+		if (sleepDuration < 0) {
+			sleepDuration += 24
+		}
+
+		// 统计时长
+		if (sleepDuration >= 7) {
+			total7h++
+		} else if (sleepDuration < 6.5) {
+			total6_5h++
+		}
+
+        // 统计入睡时间
+        if (sleepHour < 12 || (sleepHour === 12 && sleepMinute === 0)) {
+            beforeMidnightSleep++;
+        }
+        if (sleepHour >= 1) {
+            after1amSleep++;
+        }
+        
+        // 统计起床时间
+        const wakeTimeInMinutes = wakeHour * 60 + wakeMinute;
+        if (wakeTimeInMinutes <= 7 * 60 + 45) {
+            before7_46Wake++;
+        }
+        if (wakeTimeInMinutes < 7 * 60) {
+            before7amWake++;
+        }
+	}
+
+	// 3. 计算百分比
+	const totalDays = sleepRecords.length
+	const percent7h = Math.round((total7h / totalDays) * 100)
+	const percentNot6_5h = Math.round((total6_5h / totalDays) * 100)
+    const percentBeforeMidnight = Math.round((beforeMidnightSleep / totalDays) * 100);
+    const percentAfter1am = Math.round((after1amSleep / totalDays) * 100);
+    const percentBefore7_46 = Math.round((before7_46Wake / totalDays) * 100);
+    const percentBefore7am = Math.round((before7amWake / totalDays) * 100);
+
+	// 4. 返回格式化结果
+	return `本周期睡眠时长、入睡时间、起床时间情况
+1、满足 7h 睡眠时长的占比 ${percent7h}%(${total7h}天)，不满足 6.5h 的占比 ${percentNot6_5h}%(${total6_5h}天)
+2、入睡时间: ${sleepTimes.join(',')}
+    ▌12:00 前入睡占比 ${percentBeforeMidnight}%(${beforeMidnightSleep}天)，1点后入睡占比 ${percentAfter1am}%(${after1amSleep}天)
+3、起床时间: ${wakeTimes.join(',')}
+    ▌7:45 前起床占比 ${percentBefore7_46}%(${before7_46Wake}天)，7点前起床占比 ${percentBefore7am}%(${before7amWake}天)
+提高睡眠质量的一些意识调整：
+1、分析下睡得晚的原因：
+2、分析下睡得早的可沿用的方法论：
+3、早睡早起在这个周期里面带来的影响：
+4、基于现状可能可以调整的方法：`
 }
 
 /**
@@ -245,7 +344,9 @@ async function GET(request: NextRequest) {
 		try {
 			aiData = transToString(JSON.parse(aiResponse))
 		} catch (parseError) {
-			console.error(`解析 AI 响应失败:${parseError}, 原始响应内容:${aiResponse}, AI响应大小: ${aiResponse?.length}字符`)
+			console.error(
+				`解析 AI 响应失败:${parseError}, 原始响应内容:${aiResponse}, AI响应大小: ${aiResponse?.length}字符`
+			)
 			return NextResponse.json(
 				{
 					error: 'Failed to parse AI response',
@@ -257,12 +358,12 @@ async function GET(request: NextRequest) {
 
 		return NextResponse.json({
 			daysData,
-			data: { 
-                ...weekData, 
-                ...aiData, 
-                startTime: daysData?.[0]?.startTime,
-                endTime: daysData?.[0]?.endTime,
-             },
+			data: {
+				...weekData,
+				...aiData,
+				startTime: daysData?.[0]?.startTime,
+				endTime: daysData?.[0]?.endTime,
+			},
 			aiResponse: JSON.parse(aiResponse || ''),
 		})
 	} catch (error) {
