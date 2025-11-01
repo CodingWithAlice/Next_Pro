@@ -1,6 +1,6 @@
-import { WeekDataProps } from "@/api/deepseek/route"
-import { IssueModal, SerialModal, TimeModal } from "db"
-import { transTwoDateToWhereOptions } from "utils"
+import { WeekDataProps } from '@/api/deepseek/route'
+import { IssueModal, SerialModal, TimeModal } from 'db'
+import { transTwoDateToWhereOptions } from 'utils'
 
 export async function GetWeekData(serialNumber: string) {
 	const serialDateInfo = await SerialModal.findOne({
@@ -22,7 +22,10 @@ export async function GetWeekData(serialNumber: string) {
 					routineTypeId: [9, 10, 13, 14, 16, 17, 18], // 9-总计 10-入睡时间 13-前端总计 14-总时长 16-LTN时长 17-运动 18-工作
 				},
 			},
-		]
+		],
+		order: [
+			['date', 'ASC'],
+		],
 	})) as unknown as WeekDataProps[]
 	return { startTime, endTime, weekData }
 }

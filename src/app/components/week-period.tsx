@@ -6,6 +6,7 @@ import '../week/app.css';
 import { formatSerialNumber } from "@/components/tool";
 import { useSearchParams } from 'next/navigation';
 import { LoadingOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
 
 export default function Period({ curSerial }: { curSerial: number }) {
     const [startTime, setStartTime] = useState('');
@@ -22,7 +23,7 @@ export default function Period({ curSerial }: { curSerial: number }) {
         Api.getWeekPeriodApi(serialNumber).then(res => {
             setStartTime(res.startTime.slice(5));
             setEndTime(res.endTime.slice(5));
-            setWeekData(res.weekData);
+            setWeekData(res?.weekData);
             setPending(false);
         })
     }, [curSerial, serialNumber])
