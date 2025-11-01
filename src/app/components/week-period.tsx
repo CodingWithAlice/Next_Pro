@@ -23,8 +23,7 @@ export default function Period({ curSerial }: { curSerial: number }) {
         Api.getWeekPeriodApi(serialNumber).then(res => {
             setStartTime(res.startTime.slice(5));
             setEndTime(res.endTime.slice(5));
-            const sortedWeekData = (res?.weekData || []).sort((a: { date: string | number | dayjs.Dayjs | Date | null | undefined; }, b: { date: string | number | dayjs.Dayjs | Date | null | undefined; }) => dayjs(a?.date).isBefore(dayjs(b?.date)))
-            setWeekData(sortedWeekData);
+            setWeekData(res?.weekData);
             setPending(false);
         })
     }, [curSerial, serialNumber])
