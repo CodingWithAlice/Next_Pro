@@ -8,7 +8,7 @@ import Api from '@/service/api';
 import dayjs from 'dayjs';
 import { type Issue } from '@/components/custom-time-picker';
 import { getCurrentBySub, IssueRecordProps } from '@/components/tool';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import config from 'config';
 
 export interface routineType {
@@ -54,8 +54,17 @@ export default function Daily() {
         better: '',
     });
     const urlParams = useSearchParams();
+    const router = useRouter();
     const urlDate = urlParams?.get('date');
     const currentDate = urlDate || getCurrentBySub(config.current).format('YYYY-MM-DD');
+
+    // 初始化时，如果没有URL参数，自动跳转到昨天
+    useEffect(() => {
+        if (!urlDate) {
+            const yesterdayDate = getCurrentBySub(config.current).format('YYYY-MM-DD');
+            router.replace(`/daily?date=${yesterdayDate}`);
+        }
+    }, [urlDate, router]);
 
     const handleFunc = useCallback((arr: Issue[], types?: routineType[]) => {
         if (!types) {

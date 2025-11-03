@@ -7,6 +7,31 @@
     color: rgb(38, 157, 128);
 }
 
+.date-navigation {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.nav-btn {
+    padding: 6px 16px;
+    background-color: rgba(38, 157, 128, 0.1);
+    border: 1px solid rgb(38, 157, 128);
+    border-radius: 4px;
+    color: rgb(38, 157, 128);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+}
+
+.nav-btn:hover {
+    background-color: rgb(38, 157, 128);
+    color: white;
+}
+
 .flex-around {
     display: flex;
     justify-content: space-around;
