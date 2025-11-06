@@ -4,11 +4,12 @@ import './app.css';
 import IssueRecord from '@/components/issue-record';
 import TimeRecord from '@/components/time-record';
 import WeekTitle from '@/components/week-title';
+import LifeFootprint from '@/components/life-footprint';
 import Api from '@/service/api';
 import dayjs from 'dayjs';
 import { type Issue } from '@/components/custom-time-picker';
 import { getCurrentBySub, IssueRecordProps } from '@/components/tool';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import config from 'config';
 
 export interface routineType {
@@ -54,8 +55,17 @@ export default function Daily() {
         better: '',
     });
     const urlParams = useSearchParams();
+    const router = useRouter();
     const urlDate = urlParams?.get('date');
     const currentDate = urlDate || getCurrentBySub(config.current).format('YYYY-MM-DD');
+
+    // 初始化时，如果没有URL参数，自动跳转到昨天
+    useEffect(() => {
+        if (!urlDate) {
+            const yesterdayDate = getCurrentBySub(config.current).format('YYYY-MM-DD');
+            router.replace(`/daily?date=${yesterdayDate}`);
+        }
+    }, [urlDate, router]);
 
     const handleFunc = useCallback((arr: Issue[], types?: routineType[]) => {
         if (!types) {
@@ -133,7 +143,10 @@ export default function Daily() {
     }, [currentDate]);
 
     return (<div className='outer'>
-        <WeekTitle />
+        <div style={{ position: 'relative' }}>
+            <WeekTitle />
+            <LifeFootprint currentDate={currentDate} />
+        </div>
         <div className="flex-around">
             <TimeRecord total={total} read={read} study={study} ltnTotal={ltnTotal} onChange={handleFunc} issues={issues} setIssues={setIssues} routineType={routineType} />
             <IssueRecord study={study} issueData={issueData} setIssueData={setIssueData} currentDate={currentDate} />

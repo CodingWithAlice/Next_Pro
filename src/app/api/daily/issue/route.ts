@@ -34,4 +34,35 @@ async function POST(request: NextRequest) {
 	}
 }
 
-export { POST }
+async function GET(request: NextRequest) {
+	try {
+		const { searchParams } = request.nextUrl
+		
+		// 查询所有 IssueModal 数据
+		const issueList = await IssueModal.findAll({
+			order: [['date', 'DESC']], // 按日期倒序排列
+		})
+
+		// 统计有记录的天数（列表长度）
+		const totalDays = issueList.length
+
+		return NextResponse.json({
+			success: true,
+			data: issueList,
+			totalDays: totalDays,
+			message: '查询成功',
+		})
+	} catch (error) {
+		console.error(error)
+		return NextResponse.json(
+			{
+				success: false,
+				message: '查询失败',
+				error: (error as Error).message,
+			},
+			{ status: 500 }
+		)
+	}
+}
+
+export { POST, GET }

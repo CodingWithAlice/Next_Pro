@@ -24,6 +24,9 @@ const Api = {
 	postIssueApi(data: { [key: string]: string | number | Dayjs | Date }) {
 		return request.post('daily/issue', data)
 	},
+	getIssueListApi() {
+		return request.get('daily/issue')
+	},
 
 	getSerial() {
 		return request.get('serial')
