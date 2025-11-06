@@ -44,7 +44,7 @@ export default function WeekTitle() {
         })
     }, [])
 
-    return <h1 className='week'>
+    return <h1 className='week week-title-container'>
         Week {now.week()}
         <br />
         <div className='phone-hidden'>
