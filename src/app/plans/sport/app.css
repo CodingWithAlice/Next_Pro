@@ -1,0 +1,148 @@
+.sport-page {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.sport-card {
+    margin-bottom: 20px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.today-summary {
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 10px;
+}
+
+.summary-item {
+    font-size: 1rem;
+}
+
+.summary-item .label {
+    font-weight: 600;
+    color: #333;
+}
+
+.summary-item .value {
+    color: rgb(38, 157, 128);
+    font-weight: 600;
+    margin: 0 8px;
+}
+
+.summary-item .separator {
+    color: #999;
+    margin: 0 4px;
+}
+
+.quick-record-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.total-summary {
+    padding: 10px 0;
+}
+
+.total-summary .label {
+    font-weight: 600;
+    color: #333;
+}
+
+.total-summary .value {
+    color: rgb(38, 157, 128);
+    font-weight: 600;
+    margin: 0 8px;
+}
+
+.total-summary .separator {
+    color: #999;
+    margin: 0 4px;
+}
+
+.quick-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.sport-calendar {
+    padding: 20px;
+    text-align: center;
+    border: 1px dashed #d9d9d9;
+    border-radius: 4px;
+    color: #999;
+}
+
+.recent-records {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.record-item {
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.record-item:last-child {
+    border-bottom: none;
+}
+
+.record-date {
+    font-weight: 600;
+    color: #333;
+    margin-right: 8px;
+}
+
+.record-content {
+    color: #666;
+}
+
+.record-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+}
+
+.progress-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.progress-card {
+    min-height: 300px;
+}
+
+.form-item {
+    margin-bottom: 16px;
+}
+
+.form-item label {
+    display: inline-block;
+    width: 100px;
+    font-weight: 500;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .progress-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .quick-actions {
+        flex-direction: column;
+    }
+
+    .quick-actions button {
+        width: 100%;
+    }
+}
+
