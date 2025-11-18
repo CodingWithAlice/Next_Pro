@@ -14,3 +14,22 @@ CREATE TABLE sport_records (
     INDEX idx_type (type),
     INDEX idx_type_date (type, date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='运动记录表';
+
+CREATE TABLE running_plans (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    plan_name VARCHAR(50) NOT NULL COMMENT '计划名称：跑步计划1/2/3',
+    run_type VARCHAR(20) NOT NULL COMMENT '跑步类型：匀速跑/变速跑/长跑',
+    distance DECIMAL(5,2) NOT NULL COMMENT '距离(km)',
+    target_times INT NOT NULL COMMENT '目标次数',
+    current_times INT DEFAULT 0 COMMENT '当前完成次数',
+    start_date DATE NOT NULL COMMENT '计划开始日期',
+    end_date DATE NOT NULL COMMENT '计划结束日期',
+    status ENUM('active', 'completed', 'cancelled') DEFAULT 'active' COMMENT '状态',
+    target_heart_rate VARCHAR(20) DEFAULT NULL COMMENT '目标心率区间',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    INDEX idx_plan_name (plan_name),
+    INDEX idx_status (status),
+    INDEX idx_dates (start_date, end_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='跑步计划表';
