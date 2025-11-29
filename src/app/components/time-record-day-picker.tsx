@@ -24,7 +24,12 @@ export default function TimeRecordDayPicker({ issues, setIssues, routineType, to
     const urlDate = urlParams?.get('date');
 
     const handleAddIssue = () => {
-        const suggestTime = issues[issues.length - 1]?.endTime || getCurrentBySub();
+        const lastIssue = issues[issues.length - 1];
+        // 如果最后一项是工作类型，使用 startTime（因为 startTime === endTime）
+        // 否则使用 endTime
+        const suggestTime = lastIssue 
+            ? (+lastIssue.type === +(config.workId) ? lastIssue.startTime : lastIssue.endTime)
+            : getCurrentBySub();
         const newIssue = {
             startTime: suggestTime,
             endTime: suggestTime.add(1, 'minute'),
@@ -68,7 +73,31 @@ export default function TimeRecordDayPicker({ issues, setIssues, routineType, to
     }
 
     const handleSave = () => {
-        const addTotal = addTotalIssue(issues, total, study, ltnTotal);
+        // 分离工作类型和其他类型
+        const workIssues = issues.filter(it => +it.type === +(config.workId));
+        const otherIssues = issues.filter(it => +it.type !== +(config.workId));
+        
+        // 处理工作类型：合并为一条记录（取最小开始时间和最大结束时间）
+        let mergedWorkIssue: Issue | null = null;
+        if (workIssues.length > 0) {
+            const workTimes = workIssues.map(it => it.startTime).sort((a, b) => a.diff(b));
+            const minTime = workTimes[0];
+            const maxTime = workTimes[workTimes.length - 1];
+            
+            mergedWorkIssue = {
+                ...workIssues[0],
+                startTime: minTime,
+                endTime: maxTime,
+                duration: maxTime.diff(minTime, 'minute')
+            };
+        }
+
+        // 合并所有项（工作项合并后 + 其他项）
+        const mergedIssues = mergedWorkIssue 
+            ? [...otherIssues, mergedWorkIssue]
+            : otherIssues;
+
+        const addTotal = addTotalIssue(mergedIssues, total, study, ltnTotal);
         const transIssues = addTotal.map((it, index) => {
             const { ...rest } = it;
             return {
