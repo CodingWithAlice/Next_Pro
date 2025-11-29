@@ -1,6 +1,6 @@
 import { CustomTimePicker, type Issue } from '@/components/custom-time-picker';
 import { routineType } from '@/daily/page';
-import { getGapTime } from './tool';
+import { getGapTime, sortIssuesWithSleepLast } from './tool';
 import config from 'config';
 
 interface CustomTimePickerListProps {
@@ -10,22 +10,9 @@ interface CustomTimePickerListProps {
     freshTime: (arr: Issue[]) => void
 }
 
-// 按照开始时间排序
-function sortIssuesByStartTime(issues: Issue[]): Issue[] {
-    return [...issues].sort((a, b) => {
-        // 比较开始时间
-        const diff = a.startTime.diff(b.startTime, 'minute');
-        if (diff !== 0) {
-            return diff;
-        }
-        // 如果开始时间相同，保持原有顺序（通过 daySort）
-        return a.daySort - b.daySort;
-    });
-}
-
 export default function CustomTimePickerList({ list, routineTypes, setList, freshTime }: CustomTimePickerListProps) {
-    // 对列表按开始时间排序
-    const sortedList = sortIssuesByStartTime(list);
+    // 对列表按开始时间排序，睡眠始终排在最后
+    const sortedList = sortIssuesWithSleepLast(list);
 
     const handleIssueUPdate = (currentIssue: Issue) => {
         // 创建新列表副本
@@ -39,8 +26,8 @@ export default function CustomTimePickerList({ list, routineTypes, setList, fres
             newList.push(currentIssue);
         }
 
-        // 重新排序
-        const newSortedList = sortIssuesByStartTime(newList);
+        // 重新排序，睡眠始终排在最后
+        const newSortedList = sortIssuesWithSleepLast(newList);
         
         // 更新 daySort 以保持正确的排序顺序
         const updatedList = newSortedList.map((it, index) => ({

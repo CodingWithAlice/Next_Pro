@@ -1,4 +1,4 @@
-import { getYesterdayDate, formatTime, getCurrentBySub } from '@/components/tool';
+import { getYesterdayDate, formatTime, getCurrentBySub, sortIssuesWithSleepLast } from '@/components/tool';
 import { Button, Space, message } from 'antd';
 import config from 'config';
 import { useSearchParams } from 'next/navigation';
@@ -97,11 +97,8 @@ export default function TimeRecordDayPicker({ issues, setIssues, routineType, to
             ? [...otherIssues, mergedWorkIssue]
             : otherIssues;
         
-        // 按开始时间排序（不包括 total 项）
-        const sortedMergedIssues = mergedIssues.sort((a, b) => {
-            const diff = a.startTime.diff(b.startTime, 'minute');
-            return diff !== 0 ? diff : a.daySort - b.daySort;
-        }).map((it, index) => ({
+        // 按开始时间排序，但睡眠始终排在最后（不包括 total 项）
+        const sortedMergedIssues = sortIssuesWithSleepLast(mergedIssues).map((it, index) => ({
             ...it,
             daySort: index
         }));
