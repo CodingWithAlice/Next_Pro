@@ -79,36 +79,38 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
 
     return (
         <div className='time-picker' key={init.daySort}>
-            {isWorkType ? (
-                // 工作类型：只显示一个时间选择器
-                <div className='time-picker-item'>
-                    <TimePicker
-                        className="picker"
-                        format='HH:mm'
-                        value={init.startTime}
-                        onChange={(value) => handleChange(init.daySort, value, 'startTime')}
-                        needConfirm={false} />
-                </div>
-            ) : (
-                // 非工作类型：显示两个时间选择器
-                ['startTime', 'endTime'].map((timeType, index) => {
-                    return <div key={`${init.daySort}-${timeType}`} className={index === 0 ? 'time-picker-item' : ''
-                    }>
+            <div className='time-picker-wrapper'>
+                {isWorkType ? (
+                    // 工作类型：只显示一个时间选择器
+                    <div className='time-picker-item'>
                         <TimePicker
-                            key={init.daySort}
                             className="picker"
                             format='HH:mm'
-                            value={init[timeType as keyof Issue] as dayjs.Dayjs}
-                            onChange={(value) => handleChange(init.daySort, value, timeType as keyof Issue)}
+                            value={init.startTime}
+                            onChange={(value) => handleChange(init.daySort, value, 'startTime')}
                             needConfirm={false} />
-                        {index === 0 && <div className='duration'>
-                            <span className="phone-hidden">-</span>
-                            <span className="duration-time"> {formatMinToHM(init.duration)}</span>
-                            <span className="phone-hidden">{'->'}</span>
-                        </div>}
                     </div>
-                })
-            )}
+                ) : (
+                    // 非工作类型：显示两个时间选择器
+                    ['startTime', 'endTime'].map((timeType, index) => {
+                        return <div key={`${init.daySort}-${timeType}`} className={index === 0 ? 'time-picker-item' : ''
+                        }>
+                            <TimePicker
+                                key={init.daySort}
+                                className="picker"
+                                format='HH:mm'
+                                value={init[timeType as keyof Issue] as dayjs.Dayjs}
+                                onChange={(value) => handleChange(init.daySort, value, timeType as keyof Issue)}
+                                needConfirm={false} />
+                            {index === 0 && <div className='duration'>
+                                <span className="phone-hidden">-</span>
+                                <span className="duration-time"> {formatMinToHM(init.duration)}</span>
+                                <span className="phone-hidden">{'->'}</span>
+                            </div>}
+                        </div>
+                    })
+                )}
+            </div>
             <Select
                 value={init.type}
                 options={options}
