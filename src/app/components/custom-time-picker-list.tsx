@@ -64,6 +64,11 @@ export default function CustomTimePickerList({ list, routineTypes, setList, fres
                 updatedList[index].interval = 0;
             }
         });
+        
+        // 确保最后一项的间隔时间为 0（因为没有后续项）
+        if (updatedList.length > 0) {
+            updatedList[updatedList.length - 1].interval = 0;
+        }
 
         setList(updatedList);
         // 任意一项更新，都重新计算总计时间

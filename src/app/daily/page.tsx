@@ -126,9 +126,10 @@ export default function Daily() {
 
             // 处理所有事项（包括工作类型）
             const initIssues: any[] = [];
+            let idx = 0; // 独立的计数器，每添加一项就递增
             dailyData
                 .filter((it: DailyDataProps) => routineIds.includes(it.routineTypeId))
-                .forEach((data: DailyDataProps, index: number) => {
+                .forEach((data: DailyDataProps) => {
                     const startTime = dayjs(`${data.date} ${data.startTime}`);
                     const endTime = dayjs(`${data.date} ${data.endTime}`);
                     
@@ -146,7 +147,7 @@ export default function Daily() {
                                 startTime: startTime,
                                 endTime: startTime, // 确保 endTime 和 startTime 相同
                                 type: data.routineTypeId,
-                                daySort: index,
+                                daySort: idx++,
                                 interval: data.interval || 0,
                                 routineTypeId: data.routineTypeId,
                                 duration: 0
@@ -166,7 +167,7 @@ export default function Daily() {
                                 ...baseIssue,
                                 startTime: startTime,
                                 endTime: startTime,
-                                daySort: index * 2
+                                daySort: idx++
                             });
                             
                             // 结束时间的工作节点
@@ -174,7 +175,7 @@ export default function Daily() {
                                 ...baseIssue,
                                 startTime: endTime,
                                 endTime: endTime,
-                                daySort: index * 2 + 1
+                                daySort: idx++
                             });
                         }
                     } else {
@@ -184,7 +185,7 @@ export default function Daily() {
                             startTime: startTime,
                             endTime: endTime,
                             type: data.routineTypeId,
-                            daySort: index,
+                            daySort: idx++,
                             interval: data.interval || 0,
                             routineTypeId: data.routineTypeId
                         });
