@@ -1,15 +1,13 @@
-import { Input, Select, TimePicker } from "antd";
+import { Select, TimePicker } from "antd";
 import dayjs from "dayjs";
 import { formatMinToHM, getGapTime } from "./tool";
 import classNames from "classnames";
 import { routineType } from '@/daily/page';
-import { modeType } from "config";
 
 interface CustomTimePickerProps {
     onIssue?: (issue: Issue) => void;
     init: Issue;
     routineTypes: routineType[];
-    mode: modeType
 }
 
 interface Issue {
@@ -21,7 +19,7 @@ interface Issue {
     interval: number;
 }
 
-function CustomTimePicker({ init, onIssue, routineTypes, mode }: CustomTimePickerProps) {
+function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps) {
     const options = routineTypes.map((type: routineType) => ({
         value: type.id,
         label: type.des,
@@ -49,7 +47,7 @@ function CustomTimePicker({ init, onIssue, routineTypes, mode }: CustomTimePicke
 
     return (
         <div className='time-picker' key={init.daySort}>
-            {mode === 'allDay' && ['startTime', 'endTime'].map((timeType, index) => {
+            {['startTime', 'endTime'].map((timeType, index) => {
                 return <div key={`${init.daySort}-${timeType}`} className={index === 0 ? 'time-picker-item' : ''
                 }>
                     <TimePicker
@@ -65,12 +63,7 @@ function CustomTimePicker({ init, onIssue, routineTypes, mode }: CustomTimePicke
                         <span className="phone-hidden">{'->'}</span>
                     </div>}
                 </div>
-            })}{mode === 'workDay' &&
-                <Input suffix="m(分)" defaultValue="m" value={init.duration} style={{ width: 150 }} onChange={(e) => {
-                    const value = +e.target.value;
-                    handleChange(init.daySort, isNaN(value) ? 0 : value, 'duration')
-                }} />
-            }
+            })}
             <Select
                 value={init.type}
                 options={options}

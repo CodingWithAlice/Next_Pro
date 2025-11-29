@@ -1,17 +1,15 @@
 import { CustomTimePicker, type Issue } from '@/components/custom-time-picker';
 import { routineType } from '@/daily/page';
 import { getGapTime } from './tool';
-import { modeType } from 'config';
 
 interface CustomTimePickerListProps {
     list: Issue[],
     routineTypes: routineType[],
     setList: (list: Issue[]) => void,
-    freshTime: (arr: Issue[]) => void,
-    mode: modeType
+    freshTime: (arr: Issue[]) => void
 }
 
-export default function CustomTimePickerList({ list, routineTypes, setList, freshTime, mode }: CustomTimePickerListProps) {
+export default function CustomTimePickerList({ list, routineTypes, setList, freshTime }: CustomTimePickerListProps) {
     const handleIssueUPdate = (currentIssue: Issue) => {
         const currentIndex = list.findIndex((it) => it.daySort === currentIssue.daySort);
         // 修改
@@ -32,5 +30,5 @@ export default function CustomTimePickerList({ list, routineTypes, setList, fres
         freshTime(list);
     }
     return <>
-        {list.map((it, index) => <CustomTimePicker routineTypes={routineTypes} init={it} key={index} onIssue={handleIssueUPdate} mode={mode} />)}</>
+        {list.map((it, index) => <CustomTimePicker routineTypes={routineTypes} init={it} key={index} onIssue={handleIssueUPdate} />)}</>
 }

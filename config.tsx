@@ -10,6 +10,4 @@ const config = {
     dailyNote: '! ! !请注意下班 -> 睡眠的时长',
 };
 
-export type modeType = 'allDay' | 'workDay';
-
 export default config;

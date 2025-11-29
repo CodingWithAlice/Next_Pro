@@ -7,7 +7,6 @@ import Api from '@/service/api';
 import { AntDesignOutlined } from '@ant-design/icons';
 import { type Issue } from '@/components/custom-time-picker';
 import { routineType } from '@/daily/page';
-import { modeType } from 'config';
 
 interface TimeRecordPickerProps {
     total: number,
@@ -16,11 +15,10 @@ interface TimeRecordPickerProps {
     routineType: routineType[],
     issues: Issue[],
     setIssues: (issues: Issue[]) => void,
-    onChange: (arr: Issue[]) => void,
-    mode: modeType
+    onChange: (arr: Issue[]) => void
 }
 
-export default function TimeRecordDayPicker({ issues, setIssues, routineType, total, study, ltnTotal, onChange, mode }: TimeRecordPickerProps) {
+export default function TimeRecordDayPicker({ issues, setIssues, routineType, total, study, ltnTotal, onChange }: TimeRecordPickerProps) {
     const [messageApi, contextHolder] = message.useMessage();
     const urlParams = useSearchParams();
     const urlDate = urlParams?.get('date');
@@ -96,7 +94,6 @@ export default function TimeRecordDayPicker({ issues, setIssues, routineType, to
             key={issues[issues.length - 1].daySort}
             list={issues}
             routineTypes={routineType}
-            mode={mode}
             setList={setIssues}
             freshTime={onChange} />}
         <Space className='btn-group'>
