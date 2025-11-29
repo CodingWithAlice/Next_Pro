@@ -124,13 +124,84 @@ export default function Daily() {
             const routineIds = routine.map((it: routineType) => it.id);
             setRoutineType(routine);
 
-            const initIssues = dailyData.filter((it: DailyDataProps) => routineIds.includes(it.routineTypeId)).map((data: DailyDataProps) => ({
-                ...data,
-                startTime: dayjs(`${data.date} ${data.startTime}`),
-                endTime: dayjs(`${data.date} ${data.endTime}`),
-                type: data.routineTypeId
-            }))
-            setIssues(initIssues);
+            // 处理所有事项（包括工作类型）
+            const initIssues: any[] = [];
+            let idx = 0; // 独立的计数器，每添加一项就递增
+            dailyData
+                .filter((it: DailyDataProps) => routineIds.includes(it.routineTypeId))
+                .forEach((data: DailyDataProps) => {
+                    const startTime = dayjs(`${data.date} ${data.startTime}`);
+                    const endTime = dayjs(`${data.date} ${data.endTime}`);
+                    
+                    // 处理工作类型：判断 startTime 和 endTime 的小时和分钟是否一致
+                    if (+data.routineTypeId === +config.workId) {
+                        const startHour = startTime.hour();
+                        const startMinute = startTime.minute();
+                        const endHour = endTime.hour();
+                        const endMinute = endTime.minute();
+                        
+                        // 如果小时和分钟都相同，保持为一条记录
+                        if (startHour === endHour && startMinute === endMinute) {
+                            initIssues.push({
+                                ...data,
+                                startTime: startTime,
+                                endTime: startTime, // 确保 endTime 和 startTime 相同
+                                type: data.routineTypeId,
+                                daySort: idx++,
+                                interval: data.interval || 0,
+                                routineTypeId: data.routineTypeId,
+                                duration: 0
+                            });
+                        } else {
+                            // 如果小时或分钟不同，拆分成两条记录：一条是开始时间，一条是结束时间
+                            const baseIssue = {
+                                ...data,
+                                type: data.routineTypeId,
+                                interval: 0,
+                                routineTypeId: data.routineTypeId,
+                                duration: 0
+                            };
+                            
+                            // 开始时间的工作节点
+                            initIssues.push({
+                                ...baseIssue,
+                                startTime: startTime,
+                                endTime: startTime,
+                                daySort: idx++
+                            });
+                            
+                            // 结束时间的工作节点
+                            initIssues.push({
+                                ...baseIssue,
+                                startTime: endTime,
+                                endTime: endTime,
+                                daySort: idx++
+                            });
+                        }
+                    } else {
+                        // 非工作类型，正常处理
+                        initIssues.push({
+                            ...data,
+                            startTime: startTime,
+                            endTime: endTime,
+                            type: data.routineTypeId,
+                            daySort: idx++,
+                            interval: data.interval || 0,
+                            routineTypeId: data.routineTypeId
+                        });
+                    }
+                });
+
+            // 按开始时间排序
+            const sortedIssues = initIssues.sort((a: any, b: any) => {
+                const diff = a.startTime.diff(b.startTime, 'minute');
+                return diff !== 0 ? diff : a.daySort - b.daySort;
+            }).map((it: any, index: number) => ({
+                ...it,
+                daySort: index
+            }));
+            
+            setIssues(sortedIssues);
 
             setIssueData({
                 ...IssueData,

@@ -4,6 +4,7 @@ import { Tabs } from 'antd';
 import type { TabsProps } from 'antd';
 import TedPage from './ted/page';
 import ReadPage from './read/page';
+import SportPage from './sport/page';
 import { useState } from 'react';
 
 export type TabTypes = 'ted' | 'sport' | 'book'
@@ -22,8 +23,8 @@ export default function PlanPage() {
         },
         {
             key: 'sport',
-            label: '🏃 跑步',
-            children: 'Content of Tab Pane 2',
+            label: '🏃 健身',
+            children: <SportPage />,
         },
         {
             key: 'book',

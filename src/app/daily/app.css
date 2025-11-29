@@ -72,12 +72,31 @@
     display: flex;
 }
 
+.daily-note-label {
+    position: absolute;
+    top: 0;
+    left: 8rem;
+    right: 0;
+    font-size: 0.75rem;
+    color: rgba(255, 140, 0, 0.7);
+    font-weight: 500;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
 .time-picker {
     display: flex;
     align-items: center;
     margin-top: 4px;
     white-space: nowrap;
     justify-content: space-between;
+}
+
+.time-picker-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    width: 14rem;
 }
 
 .purple {

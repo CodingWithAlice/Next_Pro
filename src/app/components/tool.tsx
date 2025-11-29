@@ -164,10 +164,12 @@ function FormatDateToMonthDayWeek({ handle = config.current }: { handle?: number
     const urlParams = useSearchParams();
     const urlDate = urlParams?.get('date');
     const { weekday, date } = getYesterdayDate(handle, urlDate || '');
-    return <div className='flex'>
+    
+    return <div className='flex' style={{ position: 'relative' }}>
         <span style={{ color: '#f68084', fontWeight: 800 }}>{urlDate || date}</span>
         &nbsp;
         周{weekday}
+        <span className='daily-note-label'>{config.dailyNote}</span>
     </div>
 }
 
