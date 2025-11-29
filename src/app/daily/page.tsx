@@ -8,7 +8,7 @@ import LifeFootprint from '@/components/life-footprint';
 import Api from '@/service/api';
 import dayjs from 'dayjs';
 import { type Issue } from '@/components/custom-time-picker';
-import { getCurrentBySub, IssueRecordProps } from '@/components/tool';
+import { getCurrentBySub, IssueRecordProps, sortIssuesWithSleepLast } from '@/components/tool';
 import { useSearchParams, useRouter } from 'next/navigation';
 import config from 'config';
 
@@ -192,11 +192,8 @@ export default function Daily() {
                     }
                 });
 
-            // 按开始时间排序
-            const sortedIssues = initIssues.sort((a: any, b: any) => {
-                const diff = a.startTime.diff(b.startTime, 'minute');
-                return diff !== 0 ? diff : a.daySort - b.daySort;
-            }).map((it: any, index: number) => ({
+            // 按开始时间排序，但睡眠始终排在最后
+            const sortedIssues = sortIssuesWithSleepLast(initIssues).map((it: any, index: number) => ({
                 ...it,
                 daySort: index
             }));

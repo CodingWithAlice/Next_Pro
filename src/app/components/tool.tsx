@@ -159,6 +159,42 @@ const CategoryColor = {
     Health: 'volcano'
 }
 
+// 排序所需的接口类型（只包含排序需要的字段）
+interface SortableIssue {
+    startTime: Dayjs;
+    type: string | number;
+    daySort: number;
+}
+
+/**
+ * 对事项进行排序，睡眠类型始终排在最后
+ * @param issues 待排序的事项数组
+ * @returns 排序后的事项数组
+ */
+function sortIssuesWithSleepLast<T extends SortableIssue>(issues: T[]): T[] {
+    return [...issues].sort((a, b) => {
+        const aIsSleep = +a.type === +config.sleepId;
+        const bIsSleep = +b.type === +config.sleepId;
+        
+        // 如果一个是睡眠，另一个不是，睡眠排最后
+        if (aIsSleep && !bIsSleep) return 1;
+        if (!aIsSleep && bIsSleep) return -1;
+        
+        // 如果都是睡眠，保持原有顺序（通过 daySort）
+        if (aIsSleep && bIsSleep) {
+            return a.daySort - b.daySort;
+        }
+        
+        // 都不是睡眠，按开始时间排序
+        const diff = a.startTime.diff(b.startTime, 'minute');
+        if (diff !== 0) {
+            return diff;
+        }
+        // 如果开始时间相同，保持原有顺序（通过 daySort）
+        return a.daySort - b.daySort;
+    });
+}
+
 // 公共组件
 function FormatDateToMonthDayWeek({ handle = config.current }: { handle?: number }) {
     const urlParams = useSearchParams();
@@ -189,6 +225,7 @@ export {
     CategoryColor,
     getCurrentBySub,
     transTitle,
+    sortIssuesWithSleepLast,
     type IssueRecordProps,
     type SearchType
 };
