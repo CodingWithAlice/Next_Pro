@@ -124,13 +124,97 @@ export default function Daily() {
             const routineIds = routine.map((it: routineType) => it.id);
             setRoutineType(routine);
 
-            const initIssues = dailyData.filter((it: DailyDataProps) => routineIds.includes(it.routineTypeId)).map((data: DailyDataProps) => ({
-                ...data,
-                startTime: dayjs(`${data.date} ${data.startTime}`),
-                endTime: dayjs(`${data.date} ${data.endTime}`),
-                type: data.routineTypeId
-            }))
-            setIssues(initIssues);
+            // 处理所有事项（包括工作类型）
+            let initIssues = dailyData
+                .filter((it: DailyDataProps) => routineIds.includes(it.routineTypeId))
+                .map((data: DailyDataProps, index: number) => {
+                    const startTime = dayjs(`${data.date} ${data.startTime}`);
+                    const endTime = dayjs(`${data.date} ${data.endTime}`);
+                    
+                    // 处理工作类型：判断 startTime 和 endTime 的小时和分钟是否一致
+                    if (+data.routineTypeId === +config.workId) {
+                        const startHour = startTime.hour();
+                        const startMinute = startTime.minute();
+                        const endHour = endTime.hour();
+                        const endMinute = endTime.minute();
+                        
+                        // 如果小时和分钟都相同，保持为一条记录
+                        if (startHour === endHour && startMinute === endMinute) {
+                            return {
+                                ...data,
+                                startTime: startTime,
+                                endTime: startTime, // 确保 endTime 和 startTime 相同
+                                type: String(data.routineTypeId),
+                                daySort: index,
+                                interval: data.interval || 0,
+                                routineTypeId: data.routineTypeId,
+                                duration: 0
+                            };
+                        } else {
+                            // 如果小时或分钟不同，需要拆分成两条记录
+                            // 但这里先返回一个标记，后面统一处理
+                            return {
+                                ...data,
+                                startTime: startTime,
+                                endTime: endTime,
+                                type: String(data.routineTypeId),
+                                daySort: index,
+                                interval: data.interval || 0,
+                                routineTypeId: data.routineTypeId,
+                                _needsSplit: true // 标记需要拆分
+                            };
+                        }
+                    }
+                    
+                    // 非工作类型，正常处理
+                    return {
+                        ...data,
+                        startTime: startTime,
+                        endTime: endTime,
+                        type: String(data.routineTypeId),
+                        daySort: index,
+                        interval: data.interval || 0,
+                        routineTypeId: data.routineTypeId
+                    };
+                });
+
+            // 处理需要拆分的工作项
+            const expandedIssues: any[] = [];
+            initIssues.forEach((issue: any) => {
+                if (issue._needsSplit) {
+                    // 拆分成两条工作记录：一条是开始时间，一条是结束时间
+                    const { _needsSplit, ...restIssue } = issue;
+                    expandedIssues.push({
+                        ...restIssue,
+                        startTime: issue.startTime,
+                        endTime: issue.startTime, // 开始时间的工作节点
+                        duration: 0,
+                        interval: 0
+                    });
+                    expandedIssues.push({
+                        ...restIssue,
+                        startTime: issue.endTime,
+                        endTime: issue.endTime, // 结束时间的工作节点
+                        duration: 0,
+                        interval: 0
+                    });
+                } else {
+                    expandedIssues.push(issue);
+                }
+            });
+            
+            initIssues = expandedIssues;
+
+            // 按开始时间排序
+            const sortedIssues = initIssues.sort((a: any, b: any) => {
+                const diff = a.startTime.diff(b.startTime, 'minute');
+                return diff !== 0 ? diff : a.daySort - b.daySort;
+            }).map((it: any, index: number) => ({
+                ...it,
+                daySort: index
+            }));
+            
+            setIssues(sortedIssues);
 
             setIssueData({
                 ...IssueData,

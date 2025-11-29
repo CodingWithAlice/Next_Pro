@@ -92,12 +92,21 @@ export default function TimeRecordDayPicker({ issues, setIssues, routineType, to
             };
         }
 
-        // 合并所有项（工作项合并后 + 其他项）
+        // 合并所有项（工作项合并后 + 其他项），并按开始时间排序
         const mergedIssues = mergedWorkIssue 
             ? [...otherIssues, mergedWorkIssue]
             : otherIssues;
+        
+        // 按开始时间排序（不包括 total 项）
+        const sortedMergedIssues = mergedIssues.sort((a, b) => {
+            const diff = a.startTime.diff(b.startTime, 'minute');
+            return diff !== 0 ? diff : a.daySort - b.daySort;
+        }).map((it, index) => ({
+            ...it,
+            daySort: index
+        }));
 
-        const addTotal = addTotalIssue(mergedIssues, total, study, ltnTotal);
+        const addTotal = addTotalIssue(sortedMergedIssues, total, study, ltnTotal);
         const transIssues = addTotal.map((it, index) => {
             const { ...rest } = it;
             return {
