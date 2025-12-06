@@ -1,5 +1,4 @@
 'use client';
-import { useState } from 'react';
 import { Modal, Input, InputNumber, Select, Form } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 
@@ -14,188 +13,137 @@ interface RecordModalProps {
     onSave: (values: any) => void;
 }
 
+// 表单字段类型
+type FormFieldType = 'number' | 'text' | 'select';
+
+interface FormFieldConfig {
+    name: string;
+    label: string;
+    type: FormFieldType;
+    required?: boolean;
+    placeholder?: string;
+    options?: { value: string; label: string }[];
+    step?: number;
+    min?: number;
+}
+
+// 运动类型配置
+const SPORT_TYPE_CONFIG: Record<SportType, {
+    title: string;
+    defaultCategory: string;
+    fields: FormFieldConfig[];
+}> = {
+    running: {
+        title: '跑步记录',
+        defaultCategory: '跑步',
+        fields: [
+            { name: 'value', label: '距离（km）', type: 'number', required: true, placeholder: '请输入跑步距离', step: 0.1, min: 0 },
+            { name: 'duration', label: '运动时长（分钟）', type: 'number', placeholder: '选填', min: 0 },
+            { name: 'notes', label: '备注', type: 'text', placeholder: '选填' },
+        ],
+    },
+    resistance: {
+        title: '抗阻记录',
+        defaultCategory: '',
+        fields: [
+            { name: 'value', label: '重量（kg）', type: 'number', required: true, placeholder: '请输入重量', step: 0.1, min: 0 },
+            { name: 'category', label: '运动分类', type: 'text', required: true, placeholder: '如：深蹲、卧推、硬拉等' },
+            { name: 'duration', label: '运动时长（分钟）', type: 'number', placeholder: '选填', min: 0 },
+            { name: 'notes', label: '备注', type: 'text', placeholder: '选填' },
+        ],
+    },
+    hiking: {
+        title: '徒步记录',
+        defaultCategory: '徒步',
+        fields: [
+            { name: 'value', label: '距离（km）', type: 'number', required: true, placeholder: '请输入徒步距离', step: 0.1, min: 0 },
+            { name: 'subInfo', label: '地点/路线', type: 'text', placeholder: '如：香山、奥森等' },
+            { name: 'duration', label: '运动时长（分钟）', type: 'number', placeholder: '选填', min: 0 },
+            { name: 'notes', label: '备注', type: 'text', placeholder: '选填' },
+        ],
+    },
+    class: {
+        title: '课程记录',
+        defaultCategory: '',
+        fields: [
+            { name: 'value', label: '课程时长（分钟）', type: 'number', required: true, placeholder: '请输入课程时长', min: 0 },
+            {
+                name: 'category',
+                label: '课程类型',
+                type: 'select',
+                required: true,
+                placeholder: '选择课程',
+                options: [
+                    { value: '踏板课', label: '踏板课' },
+                    { value: '乒乓球', label: '乒乓球' },
+                    { value: '瑜伽课', label: '瑜伽课' },
+                    { value: '蹦床课', label: '蹦床课' },
+                    { value: '杠铃课', label: '杠铃课' },
+                    { value: 'switch舞力全开', label: 'switch舞力全开' },
+                ],
+            },
+            { name: 'notes', label: '备注', type: 'text', placeholder: '选填' },
+        ],
+    },
+};
+
 export default function RecordModal({ open, type, date, onCancel, onSave }: RecordModalProps) {
     const [form] = Form.useForm();
-    const [formValues, setFormValues] = useState<any>({});
+    const config = SPORT_TYPE_CONFIG[type];
 
-    const getModalTitle = () => {
-        const titles = {
-            running: '跑步记录',
-            resistance: '抗阻记录',
-            hiking: '徒步记录',
-            class: '课程记录'
-        };
-        return titles[type];
-    };
+    // 渲染表单字段
+    const renderFormField = (field: FormFieldConfig) => {
+        const rules = field.required ? [{ required: true, message: `请输入${field.label}` }] : [];
 
-    const renderForm = () => {
-        switch (type) {
-            case 'running':
+        switch (field.type) {
+            case 'number':
                 return (
-                    <>
-                        <Form.Item
-                            label="距离（km）"
-                            name="value"
-                            rules={[{ required: true, message: '请输入距离' }]}
-                        >
-                            <InputNumber
-                                min={0}
-                                step={0.1}
-                                style={{ width: '100%' }}
-                                placeholder="请输入跑步距离"
-                            />
-                        </Form.Item>
-                        <Form.Item
-                            label="运动时长（分钟）"
-                            name="duration"
-                        >
-                            <InputNumber
-                                min={0}
-                                style={{ width: '100%' }}
-                                placeholder="选填"
-                            />
-                        </Form.Item>
-                        <Form.Item
-                            label="备注"
-                            name="notes"
-                        >
-                            <Input.TextArea
-                                rows={3}
-                                placeholder="选填"
-                            />
-                        </Form.Item>
-                    </>
+                    <Form.Item
+                        key={field.name}
+                        label={field.label}
+                        name={field.name}
+                        rules={rules}
+                    >
+                        <InputNumber
+                            min={field.min}
+                            step={field.step}
+                            style={{ width: '100%' }}
+                            placeholder={field.placeholder}
+                        />
+                    </Form.Item>
                 );
-            case 'resistance':
+            case 'text':
+                const isTextArea = field.name === 'notes';
                 return (
-                    <>
-                        <Form.Item
-                            label="重量（kg）"
-                            name="value"
-                            rules={[{ required: true, message: '请输入重量' }]}
-                        >
-                            <InputNumber
-                                min={0}
-                                step={0.1}
-                                style={{ width: '100%' }}
-                                placeholder="请输入重量"
-                            />
-                        </Form.Item>
-                        <Form.Item
-                            label="运动分类"
-                            name="category"
-                            rules={[{ required: true, message: '请输入运动分类' }]}
-                        >
-                            <Input
-                                placeholder="如：深蹲、卧推、硬拉等"
-                            />
-                        </Form.Item>
-                        <Form.Item
-                            label="运动时长（分钟）"
-                            name="duration"
-                        >
-                            <InputNumber
-                                min={0}
-                                style={{ width: '100%' }}
-                                placeholder="选填"
-                            />
-                        </Form.Item>
-                        <Form.Item
-                            label="备注"
-                            name="notes"
-                        >
+                    <Form.Item
+                        key={field.name}
+                        label={field.label}
+                        name={field.name}
+                        rules={rules}
+                    >
+                        {isTextArea ? (
                             <Input.TextArea
                                 rows={3}
-                                placeholder="选填"
+                                placeholder={field.placeholder}
                             />
-                        </Form.Item>
-                    </>
+                        ) : (
+                            <Input placeholder={field.placeholder} />
+                        )}
+                    </Form.Item>
                 );
-            case 'hiking':
+            case 'select':
                 return (
-                    <>
-                        <Form.Item
-                            label="距离（km）"
-                            name="value"
-                            rules={[{ required: true, message: '请输入距离' }]}
-                        >
-                            <InputNumber
-                                min={0}
-                                step={0.1}
-                                style={{ width: '100%' }}
-                                placeholder="请输入徒步距离"
-                            />
-                        </Form.Item>
-                        <Form.Item
-                            label="地点/路线"
-                            name="subInfo"
-                        >
-                            <Input
-                                placeholder="如：香山、奥森等"
-                            />
-                        </Form.Item>
-                        <Form.Item
-                            label="运动时长（分钟）"
-                            name="duration"
-                        >
-                            <InputNumber
-                                min={0}
-                                style={{ width: '100%' }}
-                                placeholder="选填"
-                            />
-                        </Form.Item>
-                        <Form.Item
-                            label="备注"
-                            name="notes"
-                        >
-                            <Input.TextArea
-                                rows={3}
-                                placeholder="选填"
-                            />
-                        </Form.Item>
-                    </>
-                );
-            case 'class':
-                return (
-                    <>
-                        <Form.Item
-                            label="课程时长（分钟）"
-                            name="value"
-                            rules={[{ required: true, message: '请输入课程时长' }]}
-                        >
-                            <InputNumber
-                                min={0}
-                                style={{ width: '100%' }}
-                                placeholder="请输入课程时长"
-                            />
-                        </Form.Item>
-                        <Form.Item
-                            label="课程类型"
-                            name="category"
-                            rules={[{ required: true, message: '请选择课程类型' }]}
-                        >
-                            <Select
-                                placeholder="选择课程"
-                                options={[
-                                    { value: '踏板课', label: '踏板课' },
-                                    { value: '乒乓球', label: '乒乓球' },
-                                    { value: '瑜伽课', label: '瑜伽课' },
-                                    { value: '蹦床课', label: '蹦床课' },
-                                    { value: '杠铃课', label: '杠铃课' },
-                                    { value: 'switch舞力全开', label: 'switch舞力全开' },
-                                ]}
-                            />
-                        </Form.Item>
-                        <Form.Item
-                            label="备注"
-                            name="notes"
-                        >
-                            <Input.TextArea
-                                rows={3}
-                                placeholder="选填"
-                            />
-                        </Form.Item>
-                    </>
+                    <Form.Item
+                        key={field.name}
+                        label={field.label}
+                        name={field.name}
+                        rules={rules}
+                    >
+                        <Select
+                            placeholder={field.placeholder}
+                            options={field.options}
+                        />
+                    </Form.Item>
                 );
             default:
                 return null;
@@ -205,19 +153,17 @@ export default function RecordModal({ open, type, date, onCancel, onSave }: Reco
     const handleOk = async () => {
         try {
             const values = await form.validateFields();
-            // 设置默认值
             const recordData = {
-                type: type ?? 'class', // course 映射到 class
+                type,
                 date: date ? date.format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD'),
                 value: values.value,
-                category: values.category || (type === 'running' ? '跑步' : type === 'hiking' ? '徒步' : ''),
+                category: values.category || config.defaultCategory,
                 subInfo: values.subInfo || null,
                 duration: values.duration || null,
                 notes: values.notes || null,
             };
             onSave(recordData);
             form.resetFields();
-            setFormValues({});
         } catch (error) {
             console.error('表单验证失败:', error);
         }
@@ -225,13 +171,12 @@ export default function RecordModal({ open, type, date, onCancel, onSave }: Reco
 
     const handleCancel = () => {
         form.resetFields();
-        setFormValues({});
         onCancel();
     };
 
     return (
         <Modal
-            title={getModalTitle()}
+            title={config.title}
             open={open}
             onOk={handleOk}
             onCancel={handleCancel}
@@ -239,7 +184,7 @@ export default function RecordModal({ open, type, date, onCancel, onSave }: Reco
             cancelText="取消"
         >
             <Form form={form} layout="vertical">
-                {renderForm()}
+                {config.fields.map(field => renderFormField(field))}
             </Form>
         </Modal>
     );

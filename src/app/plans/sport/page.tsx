@@ -24,34 +24,54 @@ interface SportRecord {
     updatedAt?: string;
 }
 
-interface TodaySummary {
-    running: number; // km
-    resistance: number; // 次
-    hiking: number; // 次
-    course: number; // 节
+interface SportSummary {
+    running: number;
+    resistance: number;
+    hiking: number;
+    class: number;
 }
 
-interface TotalSummary {
-    running: number; // km
-    resistance: number; // 次
-    hiking: number; // 次
-    course: number; // 节
-}
+// 运动类型配置
+const SPORT_TYPES_CONFIG = [
+    { type: 'running' as SportType, label: '跑步', unit: 'km', summaryKey: 'running' as keyof SportSummary },
+    { type: 'resistance' as SportType, label: '撸铁', unit: '次', summaryKey: 'resistance' as keyof SportSummary },
+    { type: 'hiking' as SportType, label: '徒步', unit: '次', summaryKey: 'hiking' as keyof SportSummary },
+    { type: 'class' as SportType, label: '课程', unit: '节', summaryKey: 'class' as keyof SportSummary },
+];
+
+// 格式化记录显示内容
+const formatRecordContent = (record: SportRecord): string => {
+    const config = SPORT_TYPES_CONFIG.find(c => c.type === record.type);
+    if (!config) return '';
+    
+    switch (record.type) {
+        case 'running':
+            return `跑步 ${record.value}km`;
+        case 'resistance':
+            return `${record.category} ${record.value}kg`;
+        case 'hiking':
+            return `徒步 ${record.value}km${record.subInfo ? ` (${record.subInfo})` : ''}`;
+        case 'class':
+            return `${record.category} ${record.value}分钟`;
+        default:
+            return '';
+    }
+};
 
 export default function SportPage() {
     const [messageApi, contextHolder] = message.useMessage();
     const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
-    const [todaySummary, setTodaySummary] = useState<TodaySummary>({
+    const [todaySummary, setTodaySummary] = useState<SportSummary>({
         running: 0,
         resistance: 0,
         hiking: 0,
-        course: 0
+        class: 0
     });
-    const [totalSummary, setTotalSummary] = useState<TotalSummary>({
+    const [totalSummary, setTotalSummary] = useState<SportSummary>({
         running: 0,
         resistance: 0,
         hiking: 0,
-        course: 0
+        class: 0
     });
     const [records, setRecords] = useState<SportRecord[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -136,29 +156,27 @@ export default function SportPage() {
                 <div className="today-summary">
                     <div className="summary-item">
                         <span className="label">今日运动：</span>
-                        <span className="value">跑步 {todaySummary.running}km</span>
-                        <span className="separator">|</span>
-                        <span className="value">撸铁 {todaySummary.resistance}次</span>
-                        <span className="separator">|</span>
-                        <span className="value">徒步 {todaySummary.hiking}次</span>
-                        <span className="separator">|</span>
-                        <span className="value">课程 {todaySummary.course}节</span>
+                        {SPORT_TYPES_CONFIG.map((config, index) => (
+                            <span key={config.type}>
+                                {index > 0 && <span className="separator">|</span>}
+                                <span className="value">
+                                    {config.label} {todaySummary[config.summaryKey]}{config.unit}
+                                </span>
+                            </span>
+                        ))}
                     </div>
                 </div>
 
                 <div className="quick-actions">
-                    <Button type="primary" onClick={() => openRecordModal('running')}>
-                        <PlusOutlined /> 跑步
-                    </Button>
-                    <Button type="primary" onClick={() => openRecordModal('resistance')}>
-                        <PlusOutlined /> 抗阻
-                    </Button>
-                    <Button type="primary" onClick={() => openRecordModal('hiking')}>
-                        <PlusOutlined /> 徒步
-                    </Button>
-                    <Button type="primary" onClick={() => openRecordModal('class')}>
-                        <PlusOutlined /> 课程
-                    </Button>
+                    {SPORT_TYPES_CONFIG.map((config) => (
+                        <Button 
+                            key={config.type}
+                            type="primary" 
+                            onClick={() => openRecordModal(config.type)}
+                        >
+                            <PlusOutlined /> {config.label}
+                        </Button>
+                    ))}
                 </div>
             </Card>
 
@@ -167,13 +185,14 @@ export default function SportPage() {
                 <div className="quick-record-section">
                     <div className="total-summary">
                         <span className="label">总数：</span>
-                        <span className="value">跑步 {totalSummary.running}km</span>
-                        <span className="separator">|</span>
-                        <span className="value">撸铁 {totalSummary.resistance}次</span>
-                        <span className="separator">|</span>
-                        <span className="value">徒步 {totalSummary.hiking}次</span>
-                        <span className="separator">|</span>
-                        <span className="value">课程 {totalSummary.course}节</span>
+                        {SPORT_TYPES_CONFIG.map((config, index) => (
+                            <span key={config.type}>
+                                {index > 0 && <span className="separator">|</span>}
+                                <span className="value">
+                                    {config.label} {totalSummary[config.summaryKey]}{config.unit}
+                                </span>
+                            </span>
+                        ))}
                     </div>
 
                     {/* TODO: 运动日历组件 */}
@@ -209,10 +228,7 @@ export default function SportPage() {
                             <div key={record.id} className="record-item">
                                 <span className="record-date">{record.date}</span>
                                 <span className="record-content">
-                                    {record.type === 'running' && `跑步 ${record.value}km`}
-                                    {record.type === 'resistance' && `${record.category} ${record.value}kg`}
-                                    {record.type === 'hiking' && `徒步 ${record.value}km${record.subInfo ? ` (${record.subInfo})` : ''}`}
-                                    {record.type === 'class' && `${record.category} ${record.value}分钟`}
+                                    {formatRecordContent(record)}
                                     {record.duration && ` (${record.duration}分钟)`}
                                 </span>
                             </div>
