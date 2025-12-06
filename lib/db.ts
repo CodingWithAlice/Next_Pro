@@ -280,6 +280,51 @@ export const TedRecordModal = sequelize.define(
 	}
 )
 
+export const SportRecordModal = sequelize.define(
+	'sport_records',
+	{
+		id: {
+			type: DataTypes.INTEGER,
+			primaryKey: true,
+			autoIncrement: true,
+		},
+		type: {
+			type: DataTypes.ENUM('running', 'resistance', 'hiking', 'class'),
+			allowNull: false,
+		},
+		date: {
+			type: DataTypes.DATEONLY,
+			allowNull: false,
+		},
+		value: {
+			type: DataTypes.DECIMAL(8, 2),
+			allowNull: false,
+		},
+		category: {
+			type: DataTypes.STRING(50),
+			allowNull: false,
+		},
+		subInfo: {
+			type: DataTypes.STRING(200),
+			allowNull: true,
+			field: 'sub_info',
+		},
+		duration: {
+			type: DataTypes.INTEGER,
+			allowNull: true,
+		},
+		notes: {
+			type: DataTypes.TEXT,
+			allowNull: true,
+		},
+	},
+	{
+		tableName: 'sport_records',
+		timestamps: true,
+		underscored: true,
+	}
+)
+
 // 关联关系1 每日 - 时间和事件 关联
 IssueModal.hasMany(TimeModal, {
 	foreignKey: 'date',

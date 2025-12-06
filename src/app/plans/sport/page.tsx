@@ -2,23 +2,26 @@
 import './app.css';
 import { useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
-import { DatePicker, Button, Card, Modal, Input, InputNumber, Select, message } from 'antd';
+import { DatePicker, Button, Card, message } from 'antd';
 import type { DatePickerProps } from 'antd';
 import { CalendarOutlined, PlusOutlined } from '@ant-design/icons';
 import RecordModal from './record-modal';
+import Api from '@/service/api';
 
 // 运动类型
-export type SportType = 'running' | 'resistance' | 'hiking' | 'course';
+export type SportType = 'running' | 'resistance' | 'hiking' | 'class';
 
 interface SportRecord {
     id?: number;
     date: string;
     type: SportType;
-    content: string;
-    // running: { distance: number }; // km
-    // resistance: { times: number }; // 次数
-    // hiking: { location: string; times: number }; // 地点，次数
-    // course: { name: string; times: number }; // 课程名，次数
+    value: number;
+    category: string;
+    subInfo?: string;
+    duration?: number;
+    notes?: string;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 interface TodaySummary {
@@ -55,11 +58,32 @@ export default function SportPage() {
     const [modalType, setModalType] = useState<SportType>('running');
     const [expandedRecords, setExpandedRecords] = useState(false);
 
+    // 加载数据
+    const loadData = async () => {
+        try {
+            const dateStr = selectedDate.format('YYYY-MM-DD');
+            const response = await Api.getSportApi({ date: dateStr });
+            
+            if (response.success) {
+                // 设置今日汇总
+                setTodaySummary(response.todaySummary);
+                
+                // 设置总汇总
+                setTotalSummary(response.totalSummary);
+                
+                // 设置记录列表（显示选中日期的记录）
+                const dateRecords = response.records.filter((record: SportRecord) => record.date === dateStr);
+                setRecords(dateRecords);
+            }
+        } catch (error: any) {
+            messageApi.error(error.message || '加载数据失败');
+        }
+    };
+
     // 日期选择器变化
     const onDateChange: DatePickerProps['onChange'] = (date) => {
         if (date) {
             setSelectedDate(date);
-            // TODO: 加载选中日期的数据
         }
     };
 
@@ -75,25 +99,22 @@ export default function SportPage() {
     };
 
     // 保存记录
-    const handleSaveRecord = (values: any) => {
-        // TODO: 调用 API 保存数据
-        console.log('保存记录:', modalType, values);
-        messageApi.success('记录保存成功');
-        setIsModalOpen(false);
-        // TODO: 刷新数据
-    };
-
-    // 解析运动数据（从 IssueModal.sport 字段解析）
-    const parseSportData = (sportText: string): SportRecord[] => {
-        // TODO: 解析 sport 文本数据
-        // 这里暂时返回空数组，后续根据实际数据格式解析
-        return [];
+    const handleSaveRecord = async (values: any) => {
+        try {
+            const response = await Api.postSportApi(values);
+            if (response.success) {
+                messageApi.success('记录保存成功');
+                setIsModalOpen(false);
+                // 刷新数据
+                await loadData();
+            }
+        } catch (error: any) {
+            messageApi.error(error.message || '保存失败');
+        }
     };
 
     useEffect(() => {
-        // TODO: 加载今日数据
-        // TODO: 加载总数据
-        // TODO: 加载运动记录
+        loadData();
     }, [selectedDate]);
 
     return (
@@ -135,7 +156,7 @@ export default function SportPage() {
                     <Button type="primary" onClick={() => openRecordModal('hiking')}>
                         <PlusOutlined /> 徒步
                     </Button>
-                    <Button type="primary" onClick={() => openRecordModal('course')}>
+                    <Button type="primary" onClick={() => openRecordModal('class')}>
                         <PlusOutlined /> 课程
                     </Button>
                 </div>
@@ -177,20 +198,33 @@ export default function SportPage() {
             </div>
 
             {/* 第四层：近期运动记录 + 月度趋势 */}
-            <Card className="sport-card" title="近期运动记录">
+            <Card className="sport-card" title={`${selectedDate.format('YYYY-MM-DD')} 运动记录`}>
                 <div className="recent-records">
-                    {(expandedRecords ? records : records.slice(0, 3)).map((record, index) => (
-                        <div key={index} className="record-item">
-                            <span className="record-date">{record.date}</span>
-                            <span className="record-content">- {record.content}</span>
+                    {records.length === 0 ? (
+                        <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                            暂无记录
                         </div>
-                    ))}
-                    <div className="record-actions">
-                        <Button size="small" onClick={() => setExpandedRecords(!expandedRecords)}>
-                            {expandedRecords ? '收起' : '展开整月'}
-                        </Button>
-                        <Button size="small">展开全部</Button>
-                    </div>
+                    ) : (
+                        (expandedRecords ? records : records.slice(0, 5)).map((record) => (
+                            <div key={record.id} className="record-item">
+                                <span className="record-date">{record.date}</span>
+                                <span className="record-content">
+                                    {record.type === 'running' && `跑步 ${record.value}km`}
+                                    {record.type === 'resistance' && `${record.category} ${record.value}kg`}
+                                    {record.type === 'hiking' && `徒步 ${record.value}km${record.subInfo ? ` (${record.subInfo})` : ''}`}
+                                    {record.type === 'class' && `${record.category} ${record.value}分钟`}
+                                    {record.duration && ` (${record.duration}分钟)`}
+                                </span>
+                            </div>
+                        ))
+                    )}
+                    {records.length > 5 && (
+                        <div className="record-actions">
+                            <Button size="small" onClick={() => setExpandedRecords(!expandedRecords)}>
+                                {expandedRecords ? '收起' : '展开全部'}
+                            </Button>
+                        </div>
+                    )}
                 </div>
             </Card>
 
@@ -198,6 +232,7 @@ export default function SportPage() {
             <RecordModal
                 open={isModalOpen}
                 type={modalType}
+                date={selectedDate}
                 onCancel={handleCancel}
                 onSave={handleSaveRecord}
             />

@@ -33,3 +33,16 @@ CREATE TABLE running_plans (
     INDEX idx_status (status),
     INDEX idx_dates (start_date, end_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='跑步计划表';
+
+-- 存量数据转换成 运动数据库数据
+SELECT 
+    dir.date,
+    dir.sport,
+    dtr.routine_type_id,
+    dtr.duration
+FROM daily_issue_record dir
+INNER JOIN daily_time_record dtr ON dir.date = dtr.date
+WHERE dir.sport IS NOT NULL 
+    AND dir.sport != ''
+    AND dtr.routine_type_id IN (17, 2, 3)
+ORDER BY dir.date DESC
