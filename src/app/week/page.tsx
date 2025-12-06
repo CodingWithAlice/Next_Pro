@@ -14,6 +14,7 @@ export default function Week() {
     const [weekData, setWeekData] = useState<{ [key: string]: string }>({});
     const [curSerial, setCurSerial] = useState<number>(0);
     const [serialsLength, setSerialsLength] = useState(0);
+    const [loading, setLoading] = useState<boolean>(false);
     const [messageApi, contextHolder] = message.useMessage();
     const [serials, setSerials] = useState<{ serialNumber: number, startTime: string, endTime: string }[]>([]);
 
@@ -82,20 +83,20 @@ export default function Week() {
 
     const handlePrevSerial = () => {
         const prevSerial = getPrevSerial();
-        if (prevSerial !== null) {
+        if (prevSerial !== null && !loading) {
             setCurSerial(prevSerial);
         }
     }
 
     const handleNextSerial = () => {
         const nextSerial = getNextSerial();
-        if (nextSerial !== null) {
+        if (nextSerial !== null && !loading) {
             setCurSerial(nextSerial);
         }
     }
 
     const handleSerialRange = () => {
-        Api.getSerial().then(({ serialData = [] }) => {
+        return Api.getSerial().then(({ serialData = [] }) => {
             setSerials(serialData.reverse())
             // 获取周期长度返回
             setSerialsLength(serialData.length)
@@ -107,28 +108,40 @@ export default function Week() {
                     endTime: it?.endTime
                 }
             })
+        }).catch((e) => {
+            messageApi.error(e.message || '加载周期列表失败');
+            throw e;
         })
     }
 
     const initData = (serial: number) => {
-        Api.getWeekApi(serial).then(({ weekData, serialData }) => {
-            const currentSerial = serialData.filter((it: { [key: string]: string }) => +it.serialNumber === curSerial)?.[0];
+        return Api.getWeekApi(serial).then(({ weekData, serialData }) => {
+            const currentSerial = serialData.filter((it: { [key: string]: string }) => +it.serialNumber === serial)?.[0];
             const gap = getGapTime(currentSerial?.startTime, currentSerial?.endTime, 'day');
             const time = currentSerial ? `${currentSerial?.startTime} 至 ${currentSerial?.endTime} ${gap + 1}天` : '新周期';
 
             setWeekData({ ...weekData, time });
+        }).catch((e) => {
+            messageApi.error(e.message || '加载数据失败');
+            throw e;
         })
     }
 
     useEffect(() => {
-        initData(curSerial)
-        handleSerialRange()
+        // 当周期改变时，同时加载数据和周期列表
+        setLoading(true);
+        Promise.all([
+            initData(curSerial),
+            handleSerialRange()
+        ]).finally(() => {
+            setLoading(false);
+        })
     }, [curSerial])
 
     const prevSerial = getPrevSerial();
     const nextSerial = getNextSerial();
-    const canGoPrev = prevSerial !== null;
-    const canGoNext = nextSerial !== null;
+    const canGoPrev = prevSerial !== null && !loading;
+    const canGoNext = nextSerial !== null && !loading;
 
     return <div className="outer">
         {contextHolder}
@@ -137,6 +150,7 @@ export default function Week() {
                 icon={<LeftOutlined />}
                 onClick={handlePrevSerial}
                 disabled={!canGoPrev}
+                loading={loading}
                 size="small"
                 className="serial-nav-btn"
             >
@@ -145,11 +159,12 @@ export default function Week() {
             <h1 className='week-title'>双周报</h1>
             <div className="serial-navigation">
 
-                <SerialsPicker onValueChange={handleSingleChange} value={curSerial} className='serial-week' serials={serials} />
+                <SerialsPicker onValueChange={handleSingleChange} value={curSerial} className='serial-week' serials={serials} disabled={loading} />
                 <Button
                     icon={<RightOutlined />}
                     onClick={handleNextSerial}
                     disabled={!canGoNext}
+                    loading={loading}
                     size="small"
                     className="serial-nav-btn"
                 >

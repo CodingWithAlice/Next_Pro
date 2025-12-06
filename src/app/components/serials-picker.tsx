@@ -8,9 +8,10 @@ interface SerialsPickerProps {
     mode?: 'tags' | 'multiple';
     className: 'serial-week' | 'serial-month';
     duration?: number;
-    serials: { serialNumber: number, startTime: string, endTime: string }[]
+    serials: { serialNumber: number, startTime: string, endTime: string }[];
+    disabled?: boolean;
 }
-export function SerialsPicker({ value, onValueChange, mode, className, duration, serials }: SerialsPickerProps) {
+export function SerialsPicker({ value, onValueChange, mode, className, duration, serials, disabled }: SerialsPickerProps) {
     const [periodsDate, setPeriodsDate] = useState<string>('');
 
     const calcPeriods = useCallback((v: number[]) => {
@@ -42,6 +43,7 @@ export function SerialsPicker({ value, onValueChange, mode, className, duration,
             onChange={onChange}
             value={value}
             mode={mode}
+            disabled={disabled}
             options={[
                 {
                     label: '新-LTN' + (serials.length + 1),
