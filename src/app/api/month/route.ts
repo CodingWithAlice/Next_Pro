@@ -5,11 +5,22 @@ async function GET(request: NextRequest) {
 	try {
 		const { searchParams } = request.nextUrl
 		const monthId = searchParams.get('monthId')
-		if (!monthId) return
-		// 每个周期的时长信息查询 - 查询起始时间
-		const monthData = await MonthModal.findAll({ where: { id: monthId } })
+		
+		let monthData;
+		
+		if (monthId) {
+			// 如果提供了 monthId，查询指定 id 的数据
+			const result = await MonthModal.findAll({ where: { id: monthId } })
+			monthData = result[0]
+		} else {
+			// 如果没有提供 monthId，查询最大 id 的数据
+			monthData = await MonthModal.findOne({
+				order: [['id', 'DESC']],
+			})
+		}
+		
 		return NextResponse.json({
-			monthData: monthData[0],
+			monthData: monthData || null,
 			success: true,
 			message: '操作成功',
 		})

@@ -142,7 +142,7 @@ export default function Week() {
             >
                 上周
             </Button>
-            <h1 className='week-title'>LTN 周期报</h1>
+            <h1 className='week-title'>双周报</h1>
             <div className="serial-navigation">
 
                 <SerialsPicker onValueChange={handleSingleChange} value={curSerial} className='serial-week' serials={serials} />

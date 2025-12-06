@@ -9,7 +9,7 @@ function Home() {
     const linksList = [
         { href: './daily', title: '晨昏日志', key: 'daily', img: "/images/daily.png", subTitle: '每日系统自检协议' },
         { href: './week', title: '周频扫描', key: 'week', img: "/images/week.png", subTitle: '每周期诊断报告' },
-        { href: `./month?monthId=${config.monthSerial}`, title: '月度沙盘', key: 'month', img: "/images/month.png", subTitle: '布局、推演和重塑' },
+        { href: `./month`, title: '月度沙盘', key: 'month', img: "/images/month.png", subTitle: '布局、推演和重塑' },
         { href: './plans', title: '知行录', key: 'read', img: "/images/read.png", subTitle: '思维培养皿、身体电源' },
     ]
     useEffect(() => {
