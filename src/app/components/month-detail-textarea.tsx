@@ -149,7 +149,7 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
         <section className='section'>
             <div className="month-review">
                 {!!weeksData.length && transTitle('【决策】')}
-                <DeepSeek periods={periods} handleChange={handleDeepSeek} type='month' />
+                {/* <DeepSeek periods={periods} handleChange={handleDeepSeek} type='month' /> */}
             </div>
             {[
                 { key: 'frontMonthDesc', desc: '非短期决策 - 前端' },
