@@ -43,8 +43,11 @@ const Api = {
 		return request.post('ted/record', data)
 	},
 
-	getMonthApi(monthId: number) {
-		return request.get('month', { monthId })
+	getMonthApi(monthId?: number, flag?: 'pre' | 'next') {
+		if (monthId && flag) {
+			return request.get('month', { monthId, flag })
+		}
+		return request.get('month', monthId ? { monthId } : undefined)
 	},
 	getMonthDetailApi(serialNumber: string) {
 		return request.get('month/detail', { serialNumber })

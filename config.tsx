@@ -6,7 +6,6 @@ const config = {
     sportId: 17,
     workId: 18,
     sleepId: 10,
-    monthSerial: 5, // 月报，手动切换
     dailyNote: '! ! !请注意下班 -> 睡眠的时长',
 };
 
