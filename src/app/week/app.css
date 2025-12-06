@@ -1,11 +1,58 @@
 .week {
     display: flex;
     align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .week-title {
-    flex: auto;
+    flex: 0 0 auto;
     white-space: nowrap;
+    margin: 0;
+}
+
+.serial-navigation {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.serial-nav-btn {
+    white-space: nowrap;
+    padding: 6px 16px;
+    height: auto;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.serial-nav-btn:not(:disabled) {
+    background-color: rgba(38, 157, 128, 0.1);
+    border-color: rgb(38, 157, 128);
+    color: rgb(38, 157, 128);
+}
+
+.serial-nav-btn:not(:disabled):hover {
+    background-color: rgb(38, 157, 128);
+    color: white;
+    border-color: rgb(38, 157, 128);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(38, 157, 128, 0.3);
+}
+
+.serial-nav-btn:not(:disabled):active {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(38, 157, 128, 0.2);
+}
+
+.serial-nav-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
 .btn {
@@ -27,4 +74,38 @@
     display: flex;
     justify-content: space-between;
     width: 100%;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .week {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .week-title {
+        font-size: 1.8rem;
+    }
+
+    .serial-navigation {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .serial-nav-btn {
+        font-size: 13px;
+        padding: 5px 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .week-title {
+        font-size: 1.5rem;
+    }
+
+    .serial-nav-btn {
+        font-size: 12px;
+        padding: 5px 12px;
+    }
 }
