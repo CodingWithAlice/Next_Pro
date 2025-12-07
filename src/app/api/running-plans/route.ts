@@ -4,10 +4,12 @@ import { Op } from 'sequelize'
 
 async function GET(request: NextRequest) {
 	try {
-		// 获取所有活跃的跑步计划
+		// 获取所有跑步计划（包括 active 和 completed）
 		const plans = await RunningPlanModal.findAll({
 			where: {
-				status: 'active',
+				status: {
+					[Op.in]: ['active', 'completed'],
+				},
 			},
 			order: [['plan_name', 'ASC'], ['start_date', 'DESC']],
 		})
@@ -39,6 +41,11 @@ async function GET(request: NextRequest) {
 			const endDates = planItems.map((item: any) => item.get('endDate')).sort()
 			const planStartDate = startDates[0]
 			const planEndDate = endDates[endDates.length - 1]
+			
+			// 获取计划状态（取第一个子项的状态，或者如果所有子项都是 completed，则为 completed）
+			const planStatus = planItems.every((item: any) => item.get('status') === 'completed') 
+				? 'completed' 
+				: 'active'
 
 			// 计算该计划期间的跑步记录
 			const planRecords = runningRecords.filter((record: any) => {
@@ -106,6 +113,7 @@ async function GET(request: NextRequest) {
 
 			return {
 				planName,
+				status: planStatus,
 				startDate: planStartDate,
 				endDate: planEndDate,
 				totalTargetTimes,
