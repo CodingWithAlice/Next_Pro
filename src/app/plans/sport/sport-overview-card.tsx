@@ -50,7 +50,7 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
             case 'hiking':
                 return `${record.value}km${record.subInfo ? `(${record.subInfo})` : ''}`;
             case 'class':
-                return `${record.category} ${record.value}min`;
+                return `${record?.subInfo ?? record.category} ${record.value}min`;
             default:
                 return '';
         }

@@ -92,7 +92,7 @@ const SPORT_TYPE_CONFIG: Record<SportType, {
                     { value: '瑜伽课', label: '瑜伽课' },
                     { value: '蹦床课', label: '蹦床课' },
                     { value: '杠铃课', label: '杠铃课' },
-                    { value: 'switch舞力全开', label: 'switch舞力全开' },
+                    { value: '其他有氧', label: '其他有氧' },
                 ],
             },
             { name: 'notes', label: '备注', type: 'text', placeholder: '选填' },
