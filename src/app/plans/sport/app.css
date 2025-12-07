@@ -76,32 +76,42 @@
     padding: 20px 0;
 }
 
-/* 确保日期单元格相对定位，以便标记点定位 */
+/* 确保日期单元格相对定位 */
 .sport-calendar .ant-picker-cell {
     position: relative;
 }
 
-/* 运动日历日期标记样式 - 底部小圆点 */
-.sport-calendar-date-mark {
-    background-color: #ff4d4f;
-    border-radius: 50%;
-    width: 8px;
-    height: 8px;
-    position: absolute;
-    bottom: 4px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1;
+/* 运动日历单元格内容容器 */
+.sport-calendar-cell-content {
+    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 60px;
+    overflow: hidden;
 }
 
-/* 有运动记录的日期单元格背景色 - 使用 :has() 选择器 */
-.sport-calendar .ant-picker-cell:has(.sport-calendar-date-mark) .ant-picker-cell-inner {
-    background-color: rgba(255, 77, 79, 0.2) !important;
+/* 单个运动记录项样式 */
+.sport-calendar-record-item {
+    font-size: 10px;
+    line-height: 1.2;
+    color: #ff4d4f;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 1px 2px;
+    background-color: rgba(255, 77, 79, 0.1);
+    border-radius: 2px;
+}
+
+/* 有运动记录的日期单元格背景色 */
+.sport-calendar .ant-picker-cell:has(.sport-calendar-cell-content) .ant-picker-cell-inner {
+    background-color: rgba(255, 77, 79, 0.15) !important;
     border-radius: 4px;
 }
 
-.sport-calendar .ant-picker-cell:has(.sport-calendar-date-mark):hover .ant-picker-cell-inner {
-    background-color: rgba(255, 77, 79, 0.3) !important;
+.sport-calendar .ant-picker-cell:has(.sport-calendar-cell-content):hover .ant-picker-cell-inner {
+    background-color: rgba(255, 77, 79, 0.25) !important;
 }
 
 .recent-records {

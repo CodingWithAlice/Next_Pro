@@ -78,30 +78,37 @@ export default function SportPage() {
     const [modalType, setModalType] = useState<SportType>('running');
     const [expandedRecords, setExpandedRecords] = useState(false);
 
-    // 获取有运动记录的日期集合（用于日历标记）
-    const getDatesWithRecords = (): Set<string> => {
-        const datesSet = new Set<string>();
-        records.forEach(record => {
-            if (record.date) {
-                datesSet.add(record.date);
-            }
-        });
-        return datesSet;
+    // 格式化单个记录用于日历显示（不包含时长）
+    const formatRecordForCalendar = (record: SportRecord): string => {
+        switch (record.type) {
+            case 'running':
+                return `${record.value}km`;
+            case 'resistance':
+                return `${record.category} ${record.value}kg`;
+            case 'hiking':
+                return `${record.value}km${record.subInfo ? `(${record.subInfo})` : ''}`;
+            case 'class':
+                return `${record.category} ${record.value}min`;
+            default:
+                return '';
+        }
     };
 
     // 日历日期单元格自定义渲染
     const dateCellRender = (value: Dayjs) => {
         const dateStr = value.format('YYYY-MM-DD');
-        const datesWithRecords = getDatesWithRecords();
-        const hasRecord = datesWithRecords.has(dateStr);
+        // 获取当天的所有运动记录
+        const dayRecords = records.filter(record => record.date === dateStr);
         
-        if (hasRecord) {
+        if (dayRecords.length > 0) {
             return (
-                <div 
-                    className="sport-calendar-date-mark"
-                    title={`${dateStr} 有运动记录`}
-                    data-date={dateStr}
-                />
+                <div className="sport-calendar-cell-content">
+                    {dayRecords.map((record, index) => (
+                        <div key={record.id || index} className="sport-calendar-record-item">
+                            {formatRecordForCalendar(record)}
+                        </div>
+                    ))}
+                </div>
             );
         }
         return null;
