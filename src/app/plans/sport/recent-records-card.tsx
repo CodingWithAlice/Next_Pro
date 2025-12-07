@@ -23,7 +23,7 @@ const formatRecordContent = (record: SportRecord): string => {
     
     switch (record.type) {
         case 'running':
-            return `跑步 ${record.value}km`;
+            return `${record.category} ${record.value}km`;
         case 'resistance':
             return `${record.category} ${record.value}kg`;
         case 'hiking':

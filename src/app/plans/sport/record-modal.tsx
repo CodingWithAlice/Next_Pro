@@ -36,8 +36,20 @@ const SPORT_TYPE_CONFIG: Record<SportType, {
 }> = {
     running: {
         title: '跑步记录',
-        defaultCategory: '跑步',
+        defaultCategory: '匀速跑',
         fields: [
+            {
+                name: 'category',
+                label: '跑步类型',
+                type: 'select',
+                required: true,
+                placeholder: '选择跑步类型',
+                options: [
+                    { value: '匀速跑', label: '匀速跑' },
+                    { value: '变速跑', label: '变速跑' },
+                    { value: '长跑', label: '长跑' },
+                ],
+            },
             { name: 'value', label: '距离（km）', type: 'number', required: true, placeholder: '请输入跑步距离', step: 0.1, min: 0 },
             { name: 'duration', label: '运动时长（分钟）', type: 'number', placeholder: '选填', min: 0 },
             { name: 'notes', label: '备注', type: 'text', placeholder: '选填' },
@@ -92,14 +104,19 @@ export default function RecordModal({ open, type, date, onCancel, onSave }: Reco
     const [form] = Form.useForm();
     const config = SPORT_TYPE_CONFIG[type];
 
-    // 当弹窗打开时，设置表单初始值（包括日期）
+    // 当弹窗打开时，设置表单初始值（包括日期和默认分类）
     useEffect(() => {
         if (open) {
-            form.setFieldsValue({
+            const initialValues: any = {
                 date: date || dayjs(),
-            });
+            };
+            // 如果是跑步类型，设置默认的跑步类型
+            if (type === 'running' && config.defaultCategory) {
+                initialValues.category = config.defaultCategory;
+            }
+            form.setFieldsValue(initialValues);
         }
-    }, [open, date, form]);
+    }, [open, date, form, type, config.defaultCategory]);
 
     // 渲染表单字段
     const renderFormField = (field: FormFieldConfig) => {
