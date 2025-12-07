@@ -2,36 +2,17 @@
 import './app.css';
 import { useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
-import { DatePicker, Button, Card, message, Calendar, Select, Progress } from 'antd';
-import type { DatePickerProps, CalendarProps } from 'antd';
+import { DatePicker, Button, Card, message } from 'antd';
+import type { DatePickerProps } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import RecordModal from './record-modal';
 import RunningPlansCard, { type RunningPlan } from './running-plans-card';
+import SportOverviewCard, { type SportRecord, type SportSummary } from './sport-overview-card';
+import RecentRecordsCard from './recent-records-card';
 import Api from '@/service/api';
 
 // 运动类型
 export type SportType = 'running' | 'resistance' | 'hiking' | 'class';
-
-interface SportRecord {
-    id?: number;
-    date: string;
-    type: SportType;
-    value: number;
-    category: string;
-    subInfo?: string;
-    duration?: number;
-    notes?: string;
-    createdAt?: string;
-    updatedAt?: string;
-}
-
-interface SportSummary {
-    running: number;
-    resistance: number;
-    hiking: number;
-    class: number;
-}
-
 
 // 运动类型配置
 const SPORT_TYPES_CONFIG = [
@@ -40,25 +21,6 @@ const SPORT_TYPES_CONFIG = [
     { type: 'hiking' as SportType, label: '徒步', unit: 'km', summaryKey: 'hiking' as keyof SportSummary },
     { type: 'class' as SportType, label: '课程', unit: 'min', summaryKey: 'class' as keyof SportSummary },
 ];
-
-// 格式化记录显示内容
-const formatRecordContent = (record: SportRecord): string => {
-    const config = SPORT_TYPES_CONFIG.find(c => c.type === record.type);
-    if (!config) return '';
-    
-    switch (record.type) {
-        case 'running':
-            return `跑步 ${record.value}km`;
-        case 'resistance':
-            return `${record.category} ${record.value}kg`;
-        case 'hiking':
-            return `徒步 ${record.value}km${record.subInfo ? ` (${record.subInfo})` : ''}`;
-        case 'class':
-            return `${record.category} ${record.value}分钟`;
-        default:
-            return '';
-    }
-};
 
 export default function SportPage() {
     const [messageApi, contextHolder] = message.useMessage();
@@ -78,44 +40,7 @@ export default function SportPage() {
     const [records, setRecords] = useState<SportRecord[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalType, setModalType] = useState<SportType>('running');
-    const [expandedRecords, setExpandedRecords] = useState(false);
     const [runningPlans, setRunningPlans] = useState<RunningPlan[]>([]);
-
-    // 格式化单个记录用于日历显示（不包含时长）
-    const formatRecordForCalendar = (record: SportRecord): string => {
-        switch (record.type) {
-            case 'running':
-                return `${record.value}km`;
-            case 'resistance':
-                return `${record.category} ${record.value}kg`;
-            case 'hiking':
-                return `${record.value}km${record.subInfo ? `(${record.subInfo})` : ''}`;
-            case 'class':
-                return `${record.category} ${record.value}min`;
-            default:
-                return '';
-        }
-    };
-
-    // 日历日期单元格自定义渲染
-    const dateCellRender = (value: Dayjs) => {
-        const dateStr = value.format('YYYY-MM-DD');
-        // 获取当天的所有运动记录
-        const dayRecords = records.filter(record => record.date === dateStr);
-        
-        if (dayRecords.length > 0) {
-            return (
-                <div className="sport-calendar-cell-content">
-                    {dayRecords.map((record, index) => (
-                        <div key={record.id || index} className="sport-calendar-record-item">
-                            {formatRecordForCalendar(record)}
-                        </div>
-                    ))}
-                </div>
-            );
-        }
-        return null;
-    };
 
     // 加载数据
     const loadData = async () => {
@@ -225,26 +150,7 @@ export default function SportPage() {
             </Card>
 
             {/* 第二层：今日概览 + 运动日历 */}
-            <Card className="sport-card" title="运动概览">
-                <div className="quick-record-section">
-                    <div className="total-summary">
-                        <span className="label">总数：</span>
-                        {SPORT_TYPES_CONFIG.map((config, index) => (
-                            <span key={config.type}>
-                                {index > 0 && <span className="separator">|</span>}
-                                <span className="value">
-                                    {config.label} {totalSummary[config.summaryKey]}{config.unit}
-                                </span>
-                            </span>
-                        ))}
-                    </div>
-
-                    {/* 运动日历组件 */}
-                    <div className="sport-calendar">
-                        <Calendar dateCellRender={dateCellRender} />
-                    </div>
-                </div>
-            </Card>
+            <SportOverviewCard totalSummary={totalSummary} records={records} />
 
             
 
@@ -258,32 +164,7 @@ export default function SportPage() {
             </div>
 
             {/* 第四层：近期运动记录 + 月度趋势 */}
-            <Card className="sport-card" title="近期运动记录">
-                <div className="recent-records">
-                    {records.length === 0 ? (
-                        <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
-                            暂无记录
-                        </div>
-                    ) : (
-                        (expandedRecords ? records : records.slice(0, 5)).map((record) => (
-                            <div key={record.id} className="record-item">
-                                <span className="record-date">{record.date}</span>
-                                <span className="record-content">
-                                    {formatRecordContent(record)}
-                                    {record.duration && ` (${record.duration}分钟)`}
-                                </span>
-                            </div>
-                        ))
-                    )}
-                    {records.length > 5 && (
-                        <div className="record-actions">
-                            <Button size="small" onClick={() => setExpandedRecords(!expandedRecords)}>
-                                {expandedRecords ? '收起' : '展开全部'}
-                            </Button>
-                        </div>
-                    )}
-                </div>
-            </Card>
+            <RecentRecordsCard records={records} />
 
             {/* 记录弹窗 */}
             <RecordModal
