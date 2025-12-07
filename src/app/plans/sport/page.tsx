@@ -81,8 +81,8 @@ export default function SportPage() {
     // 加载数据
     const loadData = async () => {
         try {
-            const dateStr = selectedDate.format('YYYY-MM-DD');
-            const response = await Api.getSportApi({ date: dateStr });
+            // 获取全部记录用于显示
+            const response = await Api.getSportApi();
             
             if (response.success) {
                 // 设置今日汇总
@@ -91,9 +91,8 @@ export default function SportPage() {
                 // 设置总汇总
                 setTotalSummary(response.totalSummary);
                 
-                // 设置记录列表（显示选中日期的记录）
-                const dateRecords = response.records.filter((record: SportRecord) => record.date === dateStr);
-                setRecords(dateRecords);
+                // 设置记录列表（显示全部记录）
+                setRecords(response.records);
             }
         } catch (error: any) {
             messageApi.error(error.message || '加载数据失败');
@@ -217,7 +216,7 @@ export default function SportPage() {
             </div>
 
             {/* 第四层：近期运动记录 + 月度趋势 */}
-            <Card className="sport-card" title={`${selectedDate.format('YYYY-MM-DD')} 运动记录`}>
+            <Card className="sport-card" title="近期运动记录">
                 <div className="recent-records">
                     {records.length === 0 ? (
                         <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
