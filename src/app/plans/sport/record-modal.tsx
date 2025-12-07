@@ -1,5 +1,6 @@
 'use client';
-import { Modal, Input, InputNumber, Select, Form } from 'antd';
+import { useEffect } from 'react';
+import { Modal, Input, InputNumber, Select, Form, DatePicker } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 
 // 运动类型
@@ -91,6 +92,15 @@ export default function RecordModal({ open, type, date, onCancel, onSave }: Reco
     const [form] = Form.useForm();
     const config = SPORT_TYPE_CONFIG[type];
 
+    // 当弹窗打开时，设置表单初始值（包括日期）
+    useEffect(() => {
+        if (open) {
+            form.setFieldsValue({
+                date: date || dayjs(),
+            });
+        }
+    }, [open, date, form]);
+
     // 渲染表单字段
     const renderFormField = (field: FormFieldConfig) => {
         const rules = field.required ? [{ required: true, message: `请输入${field.label}` }] : [];
@@ -155,7 +165,7 @@ export default function RecordModal({ open, type, date, onCancel, onSave }: Reco
             const values = await form.validateFields();
             const recordData = {
                 type,
-                date: date ? date.format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD'),
+                date: values.date ? values.date.format('YYYY-MM-DD') : (date ? date.format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD')),
                 value: values.value,
                 category: values.category || config.defaultCategory,
                 subInfo: values.subInfo || null,
@@ -184,6 +194,17 @@ export default function RecordModal({ open, type, date, onCancel, onSave }: Reco
             cancelText="取消"
         >
             <Form form={form} layout="vertical">
+                <Form.Item
+                    label="运动日期"
+                    name="date"
+                    rules={[{ required: true, message: '请选择运动日期' }]}
+                >
+                    <DatePicker
+                        style={{ width: '100%' }}
+                        format="YYYY-MM-DD"
+                        placeholder="请选择日期"
+                    />
+                </Form.Item>
                 {config.fields.map(field => renderFormField(field))}
             </Form>
         </Modal>

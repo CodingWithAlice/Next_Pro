@@ -34,9 +34,9 @@ interface SportSummary {
 // 运动类型配置
 const SPORT_TYPES_CONFIG = [
     { type: 'running' as SportType, label: '跑步', unit: 'km', summaryKey: 'running' as keyof SportSummary },
-    { type: 'resistance' as SportType, label: '撸铁', unit: '次', summaryKey: 'resistance' as keyof SportSummary },
-    { type: 'hiking' as SportType, label: '徒步', unit: '次', summaryKey: 'hiking' as keyof SportSummary },
-    { type: 'class' as SportType, label: '课程', unit: '节', summaryKey: 'class' as keyof SportSummary },
+    { type: 'resistance' as SportType, label: '撸铁', unit: 'kg', summaryKey: 'resistance' as keyof SportSummary },
+    { type: 'hiking' as SportType, label: '徒步', unit: 'km', summaryKey: 'hiking' as keyof SportSummary },
+    { type: 'class' as SportType, label: '课程', unit: 'min', summaryKey: 'class' as keyof SportSummary },
 ];
 
 // 格式化记录显示内容
