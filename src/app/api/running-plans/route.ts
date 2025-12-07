@@ -61,23 +61,14 @@ async function GET(request: NextRequest) {
 			const items = planItems.map((item: any) => {
 				const itemDistance = parseFloat(item.get('distance')) || 0
 				const itemTargetTimes = item.get('targetTimes') || 0
+				const itemCurrentTimes = item.get('currentTimes') || 0 // 直接使用数据库中的 currentTimes
 				const itemStartDate = item.get('startDate')
 				const itemEndDate = item.get('endDate')
 
-				// 计算该子项期间的跑步记录
+				// 计算该子项期间的跑步记录（用于计算总距离）
 				const itemRecords = planRecords.filter((record: any) => {
 					const recordDate = record.get('date')
 					return recordDate >= itemStartDate && recordDate <= itemEndDate
-				})
-
-				// 统计完成次数（匹配计划距离的记录）
-				let completedTimes = 0
-				itemRecords.forEach((record: any) => {
-					const recordDistance = parseFloat(record.get('value')) || 0
-					// 如果记录距离等于或大于计划距离，算作完成一次
-					if (recordDistance >= itemDistance) {
-						completedTimes++
-					}
 				})
 
 				// 计算子项的总距离
@@ -85,20 +76,20 @@ async function GET(request: NextRequest) {
 					return sum + (parseFloat(record.get('value')) || 0)
 				}, 0)
 
-				// 累加总目标次数和完成次数
+				// 累加总目标次数和完成次数（使用数据库中的 currentTimes）
 				totalTargetTimes += itemTargetTimes
-				totalCompletedTimes += completedTimes
+				totalCompletedTimes += itemCurrentTimes
 				totalDistance += itemTotalDistance
 
-				// 计算子项进度
-				const itemProgress = itemTargetTimes > 0 ? Math.min((completedTimes / itemTargetTimes) * 100, 100) : 0
+				// 计算子项进度（使用数据库中的 currentTimes）
+				const itemProgress = itemTargetTimes > 0 ? Math.min((itemCurrentTimes / itemTargetTimes) * 100, 100) : 0
 
 				return {
 					id: item.get('id'),
 					runType: item.get('runType'),
 					distance: itemDistance,
 					targetTimes: itemTargetTimes,
-					currentTimes: completedTimes,
+					currentTimes: itemCurrentTimes, // 直接使用数据库中的 currentTimes
 					startDate: itemStartDate,
 					endDate: itemEndDate,
 					targetHeartRate: item.get('targetHeartRate'),
