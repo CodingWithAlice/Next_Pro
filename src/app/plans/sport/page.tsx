@@ -2,9 +2,9 @@
 import './app.css';
 import { useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
-import { DatePicker, Button, Card, message } from 'antd';
-import type { DatePickerProps } from 'antd';
-import { CalendarOutlined, PlusOutlined } from '@ant-design/icons';
+import { DatePicker, Button, Card, message, Calendar, Select } from 'antd';
+import type { DatePickerProps, CalendarProps } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import RecordModal from './record-modal';
 import Api from '@/service/api';
 
@@ -77,6 +77,35 @@ export default function SportPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalType, setModalType] = useState<SportType>('running');
     const [expandedRecords, setExpandedRecords] = useState(false);
+
+    // 获取有运动记录的日期集合（用于日历标记）
+    const getDatesWithRecords = (): Set<string> => {
+        const datesSet = new Set<string>();
+        records.forEach(record => {
+            if (record.date) {
+                datesSet.add(record.date);
+            }
+        });
+        return datesSet;
+    };
+
+    // 日历日期单元格自定义渲染
+    const dateCellRender = (value: Dayjs) => {
+        const dateStr = value.format('YYYY-MM-DD');
+        const datesWithRecords = getDatesWithRecords();
+        const hasRecord = datesWithRecords.has(dateStr);
+        
+        if (hasRecord) {
+            return (
+                <div 
+                    className="sport-calendar-date-mark"
+                    title={`${dateStr} 有运动记录`}
+                    data-date={dateStr}
+                />
+            );
+        }
+        return null;
+    };
 
     // 加载数据
     const loadData = async () => {
@@ -194,9 +223,9 @@ export default function SportPage() {
                         ))}
                     </div>
 
-                    {/* TODO: 运动日历组件 */}
+                    {/* 运动日历组件 */}
                     <div className="sport-calendar">
-                        <CalendarOutlined /> 运动日历（待实现）
+                        <Calendar dateCellRender={dateCellRender} />
                     </div>
                 </div>
             </Card>

@@ -73,11 +73,35 @@
 }
 
 .sport-calendar {
-    padding: 20px;
-    text-align: center;
-    border: 1px dashed #d9d9d9;
+    padding: 20px 0;
+}
+
+/* 确保日期单元格相对定位，以便标记点定位 */
+.sport-calendar .ant-picker-cell {
+    position: relative;
+}
+
+/* 运动日历日期标记样式 - 底部小圆点 */
+.sport-calendar-date-mark {
+    background-color: #ff4d4f;
+    border-radius: 50%;
+    width: 8px;
+    height: 8px;
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+}
+
+/* 有运动记录的日期单元格背景色 - 使用 :has() 选择器 */
+.sport-calendar .ant-picker-cell:has(.sport-calendar-date-mark) .ant-picker-cell-inner {
+    background-color: rgba(255, 77, 79, 0.2) !important;
     border-radius: 4px;
-    color: #999;
+}
+
+.sport-calendar .ant-picker-cell:has(.sport-calendar-date-mark):hover .ant-picker-cell-inner {
+    background-color: rgba(255, 77, 79, 0.3) !important;
 }
 
 .recent-records {
