@@ -146,3 +146,21 @@ docker image prune -a
 ```js
 sudo /usr/local/bin/docker-compose logs -f daily-app
 ```
+
+### 2025.12.7
+- 网站访问提示 504，可能是 nginx 挂了
+```
+<!-- 查询当前服务状态 -->
+service nginx status 
+<!-- Active: inactive (dead) 表示服务已停止运行 -->
+<!-- 查看当前 nginx 的日志 -->
+sudo systemctl status nginx.service --no-pager -l
+<!-- 错误提示中有80端口占用问题，可能由于昨天清理 docker 镜像，占用了 80 端口，导致 nginx 挂了 -->
+<!-- 查看端口 -->
+sudo ss -tlnp | grep :80
+<!-- 查看运行中的 docker -->
+docker ps --format "table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Ports}}" | head -20
+<!-- 检查后端是否正常运行 -->
+docker ps --filter "name=daily-app"
+<!-- 重启后端服务 -->
+```

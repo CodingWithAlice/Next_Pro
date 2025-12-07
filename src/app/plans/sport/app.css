@@ -73,11 +73,68 @@
 }
 
 .sport-calendar {
-    padding: 20px;
-    text-align: center;
-    border: 1px dashed #d9d9d9;
+    padding: 20px 0;
+}
+
+/* 减少日历行高 - 整体高度减少约一半 */
+.sport-calendar .ant-picker-content {
+    line-height: 1;
+}
+
+.sport-calendar .ant-picker-content th,
+.sport-calendar .ant-picker-content td {
+    padding: 2px 0;
+    height: auto;
+}
+
+.sport-calendar .ant-picker-cell {
+    position: relative;
+    height: 32px;
+    padding: 2px;
+}
+
+.sport-calendar .ant-picker-cell-inner {
+    height: 28px;
+    line-height: 28px;
+    padding: 0;
+}
+
+.sport-calendar .ant-picker-calendar-date-value {
+    font-size: 12px;
+    line-height: 1.2;
+}
+
+/* 运动日历单元格内容容器 */
+.sport-calendar-cell-content {
+    margin-top: 2px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    max-height: 26px;
+    overflow: hidden;
+}
+
+/* 单个运动记录项样式 */
+.sport-calendar-record-item {
+    font-size: 9px;
+    line-height: 1.1;
+    color: #ff4d4f;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 1px;
+    background-color: rgba(255, 77, 79, 0.1);
+    border-radius: 2px;
+}
+
+/* 有运动记录的日期单元格背景色 */
+.sport-calendar .ant-picker-cell:has(.sport-calendar-cell-content) .ant-picker-cell-inner {
+    background-color: rgba(255, 77, 79, 0.15) !important;
     border-radius: 4px;
-    color: #999;
+}
+
+.sport-calendar .ant-picker-cell:has(.sport-calendar-cell-content):hover .ant-picker-cell-inner {
+    background-color: rgba(255, 77, 79, 0.25) !important;
 }
 
 .recent-records {
@@ -119,6 +176,160 @@
 
 .progress-card {
     min-height: 300px;
+}
+
+.running-plans-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.running-plan-item {
+    padding: 16px;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    background-color: #fafafa;
+}
+
+.plan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.plan-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.plan-header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.plan-overall {
+    font-size: 14px;
+    color: #1890ff;
+    font-weight: 500;
+}
+
+.plan-status-badge {
+    font-size: 12px;
+    color: #999;
+    padding: 2px 8px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    border: 1px solid #d9d9d9;
+}
+
+.running-plan-item.plan-completed {
+    opacity: 0.8;
+    background-color: #fafafa;
+}
+
+.plan-info {
+    margin-bottom: 12px;
+}
+
+.plan-summary {
+    display: flex;
+    gap: 16px;
+    font-size: 14px;
+    color: #666;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.plan-summary span {
+    white-space: nowrap;
+}
+
+.plan-date {
+    font-size: 12px;
+    color: #999;
+}
+
+.plan-items-by-type {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.plan-type-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.type-group-header {
+    margin-bottom: 8px;
+}
+
+.type-group-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.type-group-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-left: 16px;
+}
+
+.plan-item-detail {
+    padding: 10px;
+    background-color: #ffffff;
+    border-radius: 6px;
+    border: 1px solid #e8e8e8;
+}
+
+.item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.item-type {
+    font-size: 13px;
+    color: #666;
+    padding: 2px 8px;
+    background-color: #e6f7ff;
+    border-radius: 4px;
+}
+
+.item-distance {
+    font-size: 13px;
+    color: #333;
+    font-weight: 500;
+}
+
+.item-progress {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.item-status {
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+}
+
+.item-heart-rate {
+    font-size: 12px;
+    color: #999;
+    margin-top: 4px;
 }
 
 .form-item {

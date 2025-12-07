@@ -280,6 +280,112 @@ export const TedRecordModal = sequelize.define(
 	}
 )
 
+export const SportRecordModal = sequelize.define(
+	'sport_records',
+	{
+		id: {
+			type: DataTypes.INTEGER,
+			primaryKey: true,
+			autoIncrement: true,
+		},
+		type: {
+			type: DataTypes.ENUM('running', 'resistance', 'hiking', 'class'),
+			allowNull: false,
+		},
+		date: {
+			type: DataTypes.DATEONLY,
+			allowNull: false,
+		},
+		value: {
+			type: DataTypes.DECIMAL(8, 2),
+			allowNull: false,
+		},
+		category: {
+			type: DataTypes.STRING(50),
+			allowNull: false,
+		},
+		subInfo: {
+			type: DataTypes.STRING(200),
+			allowNull: true,
+			field: 'sub_info',
+		},
+		duration: {
+			type: DataTypes.INTEGER,
+			allowNull: true,
+		},
+		notes: {
+			type: DataTypes.TEXT,
+			allowNull: true,
+		},
+	},
+	{
+		tableName: 'sport_records',
+		timestamps: true,
+		underscored: true,
+	}
+)
+
+export const RunningPlanModal = sequelize.define(
+	'running_plans',
+	{
+		id: {
+			type: DataTypes.INTEGER,
+			primaryKey: true,
+			autoIncrement: true,
+		},
+		planName: {
+			type: DataTypes.STRING(50),
+			allowNull: false,
+			field: 'plan_name',
+		},
+		runType: {
+			type: DataTypes.STRING(20),
+			allowNull: false,
+			field: 'run_type',
+		},
+		distance: {
+			type: DataTypes.DECIMAL(5, 2),
+			allowNull: false,
+		},
+		targetTimes: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			field: 'target_times',
+		},
+		currentTimes: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 0,
+			field: 'current_times',
+		},
+		startDate: {
+			type: DataTypes.DATEONLY,
+			allowNull: false,
+			field: 'start_date',
+		},
+		endDate: {
+			type: DataTypes.DATEONLY,
+			allowNull: false,
+			field: 'end_date',
+		},
+		status: {
+			type: DataTypes.ENUM('active', 'completed', 'cancelled'),
+			allowNull: false,
+			defaultValue: 'active',
+		},
+		targetHeartRate: {
+			type: DataTypes.STRING(20),
+			allowNull: true,
+			field: 'target_heart_rate',
+		},
+	},
+	{
+		tableName: 'running_plans',
+		timestamps: true,
+		underscored: true,
+	}
+)
+
 // 关联关系1 每日 - 时间和事件 关联
 IssueModal.hasMany(TimeModal, {
 	foreignKey: 'date',

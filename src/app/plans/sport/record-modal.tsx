@@ -1,114 +1,212 @@
 'use client';
-import { useState } from 'react';
-import { Modal, Input, InputNumber, Select } from 'antd';
+import { useEffect } from 'react';
+import { Modal, Input, InputNumber, Select, Form, DatePicker } from 'antd';
+import dayjs, { Dayjs } from 'dayjs';
 
 // 运动类型
-type SportType = 'running' | 'resistance' | 'hiking' | 'course';
+type SportType = 'running' | 'resistance' | 'hiking' | 'class';
 
 interface RecordModalProps {
     open: boolean;
     type: SportType;
+    date?: Dayjs;
     onCancel: () => void;
     onSave: (values: any) => void;
 }
 
-export default function RecordModal({ open, type, onCancel, onSave }: RecordModalProps) {
-    const [formValues, setFormValues] = useState<any>({});
+// 表单字段类型
+type FormFieldType = 'number' | 'text' | 'select';
 
-    const getModalTitle = () => {
-        const titles = {
-            running: '跑步记录',
-            resistance: '抗阻记录',
-            hiking: '徒步记录',
-            course: '课程记录'
-        };
-        return titles[type];
-    };
+interface FormFieldConfig {
+    name: string;
+    label: string;
+    type: FormFieldType;
+    required?: boolean;
+    placeholder?: string;
+    options?: { value: string; label: string }[];
+    step?: number;
+    min?: number;
+}
 
-    const renderForm = () => {
-        switch (type) {
-            case 'running':
+// 运动类型配置
+const SPORT_TYPE_CONFIG: Record<SportType, {
+    title: string;
+    defaultCategory: string;
+    fields: FormFieldConfig[];
+}> = {
+    running: {
+        title: '跑步记录',
+        defaultCategory: '跑步',
+        fields: [
+            { name: 'value', label: '距离（km）', type: 'number', required: true, placeholder: '请输入跑步距离', step: 0.1, min: 0 },
+            { name: 'duration', label: '运动时长（分钟）', type: 'number', placeholder: '选填', min: 0 },
+            { name: 'notes', label: '备注', type: 'text', placeholder: '选填' },
+        ],
+    },
+    resistance: {
+        title: '抗阻记录',
+        defaultCategory: '',
+        fields: [
+            { name: 'value', label: '重量（kg）', type: 'number', required: true, placeholder: '请输入重量', step: 0.1, min: 0 },
+            { name: 'category', label: '运动分类', type: 'text', required: true, placeholder: '如：深蹲、卧推、硬拉等' },
+            { name: 'duration', label: '运动时长（分钟）', type: 'number', placeholder: '选填', min: 0 },
+            { name: 'notes', label: '备注', type: 'text', placeholder: '选填' },
+        ],
+    },
+    hiking: {
+        title: '徒步记录',
+        defaultCategory: '徒步',
+        fields: [
+            { name: 'value', label: '距离（km）', type: 'number', required: true, placeholder: '请输入徒步距离', step: 0.1, min: 0 },
+            { name: 'subInfo', label: '地点/路线', type: 'text', placeholder: '如：香山、奥森等' },
+            { name: 'duration', label: '运动时长（分钟）', type: 'number', placeholder: '选填', min: 0 },
+            { name: 'notes', label: '备注', type: 'text', placeholder: '选填' },
+        ],
+    },
+    class: {
+        title: '课程记录',
+        defaultCategory: '',
+        fields: [
+            { name: 'value', label: '课程时长（分钟）', type: 'number', required: true, placeholder: '请输入课程时长', min: 0 },
+            {
+                name: 'category',
+                label: '课程类型',
+                type: 'select',
+                required: true,
+                placeholder: '选择课程',
+                options: [
+                    { value: '踏板课', label: '踏板课' },
+                    { value: '乒乓球', label: '乒乓球' },
+                    { value: '瑜伽课', label: '瑜伽课' },
+                    { value: '蹦床课', label: '蹦床课' },
+                    { value: '杠铃课', label: '杠铃课' },
+                    { value: 'switch舞力全开', label: 'switch舞力全开' },
+                ],
+            },
+            { name: 'notes', label: '备注', type: 'text', placeholder: '选填' },
+        ],
+    },
+};
+
+export default function RecordModal({ open, type, date, onCancel, onSave }: RecordModalProps) {
+    const [form] = Form.useForm();
+    const config = SPORT_TYPE_CONFIG[type];
+
+    // 当弹窗打开时，设置表单初始值（包括日期）
+    useEffect(() => {
+        if (open) {
+            form.setFieldsValue({
+                date: date || dayjs(),
+            });
+        }
+    }, [open, date, form]);
+
+    // 渲染表单字段
+    const renderFormField = (field: FormFieldConfig) => {
+        const rules = field.required ? [{ required: true, message: `请输入${field.label}` }] : [];
+
+        switch (field.type) {
+            case 'number':
                 return (
-                    <div className="form-item">
-                        <label>距离（km）：</label>
+                    <Form.Item
+                        key={field.name}
+                        label={field.label}
+                        name={field.name}
+                        rules={rules}
+                    >
                         <InputNumber
-                            min={0}
-                            step={0.1}
-                            value={formValues.distance}
-                            onChange={(value) => setFormValues({ ...formValues, distance: value })}
+                            min={field.min}
+                            step={field.step}
                             style={{ width: '100%' }}
+                            placeholder={field.placeholder}
                         />
-                    </div>
+                    </Form.Item>
                 );
-            case 'resistance':
+            case 'text':
+                const isTextArea = field.name === 'notes';
                 return (
-                    <div className="form-item">
-                        <label>次数：</label>
-                        <InputNumber
-                            min={0}
-                            value={formValues.times}
-                            onChange={(value) => setFormValues({ ...formValues, times: value })}
-                            style={{ width: '100%' }}
-                        />
-                    </div>
+                    <Form.Item
+                        key={field.name}
+                        label={field.label}
+                        name={field.name}
+                        rules={rules}
+                    >
+                        {isTextArea ? (
+                            <Input.TextArea
+                                rows={3}
+                                placeholder={field.placeholder}
+                            />
+                        ) : (
+                            <Input placeholder={field.placeholder} />
+                        )}
+                    </Form.Item>
                 );
-            case 'hiking':
+            case 'select':
                 return (
-                    <div className="form-item">
-                        <label>地点/路线：</label>
-                        <Input
-                            value={formValues.location}
-                            onChange={(e) => setFormValues({ ...formValues, location: e.target.value })}
-                            placeholder="如：香山"
-                        />
-                    </div>
-                );
-            case 'course':
-                return (
-                    <div className="form-item">
-                        <label>课程类型：</label>
+                    <Form.Item
+                        key={field.name}
+                        label={field.label}
+                        name={field.name}
+                        rules={rules}
+                    >
                         <Select
-                            value={formValues.courseName}
-                            onChange={(value) => setFormValues({ ...formValues, courseName: value })}
-                            placeholder="选择课程"
-                            style={{ width: '100%' }}
-                            options={[
-                                { value: '踏板课', label: '踏板课' },
-                                { value: '乒乓球', label: '乒乓球' },
-                                { value: '瑜伽课', label: '瑜伽课' },
-                                { value: '蹦床课', label: '蹦床课' },
-                                { value: '杠铃课', label: '杠铃课' },
-                                { value: 'switch舞力全开', label: 'switch舞力全开' },
-                            ]}
+                            placeholder={field.placeholder}
+                            options={field.options}
                         />
-                    </div>
+                    </Form.Item>
                 );
             default:
                 return null;
         }
     };
 
-    const handleOk = () => {
-        if (!formValues.distance && !formValues.times && !formValues.location && !formValues.courseName) {
-            return;
+    const handleOk = async () => {
+        try {
+            const values = await form.validateFields();
+            const recordData = {
+                type,
+                date: values.date ? values.date.format('YYYY-MM-DD') : (date ? date.format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD')),
+                value: values.value,
+                category: values.category || config.defaultCategory,
+                subInfo: values.subInfo || null,
+                duration: values.duration || null,
+                notes: values.notes || null,
+            };
+            onSave(recordData);
+            form.resetFields();
+        } catch (error) {
+            console.error('表单验证失败:', error);
         }
-        onSave(formValues);
-        setFormValues({}); // 重置表单
+    };
+
+    const handleCancel = () => {
+        form.resetFields();
+        onCancel();
     };
 
     return (
         <Modal
-            title={getModalTitle()}
+            title={config.title}
             open={open}
             onOk={handleOk}
-            onCancel={() => {
-                setFormValues({});
-                onCancel();
-            }}
+            onCancel={handleCancel}
             okText="保存"
             cancelText="取消"
         >
-            {renderForm()}
+            <Form form={form} layout="vertical">
+                <Form.Item
+                    label="运动日期"
+                    name="date"
+                    rules={[{ required: true, message: '请选择运动日期' }]}
+                >
+                    <DatePicker
+                        style={{ width: '100%' }}
+                        format="YYYY-MM-DD"
+                        placeholder="请选择日期"
+                    />
+                </Form.Item>
+                {config.fields.map(field => renderFormField(field))}
+            </Form>
         </Modal>
     );
 }

@@ -76,6 +76,25 @@ const Api = {
 	postReadApi(readData: { [key: string]: string | number }) {
 		return request.post('books', { readData })
 	},
+
+	getSportApi(params?: { date?: string; type?: string }) {
+		return request.get('sport', params)
+	},
+	postSportApi(sportData: { 
+		type: 'running' | 'resistance' | 'hiking' | 'class';
+		date: string;
+		value: number;
+		category: string;
+		subInfo?: string;
+		duration?: number;
+		notes?: string;
+	}) {
+		return request.post('sport', sportData)
+	},
+
+	getRunningPlansApi() {
+		return request.get('running-plans')
+	},
 }
 
 export default Api
