@@ -76,30 +76,53 @@
     padding: 20px 0;
 }
 
-/* 确保日期单元格相对定位 */
+/* 减少日历行高 - 整体高度减少约一半 */
+.sport-calendar .ant-picker-content {
+    line-height: 1;
+}
+
+.sport-calendar .ant-picker-content th,
+.sport-calendar .ant-picker-content td {
+    padding: 2px 0;
+    height: auto;
+}
+
 .sport-calendar .ant-picker-cell {
     position: relative;
+    height: 32px;
+    padding: 2px;
+}
+
+.sport-calendar .ant-picker-cell-inner {
+    height: 28px;
+    line-height: 28px;
+    padding: 0;
+}
+
+.sport-calendar .ant-picker-calendar-date-value {
+    font-size: 12px;
+    line-height: 1.2;
 }
 
 /* 运动日历单元格内容容器 */
 .sport-calendar-cell-content {
-    margin-top: 4px;
+    margin-top: 2px;
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    max-height: 60px;
+    gap: 1px;
+    max-height: 26px;
     overflow: hidden;
 }
 
 /* 单个运动记录项样式 */
 .sport-calendar-record-item {
-    font-size: 10px;
-    line-height: 1.2;
+    font-size: 9px;
+    line-height: 1.1;
     color: #ff4d4f;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding: 1px 2px;
+    padding: 0 1px;
     background-color: rgba(255, 77, 79, 0.1);
     border-radius: 2px;
 }
