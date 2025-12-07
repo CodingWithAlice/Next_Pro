@@ -91,6 +91,10 @@ const Api = {
 	}) {
 		return request.post('sport', sportData)
 	},
+
+	getRunningPlansApi() {
+		return request.get('running-plans')
+	},
 }
 
 export default Api

@@ -2,7 +2,7 @@
 import './app.css';
 import { useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
-import { DatePicker, Button, Card, message, Calendar, Select } from 'antd';
+import { DatePicker, Button, Card, message, Calendar, Select, Progress } from 'antd';
 import type { DatePickerProps, CalendarProps } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import RecordModal from './record-modal';
@@ -29,6 +29,31 @@ interface SportSummary {
     resistance: number;
     hiking: number;
     class: number;
+}
+
+interface RunningPlanItem {
+    id: number;
+    runType: string;
+    distance: number;
+    targetTimes: number;
+    currentTimes: number;
+    startDate: string;
+    endDate: string;
+    targetHeartRate?: string;
+    totalDistance: number;
+    progress: number;
+    recordsCount: number;
+}
+
+interface RunningPlan {
+    planName: string;
+    startDate: string;
+    endDate: string;
+    totalTargetTimes: number;
+    totalCompletedTimes: number;
+    totalDistance: number;
+    overallProgress: number;
+    items: RunningPlanItem[];
 }
 
 // 运动类型配置
@@ -77,6 +102,7 @@ export default function SportPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalType, setModalType] = useState<SportType>('running');
     const [expandedRecords, setExpandedRecords] = useState(false);
+    const [runningPlans, setRunningPlans] = useState<RunningPlan[]>([]);
 
     // 格式化单个记录用于日历显示（不包含时长）
     const formatRecordForCalendar = (record: SportRecord): string => {
@@ -129,6 +155,12 @@ export default function SportPage() {
                 
                 // 设置记录列表（显示全部记录）
                 setRecords(response.records);
+            }
+
+            // 加载跑步计划进度
+            const plansResponse = await Api.getRunningPlansApi();
+            if (plansResponse.success) {
+                setRunningPlans(plansResponse.plans || []);
             }
         } catch (error: any) {
             messageApi.error(error.message || '加载数据失败');
@@ -242,8 +274,66 @@ export default function SportPage() {
             {/* 第三层：运动进展卡片 */}
             <div className="progress-cards">
                 <Card className="sport-card progress-card" title="跑步计划进度">
-                    {/* TODO: 跑步计划进度内容 */}
-                    <div>跑步计划进度（待实现）</div>
+                    {runningPlans.length === 0 ? (
+                        <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                            暂无活跃的跑步计划
+                        </div>
+                    ) : (
+                        <div className="running-plans-list">
+                            {runningPlans.map((plan, planIndex) => (
+                                <div key={plan.planName || planIndex} className="running-plan-item">
+                                    <div className="plan-header">
+                                        <span className="plan-name">{plan.planName}</span>
+                                        <span className="plan-overall">
+                                            总计：{plan.totalCompletedTimes}/{plan.totalTargetTimes}次
+                                        </span>
+                                    </div>
+                                    <div className="plan-info">
+                                        <div className="plan-summary">
+                                            <span>总距离：{plan.totalDistance}km</span>
+                                            <span className="plan-date">
+                                                {plan.startDate} 至 {plan.endDate}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <Progress 
+                                        percent={plan.overallProgress} 
+                                        status={plan.overallProgress >= 100 ? 'success' : 'active'}
+                                        strokeColor={plan.overallProgress >= 100 ? '#52c41a' : '#1890ff'}
+                                    />
+                                    
+                                    {/* 显示每个子项 */}
+                                    <div className="plan-items">
+                                        {plan.items.map((item) => (
+                                            <div key={item.id} className="plan-item-detail">
+                                                <div className="item-header">
+                                                    <span className="item-type">{item.runType}</span>
+                                                    <span className="item-distance">{item.distance}km × {item.targetTimes}次</span>
+                                                </div>
+                                                <div className="item-progress">
+                                                    <span className="item-status">
+                                                        完成：{item.currentTimes}/{item.targetTimes}次
+                                                        {item.totalDistance > 0 && ` (${item.totalDistance}km)`}
+                                                    </span>
+                                                    <Progress 
+                                                        percent={item.progress}
+                                                        size="small"
+                                                        status={item.progress >= 100 ? 'success' : 'active'}
+                                                        style={{ width: '200px' }}
+                                                    />
+                                                </div>
+                                                {item.targetHeartRate && (
+                                                    <div className="item-heart-rate">
+                                                        目标心率：{item.targetHeartRate}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </Card>
                 <Card className="sport-card progress-card" title="抗阻能力追踪">
                     {/* TODO: 抗阻能力追踪内容 */}
