@@ -1,5 +1,7 @@
 'use client';
-import { Card, Calendar } from 'antd';
+import { useState } from 'react';
+import { Card, Calendar, Button } from 'antd';
+import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import type { CalendarProps } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import './app.css';
@@ -40,6 +42,8 @@ const SPORT_TYPES_CONFIG = [
 ];
 
 export default function SportOverviewCard({ totalSummary, records }: SportOverviewCardProps) {
+    const [calendarExpanded, setCalendarExpanded] = useState(false);
+
     // 格式化单个记录用于日历显示（不包含时长）
     const formatRecordForCalendar = (record: SportRecord): string => {
         switch (record.type) {
@@ -92,8 +96,23 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
                 </div>
 
                 {/* 运动日历组件 */}
-                <div className="sport-calendar">
-                    <Calendar dateCellRender={dateCellRender} />
+                <div className="sport-calendar-section">
+                    <div className="sport-calendar-header">
+                        <span className="calendar-title">运动打卡日历</span>
+                        <Button
+                            type="text"
+                            size="small"
+                            icon={calendarExpanded ? <UpOutlined /> : <DownOutlined />}
+                            onClick={() => setCalendarExpanded(!calendarExpanded)}
+                        >
+                            {calendarExpanded ? '收起' : '展开'}
+                        </Button>
+                    </div>
+                    {calendarExpanded && (
+                        <div className="sport-calendar">
+                            <Calendar dateCellRender={dateCellRender} />
+                        </div>
+                    )}
                 </div>
             </div>
         </Card>

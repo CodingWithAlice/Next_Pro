@@ -72,8 +72,25 @@
     flex-wrap: wrap;
 }
 
+.sport-calendar-section {
+    padding: 10px 0;
+}
+
+.sport-calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.calendar-title {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
 .sport-calendar {
-    padding: 20px 0;
+    padding: 10px 0;
 }
 
 /* 减少日历行高 - 整体高度减少约一半 */
