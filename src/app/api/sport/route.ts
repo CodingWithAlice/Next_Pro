@@ -23,14 +23,17 @@ async function GET(request: NextRequest) {
 			order: [['date', 'DESC'], ['created_at', 'DESC']],
 		})
 		
-		// 计算今日汇总
+		// 只查询一次全量数据
+		const allRecords = await SportRecordModal.findAll()
+		
+		// 计算今日汇总（从全量数据中过滤）
 		const today = new Date().toISOString().split('T')[0]
-		const todayRecords = await SportRecordModal.findAll({
-			where: {
-				date: today,
-			},
+		const todayRecords = allRecords.filter((record: any) => {
+			const recordDate = record.get('date')
+			return recordDate === today
 		})
 		
+		// 初始化汇总对象
 		const todaySummary = {
 			running: 0,
 			resistance: 0,
@@ -38,6 +41,14 @@ async function GET(request: NextRequest) {
 			class: 0,
 		}
 		
+		const totalSummary = {
+			running: 0,
+			resistance: 0,
+			hiking: 0,
+			class: 0,
+		}
+		
+		// 计算今日汇总
 		todayRecords.forEach((record: any) => {
 			const recordType = record.get('type')
 			const value = parseFloat(record.get('value')) || 0
@@ -54,14 +65,6 @@ async function GET(request: NextRequest) {
 		})
 		
 		// 计算总数汇总
-		const allRecords = await SportRecordModal.findAll()
-		const totalSummary = {
-			running: 0,
-			resistance: 0,
-			hiking: 0,
-			class: 0,
-		}
-		
 		allRecords.forEach((record: any) => {
 			const recordType = record.get('type')
 			const value = parseFloat(record.get('value')) || 0
