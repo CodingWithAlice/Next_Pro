@@ -2,6 +2,39 @@ import { NextRequest, NextResponse } from 'next/server'
 import { SportRecordModal } from 'db'
 import { Op } from 'sequelize'
 
+// 运动类型配置
+const SPORT_TYPES = ['running', 'resistance', 'hiking', 'class'] as const
+type SportType = typeof SPORT_TYPES[number]
+
+// 汇总对象属性 key
+type SummaryKeys = SportType
+
+// 初始化汇总对象
+const createEmptySummary = (): Record<SummaryKeys, number> => {
+	return {
+		running: 0,
+		resistance: 0,
+		hiking: 0,
+		class: 0,
+	}
+}
+
+// 通用汇总计算函数
+const calculateSummary = (records: any[]): Record<SummaryKeys, number> => {
+	const summary = createEmptySummary()
+	
+	records.forEach((record: any) => {
+		const recordType = record.get('type') as SportType
+		const value = parseFloat(record.get('value')) || 0
+		
+		if (SPORT_TYPES.includes(recordType)) {
+			summary[recordType] += value
+		}
+	})
+	
+	return summary
+}
+
 async function GET(request: NextRequest) {
 	try {
 		const { searchParams } = request.nextUrl
@@ -33,52 +66,9 @@ async function GET(request: NextRequest) {
 			return recordDate === today
 		})
 		
-		// 初始化汇总对象
-		const todaySummary = {
-			running: 0,
-			resistance: 0,
-			hiking: 0,
-			class: 0,
-		}
-		
-		const totalSummary = {
-			running: 0,
-			resistance: 0,
-			hiking: 0,
-			class: 0,
-		}
-		
-		// 计算今日汇总
-		todayRecords.forEach((record: any) => {
-			const recordType = record.get('type')
-			const value = parseFloat(record.get('value')) || 0
-			
-			if (recordType === 'running') {
-				todaySummary.running += value
-			} else if (recordType === 'resistance') {
-				todaySummary.resistance += value
-			} else if (recordType === 'hiking') {
-				todaySummary.hiking += value
-			} else if (recordType === 'class') {
-				todaySummary.class += value
-			}
-		})
-		
-		// 计算总数汇总
-		allRecords.forEach((record: any) => {
-			const recordType = record.get('type')
-			const value = parseFloat(record.get('value')) || 0
-			
-			if (recordType === 'running') {
-				totalSummary.running += value
-			} else if (recordType === 'resistance') {
-				totalSummary.resistance += value
-			} else if (recordType === 'hiking') {
-				totalSummary.hiking += value
-			} else if (recordType === 'class') {
-				totalSummary.class += value
-			}
-		})
+		// 使用通用函数计算汇总
+		const todaySummary = calculateSummary(todayRecords)
+		const totalSummary = calculateSummary(allRecords)
 		
 		return NextResponse.json({
 			records: records.map((record: any) => ({
