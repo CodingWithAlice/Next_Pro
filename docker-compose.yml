@@ -1,13 +1,14 @@
 version: '3'
 services:
   nginx:
-      image: nginx
-      ports:
-        - "80:80"  # 将宿主机的 80 端口映射到容器的 80 端口
-      volumes:
-        - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf  # 挂载 Nginx 配置文件
-      depends_on:
-        - daily-app  # 依赖于 your-app 服务
+    image: nginx
+    ports:
+      - "80:80"  # 将宿主机的 80 端口映射到容器的 80 端口
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf  # 挂载 Nginx 配置文件
+    depends_on:
+      - daily-app  # 依赖于 daily-app 服务
+
   daily-app:
     build:
       context: .
@@ -28,3 +29,27 @@ services:
       - 8.8.8.8       # Google DNS
       - 114.114.114.114 # 国内DNS
     dns_search: .
+    depends_on:
+      - mysql  # 添加对 MySQL 的依赖
+  
+  mysql:
+    image: mysql:8.0
+    container_name: next_pro  # 保持与你原来命令相同的容器名
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: next_pro_alice
+      # 可选：添加更多环境变量
+      # MYSQL_DATABASE: your_database_name
+      # MYSQL_USER: your_username
+      # MYSQL_PASSWORD: your_password
+    ports:
+      - "3306:3306"  # MySQL 默认端口
+    volumes:
+      - /data/mysql:/var/lib/mysql  
+    # 可选：添加 MySQL 配置
+    command: 
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+    networks:
+      - default  # 使用默认网络，所有服务都可以相互访问
