@@ -167,7 +167,7 @@ interface SortableIssue {
 }
 
 /**
- * 对事项进行排序，睡眠类型始终排在最后
+ * 对事项进行排序，睡眠类型和空选项始终排在最后
  * @param issues 待排序的事项数组
  * @returns 排序后的事项数组
  */
@@ -176,16 +176,28 @@ function sortIssuesWithSleepLast<T extends SortableIssue>(issues: T[]): T[] {
         const aIsSleep = +a.type === +config.sleepId;
         const bIsSleep = +b.type === +config.sleepId;
         
-        // 如果一个是睡眠，另一个不是，睡眠排最后
-        if (aIsSleep && !bIsSleep) return 1;
-        if (!aIsSleep && bIsSleep) return -1;
+        // 判断是否为空选项：type 为空、null、undefined
+        const aIsEmpty = !a.type || a.type === '' || a.type === null || a.type === undefined;
+        const bIsEmpty = !b.type || b.type === '' || b.type === null || b.type === undefined;
         
-        // 如果都是睡眠，保持原有顺序（通过 daySort）
-        if (aIsSleep && bIsSleep) {
+        // 判断是否为需要置底的类型（睡眠或空选项）
+        const aShouldBeLast = aIsSleep || aIsEmpty;
+        const bShouldBeLast = bIsSleep || bIsEmpty;
+        
+        // 如果一个是需要置底的类型，另一个不是，需要置底的排最后
+        if (aShouldBeLast && !bShouldBeLast) return 1;
+        if (!aShouldBeLast && bShouldBeLast) return -1;
+        
+        // 如果都是需要置底的类型，睡眠优先于空选项，然后按 daySort 排序
+        if (aShouldBeLast && bShouldBeLast) {
+            // 睡眠优先于空选项
+            if (aIsSleep && !bIsSleep) return -1;
+            if (!aIsSleep && bIsSleep) return 1;
+            // 同类型，保持原有顺序（通过 daySort）
             return a.daySort - b.daySort;
         }
         
-        // 都不是睡眠，按开始时间排序
+        // 都不是需要置底的类型，按开始时间排序
         const diff = a.startTime.diff(b.startTime, 'minute');
         if (diff !== 0) {
             return diff;
