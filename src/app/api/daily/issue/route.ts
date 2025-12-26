@@ -63,7 +63,7 @@ async function POST(request: NextRequest) {
 					// 对于 running 和 resistance 类型，如果没有 duration，查询运动时长
 					const sportDuration = await getSportDuration(data.date);
 					
-					// 创建运动记录
+					// 创建或更新运动记录
 					for (const record of parsedRecords) {
 						try {
 							// 如果是 running 或 resistance 类型且没有 duration，使用查询到的时长
@@ -75,17 +75,37 @@ async function POST(request: NextRequest) {
 								record.duration = sportDuration;
 							}
 
-							await SportRecordModal.create({
-								type: record.type,
-								date: data.date,
-								value: record.value,
-								category: record.category,
-								subInfo: record.subInfo || null,
-								duration: record.duration || null,
-								notes: record.notes || null,
+							// 使用 findOrCreate 避免重复创建
+							// 判断条件：date、type、category、value 都相同
+							const [sportRecord, created] = await SportRecordModal.findOrCreate({
+								where: {
+									date: data.date,
+									type: record.type,
+									category: record.category,
+									value: record.value,
+								},
+								defaults: {
+									type: record.type,
+									date: data.date,
+									value: record.value,
+									category: record.category,
+									subInfo: record.subInfo || null,
+									duration: record.duration || null,
+									notes: record.notes || null,
+								},
 							});
-						} catch (createError) {
-							console.error('创建运动记录失败:', createError, '记录:', record);
+
+							// 如果记录已存在，更新相关信息
+							if (!created) {
+								sportRecord.set({
+									subInfo: record.subInfo || null,
+									duration: record.duration || null,
+									notes: record.notes || null,
+								});
+								await sportRecord.save();
+							}
+						} catch (recordError) {
+							console.error('处理运动记录失败:', recordError, '记录:', record);
 							// 继续处理下一条记录，不影响整体流程
 						}
 					}
