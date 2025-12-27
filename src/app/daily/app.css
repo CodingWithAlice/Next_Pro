@@ -107,3 +107,30 @@
     font-weight: 400;
     text-align: center;
 }
+
+/* 防止移动端双击放大 */
+.picker input,
+.routine-select .ant-select-selector,
+.routine-select input {
+    font-size: 16px !important;
+    touch-action: manipulation;
+}
+
+/* 为所有输入框和选择框设置最小字体大小，防止 iOS Safari 自动放大 */
+input[type="text"],
+input[type="number"],
+input[type="time"],
+textarea,
+select {
+    font-size: 16px !important;
+    touch-action: manipulation;
+}
+
+/* Ant Design 组件样式覆盖 */
+.ant-picker-input input,
+.ant-select-selector,
+.ant-input,
+.ant-input-number-input {
+    font-size: 16px !important;
+    touch-action: manipulation;
+}

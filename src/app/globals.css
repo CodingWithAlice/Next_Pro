@@ -13,6 +13,29 @@ body {
     font-family: Arial, Helvetica, sans-serif;
     color: rgb(6, 128, 67);
     font-weight: 500;
+    /* 防止移动端双击放大 */
+    touch-action: manipulation;
+}
+
+/* 防止移动端双击放大 - 为所有输入框和选择框设置最小字体大小 */
+input[type="text"],
+input[type="number"],
+input[type="time"],
+input[type="date"],
+textarea,
+select {
+    font-size: 16px !important;
+    touch-action: manipulation;
+}
+
+/* Ant Design 组件样式覆盖 */
+.ant-picker-input input,
+.ant-select-selector,
+.ant-input,
+.ant-input-number-input,
+.ant-picker {
+    font-size: 16px !important;
+    touch-action: manipulation;
 }
 
 .home {
