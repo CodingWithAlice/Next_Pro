@@ -1,7 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Card, Progress, Button } from 'antd';
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
+import ShareImageButton from '@/components/share-image-button';
 import './app.css';
 
 export interface RunningPlanItem {
@@ -37,6 +38,10 @@ interface RunningPlansCardProps {
 export default function RunningPlansCard({ plans }: RunningPlansCardProps) {
     // 跟踪每个计划的展开状态
     const [expandedPlans, setExpandedPlans] = useState<Set<string>>(new Set());
+    // 用于整体分享的 ref
+    const allPlansRef = useRef<HTMLDivElement>(null);
+    // 用于单个计划分享的 refs
+    const planRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
     // 切换计划的展开状态
     const togglePlanExpanded = (planName: string) => {
@@ -74,13 +79,29 @@ export default function RunningPlansCard({ plans }: RunningPlansCardProps) {
     });
 
     return (
-        <Card className="sport-card progress-card" title="跑步计划进度">
+        <Card 
+            className="sport-card progress-card" 
+            title={
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>跑步计划进度</span>
+                    {sortedPlans.length > 0 && allPlansRef.current && (
+                        <ShareImageButton
+                            targetElement={allPlansRef.current}
+                            fileName="跑步计划进度-全部"
+                            size="small"
+                            type="link"
+                            style={{ padding: 0 }}
+                        />
+                    )}
+                </div>
+            }
+        >
             {sortedPlans.length === 0 ? (
                 <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
                     暂无跑步计划
                 </div>
             ) : (
-                <div className="running-plans-list">
+                <div className="running-plans-list" ref={allPlansRef}>
                     {sortedPlans.map((plan, planIndex) => {
                         // 按 run_type 分组
                         const itemsByType: { [key: string]: RunningPlanItem[] } = {}
@@ -94,16 +115,51 @@ export default function RunningPlansCard({ plans }: RunningPlansCardProps) {
                         const isExpanded = expandedPlans.has(plan.planName);
 
                         return (
-                            <div key={plan.planName || planIndex} className={`running-plan-item ${plan.status === 'completed' ? 'plan-completed' : ''}`}>
+                            <div 
+                                key={plan.planName || planIndex} 
+                                className={`running-plan-item ${plan.status === 'completed' ? 'plan-completed' : ''}`}
+                                ref={(el) => {
+                                    if (plan.planName) {
+                                        planRefs.current[plan.planName] = el;
+                                    }
+                                }}
+                            >
                                 <div className="plan-header">
                                     <span className="plan-name">{plan.planName}</span>
                                     <div className="plan-header-right">
-                                        {plan.status === 'completed' && (
-                                            <span className="plan-status-badge">已结束</span>
-                                        )}
                                         <span className="plan-overall">
                                             总计：{plan.totalCompletedTimes}/{plan.totalTargetTimes}次
                                         </span>
+                                        {planRefs.current[plan.planName] && (
+                                            <ShareImageButton
+                                                targetElement={planRefs.current[plan.planName]!}
+                                                fileName={`跑步计划-${plan.planName}`}
+                                                size="small"
+                                                type="link"
+                                                style={{ padding: 0, marginLeft: 4 }}
+                                                beforeCapture={async () => {
+                                                    // 截图前确保计划是展开状态，以便包含完整信息
+                                                    if (!isExpanded) {
+                                                        setExpandedPlans(prev => {
+                                                            const newSet = new Set(prev);
+                                                            newSet.add(plan.planName);
+                                                            return newSet;
+                                                        });
+                                                        await new Promise(resolve => setTimeout(resolve, 300));
+                                                    }
+                                                }}
+                                                afterCapture={async () => {
+                                                    // 截图后恢复原状态
+                                                    if (!isExpanded) {
+                                                        setExpandedPlans(prev => {
+                                                            const newSet = new Set(prev);
+                                                            newSet.delete(plan.planName);
+                                                            return newSet;
+                                                        });
+                                                    }
+                                                }}
+                                            />
+                                        )}
                                         <Button
                                             type="link"
                                             size="small"

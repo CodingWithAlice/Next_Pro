@@ -20,6 +20,7 @@
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.7",
     "echarts-for-react": "^3.0.2",
+    "html2canvas": "^1.4.1",
     "mysql2": "^2.3.3",
     "next": "^15.1.9",
     "openai": "^4.86.1",
