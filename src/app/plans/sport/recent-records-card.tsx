@@ -46,15 +46,20 @@ export default function RecentRecordsCard({ records }: RecentRecordsCardProps) {
                         暂无记录
                     </div>
                 ) : (
-                    (expandedRecords ? records : records.slice(0, 5)).map((record) => (
-                        <div key={record.id} className="record-item">
-                            <span className="record-date">{record.date}</span>
-                            <span className="record-content">
-                                {formatRecordContent(record)}
-                                {record.duration && ` (${record.duration}分钟)`}
-                            </span>
-                        </div>
-                    ))
+                    (expandedRecords ? records : records.slice(0, 5)).map((record) => {
+                        // 对于 class 类型，formatRecordContent 已经包含了时长（value 就是时长），不需要再显示 duration
+                        const shouldShowDuration = record.duration && record.type !== 'class';
+                        
+                        return (
+                            <div key={record.id} className="record-item">
+                                <span className="record-date">{record.date}</span>
+                                <span className="record-content">
+                                    {formatRecordContent(record)}
+                                    {shouldShowDuration && ` (${record.duration}分钟)`}
+                                </span>
+                            </div>
+                        );
+                    })
                 )}
                 {records.length > 5 && (
                     <div className="record-actions">
