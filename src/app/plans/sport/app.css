@@ -106,13 +106,15 @@
 
 .sport-calendar .ant-picker-cell {
     position: relative;
-    height: 32px;
+    height: auto;
+    min-height: 32px;
     padding: 2px;
 }
 
 .sport-calendar .ant-picker-cell-inner {
-    height: 28px;
-    line-height: 28px;
+    height: auto;
+    min-height: 28px;
+    line-height: 1.2;
     padding: 0;
 }
 
@@ -126,22 +128,46 @@
     margin-top: 2px;
     display: flex;
     flex-direction: column;
-    gap: 1px;
-    max-height: 26px;
-    overflow: hidden;
+    gap: 2px;
+    width: 100%;
 }
 
 /* 单个运动记录项样式 */
 .sport-calendar-record-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    flex-shrink: 0;
+    width: 100%;
+}
+
+/* 运动记录数据行（上面一行，带颜色背景） */
+.sport-calendar-record-data {
     font-size: 9px;
-    line-height: 1.1;
-    color: #ff4d4f;
+    line-height: 1.2;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding: 0 1px;
-    background-color: rgba(255, 77, 79, 0.1);
-    border-radius: 2px;
+    padding: 1px 3px;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* 运动记录标签行（下面一行，深灰色背景，浅色文字） */
+.sport-calendar-record-label {
+    font-size: 8px;
+    line-height: 1.1;
+    color: #ffffff;
+    background-color: #595959;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 1px 2px;
+    text-align: center;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
 }
 
 /* 有运动记录的日期单元格背景色 */
@@ -240,6 +266,12 @@
     background-color: #f5f5f5;
     border-radius: 4px;
     border: 1px solid #d9d9d9;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    height: 22px;
+    box-sizing: border-box;
 }
 
 .running-plan-item.plan-completed {
