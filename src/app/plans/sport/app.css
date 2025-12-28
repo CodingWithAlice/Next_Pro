@@ -127,20 +127,42 @@
     display: flex;
     flex-direction: column;
     gap: 1px;
-    max-height: 26px;
+    max-height: 40px;
     overflow: hidden;
 }
 
 /* 单个运动记录项样式 */
 .sport-calendar-record-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 1px;
+}
+
+/* 运动记录数据行（上面一行，带颜色背景） */
+.sport-calendar-record-data {
     font-size: 9px;
-    line-height: 1.1;
-    color: #ff4d4f;
+    line-height: 1.2;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding: 0 1px;
-    background-color: rgba(255, 77, 79, 0.1);
+    padding: 1px 3px;
+    border-radius: 2px;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* 运动记录标签行（下面一行，深灰色背景，浅色文字） */
+.sport-calendar-record-label {
+    font-size: 8px;
+    line-height: 1.1;
+    color: #ffffff;
+    background-color: #595959;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 1px 2px;
+    text-align: center;
     border-radius: 2px;
 }
 

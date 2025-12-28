@@ -44,19 +44,73 @@ const SPORT_TYPES_CONFIG = [
 export default function SportOverviewCard({ totalSummary, records }: SportOverviewCardProps) {
     const [calendarExpanded, setCalendarExpanded] = useState(false);
 
-    // 格式化单个记录用于日历显示（不包含时长）
-    const formatRecordForCalendar = (record: SportRecord): string => {
+    // 获取课程类型的颜色
+    const getClassColor = (category: string): string => {
+        const colorMap: { [key: string]: string } = {
+            '跳操': '#ff7875',
+            '瑜伽课': '#95de64',
+            '踏板课': '#ffc069',
+            '乒乓球': '#40a9ff',
+            '蹦床课': '#b37feb',
+            '杠铃课': '#ff85c0',
+            '跳舞': '#ff9c6e',
+            '舞力全开': '#ffd666',
+            '有氧操': '#ffadd2',
+            '尊巴': '#ff7a45',
+            '肚皮舞': '#ffa940',
+            '舞蹈课': '#ffc53d',
+            '跳大绳': '#ffa940',
+            '团课': '#ff7875',
+            '翘臀美腿团课': '#ff85c0',
+            '杠铃减脂': '#ffc069',
+            '杠零臀腿': '#ffc069',
+            '搏击课': '#ff4d4f',
+            '搏击操': '#ff4d4f',
+            '爬坡': '#8c8c8c',
+            '爬楼': '#8c8c8c',
+            '爬楼梯': '#8c8c8c',
+        };
+        return colorMap[category] || '#722ed1'; // 默认紫色
+    };
+
+    // 格式化单个记录用于日历显示
+    const formatRecordForCalendar = (record: SportRecord): { data: string; label: string; color: string; showLabel: boolean } => {
         switch (record.type) {
             case 'running':
-                return `${record.value}km`;
+                return {
+                    data: `${record.value}km`,
+                    label: '跑步',
+                    color: '#52c41a', // 绿色
+                    showLabel: true,
+                };
             case 'resistance':
-                return `${record.category} ${record.value}kg`;
+                return {
+                    data: `${record.value}`, // 不带kg单位
+                    label: record.category || '力量',
+                    color: '#1890ff', // 深蓝色
+                    showLabel: true,
+                };
             case 'hiking':
-                return `${record.value}km${record.subInfo ? `(${record.subInfo})` : ''}`;
+                return {
+                    data: `${record.value}km${record.subInfo ? `(${record.subInfo})` : ''}`,
+                    label: '徒步',
+                    color: '#52c41a', // 绿色
+                    showLabel: true,
+                };
             case 'class':
-                return `${record?.notes ?? record.category} ${record.value}min`;
+                return {
+                    data: record.category || record.notes || '课程',
+                    label: '',
+                    color: getClassColor(record.category),
+                    showLabel: false, // 课程类型不显示下面的标签
+                };
             default:
-                return '';
+                return {
+                    data: '',
+                    label: '',
+                    color: '#999',
+                    showLabel: false,
+                };
         }
     };
 
@@ -69,11 +123,27 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
         if (dayRecords.length > 0) {
             return (
                 <div className="sport-calendar-cell-content">
-                    {dayRecords.map((record, index) => (
-                        <div key={record.id || index} className="sport-calendar-record-item">
-                            {formatRecordForCalendar(record)}
-                        </div>
-                    ))}
+                    {dayRecords.map((record, index) => {
+                        const formatted = formatRecordForCalendar(record);
+                        return (
+                            <div key={record.id || index} className="sport-calendar-record-item">
+                                <div 
+                                    className="sport-calendar-record-data" 
+                                    style={{ 
+                                        backgroundColor: formatted.color,
+                                        color: '#ffffff'
+                                    }}
+                                >
+                                    {formatted.data}
+                                </div>
+                                {formatted.showLabel && (
+                                    <div className="sport-calendar-record-label">
+                                        {formatted.label}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
             );
         }
