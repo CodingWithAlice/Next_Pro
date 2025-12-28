@@ -47,10 +47,13 @@ async function GET(request: NextRequest) {
 				? 'completed' 
 				: 'active'
 
-			// 计算该计划期间的跑步记录
+			// 计算该计划期间的跑步记录（用于计算实际完成情况）
+			// 将日期字符串转换为 Date 对象进行比较，确保比较准确
+			const planStart = new Date(planStartDate)
+			const planEnd = new Date(planEndDate)
 			const planRecords = runningRecords.filter((record: any) => {
-				const recordDate = record.get('date')
-				return recordDate >= planStartDate && recordDate <= planEndDate
+				const recordDate = new Date(record.get('date'))
+				return recordDate >= planStart && recordDate <= planEnd
 			})
 
 			// 计算每个子项的完成情况
@@ -65,16 +68,17 @@ async function GET(request: NextRequest) {
 				const itemStartDate = item.get('startDate')
 				const itemEndDate = item.get('endDate')
 
-				// 计算该子项期间的跑步记录（用于计算总距离）
+				// 计算该子项期间的跑步记录（用于计算实际完成情况）
+				// 将日期字符串转换为 Date 对象进行比较，确保比较准确
+				const itemStart = new Date(itemStartDate)
+				const itemEnd = new Date(itemEndDate)
 				const itemRecords = planRecords.filter((record: any) => {
-					const recordDate = record.get('date')
-					return recordDate >= itemStartDate && recordDate <= itemEndDate
+					const recordDate = new Date(record.get('date'))
+					return recordDate >= itemStart && recordDate <= itemEnd
 				})
 
-				// 计算子项的总距离
-				const itemTotalDistance = itemRecords.reduce((sum: number, record: any) => {
-					return sum + (parseFloat(record.get('value')) || 0)
-				}, 0)
+				// 计算子项的目标总距离（计划需要完成的总距离 = target_times × distance）
+				const itemTotalDistance = itemTargetTimes * itemDistance
 
 				// 累加总目标次数和完成次数（使用数据库中的 currentTimes）
 				totalTargetTimes += itemTargetTimes
