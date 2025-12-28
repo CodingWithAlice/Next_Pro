@@ -110,9 +110,7 @@ export default function RunningPlansCard({ plans }: RunningPlansCardProps) {
                                             icon={isExpanded ? <UpOutlined /> : <DownOutlined />}
                                             onClick={() => togglePlanExpanded(plan.planName)}
                                             style={{ padding: 0, marginLeft: 8 }}
-                                        >
-                                            {isExpanded ? '收起详情' : '展开详情'}
-                                        </Button>
+                                        />
                                     </div>
                                 </div>
                                 <div className="plan-info">
