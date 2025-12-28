@@ -147,7 +147,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
     padding: 1px 3px;
-    border-radius: 2px;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
     font-weight: 500;
     text-align: center;
 }
@@ -163,7 +164,8 @@
     text-overflow: ellipsis;
     padding: 1px 2px;
     text-align: center;
-    border-radius: 2px;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
 }
 
 /* 有运动记录的日期单元格背景色 */
