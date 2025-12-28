@@ -2,7 +2,8 @@
 import { useState } from 'react';
 import { Button, message } from 'antd';
 import { ShareAltOutlined, DownloadOutlined } from '@ant-design/icons';
-import html2canvas from 'html2canvas';
+// @ts-ignore - html-to-image 可能没有类型定义
+import { toPng } from 'html-to-image';
 
 interface ShareImageButtonProps {
     /** 要截图的元素选择器或 ref */
@@ -49,8 +50,6 @@ export default function ShareImageButton({
             // 执行截图前的回调
             if (beforeCapture) {
                 await beforeCapture();
-                // 等待一下，确保 DOM 更新完成
-                await new Promise(resolve => setTimeout(resolve, 100));
             }
 
             // 获取目标元素
@@ -66,51 +65,36 @@ export default function ShareImageButton({
                 return;
             }
 
-            // 使用 html2canvas 截图
-            const canvas = await html2canvas(element, {
+            // 等待元素完全渲染和布局计算完成
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            // 强制重新计算布局
+            void element.offsetHeight;
+
+            // 滚动到元素位置，确保元素完全可见
+            element.scrollIntoView({ behavior: 'instant', block: 'start' });
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            // 使用 html-to-image 截图（对现代 CSS 支持更好）
+            const dataUrl = await toPng(element, {
                 backgroundColor: '#ffffff',
-                scale: 2, // 提高图片清晰度
-                useCORS: true,
-                logging: false,
-                allowTaint: false,
-                removeContainer: false,
-                // 确保正确渲染样式
-                onclone: (clonedDoc) => {
-                    // 在克隆的文档中强制应用样式，确保截图时样式正确
-                    const style = clonedDoc.createElement('style');
-                    style.textContent = `
-                        .plan-status-badge {
-                            display: inline-flex !important;
-                            align-items: center !important;
-                            justify-content: center !important;
-                            line-height: 1 !important;
-                            height: 22px !important;
-                            box-sizing: border-box !important;
-                        }
-                    `;
-                    clonedDoc.head.appendChild(style);
+                pixelRatio: window.devicePixelRatio || 2, // 使用设备像素比提高清晰度
+                quality: 1,
+                cacheBust: true,
+                style: {
+                    transform: 'scale(1)',
                 },
             });
 
-            // 将 canvas 转换为 blob
-            canvas.toBlob((blob) => {
-                if (!blob) {
-                    message.error('生成图片失败');
-                    return;
-                }
+            // 创建下载链接
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = `${fileName}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
 
-                // 创建下载链接
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `${fileName}.png`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-
-                message.success('图片已下载');
-            }, 'image/png');
+            message.success('图片已下载');
 
             // 执行截图后的回调
             if (afterCapture) {

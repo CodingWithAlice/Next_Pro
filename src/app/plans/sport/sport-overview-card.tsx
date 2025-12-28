@@ -4,6 +4,7 @@ import { Card, Calendar, Button } from 'antd';
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import type { CalendarProps } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
+import ShareImageButton from '@/components/share-image-button';
 import './app.css';
 
 export type SportType = 'running' | 'resistance' | 'hiking' | 'class';
@@ -169,14 +170,24 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
                 <div className="sport-calendar-section">
                     <div className="sport-calendar-header">
                         <span className="calendar-title">运动打卡日历</span>
-                        <Button
-                            type="text"
-                            size="small"
-                            icon={calendarExpanded ? <UpOutlined /> : <DownOutlined />}
-                            onClick={() => setCalendarExpanded(!calendarExpanded)}
-                        >
-                            {calendarExpanded ? '收起' : '展开'}
-                        </Button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            {calendarExpanded && (
+                                <ShareImageButton
+                                    targetElement=".sport-calendar"
+                                    fileName="运动打卡日历"
+                                    size="small"
+                                    type="link"
+                                    style={{ padding: 0 }}
+                                />
+                            )}
+                            <Button
+                                type="text"
+                                size="small"
+                                icon={calendarExpanded ? <UpOutlined /> : <DownOutlined />}
+                                onClick={() => setCalendarExpanded(!calendarExpanded)}
+                                style={{ padding: 0 }}
+                            />
+                        </div>
                     </div>
                     {calendarExpanded && (
                         <div className="sport-calendar">

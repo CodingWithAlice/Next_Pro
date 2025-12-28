@@ -106,13 +106,15 @@
 
 .sport-calendar .ant-picker-cell {
     position: relative;
-    height: 32px;
+    height: auto;
+    min-height: 32px;
     padding: 2px;
 }
 
 .sport-calendar .ant-picker-cell-inner {
-    height: 28px;
-    line-height: 28px;
+    height: auto;
+    min-height: 28px;
+    line-height: 1.2;
     padding: 0;
 }
 
@@ -126,9 +128,8 @@
     margin-top: 2px;
     display: flex;
     flex-direction: column;
-    gap: 1px;
-    max-height: 40px;
-    overflow: hidden;
+    gap: 2px;
+    width: 100%;
 }
 
 /* 单个运动记录项样式 */
@@ -136,7 +137,8 @@
     display: flex;
     flex-direction: column;
     gap: 0;
-    margin-bottom: 1px;
+    flex-shrink: 0;
+    width: 100%;
 }
 
 /* 运动记录数据行（上面一行，带颜色背景） */
