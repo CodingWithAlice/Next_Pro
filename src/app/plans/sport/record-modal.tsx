@@ -1,6 +1,6 @@
 'use client';
 import { useEffect } from 'react';
-import { Modal, Input, InputNumber, Select, Form, DatePicker } from 'antd';
+import { Modal, Input, InputNumber, Select, Form, DatePicker, AutoComplete } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 
 // 运动类型
@@ -15,7 +15,7 @@ interface RecordModalProps {
 }
 
 // 表单字段类型
-type FormFieldType = 'number' | 'text' | 'select';
+type FormFieldType = 'number' | 'text' | 'select' | 'autocomplete';
 
 interface FormFieldConfig {
     name: string;
@@ -83,15 +83,25 @@ const SPORT_TYPE_CONFIG: Record<SportType, {
             {
                 name: 'category',
                 label: '课程类型',
-                type: 'select',
+                type: 'autocomplete',
                 required: true,
-                placeholder: '选择课程',
+                placeholder: '选择或输入课程名称',
                 options: [
                     { value: '踏板课', label: '踏板课' },
                     { value: '乒乓球', label: '乒乓球' },
                     { value: '瑜伽课', label: '瑜伽课' },
                     { value: '蹦床课', label: '蹦床课' },
                     { value: '杠铃课', label: '杠铃课' },
+                    { value: '跳舞', label: '跳舞' },
+                    { value: '舞力全开', label: '舞力全开' },
+                    { value: '搏击课', label: '搏击课' },
+                    { value: '尊巴', label: '尊巴' },
+                    { value: '肚皮舞', label: '肚皮舞' },
+                    { value: '舞蹈课', label: '舞蹈课' },
+                    { value: '跳操', label: '跳操' },
+                    { value: '有氧操', label: '有氧操' },
+                    { value: '爬坡', label: '爬坡' },
+                    { value: '爬楼', label: '爬楼' },
                     { value: '其他有氧', label: '其他有氧' },
                 ],
             },
@@ -169,6 +179,24 @@ export default function RecordModal({ open, type, date, onCancel, onSave }: Reco
                         <Select
                             placeholder={field.placeholder}
                             options={field.options}
+                        />
+                    </Form.Item>
+                );
+            case 'autocomplete':
+                return (
+                    <Form.Item
+                        key={field.name}
+                        label={field.label}
+                        name={field.name}
+                        rules={rules}
+                    >
+                        <AutoComplete
+                            placeholder={field.placeholder}
+                            options={field.options}
+                            allowClear
+                            filterOption={(inputValue, option) =>
+                                option?.value?.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+                            }
                         />
                     </Form.Item>
                 );
