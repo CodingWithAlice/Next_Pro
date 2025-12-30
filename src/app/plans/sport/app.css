@@ -131,6 +131,23 @@
     line-height: 1.2;
 }
 
+/* 当前月份的日期添加圆形背景 */
+.sport-calendar .ant-picker-cell-in-view .ant-picker-calendar-date-value {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: rgba(26, 196, 168, 0.2);
+}
+
+/* 当前日期（今天）的圆形背景更明显 */
+.sport-calendar .ant-picker-cell-today .ant-picker-calendar-date-value {
+    background-color: rgba(82, 196, 26, 0.25);
+    font-weight: 600;
+}
+
 /* 运动日历单元格内容容器 */
 .sport-calendar-cell-content {
     margin-top: 2px;
