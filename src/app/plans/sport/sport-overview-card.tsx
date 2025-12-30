@@ -291,6 +291,15 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
                                             style={{ padding: 0 }}
                                         />
                                     )}
+                                    {viewMode === 'year' && (
+                                        <ShareImageButton
+                                            targetElement=".year-view-container"
+                                            fileName={`${selectedYear}年运动打卡日历`}
+                                            size="small"
+                                            type="link"
+                                            style={{ padding: 0 }}
+                                        />
+                                    )}
                                 </>
                             )}
                             <Button
