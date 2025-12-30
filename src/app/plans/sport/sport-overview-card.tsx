@@ -1,7 +1,7 @@
 'use client';
 import { useState, useMemo } from 'react';
 import { Card, Calendar, Button } from 'antd';
-import { DownOutlined, UpOutlined } from '@ant-design/icons';
+import { DownOutlined, UpOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import type { CalendarProps } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import ShareImageButton from '@/components/share-image-button';
@@ -46,6 +46,7 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
     const [calendarExpanded, setCalendarExpanded] = useState(false);
     const [viewMode, setViewMode] = useState<'month' | 'year'>('month');
     const [selectedYear, setSelectedYear] = useState<number>(dayjs().year());
+    const [selectedMonth, setSelectedMonth] = useState<Dayjs>(dayjs());
 
     // 获取课程类型的颜色
     const getClassColor = (category: string): string => {
@@ -342,13 +343,32 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
                                         年视图
                                     </Button>
                                     {viewMode === 'month' && (
-                                        <ShareImageButton
-                                            targetElement=".sport-calendar"
-                                            fileName="运动打卡日历"
-                                            size="small"
-                                            type="link"
-                                            style={{ padding: 0 }}
-                                        />
+                                        <>
+                                            <Button
+                                                size="small"
+                                                icon={<LeftOutlined />}
+                                                onClick={() => setSelectedMonth(selectedMonth.subtract(1, 'month'))}
+                                            >
+                                                上一月
+                                            </Button>
+                                            <span className="month-view-title">
+                                                {selectedMonth.format('YYYY年MM月')}
+                                            </span>
+                                            <Button
+                                                size="small"
+                                                icon={<RightOutlined />}
+                                                onClick={() => setSelectedMonth(selectedMonth.add(1, 'month'))}
+                                            >
+                                                下一月
+                                            </Button>
+                                            <ShareImageButton
+                                                targetElement=".sport-calendar"
+                                                fileName="运动打卡日历"
+                                                size="small"
+                                                type="link"
+                                                style={{ padding: 0 }}
+                                            />
+                                        </>
                                     )}
                                     {viewMode === 'year' && (
                                         <ShareImageButton
@@ -374,8 +394,10 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
                         <div className="sport-calendar">
                             {viewMode === 'month' ? (
                                 <Calendar 
+                                    value={selectedMonth}
                                     cellRender={cellRender}
-                                    headerRender={() => <></>} 
+                                    headerRender={() => <></>}
+                                    onPanelChange={(value) => setSelectedMonth(value)}
                                 />
                             ) : (
                                 renderYearView()

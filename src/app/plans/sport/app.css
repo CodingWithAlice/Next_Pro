@@ -89,6 +89,14 @@
     font-size: 14px;
 }
 
+.month-view-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    min-width: 100px;
+    text-align: center;
+}
+
 .sport-calendar {
     padding: 10px 0;
 }
