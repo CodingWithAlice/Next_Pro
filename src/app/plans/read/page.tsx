@@ -16,13 +16,16 @@ interface BooksDTO {
     recent: string;
     lastTime: string;
     blogUrl: string;
-    tag: '电影' | '阅读' | '话剧';
+    tag: '电影' | '阅读' | '话剧' | string;
 }
 
 const colorMap = {
     '电影': 'cyan',
     '阅读': 'gold',
     '话剧': 'magenta',
+    '综艺': 'orange',
+    '电视剧': 'purple',
+    '音乐剧': 'green'
 }
 
 // 每个类别对应的色系（同一色系的不同深浅颜色）
@@ -30,8 +33,9 @@ const categoryColorSchemes: Record<string, string[]> = {
     '电影': ['cyan', 'geekblue', 'blue'], // 蓝色系
     '阅读': ['gold', 'orange', 'volcano'], // 橙黄色系
     '话剧': ['magenta', 'purple', 'geekblue'], // 紫色系
-    '音乐剧': ['green', 'lime', 'cyan'], // 绿色系
+    '综艺': ['orange', 'volcano', 'gold'], // 橙红色系
     '电视剧': ['purple', 'magenta', 'geekblue'], // 紫色系
+    '音乐剧': ['green', 'lime', 'cyan'], // 绿色系
 }
 
 export default function ReadPage() {
@@ -47,7 +51,7 @@ export default function ReadPage() {
     const getItems = (it: BooksDTO) => {
         const { id, title, record, recent, lastTime, blogUrl, tag } = it;
         const label = <div>
-            <Tag color={colorMap[tag] || 'volcano'}>{tag}</Tag>
+            <Tag color={colorMap[tag as keyof typeof colorMap] || 'volcano'}>{tag}</Tag>
             {title}
             <Typography.Text type="secondary">
                 {dayjs(recent).format('YYYY/MM/DD')}
@@ -93,8 +97,10 @@ export default function ReadPage() {
         const statistics: Record<string, { count: number; items: BooksDTO[] }> = {
             '电影': { count: 0, items: [] },
             '阅读': { count: 0, items: [] },
-            '音乐剧': { count: 0, items: [] },
             '电视剧': { count: 0, items: [] },
+            '音乐剧': { count: 0, items: [] },
+            // '话剧': { count: 0, items: [] },
+            // '综艺': { count: 0, items: [] },
         };
 
         booksList.forEach(book => {
