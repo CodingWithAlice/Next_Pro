@@ -126,6 +126,19 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
         return datesSet;
     }, [records]);
 
+    // 计算当前年份的运动天数
+    const currentYearSportDays = useMemo(() => {
+        const yearStart = `${selectedYear}-01-01`;
+        const yearEnd = `${selectedYear}-12-31`;
+        let count = 0;
+        sportDatesSet.forEach(date => {
+            if (date >= yearStart && date <= yearEnd) {
+                count++;
+            }
+        });
+        return count;
+    }, [selectedYear, sportDatesSet]);
+
     // 日历日期单元格自定义渲染（月视图）
     const dateCellRender = (value: Dayjs) => {
         const dateStr = value.format('YYYY-MM-DD');
@@ -231,7 +244,12 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
                     >
                         上一年
                     </Button>
-                    <span className="year-view-title">{selectedYear}年</span>
+                    <span className="year-view-title">
+                        {selectedYear}年运动记录
+                        <span style={{ marginLeft: 8, color: '#8b0000', fontWeight: 500 }}>
+                            {currentYearSportDays}天
+                        </span>
+                    </span>
                     <Button
                         size="small"
                         onClick={() => setSelectedYear(selectedYear + 1)}
