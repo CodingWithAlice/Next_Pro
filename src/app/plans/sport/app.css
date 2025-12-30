@@ -559,7 +559,7 @@
 }
 
 /* 响应式设计 */
-@media (max-width: 100px) {
+@media (max-width: 1200px) {
     .year-view-months {
         grid-template-columns: repeat(3, 1fr);
     }
