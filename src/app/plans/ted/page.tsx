@@ -3,7 +3,7 @@ import './app.css';
 import { useEffect, useState } from 'react';
 import Api, { TedRecordDTO } from '@/service/api';
 import type { CollapseProps } from 'antd';
-import { Collapse, message, Tag } from 'antd';
+import { Collapse, message, Tag, Spin } from 'antd';
 import { CheckSquareTwoTone, CopyOutlined } from '@ant-design/icons';
 import TedNewRecord from '@/components/ted-new-record';
 import dayjs from 'dayjs';
@@ -20,6 +20,7 @@ interface TedDTO {
 
 export default function TedPage() {
     const [messageApi, contextHolder] = message.useMessage();
+    const [loading, setLoading] = useState(true);
     const [tedList, setTedList] = useState<TedDTO[]>([]);
     const [lastTedId, setLastTedId] = useState();
 
@@ -67,15 +68,31 @@ export default function TedPage() {
 
     // 初始化查询接口
     const init = () => {
+        setLoading(true);
         Api.getTedList().then(({ tedList, recentTedRecord }) => {
             setTedList(tedList || []);
-            setLastTedId(recentTedRecord?.tedId)
+            setLastTedId(recentTedRecord?.tedId);
+        }).finally(() => {
+            setLoading(false);
         });
     }
 
     useEffect(() => {
         init();
     }, [])
+
+    if (loading) {
+        return (
+            <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+                minHeight: '400px' 
+            }}>
+                <Spin size="large" />
+            </div>
+        );
+    }
 
     return <div className='ted'>
         {contextHolder}

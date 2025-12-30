@@ -1,0 +1,25 @@
+/* 确保 Tab 始终居中显示，避免初始渲染时的位置闪烁 */
+.ant-tabs {
+    display: flex;
+    flex-direction: column;
+}
+
+.ant-tabs-nav {
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+.ant-tabs-nav-wrap {
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+}
+
+.ant-tabs-nav-list {
+    display: flex !important;
+    justify-content: center !important;
+    width: auto !important;
+}
+

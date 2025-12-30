@@ -3,7 +3,7 @@ import './app.css';
 import { useEffect, useState } from 'react';
 import Api from '@/service/api';
 import type { CollapseProps } from 'antd';
-import { Collapse, Tag, Typography } from 'antd';
+import { Collapse, Tag, Typography, Spin } from 'antd';
 import dayjs from 'dayjs';
 import BooksAdd from '@/components/books-add';
 
@@ -24,6 +24,7 @@ const colorMap = {
 }
 
 export default function ReadPage() {
+    const [loading, setLoading] = useState(true);
     const [booksList, setBooksList] = useState<BooksDTO[]>([]);
 
     // 根据每道题生成折叠配置
@@ -54,6 +55,7 @@ export default function ReadPage() {
 
     // 初始化查询接口
     const init = () => {
+        setLoading(true);
         Api.getReadApi().then(({ booksData }) => {
             const sortedData = booksData;
             sortedData.sort((a: BooksDTO, b: BooksDTO) => {
@@ -61,12 +63,27 @@ export default function ReadPage() {
                 return isBefore ? 1 : -1
             });            
             setBooksList(sortedData || []);
+        }).finally(() => {
+            setLoading(false);
         });
     }
 
     useEffect(() => {
         init();
     }, [])
+
+    if (loading) {
+        return (
+            <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+                minHeight: '400px' 
+            }}>
+                <Spin size="large" />
+            </div>
+        );
+    }
 
     return <div className='read'>
         <BooksAdd fresh={init} />

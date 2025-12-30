@@ -2,7 +2,7 @@
 import './app.css';
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
-import { Button, Card, message } from 'antd';
+import { Button, Card, message, Spin } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import RecordModal from './record-modal';
 import RunningPlansCard, { type RunningPlan } from './running-plans-card';
@@ -23,6 +23,7 @@ const SPORT_TYPES_CONFIG = [
 
 export default function SportPage() {
     const [messageApi, contextHolder] = message.useMessage();
+    const [loading, setLoading] = useState(true);
     const [totalSummary, setTotalSummary] = useState<SportSummary>({
         running: 0,
         resistance: 0,
@@ -37,6 +38,7 @@ export default function SportPage() {
     // 加载数据
     const loadData = async () => {
         try {
+            setLoading(true);
             // 获取全部记录用于显示
             const response = await Api.getSportApi();
             
@@ -55,6 +57,8 @@ export default function SportPage() {
             }
         } catch (error: any) {
             messageApi.error(error.message || '加载数据失败');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -87,6 +91,19 @@ export default function SportPage() {
     useEffect(() => {
         loadData();
     }, []);
+
+    if (loading) {
+        return (
+            <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+                minHeight: '400px' 
+            }}>
+                <Spin size="large" />
+            </div>
+        );
+    }
 
     return (
         <div className="sport-page">
