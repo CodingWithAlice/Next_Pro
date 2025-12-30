@@ -1,9 +1,8 @@
 'use client';
 import './app.css';
 import { useEffect, useState } from 'react';
-import dayjs, { Dayjs } from 'dayjs';
-import { DatePicker, Button, Card, message } from 'antd';
-import type { DatePickerProps } from 'antd';
+import dayjs from 'dayjs';
+import { Button, Card, message, Spin } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import RecordModal from './record-modal';
 import RunningPlansCard, { type RunningPlan } from './running-plans-card';
@@ -24,13 +23,7 @@ const SPORT_TYPES_CONFIG = [
 
 export default function SportPage() {
     const [messageApi, contextHolder] = message.useMessage();
-    const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
-    const [todaySummary, setTodaySummary] = useState<SportSummary>({
-        running: 0,
-        resistance: 0,
-        hiking: 0,
-        class: 0
-    });
+    const [loading, setLoading] = useState(true);
     const [totalSummary, setTotalSummary] = useState<SportSummary>({
         running: 0,
         resistance: 0,
@@ -45,13 +38,11 @@ export default function SportPage() {
     // 加载数据
     const loadData = async () => {
         try {
+            setLoading(true);
             // 获取全部记录用于显示
             const response = await Api.getSportApi();
             
             if (response.success) {
-                // 设置今日汇总
-                setTodaySummary(response.todaySummary);
-                
                 // 设置总汇总
                 setTotalSummary(response.totalSummary);
                 
@@ -66,13 +57,8 @@ export default function SportPage() {
             }
         } catch (error: any) {
             messageApi.error(error.message || '加载数据失败');
-        }
-    };
-
-    // 日期选择器变化
-    const onDateChange: DatePickerProps['onChange'] = (date) => {
-        if (date) {
-            setSelectedDate(date);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -104,38 +90,27 @@ export default function SportPage() {
 
     useEffect(() => {
         loadData();
-    }, [selectedDate]);
+    }, []);
+
+    if (loading) {
+        return (
+            <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+                minHeight: '400px' 
+            }}>
+                <Spin size="large" />
+            </div>
+        );
+    }
 
     return (
         <div className="sport-page">
             {contextHolder}
 
-            {/* 第一层：快捷记录 + 时间维度切换 */}
-            <Card className="sport-card" title={
-                <div className="card-header">
-                    <span>快捷记录</span>
-                    <DatePicker
-                        value={selectedDate}
-                        onChange={onDateChange}
-                        format="YYYY-MM-DD"
-                        size="small"
-                    />
-                </div>
-            }>
-                <div className="today-summary">
-                    <div className="summary-item">
-                        <span className="label">今日运动：</span>
-                        {SPORT_TYPES_CONFIG.map((config, index) => (
-                            <span key={config.type}>
-                                {index > 0 && <span className="separator">|</span>}
-                                <span className="value">
-                                    {config.label} {todaySummary[config.summaryKey]}{config.unit}
-                                </span>
-                            </span>
-                        ))}
-                    </div>
-                </div>
-
+            {/* 第一层：快捷记录 */}
+            <Card className="sport-card" title="快捷记录">
                 <div className="quick-actions">
                     {SPORT_TYPES_CONFIG.map((config) => (
                         <Button 
@@ -170,7 +145,7 @@ export default function SportPage() {
             <RecordModal
                 open={isModalOpen}
                 type={modalType}
-                date={selectedDate}
+                date={dayjs()}
                 onCancel={handleCancel}
                 onSave={handleSaveRecord}
             />

@@ -1,7 +1,7 @@
 'use client';
-import { useState } from 'react';
-import { Card, Calendar, Button } from 'antd';
-import { DownOutlined, UpOutlined } from '@ant-design/icons';
+import { useState, useMemo, useEffect } from 'react';
+import { Card, Calendar, Button, Tag } from 'antd';
+import { DownOutlined, UpOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import type { CalendarProps } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import ShareImageButton from '@/components/share-image-button';
@@ -36,14 +36,56 @@ interface SportOverviewCardProps {
 
 // 运动类型配置
 const SPORT_TYPES_CONFIG = [
-    { type: 'running' as SportType, label: '跑步', unit: 'km', summaryKey: 'running' as keyof SportSummary },
-    { type: 'resistance' as SportType, label: '撸铁', unit: 'kg', summaryKey: 'resistance' as keyof SportSummary },
-    { type: 'hiking' as SportType, label: '徒步', unit: 'km', summaryKey: 'hiking' as keyof SportSummary },
-    { type: 'class' as SportType, label: '课程', unit: 'min', summaryKey: 'class' as keyof SportSummary },
+    { 
+        type: 'running' as SportType, 
+        label: '跑步', 
+        unit: 'km', 
+        summaryKey: 'running' as keyof SportSummary,
+        color: '#52c41a', // 绿色
+        lightColor: 'rgba(82, 196, 26, 0.1)' // 浅绿色
+    },
+    { 
+        type: 'resistance' as SportType, 
+        label: '撸铁', 
+        unit: 'kg', 
+        summaryKey: 'resistance' as keyof SportSummary,
+        color: '#1890ff', // 深蓝色
+        lightColor: 'rgba(24, 144, 255, 0.1)' // 浅蓝色
+    },
+    { 
+        type: 'hiking' as SportType, 
+        label: '徒步', 
+        unit: 'km', 
+        summaryKey: 'hiking' as keyof SportSummary,
+        color: '#52c41a', // 绿色
+        lightColor: 'rgba(82, 196, 26, 0.1)' // 浅绿色
+    },
+    { 
+        type: 'class' as SportType, 
+        label: '课程', 
+        unit: 'min', 
+        summaryKey: 'class' as keyof SportSummary,
+        color: '#722ed1', // 紫色
+        lightColor: 'rgba(114, 46, 209, 0.1)' // 浅紫色
+    },
 ];
 
 export default function SportOverviewCard({ totalSummary, records }: SportOverviewCardProps) {
     const [calendarExpanded, setCalendarExpanded] = useState(false);
+    const [viewMode, setViewMode] = useState<'month' | 'year'>('month');
+    const [selectedYear, setSelectedYear] = useState<number>(dayjs().year());
+    const [selectedMonth, setSelectedMonth] = useState<Dayjs>(dayjs());
+    const [isMobile, setIsMobile] = useState(false);
+
+    // 检测是否为手机端
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     // 获取课程类型的颜色
     const getClassColor = (category: string): string => {
@@ -115,12 +157,64 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
         }
     };
 
-    // 日历日期单元格自定义渲染
-    const dateCellRender = (value: Dayjs) => {
-        const dateStr = value.format('YYYY-MM-DD');
+    // 获取有运动记录的日期集合（用于年视图）
+    const sportDatesSet = useMemo(() => {
+        const datesSet = new Set<string>();
+        records.forEach(record => {
+            datesSet.add(record.date);
+        });
+        return datesSet;
+    }, [records]);
+
+    // 计算当前年份的运动天数
+    const currentYearSportDays = useMemo(() => {
+        const yearStart = `${selectedYear}-01-01`;
+        const yearEnd = `${selectedYear}-12-31`;
+        let count = 0;
+        sportDatesSet.forEach(date => {
+            if (date >= yearStart && date <= yearEnd) {
+                count++;
+            }
+        });
+        return count;
+    }, [selectedYear, sportDatesSet]);
+
+    // 计算当前年份的运动汇总数据
+    const currentYearSummary = useMemo(() => {
+        const yearStart = `${selectedYear}-01-01`;
+        const yearEnd = `${selectedYear}-12-31`;
+        const summary: SportSummary = {
+            running: 0,
+            resistance: 0,
+            hiking: 0,
+            class: 0
+        };
+        
+        records.forEach(record => {
+            const recordDate = record.date;
+            if (recordDate >= yearStart && recordDate <= yearEnd) {
+                const recordType = record.type;
+                if (recordType in summary) {
+                    summary[recordType as keyof SportSummary] += record.value;
+                }
+            }
+        });
+        
+        return summary;
+    }, [selectedYear, records]);
+
+    // 日历日期单元格自定义渲染（月视图，仅网页端使用）
+    const cellRender = (current: Dayjs, info: { type: string }) => {
+        // 只在日期类型时渲染
+        if (info.type !== 'date') {
+            return null;
+        }
+        
+        const dateStr = current.format('YYYY-MM-DD');
         // 获取当天的所有运动记录
         const dayRecords = records.filter(record => record.date === dateStr);
         
+        // 网页端：显示详细记录
         if (dayRecords.length > 0) {
             return (
                 <div className="sport-calendar-cell-content">
@@ -151,19 +245,130 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
         return null;
     };
 
+    // 年视图：渲染单个月的日历
+    const renderMonthCalendar = (month: number, year: number) => {
+        const monthStart = dayjs(`${year}-${month.toString().padStart(2, '0')}-01`);
+        const monthEnd = monthStart.endOf('month');
+        const daysInMonth = monthEnd.date();
+        const firstDayOfWeek = monthStart.day(); // 0 = 周日, 6 = 周六
+        
+        const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+        const days: (number | null)[] = [];
+        
+        // 填充月初的空格
+        for (let i = 0; i < firstDayOfWeek; i++) {
+            days.push(null);
+        }
+        
+        // 填充日期
+        for (let day = 1; day <= daysInMonth; day++) {
+            days.push(day);
+        }
+        
+        return (
+            <div key={`${year}-${month}`} className="year-view-month">
+                <div className="year-view-month-title">
+                    {month}月
+                </div>
+                <div className="year-view-month-calendar">
+                    <div className="year-view-weekdays">
+                        {weekDays.map(day => (
+                            <div key={day} className="year-view-weekday">{day}</div>
+                        ))}
+                    </div>
+                    <div className="year-view-days">
+                        {days.map((day, index) => {
+                            if (day === null) {
+                                return <div key={index} className="year-view-day empty"></div>;
+                            }
+                            
+                            const dateStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                            const hasSport = sportDatesSet.has(dateStr);
+                            
+                            return (
+                                <div
+                                    key={index}
+                                    className={`year-view-day ${hasSport ? 'has-sport' : ''}`}
+                                    title={hasSport ? `${dateStr} 有运动记录` : dateStr}
+                                >
+                                    {day}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    // 渲染年视图
+    const renderYearView = () => {
+        const months = Array.from({ length: 12 }, (_, i) => i + 1);
+        
+        return (
+            <div className="year-view-container">
+                <div className="year-view-header">
+                    <Button
+                        size="small"
+                        onClick={() => setSelectedYear(selectedYear - 1)}
+                    >
+                        上一年
+                    </Button>
+                    <div className="year-view-title-wrapper">
+                        <span className="year-view-title">
+                            {selectedYear}年运动记录
+                            <span style={{ marginLeft: 8, color: '#8b0000', fontWeight: 500 }}>
+                                {currentYearSportDays}天
+                            </span>
+                        </span>
+                        <div className="year-view-summary">
+                            {SPORT_TYPES_CONFIG.map((config, index) => (
+                                <span key={config.type}>
+                                    {index > 0 && <span className="separator">，</span>}
+                                    <span className="value">
+                                        {config.label} {currentYearSummary[config.summaryKey]}{config.unit}
+                                    </span>
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                    <Button
+                        size="small"
+                        onClick={() => setSelectedYear(selectedYear + 1)}
+                    >
+                        下一年
+                    </Button>
+                </div>
+                <div className="year-view-months">
+                    {months.map(month => renderMonthCalendar(month, selectedYear))}
+                </div>
+            </div>
+        );
+    };
+
     return (
         <Card className="sport-card" title="运动概览">
             <div className="quick-record-section">
                 <div className="total-summary">
-                    <span className="label">总数：</span>
-                    {SPORT_TYPES_CONFIG.map((config, index) => (
-                        <span key={config.type}>
-                            {index > 0 && <span className="separator">|</span>}
-                            <span className="value">
+                    <span className="label">运动容量：</span>
+                    <div className="total-summary-tags">
+                        {SPORT_TYPES_CONFIG.map((config) => (
+                            <Tag
+                                key={config.type}
+                                className="summary-tag"
+                                style={{
+                                    backgroundColor: config.lightColor,
+                                    borderColor: config.color,
+                                    color: config.color,
+                                    fontSize: '14px',
+                                    padding: '4px 12px',
+                                    borderRadius: '4px',
+                                }}
+                            >
                                 {config.label} {totalSummary[config.summaryKey]}{config.unit}
-                            </span>
-                        </span>
-                    ))}
+                            </Tag>
+                        ))}
+                    </div>
                 </div>
 
                 {/* 运动日历组件 */}
@@ -171,14 +376,60 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
                     <div className="sport-calendar-header">
                         <span className="calendar-title">运动打卡日历</span>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            {calendarExpanded && (
-                                <ShareImageButton
-                                    targetElement=".sport-calendar"
-                                    fileName="运动打卡日历"
-                                    size="small"
-                                    type="link"
-                                    style={{ padding: 0 }}
-                                />
+                            {calendarExpanded && !isMobile && (
+                                <>
+                                    <Button
+                                        size="small"
+                                        type={viewMode === 'month' ? 'primary' : 'default'}
+                                        onClick={() => setViewMode('month')}
+                                    >
+                                        月视图
+                                    </Button>
+                                    <Button
+                                        size="small"
+                                        type={viewMode === 'year' ? 'primary' : 'default'}
+                                        onClick={() => setViewMode('year')}
+                                    >
+                                        年视图
+                                    </Button>
+                                    {viewMode === 'month' && (
+                                        <>
+                                            <Button
+                                                size="small"
+                                                icon={<LeftOutlined />}
+                                                onClick={() => setSelectedMonth(selectedMonth.subtract(1, 'month'))}
+                                            >
+                                                上一月
+                                            </Button>
+                                            <span className="month-view-title">
+                                                {selectedMonth.format('YYYY年MM月')}
+                                            </span>
+                                            <Button
+                                                size="small"
+                                                icon={<RightOutlined />}
+                                                onClick={() => setSelectedMonth(selectedMonth.add(1, 'month'))}
+                                            >
+                                                下一月
+                                            </Button>
+                                            <ShareImageButton
+                                                targetElement=".sport-calendar"
+                                                fileName="运动打卡日历"
+                                                size="small"
+                                                type="link"
+                                                style={{ padding: 0 }}
+                                            />
+                                        </>
+                                    )}
+                                    {viewMode === 'year' && (
+                                        <ShareImageButton
+                                            targetElement=".year-view-container"
+                                            fileName={`${selectedYear}年运动打卡日历`}
+                                            size="small"
+                                            type="link"
+                                            style={{ padding: 0 }}
+                                        />
+                                    )}
+                                </>
                             )}
                             <Button
                                 type="text"
@@ -191,7 +442,18 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
                     </div>
                     {calendarExpanded && (
                         <div className="sport-calendar">
-                            <Calendar dateCellRender={dateCellRender} />
+                            {isMobile ? (
+                                renderMonthCalendar(dayjs().month() + 1, dayjs().year())
+                            ) : viewMode === 'month' ? (
+                                <Calendar 
+                                    value={selectedMonth}
+                                    cellRender={cellRender}
+                                    headerRender={() => <></>}
+                                    onPanelChange={(value) => setSelectedMonth(value)}
+                                />
+                            ) : (
+                                renderYearView()
+                            )}
                         </div>
                     )}
                 </div>
