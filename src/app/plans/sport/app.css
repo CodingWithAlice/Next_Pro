@@ -43,27 +43,62 @@
 .quick-record-section {
     display: flex;
     flex-direction: column;
-    gap: 20px;
 }
 
 .total-summary {
     padding: 10px 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
 }
 
 .total-summary .label {
     font-weight: 600;
     color: #333;
+    margin-right: 4px;
 }
 
-.total-summary .value {
-    color: rgb(38, 157, 128);
-    font-weight: 600;
-    margin: 0 8px;
+.total-summary-tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
 }
 
-.total-summary .separator {
-    color: #999;
-    margin: 0 4px;
+.summary-tag {
+    margin: 0 !important;
+    border: 1px solid;
+    font-weight: 500;
+    white-space: nowrap;
+    min-width: 100px;
+    text-align: center;
+}
+
+/* 响应式：移动端优化 */
+@media (max-width: 768px) {
+    .total-summary {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .total-summary .label {
+        margin-right: 0;
+    }
+
+    .total-summary-tags {
+        width: 100%;
+        gap: 6px;
+    }
+
+    .summary-tag {
+        font-size: 13px !important;
+        padding: 3px 10px !important;
+        min-width: calc(50% - 3px);
+        max-width: calc(50% - 3px);
+        flex: 0 0 calc(50% - 3px);
+    }
 }
 
 .quick-actions {

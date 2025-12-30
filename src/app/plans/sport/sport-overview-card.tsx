@@ -1,6 +1,6 @@
 'use client';
 import { useState, useMemo, useEffect } from 'react';
-import { Card, Calendar, Button } from 'antd';
+import { Card, Calendar, Button, Tag } from 'antd';
 import { DownOutlined, UpOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import type { CalendarProps } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
@@ -36,10 +36,38 @@ interface SportOverviewCardProps {
 
 // 运动类型配置
 const SPORT_TYPES_CONFIG = [
-    { type: 'running' as SportType, label: '跑步', unit: 'km', summaryKey: 'running' as keyof SportSummary },
-    { type: 'resistance' as SportType, label: '撸铁', unit: 'kg', summaryKey: 'resistance' as keyof SportSummary },
-    { type: 'hiking' as SportType, label: '徒步', unit: 'km', summaryKey: 'hiking' as keyof SportSummary },
-    { type: 'class' as SportType, label: '课程', unit: 'min', summaryKey: 'class' as keyof SportSummary },
+    { 
+        type: 'running' as SportType, 
+        label: '跑步', 
+        unit: 'km', 
+        summaryKey: 'running' as keyof SportSummary,
+        color: '#52c41a', // 绿色
+        lightColor: 'rgba(82, 196, 26, 0.1)' // 浅绿色
+    },
+    { 
+        type: 'resistance' as SportType, 
+        label: '撸铁', 
+        unit: 'kg', 
+        summaryKey: 'resistance' as keyof SportSummary,
+        color: '#1890ff', // 深蓝色
+        lightColor: 'rgba(24, 144, 255, 0.1)' // 浅蓝色
+    },
+    { 
+        type: 'hiking' as SportType, 
+        label: '徒步', 
+        unit: 'km', 
+        summaryKey: 'hiking' as keyof SportSummary,
+        color: '#52c41a', // 绿色
+        lightColor: 'rgba(82, 196, 26, 0.1)' // 浅绿色
+    },
+    { 
+        type: 'class' as SportType, 
+        label: '课程', 
+        unit: 'min', 
+        summaryKey: 'class' as keyof SportSummary,
+        color: '#722ed1', // 紫色
+        lightColor: 'rgba(114, 46, 209, 0.1)' // 浅紫色
+    },
 ];
 
 export default function SportOverviewCard({ totalSummary, records }: SportOverviewCardProps) {
@@ -322,15 +350,25 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
         <Card className="sport-card" title="运动概览">
             <div className="quick-record-section">
                 <div className="total-summary">
-                    <span className="label">总数：</span>
-                    {SPORT_TYPES_CONFIG.map((config, index) => (
-                        <span key={config.type}>
-                            {index > 0 && <span className="separator">|</span>}
-                            <span className="value">
+                    <span className="label">运动容量：</span>
+                    <div className="total-summary-tags">
+                        {SPORT_TYPES_CONFIG.map((config) => (
+                            <Tag
+                                key={config.type}
+                                className="summary-tag"
+                                style={{
+                                    backgroundColor: config.lightColor,
+                                    borderColor: config.color,
+                                    color: config.color,
+                                    fontSize: '14px',
+                                    padding: '4px 12px',
+                                    borderRadius: '4px',
+                                }}
+                            >
                                 {config.label} {totalSummary[config.summaryKey]}{config.unit}
-                            </span>
-                        </span>
-                    ))}
+                            </Tag>
+                        ))}
+                    </div>
                 </div>
 
                 {/* 运动日历组件 */}
