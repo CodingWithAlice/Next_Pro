@@ -172,12 +172,11 @@
 
 /* 有运动记录的日期单元格背景色 */
 .sport-calendar .ant-picker-cell:has(.sport-calendar-cell-content) .ant-picker-cell-inner {
-    background-color: rgba(255, 77, 79, 0.15) !important;
     border-radius: 4px;
 }
 
 .sport-calendar .ant-picker-cell:has(.sport-calendar-cell-content):hover .ant-picker-cell-inner {
-    background-color: rgba(255, 77, 79, 0.25) !important;
+    background-color: rgba(82, 196, 26, 0.20) !important; /* 稍微深一点的绿色 */
 }
 
 .recent-records {

@@ -164,8 +164,13 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
     }, [selectedYear, records]);
 
     // 日历日期单元格自定义渲染（月视图）
-    const dateCellRender = (value: Dayjs) => {
-        const dateStr = value.format('YYYY-MM-DD');
+    const cellRender = (current: Dayjs, info: { type: string }) => {
+        // 只在日期类型时渲染
+        if (info.type !== 'date') {
+            return null;
+        }
+        
+        const dateStr = current.format('YYYY-MM-DD');
         // 获取当天的所有运动记录
         const dayRecords = records.filter(record => record.date === dateStr);
         
@@ -368,7 +373,10 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
                     {calendarExpanded && (
                         <div className="sport-calendar">
                             {viewMode === 'month' ? (
-                                <Calendar dateCellRender={dateCellRender} />
+                                <Calendar 
+                                    cellRender={cellRender}
+                                    headerRender={() => <></>} 
+                                />
                             ) : (
                                 renderYearView()
                             )}
