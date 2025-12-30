@@ -1,5 +1,5 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, Calendar, Button } from 'antd';
 import { DownOutlined, UpOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import type { CalendarProps } from 'antd';
@@ -47,6 +47,17 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
     const [viewMode, setViewMode] = useState<'month' | 'year'>('month');
     const [selectedYear, setSelectedYear] = useState<number>(dayjs().year());
     const [selectedMonth, setSelectedMonth] = useState<Dayjs>(dayjs());
+    const [isMobile, setIsMobile] = useState(false);
+
+    // 检测是否为手机端
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     // 获取课程类型的颜色
     const getClassColor = (category: string): string => {
@@ -164,7 +175,7 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
         return summary;
     }, [selectedYear, records]);
 
-    // 日历日期单元格自定义渲染（月视图）
+    // 日历日期单元格自定义渲染（月视图，仅网页端使用）
     const cellRender = (current: Dayjs, info: { type: string }) => {
         // 只在日期类型时渲染
         if (info.type !== 'date') {
@@ -175,6 +186,7 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
         // 获取当天的所有运动记录
         const dayRecords = records.filter(record => record.date === dateStr);
         
+        // 网页端：显示详细记录
         if (dayRecords.length > 0) {
             return (
                 <div className="sport-calendar-cell-content">
@@ -326,7 +338,7 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
                     <div className="sport-calendar-header">
                         <span className="calendar-title">运动打卡日历</span>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            {calendarExpanded && (
+                            {calendarExpanded && !isMobile && (
                                 <>
                                     <Button
                                         size="small"
@@ -392,7 +404,9 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
                     </div>
                     {calendarExpanded && (
                         <div className="sport-calendar">
-                            {viewMode === 'month' ? (
+                            {isMobile ? (
+                                renderMonthCalendar(dayjs().month() + 1, dayjs().year())
+                            ) : viewMode === 'month' ? (
                                 <Calendar 
                                     value={selectedMonth}
                                     cellRender={cellRender}
