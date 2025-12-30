@@ -139,6 +139,30 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
         return count;
     }, [selectedYear, sportDatesSet]);
 
+    // 计算当前年份的运动汇总数据
+    const currentYearSummary = useMemo(() => {
+        const yearStart = `${selectedYear}-01-01`;
+        const yearEnd = `${selectedYear}-12-31`;
+        const summary: SportSummary = {
+            running: 0,
+            resistance: 0,
+            hiking: 0,
+            class: 0
+        };
+        
+        records.forEach(record => {
+            const recordDate = record.date;
+            if (recordDate >= yearStart && recordDate <= yearEnd) {
+                const recordType = record.type;
+                if (recordType in summary) {
+                    summary[recordType as keyof SportSummary] += record.value;
+                }
+            }
+        });
+        
+        return summary;
+    }, [selectedYear, records]);
+
     // 日历日期单元格自定义渲染（月视图）
     const dateCellRender = (value: Dayjs) => {
         const dateStr = value.format('YYYY-MM-DD');
@@ -244,12 +268,24 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
                     >
                         上一年
                     </Button>
-                    <span className="year-view-title">
-                        {selectedYear}年运动记录
-                        <span style={{ marginLeft: 8, color: '#8b0000', fontWeight: 500 }}>
-                            {currentYearSportDays}天
+                    <div className="year-view-title-wrapper">
+                        <span className="year-view-title">
+                            {selectedYear}年运动记录
+                            <span style={{ marginLeft: 8, color: '#8b0000', fontWeight: 500 }}>
+                                {currentYearSportDays}天
+                            </span>
                         </span>
-                    </span>
+                        <div className="year-view-summary">
+                            {SPORT_TYPES_CONFIG.map((config, index) => (
+                                <span key={config.type}>
+                                    {index > 0 && <span className="separator">，</span>}
+                                    <span className="value">
+                                        {config.label} {currentYearSummary[config.summaryKey]}{config.unit}
+                                    </span>
+                                </span>
+                            ))}
+                        </div>
+                    </div>
                     <Button
                         size="small"
                         onClick={() => setSelectedYear(selectedYear + 1)}
