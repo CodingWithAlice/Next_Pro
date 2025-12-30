@@ -7,6 +7,7 @@ import { Collapse, Tag, Typography, Spin, Button, Modal, FloatButton } from 'ant
 import { ShareAltOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import BooksAdd from '@/components/books-add';
+import ShareImageButton from '@/components/share-image-button';
 
 interface BooksDTO {
     id: number;
@@ -107,7 +108,18 @@ export default function ReadPage() {
 
         return (
             <Modal
-                title={`${selectedYear}年度记录`}
+                title={
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: 'calc(100% - 24px)' }}>
+                        <span>{selectedYear}年度记录</span>
+                        <ShareImageButton
+                            targetElement=".year-record-share-container"
+                            fileName={`${selectedYear}年度记录`}
+                            size="small"
+                            type="link"
+                            style={{ padding: 0 }}
+                        />
+                    </div>
+                }
                 open={yearShareModalOpen}
                 onCancel={() => setYearShareModalOpen(false)}
                 footer={[
@@ -123,32 +135,37 @@ export default function ReadPage() {
                 ]}
                 width={600}
             >
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                    {Object.entries(statistics).map(([tag, data]) => {
-                        if (data.count === 0) return null;
-                        
-                        return (
-                            <div key={tag}>
-                                <div style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
-                                    <Tag color={colorMap[tag as keyof typeof colorMap]} style={{ fontSize: '14px', padding: '4px 12px' }}>
-                                        {tag}
-                                    </Tag>
-                                    <span style={{ marginLeft: '8px' }}>共计 {data.count}{tag === '阅读' ? '本' : '部'}</span>
-                                </div>
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                                    {data.items.map((item, index) => (
-                                        <Tag
-                                            key={item.id}
-                                            color={tagColors[index % tagColors.length]}
-                                            style={{ fontSize: '13px', padding: '4px 10px', margin: 0 }}
-                                        >
-                                            {item.title}
+                <div className="year-record-share-container" style={{ padding: '20px', backgroundColor: '#ffffff' }}>
+                    <div style={{ fontSize: '20px', fontWeight: 600, marginBottom: '24px', textAlign: 'center' }}>
+                        {selectedYear}年度记录
+                    </div>
+                    <div className="year-record-content" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                        {Object.entries(statistics).map(([tag, data]) => {
+                            if (data.count === 0) return null;
+                            
+                            return (
+                                <div key={tag}>
+                                    <div style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
+                                        <Tag color={colorMap[tag as keyof typeof colorMap]} style={{ fontSize: '14px', padding: '4px 12px' }}>
+                                            {tag}
                                         </Tag>
-                                    ))}
+                                        <span style={{ marginLeft: '8px' }}>共计 {data.count}{tag === '阅读' ? '本' : '部'}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                        {data.items.map((item, index) => (
+                                            <Tag
+                                                key={item.id}
+                                                color={tagColors[index % tagColors.length]}
+                                                style={{ fontSize: '13px', padding: '4px 10px', margin: 0 }}
+                                            >
+                                                {item.title}
+                                            </Tag>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                        );
-                    })}
+                            );
+                        })}
+                    </div>
                 </div>
             </Modal>
         );
