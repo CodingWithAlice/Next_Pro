@@ -25,6 +25,15 @@ const colorMap = {
     '话剧': 'magenta',
 }
 
+// 每个类别对应的色系（同一色系的不同深浅颜色）
+const categoryColorSchemes: Record<string, string[]> = {
+    '电影': ['cyan', 'geekblue', 'blue'], // 蓝色系
+    '阅读': ['gold', 'orange', 'volcano'], // 橙黄色系
+    '话剧': ['magenta', 'purple', 'geekblue'], // 紫色系
+    '音乐剧': ['green', 'lime', 'cyan'], // 绿色系
+    '电视剧': ['purple', 'magenta', 'geekblue'], // 紫色系
+}
+
 export default function ReadPage() {
     const [loading, setLoading] = useState(true);
     const [booksList, setBooksList] = useState<BooksDTO[]>([]);
@@ -84,7 +93,8 @@ export default function ReadPage() {
         const statistics: Record<string, { count: number; items: BooksDTO[] }> = {
             '电影': { count: 0, items: [] },
             '阅读': { count: 0, items: [] },
-            '话剧': { count: 0, items: [] },
+            '音乐剧': { count: 0, items: [] },
+            '电视剧': { count: 0, items: [] },
         };
 
         booksList.forEach(book => {
@@ -104,7 +114,6 @@ export default function ReadPage() {
     // 渲染年度分享弹窗
     const renderYearShareModal = () => {
         const statistics = getYearStatistics();
-        const tagColors = ['cyan', 'gold', 'magenta', 'blue', 'green', 'orange', 'purple', 'red', 'volcano', 'geekblue'];
 
         return (
             <Modal
@@ -143,10 +152,13 @@ export default function ReadPage() {
                         {Object.entries(statistics).map(([tag, data]) => {
                             if (data.count === 0) return null;
                             
+                            // 获取当前类别对应的色系，如果没有则使用默认色系
+                            const colorScheme = categoryColorSchemes[tag] || ['geekblue', 'blue', 'cyan'];
+                            
                             return (
                                 <div key={tag}>
                                     <div style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
-                                        <Tag color={colorMap[tag as keyof typeof colorMap]} style={{ fontSize: '14px', padding: '4px 12px' }}>
+                                        <Tag color={colorMap[tag as keyof typeof colorMap] || 'geekblue'} style={{ fontSize: '14px', padding: '4px 12px' }}>
                                             {tag}
                                         </Tag>
                                         <span style={{ marginLeft: '8px' }}>共计 {data.count}{tag === '阅读' ? '本' : '部'}</span>
@@ -155,7 +167,7 @@ export default function ReadPage() {
                                         {data.items.map((item, index) => (
                                             <Tag
                                                 key={item.id}
-                                                color={tagColors[index % tagColors.length]}
+                                                color={colorScheme[index % colorScheme.length]}
                                                 style={{ fontSize: '13px', padding: '4px 10px', margin: 0 }}
                                             >
                                                 {item.title}
