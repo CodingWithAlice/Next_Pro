@@ -8,15 +8,17 @@ interface BookImageInputProps {
 	value?: string;
 	onChange?: (url: string) => void;
 	title?: string;
+	onUploadingChange?: (uploading: boolean) => void;
 }
 
-export default function BookImageInput({ value, onChange, title }: BookImageInputProps) {
+export default function BookImageInput({ value, onChange, title, onUploadingChange }: BookImageInputProps) {
 	const [mode, setMode] = useState<'upload' | 'url'>('upload');
 	const [uploading, setUploading] = useState(false);
 	const [urlInput, setUrlInput] = useState(value || '');
 
 	const handleUpload = async (file: File) => {
 		setUploading(true);
+		onUploadingChange?.(true);
 		try {
 			const response = await Api.uploadBookImage(file, title);
 			if (response.success && response.data?.url) {
@@ -32,6 +34,7 @@ export default function BookImageInput({ value, onChange, title }: BookImageInpu
 			return false;
 		} finally {
 			setUploading(false);
+			onUploadingChange?.(false);
 		}
 	};
 

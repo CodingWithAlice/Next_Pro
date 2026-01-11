@@ -38,6 +38,7 @@ interface BookEditModalProps {
 export default function BookEditModal({ open, record, onCancel, onSuccess }: BookEditModalProps) {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
+    const [imageUploading, setImageUploading] = useState(false);
     const [messageApi, contextHolder] = message.useMessage();
 
     useEffect(() => {
@@ -96,7 +97,7 @@ export default function BookEditModal({ open, record, onCancel, onSuccess }: Boo
                 open={open}
                 onOk={handleOk}
                 onCancel={handleCancel}
-                confirmLoading={loading}
+                confirmLoading={loading || imageUploading}
                 okText="保存"
                 cancelText="取消"
                 width={600}
@@ -153,6 +154,7 @@ export default function BookEditModal({ open, record, onCancel, onSuccess }: Boo
                             title={form.getFieldValue('title')}
                             value={form.getFieldValue('imageUrl')}
                             onChange={(url) => form.setFieldValue('imageUrl', url)}
+                            onUploadingChange={setImageUploading}
                         />
                     </Form.Item>
                 </Form>

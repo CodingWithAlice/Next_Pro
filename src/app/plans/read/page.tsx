@@ -62,7 +62,7 @@ export default function ReadPage() {
     const handleEditSuccess = () => {
         setEditModalOpen(false);
         setEditingRecord(null);
-        init(); // 刷新列表
+        refreshData(); // 静默刷新列表
     };
 
     const handleEditCancel = () => {
@@ -126,19 +126,29 @@ export default function ReadPage() {
         return items
     }
 
-    // 初始化查询接口
-    const init = () => {
-        setLoading(true);
-        Api.getReadApi().then(({ booksData }) => {
+    // 获取并更新数据
+    const fetchAndUpdateData = () => {
+        return Api.getReadApi().then(({ booksData }) => {
             const sortedData = booksData;
             sortedData.sort((a: BooksDTO, b: BooksDTO) => {
                 const isBefore = dayjs(a.recent).isBefore(b.recent)
                 return isBefore ? 1 : -1
             });            
             setBooksList(sortedData || []);
-        }).finally(() => {
+        });
+    }
+
+    // 初始化查询接口（带loading）
+    const init = () => {
+        setLoading(true);
+        fetchAndUpdateData().finally(() => {
             setLoading(false);
         });
+    }
+
+    // 静默刷新数据（不带loading）
+    const refreshData = () => {
+        fetchAndUpdateData();
     }
 
     useEffect(() => {
@@ -335,7 +345,7 @@ export default function ReadPage() {
     }
 
     return <div className='read'>
-        <BooksAdd fresh={init} />
+        <BooksAdd fresh={refreshData} />
         {booksList.map(it => (<Collapse
             className='item'
             key={it.id}
