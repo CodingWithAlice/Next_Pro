@@ -79,23 +79,45 @@
 /* 响应式设计 */
 @media (max-width: 768px) {
     .week {
-        flex-direction: column;
+        display: grid;
+        grid-template-columns: auto 1fr;
         gap: 12px;
+        align-items: center;
     }
 
     .week-title {
         font-size: 1.8rem;
+        grid-row: 1;
+        grid-column: 1 / -1;
+        width: 100%;
+        text-align: center;
+    }
+
+    .week > .serial-nav-btn {
+        grid-row: 2;
+        grid-column: 1;
     }
 
     .serial-navigation {
+        grid-row: 2;
+        grid-column: 2;
         width: 100%;
-        justify-content: center;
-        flex-wrap: wrap;
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+        gap: 8px;
+        padding-left: 8px;
     }
 
     .serial-nav-btn {
         font-size: 13px;
         padding: 5px 12px;
+        flex-shrink: 0;
+    }
+
+    .serial-navigation .serial-week {
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: 200px;
     }
 }
 
@@ -107,5 +129,14 @@
     .serial-nav-btn {
         font-size: 12px;
         padding: 5px 12px;
+    }
+
+    .serial-navigation {
+        gap: 12px;
+        padding-left: 0px;
+    }
+
+    .serial-navigation .serial-week {
+        max-width: 160px;
     }
 }
