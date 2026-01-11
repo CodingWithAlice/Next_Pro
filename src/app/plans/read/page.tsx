@@ -9,6 +9,7 @@ import dayjs from 'dayjs';
 import BooksAdd from '@/components/books-add';
 import ShareImageButton from '@/components/share-image-button';
 import BookEditModal from '@/components/book-edit-modal';
+import RecordItemContent from '@/components/record-item-content';
 
 interface BooksDTO {
     id: number;
@@ -108,18 +109,12 @@ export default function ReadPage() {
                 label,
                 extra,
                 children: <div className='record'>
-                    {imageUrl && (
-                        <div style={{ marginBottom: '16px' }}>
-                            <Image
-                                src={imageUrl}
-                                alt={title}
-                                style={{ width: '100%', height: 'auto', borderRadius: '4px' }}
-                            />
-                        </div>
-                    )}
-                    {blogUrl}
-                    {blogUrl && <br />}
-                    {record}
+                    <RecordItemContent
+                        imageUrl={imageUrl}
+                        title={title}
+                        blogUrl={blogUrl}
+                        record={record}
+                    />
                 </div>,
             },
         ];

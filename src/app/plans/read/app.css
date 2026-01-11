@@ -13,11 +13,81 @@
     white-space: pre-wrap;
 }
 
+/* 记录内容包装容器 - 桌面端左右布局，移动端上下布局 */
+.record-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.record-text-wrapper {
+    flex: 1;
+    white-space: pre-wrap;
+}
+
 /* 图片相关样式 */
 .record img {
     max-width: 100%;
     height: auto;
     border-radius: 4px;
+}
+
+/* 详情中的图片容器 */
+.record-image-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+    flex-shrink: 0;
+    transition: max-height 0.3s ease;
+}
+
+.record-image-wrapper .ant-image {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100%;
+}
+
+.record-image-wrapper .ant-image-img {
+    height: 100%;
+    width: auto;
+    object-fit: contain;
+    border-radius: 4px;
+}
+
+/* 桌面端：左右布局 */
+@media (min-width: 769px) {
+    .record-content-wrapper {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .record-image-wrapper {
+        width: auto;
+        min-width: auto;
+        max-width: 400px;
+    }
+
+    .record-text-wrapper {
+        flex: 1;
+        min-width: 0;
+    }
+}
+
+/* 移动端：上下布局 */
+@media (max-width: 768px) {
+    .record-content-wrapper {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .record-image-wrapper {
+        width: 100%;
+        max-height: 400px;
+    }
 }
 
 .card {
