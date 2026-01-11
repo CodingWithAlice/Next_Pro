@@ -39,6 +39,27 @@ export default function TedPage() {
             <CopyOutlined onClick={(e) => { e.stopPropagation(); copy(`${id}、${text}`) }} /></>
     }
 
+    // 获取并更新数据
+    const fetchAndUpdateData = () => {
+        return Api.getTedList().then(({ tedList, recentTedRecord }) => {
+            setTedList(tedList || []);
+            setLastTedId(recentTedRecord?.tedId);
+        });
+    }
+
+    // 初始化查询接口（带loading）
+    const init = () => {
+        setLoading(true);
+        fetchAndUpdateData().finally(() => {
+            setLoading(false);
+        });
+    }
+
+    // 静默刷新数据（不带loading）
+    const refreshData = () => {
+        fetchAndUpdateData();
+    }
+
     // 展示历史感想和输入框
     const getChildren = (id: number, arr?: TedRecordDTO[]) => {
         return <>
@@ -48,7 +69,7 @@ export default function TedPage() {
                     <div className='ted-record'>{it.record}</div>
                 </div>))
             }
-            <TedNewRecord id={id} fresh={init} />
+            <TedNewRecord id={id} fresh={refreshData} />
         </>
     }
 
@@ -64,17 +85,6 @@ export default function TedPage() {
             },
         ];
         return items
-    }
-
-    // 初始化查询接口
-    const init = () => {
-        setLoading(true);
-        Api.getTedList().then(({ tedList, recentTedRecord }) => {
-            setTedList(tedList || []);
-            setLastTedId(recentTedRecord?.tedId);
-        }).finally(() => {
-            setLoading(false);
-        });
     }
 
     useEffect(() => {

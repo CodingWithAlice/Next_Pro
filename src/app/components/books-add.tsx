@@ -5,6 +5,7 @@ const { TextArea } = Input;
 const { Option } = Select;
 import Api from '@/service/api';
 import dayjs from 'dayjs';
+import BookImageInput from './book-image-input';
 
 const colorMap = {
     '电影': 'cyan',
@@ -19,6 +20,7 @@ interface BooksDTO {
     record: string;
     recent: string;
     tag: keyof typeof colorMap;
+    imageUrl?: string;
 }
 
 export default function BooksAdd({ fresh }: { fresh: () => void }) {
@@ -29,7 +31,8 @@ export default function BooksAdd({ fresh }: { fresh: () => void }) {
         tag: '电影',
         title: '',
         recent: dayjs().format('YYYY-MM-DD'),
-        record: ''
+        record: '',
+        imageUrl: ''
     });
     const [messageApi, contextHolder] = message.useMessage();
 
@@ -141,6 +144,27 @@ export default function BooksAdd({ fresh }: { fresh: () => void }) {
                                 <div style={{ whiteSpace: 'pre-line' }}>
                                     {booksData.record || '暂无记录'}
                                 </div>
+                            )}
+                        </Form.Item>
+
+                        <Form.Item
+                            label="图片"
+                            name="imageUrl"
+                        >
+                            {editing ? (
+                                <BookImageInput
+                                    value={booksData.imageUrl}
+                                    onChange={(url) => handleChange({ imageUrl: url })}
+                                    title={booksData.title}
+                                />
+                            ) : (
+                                booksData.imageUrl ? (
+                                    <div>
+                                        <img src={booksData.imageUrl} alt={booksData.title} style={{ maxWidth: '100%', height: 'auto', maxHeight: '300px' }} />
+                                    </div>
+                                ) : (
+                                    <div style={{ color: '#999' }}>暂无图片</div>
+                                )
                             )}
                         </Form.Item>
                     </>
