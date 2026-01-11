@@ -3,7 +3,7 @@ import './app.css';
 import { useEffect, useState } from 'react';
 import Api from '@/service/api';
 import type { CollapseProps } from 'antd';
-import { Collapse, Tag, Typography, Spin, Button, Modal, FloatButton, Switch } from 'antd';
+import { Collapse, Tag, Typography, Spin, Button, Modal, FloatButton, Switch, Image } from 'antd';
 import { ShareAltOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import BooksAdd from '@/components/books-add';
@@ -17,6 +17,7 @@ interface BooksDTO {
     lastTime: string;
     blogUrl: string;
     tag: '电影' | '阅读' | '话剧' | string;
+    imageUrl?: string;
 }
 
 const colorMap = {
@@ -49,21 +50,42 @@ export default function ReadPage() {
 
     // 根据每道题生成折叠配置
     const getItems = (it: BooksDTO) => {
-        const { id, title, record, recent, lastTime, blogUrl, tag } = it;
-        const label = <div>
-            <Tag color={colorMap[tag as keyof typeof colorMap] || 'volcano'}>{tag}</Tag>
-            {title}
-            <Typography.Text type="secondary">
-                {dayjs(recent).format('YYYY/MM/DD')}
-                {lastTime && '、'}
-                {lastTime && dayjs(lastTime).format('YYYY/MM/DD')}
-            </Typography.Text>
+        const { id, title, record, recent, lastTime, blogUrl, tag, imageUrl } = it;
+        const label = <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {imageUrl && (
+                <Image
+                    src={imageUrl}
+                    alt={title}
+                    width={40}
+                    height={60}
+                    style={{ objectFit: 'cover', borderRadius: '4px', flexShrink: 0 }}
+                    preview={false}
+                />
+            )}
+            <div style={{ flex: 1, minWidth: 0 }}>
+                <Tag color={colorMap[tag as keyof typeof colorMap] || 'volcano'}>{tag}</Tag>
+                {title}
+                <Typography.Text type="secondary">
+                    {dayjs(recent).format('YYYY/MM/DD')}
+                    {lastTime && '、'}
+                    {lastTime && dayjs(lastTime).format('YYYY/MM/DD')}
+                </Typography.Text>
+            </div>
         </div>;
         const items: CollapseProps['items'] = [
             {
                 key: id,
                 label,
                 children: <div className='record'>
+                    {imageUrl && (
+                        <div style={{ marginBottom: '16px' }}>
+                            <Image
+                                src={imageUrl}
+                                alt={title}
+                                style={{ width: '100%', height: 'auto', borderRadius: '4px' }}
+                            />
+                        </div>
+                    )}
                     {blogUrl}
                     {blogUrl && <br />}
                     {record}
@@ -232,15 +254,26 @@ export default function ReadPage() {
                                             </div>
                                         )}
                                     </div>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
                                         {displayItems.map((item, index) => (
-                                            <Tag
-                                                key={item.id}
-                                                color={colorScheme[index % colorScheme.length]}
-                                                style={{ fontSize: '13px', padding: '4px 10px', margin: 0 }}
-                                            >
-                                                {item.title}
-                                            </Tag>
+                                            <div key={item.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                                {item.imageUrl && (
+                                                    <Image
+                                                        src={item.imageUrl}
+                                                        alt={item.title}
+                                                        width={16}
+                                                        height={24}
+                                                        style={{ objectFit: 'cover', borderRadius: '2px' }}
+                                                        preview={false}
+                                                    />
+                                                )}
+                                                <Tag
+                                                    color={colorScheme[index % colorScheme.length]}
+                                                    style={{ fontSize: '13px', padding: '4px 10px', margin: 0 }}
+                                                >
+                                                    {item.title}
+                                                </Tag>
+                                            </div>
                                         ))}
                                         {shouldShowSwitch && !isExpanded && data.items.length > 10 && (
                                             <span style={{ fontSize: '13px', color: '#999', alignSelf: 'center' }}>

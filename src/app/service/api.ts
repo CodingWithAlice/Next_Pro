@@ -76,6 +76,20 @@ const Api = {
 	postReadApi(readData: { [key: string]: string | number }) {
 		return request.post('books', { readData })
 	},
+	uploadBookImage(file: File, title?: string) {
+		const formData = new FormData()
+		formData.append('file', file)
+		if (title) {
+			formData.append('title', title)
+		}
+		const url = process.env.NEXT_PUBLIC_API_HOST
+		const authToken = typeof localStorage !== 'undefined' ? localStorage.getItem('type') : null
+		return fetch(`${url}/books/upload`, {
+			method: 'POST',
+			headers: authToken ? { 'Authorization': authToken } : {},
+			body: formData
+		}).then(res => res.json())
+	},
 
 	getSportApi(params?: { date?: string; type?: string }) {
 		return request.get('sport', params)

@@ -13,6 +13,13 @@
     white-space: pre-wrap;
 }
 
+/* 图片相关样式 */
+.record img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
 .card {
     margin-bottom: 16;
     border-radius: 8;
