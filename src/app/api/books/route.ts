@@ -46,4 +46,42 @@ async function POST(request: NextRequest) {
 	}
 }
 
-export { GET, POST }
+async function PUT(request: NextRequest) {
+	try {
+		const body = await request.json()
+		const data = body.data
+		const { readData } = data
+		const { id, ...updateData } = readData
+		
+		if (!id) {
+			return NextResponse.json(
+				{
+					success: false,
+					message: '缺少记录ID',
+				},
+				{ status: 400 }
+			)
+		}
+
+		await BooksRecordModal.update(updateData, {
+			where: { id },
+		})
+
+		return NextResponse.json({
+			success: true,
+			message: '更新成功',
+		})
+	} catch (error) {
+		console.error(error)
+		return NextResponse.json(
+			{
+				success: false,
+				message: '操作失败',
+				error: (error as Error).message,
+			},
+			{ status: 500 }
+		)
+	}
+}
+
+export { GET, POST, PUT }

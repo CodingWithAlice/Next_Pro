@@ -76,6 +76,9 @@ const Api = {
 	postReadApi(readData: { [key: string]: string | number }) {
 		return request.post('books', { readData })
 	},
+	updateReadApi(readData: { id: number; [key: string]: string | number }) {
+		return request.put('books', { readData })
+	},
 	uploadBookImage(file: File, title?: string) {
 		const formData = new FormData()
 		formData.append('file', file)

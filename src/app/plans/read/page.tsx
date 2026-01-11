@@ -4,10 +4,11 @@ import { useEffect, useState } from 'react';
 import Api from '@/service/api';
 import type { CollapseProps } from 'antd';
 import { Collapse, Tag, Typography, Spin, Button, Modal, FloatButton, Switch, Image } from 'antd';
-import { ShareAltOutlined } from '@ant-design/icons';
+import { ShareAltOutlined, EditOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import BooksAdd from '@/components/books-add';
 import ShareImageButton from '@/components/share-image-button';
+import BookEditModal from '@/components/book-edit-modal';
 
 interface BooksDTO {
     id: number;
@@ -47,6 +48,27 @@ export default function ReadPage() {
     const [showAllData, setShowAllData] = useState(false);
     // 每个类别的展开状态
     const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+    // 编辑模态框状态
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [editingRecord, setEditingRecord] = useState<BooksDTO | null>(null);
+
+    // 处理编辑
+    const handleEdit = (record: BooksDTO, e: React.MouseEvent) => {
+        e.stopPropagation(); // 阻止Collapse展开/收起
+        setEditingRecord(record);
+        setEditModalOpen(true);
+    };
+
+    const handleEditSuccess = () => {
+        setEditModalOpen(false);
+        setEditingRecord(null);
+        init(); // 刷新列表
+    };
+
+    const handleEditCancel = () => {
+        setEditModalOpen(false);
+        setEditingRecord(null);
+    };
 
     // 根据每道题生成折叠配置
     const getItems = (it: BooksDTO) => {
@@ -72,10 +94,19 @@ export default function ReadPage() {
                 </Typography.Text>
             </div>
         </div>;
+        
+        const extra = (
+            <EditOutlined 
+                onClick={(e) => handleEdit(it, e)} 
+                style={{ cursor: 'pointer', color: '#1890ff' }}
+            />
+        );
+
         const items: CollapseProps['items'] = [
             {
                 key: id,
                 label,
+                extra,
                 children: <div className='record'>
                     {imageUrl && (
                         <div style={{ marginBottom: '16px' }}>
@@ -317,5 +348,11 @@ export default function ReadPage() {
             onClick={() => setYearShareModalOpen(true)}
         />
         {renderYearShareModal()}
+        <BookEditModal
+            open={editModalOpen}
+            record={editingRecord}
+            onCancel={handleEditCancel}
+            onSuccess={handleEditSuccess}
+        />
     </div>
 }
