@@ -5,10 +5,10 @@ import path from 'path'
 
 export async function GET(
 	request: NextRequest,
-	{ params }: { params: { path: string[] } }
+	{ params }: { params: Promise<{ path: string[] }> }
 ) {
 	try {
-		const filePath = params.path
+		const { path: filePath } = await params
 		
 		if (!filePath || filePath.length === 0) {
 			return NextResponse.json(
