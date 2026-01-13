@@ -61,7 +61,9 @@ export async function POST(request: NextRequest) {
 
 		// 按年份组织目录
 		const year = new Date().getFullYear().toString()
-		const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'books', year)
+		// 优先使用环境变量配置的上传目录，如果没有则使用默认的 public/uploads
+		const baseUploadDir = process.env.UPLOAD_DIR || path.join(process.cwd(), 'public', 'uploads')
+		const uploadDir = path.join(baseUploadDir, 'books', year)
 		
 		// 确保目录存在
 		if (!existsSync(uploadDir)) {
@@ -84,7 +86,12 @@ export async function POST(request: NextRequest) {
 		await writeFile(finalPath, buffer)
 
 		// 返回文件访问URL
-		const fileUrl = `/uploads/books/${year}/${fileName}`
+		// 如果使用外部目录（设置了 UPLOAD_DIR 环境变量），使用 API 路由访问
+		// 如果使用默认的 public 目录，直接使用静态文件路径
+		const isExternalDir = !!process.env.UPLOAD_DIR
+		const fileUrl = isExternalDir 
+			? `/api/uploads/books/${year}/${fileName}` 
+			: `/uploads/books/${year}/${fileName}`
 
 		return NextResponse.json({
 			success: true,
