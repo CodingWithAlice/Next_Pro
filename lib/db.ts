@@ -160,6 +160,7 @@ export const BooksRecordModal = sequelize.define(
 		record: DataTypes.STRING,
 		blogUrl: DataTypes.STRING,
 		tag: DataTypes.STRING,
+		imageUrl: DataTypes.STRING(500),
 	},
 	{
 		tableName: 'books_record',

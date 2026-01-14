@@ -61,6 +61,16 @@ async function post<T>(api: string, data: T) {
 	}
 }
 
+async function put<T>(api: string, data: T) {
+	try {
+		const response = await axios.put(`${url}/${api}`, { data }, postConfig)
+		return response.data
+	} catch (error) {
+		const errorObj = handleAxiosError(error)
+		throw errorObj
+	}
+}
+
 export async function AIPOST(messages: MessageProp[]) {
 	try {
 		// 获取客户端发送的数据
@@ -82,6 +92,7 @@ export async function AIPOST(messages: MessageProp[]) {
 const request = {
 	get,
 	post,
+	put,
 	AIPOST,
 }
 

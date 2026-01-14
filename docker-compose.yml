@@ -25,6 +25,7 @@ services:
     restart: always  # 容器退出时自动重启
     volumes:
       - ../config.env:/app/config.env  # 将宿主机上的 config.env 挂载到容器内的 /app/config.env
+      - /data/uploads:/app/uploads  # 将宿主机上的上传文件目录挂载到容器内的 /app/uploads
     dns:
       - 8.8.8.8       # Google DNS
       - 114.114.114.114 # 国内DNS

@@ -3,11 +3,13 @@ import './app.css';
 import { useEffect, useState } from 'react';
 import Api from '@/service/api';
 import type { CollapseProps } from 'antd';
-import { Collapse, Tag, Typography, Spin, Button, Modal, FloatButton, Switch } from 'antd';
-import { ShareAltOutlined } from '@ant-design/icons';
+import { Collapse, Tag, Typography, Spin, Button, Modal, FloatButton, Switch, Image } from 'antd';
+import { ShareAltOutlined, EditOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import BooksAdd from '@/components/books-add';
 import ShareImageButton from '@/components/share-image-button';
+import BookEditModal from '@/components/book-edit-modal';
+import RecordItemContent from '@/components/record-item-content';
 
 interface BooksDTO {
     id: number;
@@ -17,6 +19,7 @@ interface BooksDTO {
     lastTime: string;
     blogUrl: string;
     tag: '电影' | '阅读' | '话剧' | string;
+    imageUrl?: string;
 }
 
 const colorMap = {
@@ -46,46 +49,101 @@ export default function ReadPage() {
     const [showAllData, setShowAllData] = useState(false);
     // 每个类别的展开状态
     const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+    // 编辑模态框状态
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [editingRecord, setEditingRecord] = useState<BooksDTO | null>(null);
+
+    // 处理编辑
+    const handleEdit = (record: BooksDTO, e: React.MouseEvent) => {
+        e.stopPropagation(); // 阻止Collapse展开/收起
+        setEditingRecord(record);
+        setEditModalOpen(true);
+    };
+
+    const handleEditSuccess = () => {
+        setEditModalOpen(false);
+        setEditingRecord(null);
+        refreshData(); // 静默刷新列表
+    };
+
+    const handleEditCancel = () => {
+        setEditModalOpen(false);
+        setEditingRecord(null);
+    };
 
     // 根据每道题生成折叠配置
     const getItems = (it: BooksDTO) => {
-        const { id, title, record, recent, lastTime, blogUrl, tag } = it;
-        const label = <div>
-            <Tag color={colorMap[tag as keyof typeof colorMap] || 'volcano'}>{tag}</Tag>
-            {title}
-            <Typography.Text type="secondary">
-                {dayjs(recent).format('YYYY/MM/DD')}
-                {lastTime && '、'}
-                {lastTime && dayjs(lastTime).format('YYYY/MM/DD')}
-            </Typography.Text>
+        const { id, title, record, recent, lastTime, blogUrl, tag, imageUrl } = it;
+        const label = <div className="collapse-label-wrapper">
+            {imageUrl && (
+                <Image
+                    src={imageUrl}
+                    alt={title}
+                    width={40}
+                    height={60}
+                    className="collapse-label-image"
+                    preview={false}
+                />
+            )}
+            <div className="collapse-label-content">
+                <Tag color={colorMap[tag as keyof typeof colorMap] || 'volcano'} className="collapse-label-tag">{tag}</Tag>
+                <span className="book-title">{title}</span>
+                <Typography.Text type="secondary" className="collapse-label-date">
+                    {dayjs(recent).format('YYYY/MM')}
+                    {lastTime && '、'}
+                    {lastTime && dayjs(lastTime).format('YYYY/MM')}
+                </Typography.Text>
+            </div>
         </div>;
+        
+        const extra = (
+            <EditOutlined 
+                onClick={(e) => handleEdit(it, e)} 
+                className="collapse-extra-icon"
+            />
+        );
+
         const items: CollapseProps['items'] = [
             {
                 key: id,
                 label,
+                extra,
                 children: <div className='record'>
-                    {blogUrl}
-                    {blogUrl && <br />}
-                    {record}
+                    <RecordItemContent
+                        imageUrl={imageUrl}
+                        title={title}
+                        blogUrl={blogUrl}
+                        record={record}
+                    />
                 </div>,
             },
         ];
         return items
     }
 
-    // 初始化查询接口
-    const init = () => {
-        setLoading(true);
-        Api.getReadApi().then(({ booksData }) => {
+    // 获取并更新数据
+    const fetchAndUpdateData = () => {
+        return Api.getReadApi().then(({ booksData }) => {
             const sortedData = booksData;
             sortedData.sort((a: BooksDTO, b: BooksDTO) => {
                 const isBefore = dayjs(a.recent).isBefore(b.recent)
                 return isBefore ? 1 : -1
             });            
             setBooksList(sortedData || []);
-        }).finally(() => {
+        });
+    }
+
+    // 初始化查询接口（带loading）
+    const init = () => {
+        setLoading(true);
+        fetchAndUpdateData().finally(() => {
             setLoading(false);
         });
+    }
+
+    // 静默刷新数据（不带loading）
+    const refreshData = () => {
+        fetchAndUpdateData();
     }
 
     useEffect(() => {
@@ -138,7 +196,7 @@ export default function ReadPage() {
         return (
             <Modal
                 title={
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: 'calc(100% - 24px)' }}>
+                    <div className="modal-title-wrapper">
                         <span>{titleText}</span>
                         <ShareImageButton
                             targetElement=".year-record-share-container"
@@ -182,11 +240,11 @@ export default function ReadPage() {
                 ].filter(Boolean)}
                 width={600}
             >
-                <div className="year-record-share-container" style={{ padding: '20px', backgroundColor: '#ffffff' }}>
-                    <div style={{ fontSize: '20px', fontWeight: 600, marginBottom: '24px', textAlign: 'center' }}>
+                <div className="year-record-share-container">
+                    <div className="year-record-title">
                         {titleText}
                     </div>
-                    <div className="year-record-content" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    <div className="year-record-content">
                         {Object.entries(statistics).map(([tag, data]) => {
                             if (data.count === 0) return null;
                             
@@ -202,22 +260,15 @@ export default function ReadPage() {
                             
                             return (
                                 <div key={tag}>
-                                    <div style={{ 
-                                        marginBottom: '12px', 
-                                        fontSize: '16px', 
-                                        fontWeight: 600,
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center'
-                                    }}>
+                                    <div className="year-record-category-header">
                                         <div>
-                                            <Tag color={colorMap[tag as keyof typeof colorMap] || 'geekblue'} style={{ fontSize: '14px', padding: '4px 12px' }}>
+                                            <Tag color={colorMap[tag as keyof typeof colorMap] || 'geekblue'} className="year-record-category-tag">
                                                 {tag}
                                             </Tag>
-                                            <span style={{ marginLeft: '8px' }}>共计 {data.count}{tag === '阅读' ? '本' : '部'}</span>
+                                            <span className="year-record-category-count">共计 {data.count}{tag === '阅读' ? '本' : '部'}</span>
                                         </div>
                                         {shouldShowSwitch && (
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
+                                            <div className="year-record-switch-container">
                                                 <span>展开全部</span>
                                                 <Switch
                                                     size="small"
@@ -232,18 +283,29 @@ export default function ReadPage() {
                                             </div>
                                         )}
                                     </div>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                    <div className="year-record-items-container">
                                         {displayItems.map((item, index) => (
-                                            <Tag
-                                                key={item.id}
-                                                color={colorScheme[index % colorScheme.length]}
-                                                style={{ fontSize: '13px', padding: '4px 10px', margin: 0 }}
-                                            >
-                                                {item.title}
-                                            </Tag>
+                                            <div key={item.id} className="year-record-item-wrapper">
+                                                {item.imageUrl && (
+                                                    <Image
+                                                        src={item.imageUrl}
+                                                        alt={item.title}
+                                                        width={16}
+                                                        height={24}
+                                                        className="year-record-item-image"
+                                                        preview={false}
+                                                    />
+                                                )}
+                                                <Tag
+                                                    color={colorScheme[index % colorScheme.length]}
+                                                    className="year-record-item-tag"
+                                                >
+                                                    {item.title}
+                                                </Tag>
+                                            </div>
                                         ))}
                                         {shouldShowSwitch && !isExpanded && data.items.length > 10 && (
-                                            <span style={{ fontSize: '13px', color: '#999', alignSelf: 'center' }}>
+                                            <span className="year-record-more-items">
                                                 ...还有 {data.items.length - 10} 项
                                             </span>
                                         )}
@@ -259,19 +321,14 @@ export default function ReadPage() {
 
     if (loading) {
         return (
-            <div style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                alignItems: 'center', 
-                minHeight: '400px' 
-            }}>
+            <div className="loading-container">
                 <Spin size="large" />
             </div>
         );
     }
 
     return <div className='read'>
-        <BooksAdd fresh={init} />
+        <BooksAdd fresh={refreshData} />
         {booksList.map(it => (<Collapse
             className='item'
             key={it.id}
@@ -284,5 +341,11 @@ export default function ReadPage() {
             onClick={() => setYearShareModalOpen(true)}
         />
         {renderYearShareModal()}
+        <BookEditModal
+            open={editModalOpen}
+            record={editingRecord}
+            onCancel={handleEditCancel}
+            onSuccess={handleEditSuccess}
+        />
     </div>
 }
