@@ -24,7 +24,15 @@ export async function GET(
 		// 安全检查：确保路径在允许的目录内
 		const resolvedPath = path.resolve(fullPath)
 		const resolvedBaseDir = path.resolve(baseUploadDir, 'books')
-		if (!resolvedPath.startsWith(resolvedBaseDir)) {
+
+		// 使用 path.relative 做“是否在目录内”的判断，避免 startsWith 前缀绕过
+		// 允许：resolvedPath === resolvedBaseDir 或 resolvedPath 位于 resolvedBaseDir 子路径下
+		const rel = path.relative(resolvedBaseDir, resolvedPath)
+		const isInside =
+			rel === '' ||
+			(!rel.startsWith(`..${path.sep}`) && rel !== '..' && !path.isAbsolute(rel))
+
+		if (!isInside) {
 			return NextResponse.json(
 				{ success: false, message: '访问被拒绝' },
 				{ status: 403 }

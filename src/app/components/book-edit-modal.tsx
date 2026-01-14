@@ -40,6 +40,8 @@ export default function BookEditModal({ open, record, onCancel, onSuccess }: Boo
     const [loading, setLoading] = useState(false);
     const [imageUploading, setImageUploading] = useState(false);
     const [messageApi, contextHolder] = message.useMessage();
+    // 使用 Form.useWatch 监听 title 字段变化，确保 title prop 始终是最新值
+    const title = Form.useWatch('title', form);
 
     useEffect(() => {
         if (open && record) {
@@ -151,7 +153,7 @@ export default function BookEditModal({ open, record, onCancel, onSuccess }: Boo
                         name="imageUrl"
                     >
                         <BookImageInput
-                            title={form.getFieldValue('title')}
+                            title={title}
                             value={form.getFieldValue('imageUrl')}
                             onChange={(url) => form.setFieldValue('imageUrl', url)}
                             onUploadingChange={setImageUploading}

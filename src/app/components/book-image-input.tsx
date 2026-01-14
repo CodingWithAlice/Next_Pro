@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Upload, Input, Button, Image, message, Space } from 'antd';
 import { UploadOutlined, LinkOutlined } from '@ant-design/icons';
 import type { UploadFile } from 'antd';
@@ -15,6 +15,11 @@ export default function BookImageInput({ value, onChange, title, onUploadingChan
 	const [mode, setMode] = useState<'upload' | 'url'>('upload');
 	const [uploading, setUploading] = useState(false);
 	const [urlInput, setUrlInput] = useState(value || '');
+
+	// 同步 urlInput 状态与 value prop 的变化
+	useEffect(() => {
+		setUrlInput(value || '');
+	}, [value]);
 
 	const handleUpload = async (file: File) => {
 		setUploading(true);

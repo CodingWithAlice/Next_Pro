@@ -63,9 +63,19 @@ async function PUT(request: NextRequest) {
 			)
 		}
 
-		await BooksRecordModal.update(updateData, {
+		const [affectedCount] = await BooksRecordModal.update(updateData, {
 			where: { id },
 		})
+
+		if (affectedCount === 0) {
+			return NextResponse.json(
+				{
+					success: false,
+					message: '记录不存在或已被删除',
+				},
+				{ status: 404 }
+			)
+		}
 
 		return NextResponse.json({
 			success: true,

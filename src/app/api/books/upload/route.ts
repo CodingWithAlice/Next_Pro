@@ -50,10 +50,17 @@ export async function POST(request: NextRequest) {
 		let fileName: string
 		if (title && title.trim()) {
 			// 使用标题作为文件名，清理特殊字符
-			fileName = title.trim()
+			const sanitizedBaseName = title.trim()
 				.replace(/[<>:"/\\|?*]/g, '') // 去除Windows不允许的字符
 				.replace(/\s+/g, '_') // 空格替换为下划线
-				+ ext
+
+			// 如果清理后为空/仅点号（例如 "???"、"///"、"..."），回退为时间戳，避免生成 ".jpg" 这类隐藏文件名
+			const isValidBaseName =
+				!!sanitizedBaseName && !/^\.+$/.test(sanitizedBaseName)
+
+			fileName = isValidBaseName
+				? `${sanitizedBaseName}${ext}`
+				: `${Date.now()}${ext}`
 		} else {
 			// 使用时间戳
 			fileName = `${Date.now()}${ext}`
