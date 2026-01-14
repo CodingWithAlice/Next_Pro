@@ -100,3 +100,177 @@
 .books-add {
     width: 88%;
 }
+
+/* Collapse label 包装器 - 确保不溢出 */
+.collapse-label-wrapper {
+    max-width: 100%;
+    overflow: hidden;
+}
+
+/* 书籍标题省略号样式 - 在 flex 布局中占用剩余空间，超出显示省略号 */
+.book-title {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 确保 Collapse 的 label 和 extra 垂直居中对齐，防止溢出 */
+.item .ant-collapse-header {
+    display: flex !important;
+    align-items: center !important;
+    overflow: hidden;
+    width: 100%;
+}
+
+.item .ant-collapse-header-text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+
+.item .ant-collapse-extra {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center;
+    flex-shrink: 0;
+    align-self: center;
+}
+
+.item .ant-collapse-extra .anticon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+}
+
+/* Collapse label 相关样式 */
+.collapse-label-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    min-width: 0;
+}
+
+.collapse-label-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    overflow: hidden;
+    margin-right: 2px
+}
+
+.collapse-label-tag {
+    flex-shrink: 0;
+}
+
+.collapse-label-date {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.collapse-label-image {
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.collapse-extra-icon {
+    cursor: pointer;
+    color: #1890ff;
+}
+
+/* Loading 容器 */
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+}
+
+/* Modal 相关样式 */
+.modal-title-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: calc(100% - 24px);
+}
+
+.year-record-share-container {
+    padding: 20px;
+    background-color: #ffffff;
+}
+
+.year-record-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.year-record-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.year-record-category-header {
+    margin-bottom: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.year-record-category-tag {
+    font-size: 14px;
+    padding: 4px 12px;
+}
+
+.year-record-category-count {
+    margin-left: 8px;
+}
+
+.year-record-switch-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.year-record-items-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.year-record-item-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.year-record-item-image {
+    object-fit: cover;
+    border-radius: 2px;
+}
+
+.year-record-item-tag {
+    font-size: 13px;
+    padding: 4px 10px;
+    margin: 0;
+}
+
+.year-record-more-items {
+    font-size: 13px;
+    color: #999;
+    align-self: center;
+}

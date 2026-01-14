@@ -74,24 +74,24 @@ export default function ReadPage() {
     // 根据每道题生成折叠配置
     const getItems = (it: BooksDTO) => {
         const { id, title, record, recent, lastTime, blogUrl, tag, imageUrl } = it;
-        const label = <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        const label = <div className="collapse-label-wrapper">
             {imageUrl && (
                 <Image
                     src={imageUrl}
                     alt={title}
                     width={40}
                     height={60}
-                    style={{ objectFit: 'cover', borderRadius: '4px', flexShrink: 0 }}
+                    className="collapse-label-image"
                     preview={false}
                 />
             )}
-            <div style={{ flex: 1, minWidth: 0 }}>
-                <Tag color={colorMap[tag as keyof typeof colorMap] || 'volcano'}>{tag}</Tag>
-                {title}
-                <Typography.Text type="secondary">
-                    {dayjs(recent).format('YYYY/MM/DD')}
+            <div className="collapse-label-content">
+                <Tag color={colorMap[tag as keyof typeof colorMap] || 'volcano'} className="collapse-label-tag">{tag}</Tag>
+                <span className="book-title">{title}</span>
+                <Typography.Text type="secondary" className="collapse-label-date">
+                    {dayjs(recent).format('YYYY/MM')}
                     {lastTime && '、'}
-                    {lastTime && dayjs(lastTime).format('YYYY/MM/DD')}
+                    {lastTime && dayjs(lastTime).format('YYYY/MM')}
                 </Typography.Text>
             </div>
         </div>;
@@ -99,7 +99,7 @@ export default function ReadPage() {
         const extra = (
             <EditOutlined 
                 onClick={(e) => handleEdit(it, e)} 
-                style={{ cursor: 'pointer', color: '#1890ff' }}
+                className="collapse-extra-icon"
             />
         );
 
@@ -196,7 +196,7 @@ export default function ReadPage() {
         return (
             <Modal
                 title={
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: 'calc(100% - 24px)' }}>
+                    <div className="modal-title-wrapper">
                         <span>{titleText}</span>
                         <ShareImageButton
                             targetElement=".year-record-share-container"
@@ -240,11 +240,11 @@ export default function ReadPage() {
                 ].filter(Boolean)}
                 width={600}
             >
-                <div className="year-record-share-container" style={{ padding: '20px', backgroundColor: '#ffffff' }}>
-                    <div style={{ fontSize: '20px', fontWeight: 600, marginBottom: '24px', textAlign: 'center' }}>
+                <div className="year-record-share-container">
+                    <div className="year-record-title">
                         {titleText}
                     </div>
-                    <div className="year-record-content" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    <div className="year-record-content">
                         {Object.entries(statistics).map(([tag, data]) => {
                             if (data.count === 0) return null;
                             
@@ -260,22 +260,15 @@ export default function ReadPage() {
                             
                             return (
                                 <div key={tag}>
-                                    <div style={{ 
-                                        marginBottom: '12px', 
-                                        fontSize: '16px', 
-                                        fontWeight: 600,
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center'
-                                    }}>
+                                    <div className="year-record-category-header">
                                         <div>
-                                            <Tag color={colorMap[tag as keyof typeof colorMap] || 'geekblue'} style={{ fontSize: '14px', padding: '4px 12px' }}>
+                                            <Tag color={colorMap[tag as keyof typeof colorMap] || 'geekblue'} className="year-record-category-tag">
                                                 {tag}
                                             </Tag>
-                                            <span style={{ marginLeft: '8px' }}>共计 {data.count}{tag === '阅读' ? '本' : '部'}</span>
+                                            <span className="year-record-category-count">共计 {data.count}{tag === '阅读' ? '本' : '部'}</span>
                                         </div>
                                         {shouldShowSwitch && (
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
+                                            <div className="year-record-switch-container">
                                                 <span>展开全部</span>
                                                 <Switch
                                                     size="small"
@@ -290,29 +283,29 @@ export default function ReadPage() {
                                             </div>
                                         )}
                                     </div>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+                                    <div className="year-record-items-container">
                                         {displayItems.map((item, index) => (
-                                            <div key={item.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                            <div key={item.id} className="year-record-item-wrapper">
                                                 {item.imageUrl && (
                                                     <Image
                                                         src={item.imageUrl}
                                                         alt={item.title}
                                                         width={16}
                                                         height={24}
-                                                        style={{ objectFit: 'cover', borderRadius: '2px' }}
+                                                        className="year-record-item-image"
                                                         preview={false}
                                                     />
                                                 )}
                                                 <Tag
                                                     color={colorScheme[index % colorScheme.length]}
-                                                    style={{ fontSize: '13px', padding: '4px 10px', margin: 0 }}
+                                                    className="year-record-item-tag"
                                                 >
                                                     {item.title}
                                                 </Tag>
                                             </div>
                                         ))}
                                         {shouldShowSwitch && !isExpanded && data.items.length > 10 && (
-                                            <span style={{ fontSize: '13px', color: '#999', alignSelf: 'center' }}>
+                                            <span className="year-record-more-items">
                                                 ...还有 {data.items.length - 10} 项
                                             </span>
                                         )}
@@ -328,12 +321,7 @@ export default function ReadPage() {
 
     if (loading) {
         return (
-            <div style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                alignItems: 'center', 
-                minHeight: '400px' 
-            }}>
+            <div className="loading-container">
                 <Spin size="large" />
             </div>
         );
