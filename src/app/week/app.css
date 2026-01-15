@@ -12,6 +12,19 @@
     margin: 0;
 }
 
+.home-link-title {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.home-link-title:hover {
+    color: rgba(38, 157, 128, 0.8);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
 .serial-navigation {
     display: flex;
     align-items: center;

@@ -5,6 +5,7 @@ import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useEffect, useState, useRef } from "react";
 import { MonthDetailTextarea } from "@/components/month-detail-textarea";
 import Api from "@/service/api";
+import Link from 'next/link';
 
 export default function Month() {
     const [monthData, setMonthData] = useState<{ [key: string]: string }>({});
@@ -135,7 +136,9 @@ export default function Month() {
             >
                 上一阶段
             </Button>
-            <h1 className="month-title"> {monthId} 阶段报</h1>
+            <h1 className="month-title">
+                <Link href="/" className="home-link-title">{monthId} 阶段报</Link>
+            </h1>
             <Button
                 icon={<RightOutlined />}
                 onClick={handleNextMonth}

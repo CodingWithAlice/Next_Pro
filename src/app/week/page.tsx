@@ -9,6 +9,7 @@ import { WeekDetailTextarea } from '@/components/week-detail-textarea';
 import { WeekPeriodModal } from '@/components/week-period-modal';
 import { getGapTime } from '@/components/tool';
 import SerialsRangeEditModal from '@/components/serials-range-edit-modal';
+import Link from 'next/link';
 
 export default function Week() {
     const [weekData, setWeekData] = useState<{ [key: string]: string }>({});
@@ -156,7 +157,9 @@ export default function Week() {
             >
                 上周
             </Button>
-            <h1 className='week-title'>双周报</h1>
+            <h1 className='week-title'>
+                <Link href="/" className="home-link-title">双周报</Link>
+            </h1>
             <div className="serial-navigation">
 
                 <SerialsPicker onValueChange={handleSingleChange} value={curSerial} className='serial-week' serials={serials} disabled={loading} />

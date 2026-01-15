@@ -3,6 +3,7 @@ import { getCurrentBySub, getGapTime } from './tool';
 import { useEffect, useState } from 'react';
 import Api from '@/service/api';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import dayjs from 'dayjs';
 
 interface serialDataProps {
@@ -45,7 +46,9 @@ export default function WeekTitle() {
     }, [])
 
     return <h1 className='week week-title-container'>
-        Week {now.week()}
+        <Link href="/" className="home-link-title">
+            Week {now.week()}
+        </Link>
         <br />
         <div className='phone-hidden'>
             <ProcessCircle startTime={serialStartTime} cycle={serialCycle} />
