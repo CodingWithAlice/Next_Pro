@@ -25,25 +25,27 @@ function PlanPageContent() {
     
     const [tab, setTab] = useState<TabTypes>(initialTab);
 
-    // 从 URL 参数读取 tab
+    // 从 URL 参数读取 tab（仅在 searchParams 变化时同步，不依赖 tab state）
     useEffect(() => {
         const tabParam = searchParams.get('tab') as TabTypes;
         if (tabParam && ['ted', 'sport', 'book'].includes(tabParam)) {
-            if (tabParam !== tab) {
-                setTab(tabParam);
-            }
+            // 只有当 URL 中的 tab 与当前 state 不一致时才更新
+            setTab((currentTab) => {
+                if (tabParam !== currentTab) {
+                    return tabParam;
+                }
+                return currentTab;
+            });
         } else {
             // 如果没有 URL 参数，默认使用 ted，并更新 URL
-            if (tab !== 'ted') {
-                router.replace('/plans?tab=ted');
-            }
+            setTab('ted');
+            router.replace('/plans?tab=ted');
         }
-    }, [searchParams, router, tab]);
+    }, [searchParams, router]); // 移除 tab 依赖，避免重复触发
 
     const onChange = (key: string) => {
         const newTab = key as TabTypes;
-        setTab(newTab);
-        // 更新 URL 参数
+        // 只更新 URL，让 useEffect 来同步 state，避免重复操作
         router.push(`/plans?tab=${newTab}`);
     };
 
