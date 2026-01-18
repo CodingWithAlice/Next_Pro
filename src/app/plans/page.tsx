@@ -2,13 +2,14 @@
 import './app.css';
 import { Tabs, Spin } from 'antd';
 import type { TabsProps } from 'antd';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 import TedPage from './ted/page';
 import ReadPage from './read/page';
 import SportPage from './sport/page';
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 
-export type TabTypes = 'ted' | 'sport' | 'book'
+export type TabTypes = 'ted' | 'sport' | 'book' | 'home'
 
 function PlanPageContent() {
     const searchParams = useSearchParams();
@@ -45,7 +46,15 @@ function PlanPageContent() {
 
     const onChange = (key: string) => {
         const newTab = key as TabTypes;
-        // 只更新 URL，让 useEffect 来同步 state，避免重复操作
+        
+        // 如果选择的是返回主页 tab，直接跳转到主页
+        if (newTab === 'home') {
+            router.push('/');
+            return;
+        }
+        
+        setTab(newTab);
+        // 更新 URL 参数
         router.push(`/plans?tab=${newTab}`);
     };
 
@@ -64,6 +73,15 @@ function PlanPageContent() {
             key: 'book',
             label: '📖 书/电影',
             children: <ReadPage />,
+        },
+        {
+            key: 'home',
+            label: (
+                <span>
+                    <ArrowLeftOutlined /> 返回
+                </span>
+            ),
+            children: null, // 这个 tab 不会显示内容，点击后直接跳转
         },
     ];
 
