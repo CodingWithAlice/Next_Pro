@@ -57,7 +57,7 @@ async function POST(request: NextRequest) {
 		// 解析运动文本并创建运动记录
 		if (data.sport && typeof data.sport === 'string' && data.sport.trim()) {
 			try {
-				const parsedRecords = parseSportText(data.sport);
+				const parsedRecords = await parseSportText(data.sport);
 				
 				if (parsedRecords.length > 0) {
 					// 对于 running 和 resistance 类型，如果没有 duration，查询运动时长

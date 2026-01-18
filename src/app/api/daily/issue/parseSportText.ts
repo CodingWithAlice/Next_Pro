@@ -11,12 +11,60 @@ export interface ParsedSportRecord {
 	notes?: string | null;
 }
 
+// 运动类型缓存
+let sportCategoriesCache: string[] | null = null;
+let cacheExpiry: number = 0;
+const CACHE_DURATION = 5 * 60 * 1000; // 缓存 5 分钟
+
+/**
+ * 获取运动课程类型列表（带缓存）
+ */
+async function getSportCategories(): Promise<string[]> {
+	const now = Date.now();
+	
+	// 如果缓存有效，直接返回
+	if (sportCategoriesCache && now < cacheExpiry) {
+		return sportCategoriesCache;
+	}
+
+	try {
+		const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+		const response = await fetch(`${baseUrl}/api/routine-types?sport=true&show=true`, {
+			cache: 'no-store',
+		});
+		
+		if (!response.ok) {
+			throw new Error('Failed to fetch sport categories');
+		}
+		
+		const data = await response.json();
+		
+		if (data.success && data.data) {
+			sportCategoriesCache = data.data.map((item: any) => item.type);
+			cacheExpiry = now + CACHE_DURATION;
+			return sportCategoriesCache!; // 使用非空断言，因为上面刚赋值
+		}
+	} catch (error) {
+		console.error('获取运动类型失败，使用默认列表:', error);
+	}
+
+	// 如果获取失败，返回默认列表（兜底）
+	return [
+		'踏板课', '蹦床课', '跳操', '尊巴课', '舞力全开', '跳大绳',
+		'杠铃课',
+		'搏击课',
+		'舞蹈课',
+		'瑜伽课', '普拉提',
+		'乒乓球', '爬坡', '爬楼'
+	];
+}
+
 /**
  * 解析运动文本为运动记录数组
  * @param text 运动文本
  * @returns 解析后的运动记录数组
  */
-export function parseSportText(text: string): ParsedSportRecord[] {
+export async function parseSportText(text: string): Promise<ParsedSportRecord[]> {
 	if (!text || typeof text !== 'string') {
 		return [];
 	}
@@ -31,6 +79,9 @@ export function parseSportText(text: string): ParsedSportRecord[] {
 		return [];
 	}
 
+	// 获取运动课程类型列表
+	const sportCategories = await getSportCategories();
+
 	const records: ParsedSportRecord[] = [];
 
 	// 处理每一行
@@ -39,7 +90,7 @@ export function parseSportText(text: string): ParsedSportRecord[] {
 		const items = line.split(/[+、,]/).map(item => item.trim()).filter(item => item);
 
 		for (const item of items) {
-			const record = parseSingleRecord(item);
+			const record = parseSingleRecord(item, sportCategories);
 			if (record) {
 				records.push(record);
 			}
@@ -51,8 +102,10 @@ export function parseSportText(text: string): ParsedSportRecord[] {
 
 /**
  * 解析单条运动记录
+ * @param text 运动文本
+ * @param sportCategories 运动课程类型列表
  */
-function parseSingleRecord(text: string): ParsedSportRecord | null {
+function parseSingleRecord(text: string, sportCategories: string[]): ParsedSportRecord | null {
 	// 提取备注（括号内容）
 	const notesMatch = text.match(/[（(]([^）)]+)[）)]/);
 	const notes = notesMatch ? notesMatch[1] : null;
@@ -126,8 +179,15 @@ function parseSingleRecord(text: string): ParsedSportRecord | null {
 		};
 	}
 
-	// 尝试匹配课程 - 支持 "跳操 30min有氧"、"爬坡 25min" 等格式
-	const classMatch = cleanText.match(/(跳操|搏击|瑜伽|踏板课|乒乓球|蹦床课|杠铃课|跳舞|舞力全开|有氧操|尊巴|肚皮舞|舞蹈课|跳大绳|团课|翘臀美腿团课|杠铃减脂|杠零臀腿|搏击课|搏击操|瑜伽课|爬坡|爬楼|爬楼梯)\s*(\d+)\s*(min|m|分钟|h|小时)/i);
+	// 动态匹配课程 - 使用从数据库获取的类型列表
+	// 转义特殊字符，构建正则表达式
+	const escapedCategories = sportCategories.map(cat => 
+		cat.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+	);
+	const categoryPattern = escapedCategories.join('|');
+	const classRegex = new RegExp(`(${categoryPattern})\\s*(\\d+)\\s*(min|m|分钟|h|小时)`, 'i');
+	
+	const classMatch = cleanText.match(classRegex);
 	if (classMatch) {
 		const category = classMatch[1];
 		let value = parseInt(classMatch[2], 10);
