@@ -3,11 +3,14 @@ import "./app.css";
 import { Button, message } from "antd";
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useEffect, useState, useRef } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { MonthDetailTextarea } from "@/components/month-detail-textarea";
 import Api from "@/service/api";
 import Link from 'next/link';
 
 export default function Month() {
+    const searchParams = useSearchParams();
+    const router = useRouter();
     const [monthData, setMonthData] = useState<{ [key: string]: string }>({});
     const [periods, setPeriods] = useState<number[]>([0]);
     const [monthId, setMonthId] = useState<number>(0);
@@ -37,6 +40,7 @@ export default function Month() {
             const { monthData, currentId } = await Api.getMonthApi(monthId, 'pre');
             if (currentId && monthData) {
                 setMonthId(currentId);
+                updateUrlMonthId(currentId);
                 processMonthData(monthData);
             } else {
                 messageApi.warning('已经是第一阶段了');
@@ -56,6 +60,7 @@ export default function Month() {
             const { monthData, currentId } = await Api.getMonthApi(monthId, 'next');
             if (currentId && monthData) {
                 setMonthId(currentId);
+                updateUrlMonthId(currentId);
                 processMonthData(monthData);
             } else {
                 messageApi.warning('已经是最新阶段了');
@@ -65,6 +70,13 @@ export default function Month() {
         } finally {
             setLoading(false);
         }
+    }
+
+    // 更新 URL 中的 monthId
+    const updateUrlMonthId = (id: number) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('monthId', id.toString());
+        router.replace(`/month?${params.toString()}`, { scroll: false });
     }
 
     // 处理月份数据的公共逻辑
@@ -100,14 +112,18 @@ export default function Month() {
         })
     }
 
-    // 初始化：加载最新阶段（只执行一次）
+    // 初始化：从 URL 读取 monthId 或加载最新阶段（只执行一次）
     useEffect(() => {
         if (isInitialized.current) return; // 已经初始化过了，跳过
         
+        const urlMonthId = searchParams.get('monthId');
+        const targetMonthId = urlMonthId ? parseInt(urlMonthId, 10) : undefined;
+        
         setLoading(true);
-        Api.getMonthApi().then(({ monthData, currentId }) => {
+        Api.getMonthApi(targetMonthId).then(({ monthData, currentId }) => {
             if (currentId && monthData) {
                 setMonthId(currentId);
+                updateUrlMonthId(currentId);
                 processMonthData(monthData);
             }
             isInitialized.current = true;
