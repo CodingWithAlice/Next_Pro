@@ -2,7 +2,7 @@ import { IssueModal, TimeModal, SportRecordModal } from 'db'
 import { NextRequest, NextResponse } from 'next/server'
 import { transOneDateToWhereOptions } from 'utils'
 import { Op } from 'sequelize'
-import { parseSportText, type ParsedSportRecord } from './parseSportText'
+import { parseSportText } from './parseSportText'
 
 /**
  * 查询指定日期的运动时长
@@ -54,15 +54,19 @@ async function POST(request: NextRequest) {
 			await issue.save()
 		}
 
-		// 解析运动文本并创建运动记录
+		// 解析运动文本并创建运动记录（仅匹配已声明的运动类型）
+		let msg: string | undefined;
 		if (data.sport && typeof data.sport === 'string' && data.sport.trim()) {
 			try {
-				const parsedRecords = await parseSportText(data.sport);
-				
+				const { records: parsedRecords, unrecognizedClasses } = await parseSportText(data.sport);
+				if (unrecognizedClasses.length > 0) {
+					msg = `以下课程类型未识别，请先在运动类型中添加：${unrecognizedClasses.join('、')}`;
+				}
+
 				if (parsedRecords.length > 0) {
 					// 对于 running 和 resistance 类型，如果没有 duration，查询运动时长
 					const sportDuration = await getSportDuration(data.date);
-					
+
 					// 创建或更新运动记录
 					for (const record of parsedRecords) {
 						try {
@@ -119,6 +123,7 @@ async function POST(request: NextRequest) {
 		return NextResponse.json({
 			success: true,
 			message: created ? '观察成功' : '更新成功',
+			...(msg && { msg }),
 		})
 	} catch (error) {
 		console.error(error)

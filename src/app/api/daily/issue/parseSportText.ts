@@ -59,14 +59,21 @@ async function getSportCategories(): Promise<string[]> {
 	];
 }
 
+/** 解析结果：仅使用已声明的运动类型，未识别的课程名会收集到 unrecognizedClasses */
+export interface ParseSportResult {
+	records: ParsedSportRecord[];
+	unrecognizedClasses: string[];
+}
+
 /**
- * 解析运动文本为运动记录数组
+ * 解析运动文本为运动记录，仅匹配已声明的运动类型
  * @param text 运动文本
- * @returns 解析后的运动记录数组
+ * @returns 解析结果，含 records 与未识别的课程名列表 unrecognizedClasses
  */
-export async function parseSportText(text: string): Promise<ParsedSportRecord[]> {
+export async function parseSportText(text: string): Promise<ParseSportResult> {
+	const empty: ParseSportResult = { records: [], unrecognizedClasses: [] };
 	if (!text || typeof text !== 'string') {
-		return [];
+		return empty;
 	}
 
 	// 预处理：去除空行，处理特殊标记
@@ -76,36 +83,38 @@ export async function parseSportText(text: string): Promise<ParsedSportRecord[]>
 		.filter(line => line && line !== '休' && line !== '/');
 
 	if (lines.length === 0) {
-		return [];
+		return empty;
 	}
 
-	// 获取运动课程类型列表
 	const sportCategories = await getSportCategories();
-
 	const records: ParsedSportRecord[] = [];
+	const unrecognizedCollector: string[] = [];
 
-	// 处理每一行
 	for (const line of lines) {
-		// 按 +、、、, 分割组合记录
 		const items = line.split(/[+、,]/).map(item => item.trim()).filter(item => item);
 
 		for (const item of items) {
-			const record = parseSingleRecord(item, sportCategories);
+			const record = parseSingleRecord(item, sportCategories, unrecognizedCollector);
 			if (record) {
 				records.push(record);
 			}
 		}
 	}
 
-	return records;
+	return {
+		records,
+		unrecognizedClasses: [...new Set(unrecognizedCollector)],
+	};
 }
 
 /**
- * 解析单条运动记录
- * @param text 运动文本
- * @param sportCategories 运动课程类型列表
+ * 解析单条运动记录，仅使用已声明的类型；未识别的课程名写入 unrecognizedCollector
  */
-function parseSingleRecord(text: string, sportCategories: string[]): ParsedSportRecord | null {
+function parseSingleRecord(
+	text: string,
+	sportCategories: string[],
+	unrecognizedCollector: string[]
+): ParsedSportRecord | null {
 	// 提取备注（括号内容）
 	const notesMatch = text.match(/[（(]([^）)]+)[）)]/);
 	const notes = notesMatch ? notesMatch[1] : null;
@@ -212,19 +221,25 @@ function parseSingleRecord(text: string, sportCategories: string[]): ParsedSport
 		};
 	}
 
-	// 尝试匹配游泳（记录为备注）
+	// 游泳：未在课程类型中配置，只收集提示，不落表
 	const swimMatch = cleanText.match(/游泳\s*(\d+)\s*(米|m)/i);
 	if (swimMatch) {
-		// 游泳暂不支持，记录为备注
-		return {
-			type: 'class',
-			value: 0,
-			category: '其他',
-			notes: `游泳${swimMatch[1]}${swimMatch[2]}` + (notes ? `、${notes}` : ''),
-		};
+		if (!unrecognizedCollector.includes('游泳')) {
+			unrecognizedCollector.push('游泳');
+		}
+		return null;
 	}
 
-	// 无法识别的记录，返回 null
+	// 形如「课程名 数字 min|分钟|h|小时」但课程名不在已声明列表中 → 收集提示，不落表
+	const genericClassMatch = cleanText.match(/^(.+?)\s+(\d+)\s*(min|m|分钟|h|小时)/i);
+	if (genericClassMatch) {
+		const name = genericClassMatch[1].trim();
+		if (!sportCategories.includes(name) && !unrecognizedCollector.includes(name)) {
+			unrecognizedCollector.push(name);
+		}
+		return null;
+	}
+
 	return null;
 }
 
