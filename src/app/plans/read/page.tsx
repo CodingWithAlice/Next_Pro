@@ -6,10 +6,15 @@ import type { CollapseProps } from 'antd';
 import { Collapse, Tag, Typography, Spin, Button, Modal, FloatButton, Switch, Image } from 'antd';
 import { ShareAltOutlined, EditOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import BooksAdd from '@/components/books-add';
 import ShareImageButton from '@/components/share-image-button';
 import BookEditModal from '@/components/book-edit-modal';
 import RecordItemContent from '@/components/record-item-content';
+
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
 
 interface BooksDTO {
     id: number;
@@ -170,9 +175,10 @@ export default function ReadPage() {
                 shouldInclude = true;
             } else {
                 // 年份模式：只包含选中年份的数据
-                const yearStart = `${selectedYear}-01-01`;
-                const yearEnd = `${selectedYear}-12-31`;
-                shouldInclude = recentDate >= yearStart && recentDate <= yearEnd;
+                const recentDateObj = dayjs(recentDate);
+                const yearStart = dayjs(`${selectedYear}-01-01`);
+                const yearEnd = dayjs(`${selectedYear}-12-31`);
+                shouldInclude = recentDateObj.isSameOrAfter(yearStart, 'day') && recentDateObj.isSameOrBefore(yearEnd, 'day');
             }
             
             if (shouldInclude) {
