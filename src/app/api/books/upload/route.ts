@@ -105,6 +105,15 @@ export async function POST(request: NextRequest) {
 		const finalPath = path.join(uploadDir, fileName)
 		await writeFile(finalPath, buffer)
 
+		// 持久化日志：便于在服务器上确认实际写入路径（宿主机对应 /data/uploads 挂载到 /app/uploads）
+		console.log('[upload] 写入路径:', {
+			UPLOAD_DIR: process.env.UPLOAD_DIR,
+			baseUploadDir,
+			uploadDir,
+			finalPath,
+			fileName,
+		})
+
 		// 返回文件访问URL
 		// 如果使用外部目录（设置了 UPLOAD_DIR 或使用 /app/uploads），使用 API 路由访问
 		// 如果使用默认的 public 目录，直接使用静态文件路径
