@@ -103,7 +103,7 @@ export default function RecordModal({ open, type, date, onCancel, onSave }: Reco
     useEffect(() => {
         if (type === 'class') {
             setLoading(true);
-            fetch('/api/routine-types?sport=true&show=true')
+            fetch('/api/routine-types?sport=true')
                 .then(res => res.json())
                 .then(data => {
                     if (data.success && data.data) {

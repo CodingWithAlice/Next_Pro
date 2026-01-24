@@ -29,7 +29,7 @@ async function getSportCategories(): Promise<string[]> {
 
 	try {
 		const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-		const response = await fetch(`${baseUrl}/api/routine-types?sport=true&show=true`, {
+		const response = await fetch(`${baseUrl}/api/routine-types?sport=true`, {
 			cache: 'no-store',
 		});
 		

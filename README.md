@@ -117,12 +117,12 @@ sudo /usr/local/bin/docker-compose logs daily-app
 
 <!-- 清理 docker镜像 -->
 ```js
-docker image ls 
+sudo docker image ls 
 // 清理所有悬空（dangling）镜像，悬空镜像指的是没有被任何标签引用的镜像
-docker image prune
-docker system prune
+sudo docker image prune
+sudo docker system prune
 // 若要删除所有未被使用的镜像（不仅仅是悬空镜像）
-docker image prune -a
+sudo docker image prune -a
 ``` 
 
 ### 2025.7.9
