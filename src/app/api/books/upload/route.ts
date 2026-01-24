@@ -68,8 +68,21 @@ export async function POST(request: NextRequest) {
 
 		// 按年份组织目录
 		const year = new Date().getFullYear().toString()
-		// 优先使用环境变量配置的上传目录，如果没有则使用默认的 public/uploads
-		const baseUploadDir = process.env.UPLOAD_DIR || path.join(process.cwd(), 'public', 'uploads')
+		// 确定上传目录：
+		// 1. 优先使用环境变量 UPLOAD_DIR
+		// 2. 如果没有环境变量，检查 /app/uploads 是否存在（Docker 环境）
+		// 3. 否则使用默认的 public/uploads（开发环境）
+		let baseUploadDir: string
+		if (process.env.UPLOAD_DIR) {
+			baseUploadDir = process.env.UPLOAD_DIR
+		} else {
+			const dockerUploadDir = '/app/uploads'
+			if (existsSync(dockerUploadDir)) {
+				baseUploadDir = dockerUploadDir
+			} else {
+				baseUploadDir = path.join(process.cwd(), 'public', 'uploads')
+			}
+		}
 		const uploadDir = path.join(baseUploadDir, 'books', year)
 		
 		// 确保目录存在
@@ -93,9 +106,9 @@ export async function POST(request: NextRequest) {
 		await writeFile(finalPath, buffer)
 
 		// 返回文件访问URL
-		// 如果使用外部目录（设置了 UPLOAD_DIR 环境变量），使用 API 路由访问
+		// 如果使用外部目录（/app/uploads 或设置了 UPLOAD_DIR），使用 API 路由访问
 		// 如果使用默认的 public 目录，直接使用静态文件路径
-		const isExternalDir = !!process.env.UPLOAD_DIR
+		const isExternalDir = baseUploadDir !== path.join(process.cwd(), 'public', 'uploads')
 		const fileUrl = isExternalDir 
 			? `/api/uploads/books/${year}/${fileName}` 
 			: `/uploads/books/${year}/${fileName}`
