@@ -106,12 +106,31 @@ export async function POST(request: NextRequest) {
 		await writeFile(finalPath, buffer)
 
 		// 返回文件访问URL
-		// 如果使用外部目录（/app/uploads 或设置了 UPLOAD_DIR），使用 API 路由访问
+		// 如果使用外部目录（设置了 UPLOAD_DIR 或使用 /app/uploads），使用 API 路由访问
 		// 如果使用默认的 public 目录，直接使用静态文件路径
-		const isExternalDir = baseUploadDir !== path.join(process.cwd(), 'public', 'uploads')
+		const defaultPublicDir = path.join(process.cwd(), 'public', 'uploads')
+		// 判断是否为外部目录：
+		// 1. 设置了 UPLOAD_DIR 环境变量（最优先）
+		// 2. 或者 baseUploadDir 的绝对路径不等于默认 public 目录的绝对路径
+		const resolvedBaseDir = path.resolve(baseUploadDir)
+		const resolvedDefaultDir = path.resolve(defaultPublicDir)
+		const isExternalDir = !!process.env.UPLOAD_DIR || resolvedBaseDir !== resolvedDefaultDir
+		
 		const fileUrl = isExternalDir 
 			? `/api/uploads/books/${year}/${fileName}` 
 			: `/uploads/books/${year}/${fileName}`
+		
+		// 调试日志（生产环境可移除）
+		if (process.env.NODE_ENV !== 'production') {
+			console.log('Upload debug:', {
+				UPLOAD_DIR: process.env.UPLOAD_DIR,
+				baseUploadDir,
+				resolvedBaseDir,
+				resolvedDefaultDir,
+				isExternalDir,
+				fileUrl
+			})
+		}
 
 		return NextResponse.json({
 			success: true,
