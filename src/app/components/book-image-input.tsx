@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Upload, Input, Button, Image, message, Space } from 'antd';
-import { UploadOutlined, LinkOutlined } from '@ant-design/icons';
-import type { UploadFile } from 'antd';
+import { useState } from 'react';
+import { Upload, Button, Image, message } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
 import Api from '@/service/api';
 
 interface BookImageInputProps {
@@ -12,14 +11,7 @@ interface BookImageInputProps {
 }
 
 export default function BookImageInput({ value, onChange, title, onUploadingChange }: BookImageInputProps) {
-	const [mode, setMode] = useState<'upload' | 'url'>('upload');
 	const [uploading, setUploading] = useState(false);
-	const [urlInput, setUrlInput] = useState(value || '');
-
-	// 同步 urlInput 状态与 value prop 的变化
-	useEffect(() => {
-		setUrlInput(value || '');
-	}, [value]);
 
 	const handleUpload = async (file: File) => {
 		setUploading(true);
@@ -29,7 +21,7 @@ export default function BookImageInput({ value, onChange, title, onUploadingChan
 			if (response.success && response.data?.url) {
 				onChange?.(response.data.url);
 				message.success('图片上传成功');
-				return false; // 阻止默认上传行为
+				return false;
 			} else {
 				message.error(response.message || '上传失败');
 				return false;
@@ -43,91 +35,67 @@ export default function BookImageInput({ value, onChange, title, onUploadingChan
 		}
 	};
 
-	const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const url = e.target.value;
-		setUrlInput(url);
-		onChange?.(url);
+	const handleRemove = () => {
+		onChange?.('');
+		message.success('图片已清空，请点击保存以更新数据');
 	};
 
-	const handleUrlBlur = () => {
-		// 验证URL格式
-		if (urlInput && !/^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)/i.test(urlInput)) {
-			// 允许不以扩展名结尾的URL（如带查询参数的URL）
-			if (!/^https?:\/\//.test(urlInput)) {
-				message.warning('请输入有效的图片URL');
-			}
-		}
-	};
+	const imageSrc = value
+		? value.startsWith('http')
+			? value
+			: typeof window !== 'undefined'
+				? new URL(value, window.location.origin).href
+				: value
+		: '';
 
-	const fileList: UploadFile[] = value && mode === 'upload' ? [{
-		uid: '-1',
-		name: 'image',
-		status: 'done',
-		url: value.startsWith('http') ? value : undefined,
-	} as UploadFile] : [];
+	const hasImage = !!value;
 
 	return (
 		<div>
-			<Space style={{ marginBottom: 8 }}>
-				<Button
-					type={mode === 'upload' ? 'primary' : 'default'}
-					icon={<UploadOutlined />}
-					size="small"
-					onClick={() => setMode('upload')}
+			{!hasImage ? (
+				<Upload
+					name="file"
+					showUploadList={false}
+					beforeUpload={handleUpload}
+					accept="image/jpeg,image/jpg,image/png,image/webp"
+					disabled={uploading}
 				>
-					上传图片
-				</Button>
-				<Button
-					type={mode === 'url' ? 'primary' : 'default'}
-					icon={<LinkOutlined />}
-					size="small"
-					onClick={() => setMode('url')}
-				>
-					输入URL
-				</Button>
-			</Space>
-
-			{mode === 'upload' ? (
-				<div>
-					<Upload
-						name="file"
-						listType="picture-card"
-						showUploadList={true}
-						beforeUpload={handleUpload}
-						fileList={fileList}
-						maxCount={1}
-						accept="image/jpeg,image/jpg,image/png,image/webp"
-					>
-						{!value && (
-							<div>
-								<UploadOutlined />
-								<div style={{ marginTop: 8 }}>上传</div>
-							</div>
-						)}
-					</Upload>
-					{value && (
-						<div style={{ marginTop: 8 }}>
-							<Image src={value} alt="预览" width={200} />
-						</div>
-					)}
-				</div>
+					<Button icon={<UploadOutlined />} loading={uploading}>
+						上传图片
+					</Button>
+				</Upload>
 			) : (
-				<div>
-					<Input
-						placeholder="请输入图片URL（如：https://img.doubanio.com/...）"
-						value={urlInput}
-						onChange={handleUrlChange}
-						onBlur={handleUrlBlur}
-						disabled={uploading}
-					/>
-					{value && (
-						<div style={{ marginTop: 8 }}>
-							<Image src={value} alt="预览" width={200} />
-						</div>
-					)}
+				<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
+					<Button icon={<UploadOutlined />} disabled>
+						上传图片
+					</Button>
+					<div style={{ position: 'relative', display: 'inline-block' }}>
+						<Image
+							src={imageSrc || value}
+							alt="已上传图片"
+							width={200}
+							preview={true}
+						/>
+						<Button
+							type="primary"
+							danger
+							size="small"
+							onClick={(e) => {
+								e.stopPropagation();
+								handleRemove();
+							}}
+							style={{
+								position: 'absolute',
+								top: 8,
+								right: 8,
+								zIndex: 10,
+							}}
+						>
+							删除
+						</Button>
+					</div>
 				</div>
 			)}
 		</div>
 	);
 }
-

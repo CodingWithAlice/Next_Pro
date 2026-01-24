@@ -40,8 +40,9 @@ export default function BookEditModal({ open, record, onCancel, onSuccess }: Boo
     const [loading, setLoading] = useState(false);
     const [imageUploading, setImageUploading] = useState(false);
     const [messageApi, contextHolder] = message.useMessage();
-    // 使用 Form.useWatch 监听 title 字段变化，确保 title prop 始终是最新值
+    // 使用 Form.useWatch 监听字段变化，确保 props 始终是最新值
     const title = Form.useWatch('title', form);
+    const imageUrl = Form.useWatch('imageUrl', form);
 
     useEffect(() => {
         if (open && record) {
@@ -148,17 +149,17 @@ export default function BookEditModal({ open, record, onCancel, onSuccess }: Boo
                         <Input placeholder="选填" />
                     </Form.Item>
 
-                    <Form.Item
-                        label="图片"
-                        name="imageUrl"
-                    >
-                        <BookImageInput
-                            title={title}
-                            value={form.getFieldValue('imageUrl')}
-                            onChange={(url) => form.setFieldValue('imageUrl', url)}
-                            onUploadingChange={setImageUploading}
-                        />
-                    </Form.Item>
+					<Form.Item
+						label="图片"
+						name="imageUrl"
+					>
+						<BookImageInput
+							title={title}
+							value={imageUrl}
+							onChange={(url) => form.setFieldValue('imageUrl', url)}
+							onUploadingChange={setImageUploading}
+						/>
+					</Form.Item>
                 </Form>
             </Modal>
         </>
