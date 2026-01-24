@@ -68,8 +68,21 @@ export async function POST(request: NextRequest) {
 
 		// 按年份组织目录
 		const year = new Date().getFullYear().toString()
-		// 优先使用环境变量配置的上传目录，如果没有则使用默认的 public/uploads
-		const baseUploadDir = process.env.UPLOAD_DIR || path.join(process.cwd(), 'public', 'uploads')
+		// 确定上传目录：
+		// 1. 优先使用环境变量 UPLOAD_DIR
+		// 2. 如果没有环境变量，检查 /app/uploads 是否存在（Docker 环境）
+		// 3. 否则使用默认的 public/uploads（开发环境）
+		let baseUploadDir: string
+		if (process.env.UPLOAD_DIR) {
+			baseUploadDir = process.env.UPLOAD_DIR
+		} else {
+			const dockerUploadDir = '/app/uploads'
+			if (existsSync(dockerUploadDir)) {
+				baseUploadDir = dockerUploadDir
+			} else {
+				baseUploadDir = path.join(process.cwd(), 'public', 'uploads')
+			}
+		}
 		const uploadDir = path.join(baseUploadDir, 'books', year)
 		
 		// 确保目录存在
@@ -92,13 +105,41 @@ export async function POST(request: NextRequest) {
 		const finalPath = path.join(uploadDir, fileName)
 		await writeFile(finalPath, buffer)
 
+		// 持久化日志：便于在服务器上确认实际写入路径（宿主机对应 /data/uploads 挂载到 /app/uploads）
+		console.log('[upload] 写入路径:', {
+			UPLOAD_DIR: process.env.UPLOAD_DIR,
+			baseUploadDir,
+			uploadDir,
+			finalPath,
+			fileName,
+		})
+
 		// 返回文件访问URL
-		// 如果使用外部目录（设置了 UPLOAD_DIR 环境变量），使用 API 路由访问
+		// 如果使用外部目录（设置了 UPLOAD_DIR 或使用 /app/uploads），使用 API 路由访问
 		// 如果使用默认的 public 目录，直接使用静态文件路径
-		const isExternalDir = !!process.env.UPLOAD_DIR
+		const defaultPublicDir = path.join(process.cwd(), 'public', 'uploads')
+		// 判断是否为外部目录：
+		// 1. 设置了 UPLOAD_DIR 环境变量（最优先）
+		// 2. 或者 baseUploadDir 的绝对路径不等于默认 public 目录的绝对路径
+		const resolvedBaseDir = path.resolve(baseUploadDir)
+		const resolvedDefaultDir = path.resolve(defaultPublicDir)
+		const isExternalDir = !!process.env.UPLOAD_DIR || resolvedBaseDir !== resolvedDefaultDir
+		
 		const fileUrl = isExternalDir 
 			? `/api/uploads/books/${year}/${fileName}` 
 			: `/uploads/books/${year}/${fileName}`
+		
+		// 调试日志（生产环境可移除）
+		if (process.env.NODE_ENV !== 'production') {
+			console.log('Upload debug:', {
+				UPLOAD_DIR: process.env.UPLOAD_DIR,
+				baseUploadDir,
+				resolvedBaseDir,
+				resolvedDefaultDir,
+				isExternalDir,
+				fileUrl
+			})
+		}
 
 		return NextResponse.json({
 			success: true,

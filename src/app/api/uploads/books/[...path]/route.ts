@@ -17,8 +17,21 @@ export async function GET(
 			)
 		}
 
-		// 获取基础上传目录
-		const baseUploadDir = process.env.UPLOAD_DIR || path.join(process.cwd(), 'public', 'uploads')
+		// 获取基础上传目录：
+		// 1. 优先使用环境变量 UPLOAD_DIR
+		// 2. 如果没有环境变量，检查 /app/uploads 是否存在（Docker 环境）
+		// 3. 否则使用默认的 public/uploads（开发环境）
+		let baseUploadDir: string
+		if (process.env.UPLOAD_DIR) {
+			baseUploadDir = process.env.UPLOAD_DIR
+		} else {
+			const dockerUploadDir = '/app/uploads'
+			if (existsSync(dockerUploadDir)) {
+				baseUploadDir = dockerUploadDir
+			} else {
+				baseUploadDir = path.join(process.cwd(), 'public', 'uploads')
+			}
+		}
 		const fullPath = path.join(baseUploadDir, 'books', ...filePath)
 
 		// 安全检查：确保路径在允许的目录内

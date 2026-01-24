@@ -1,6 +1,6 @@
 'use client';
-import { useEffect } from 'react';
-import { Modal, Input, InputNumber, Select, Form, DatePicker, AutoComplete } from 'antd';
+import { useEffect, useState } from 'react';
+import { Modal, Input, InputNumber, Select, Form, DatePicker, AutoComplete, message } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 
 // 运动类型
@@ -86,24 +86,7 @@ const SPORT_TYPE_CONFIG: Record<SportType, {
                 type: 'autocomplete',
                 required: true,
                 placeholder: '选择或输入课程名称',
-                options: [
-                    { value: '踏板课', label: '踏板课' },
-                    { value: '乒乓球', label: '乒乓球' },
-                    { value: '瑜伽课', label: '瑜伽课' },
-                    { value: '蹦床课', label: '蹦床课' },
-                    { value: '杠铃课', label: '杠铃课' },
-                    { value: '跳舞', label: '跳舞' },
-                    { value: '舞力全开', label: '舞力全开' },
-                    { value: '搏击课', label: '搏击课' },
-                    { value: '尊巴', label: '尊巴' },
-                    { value: '肚皮舞', label: '肚皮舞' },
-                    { value: '舞蹈课', label: '舞蹈课' },
-                    { value: '跳操', label: '跳操' },
-                    { value: '有氧操', label: '有氧操' },
-                    { value: '爬坡', label: '爬坡' },
-                    { value: '爬楼', label: '爬楼' },
-                    { value: '其他有氧', label: '其他有氧' },
-                ],
+                options: [], // 将从 API 动态加载
             },
             { name: 'notes', label: '备注', type: 'text', placeholder: '选填' },
         ],
@@ -112,7 +95,34 @@ const SPORT_TYPE_CONFIG: Record<SportType, {
 
 export default function RecordModal({ open, type, date, onCancel, onSave }: RecordModalProps) {
     const [form] = Form.useForm();
+    const [sportCategories, setSportCategories] = useState<{ value: string; label: string }[]>([]);
+    const [loading, setLoading] = useState(false);
     const config = SPORT_TYPE_CONFIG[type];
+
+    // 加载运动课程类型
+    useEffect(() => {
+        if (type === 'class') {
+            setLoading(true);
+            fetch('/api/routine-types?sport=true')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.data) {
+                        const options = data.data.map((item: any) => ({
+                            value: item.type,
+                            label: item.type,
+                        }));
+                        setSportCategories(options);
+                    }
+                })
+                .catch(error => {
+                    console.error('加载运动类型失败:', error);
+                    message.error('加载运动类型失败');
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        }
+    }, [type]);
 
     // 当弹窗打开时，设置表单初始值（包括日期和默认分类）
     useEffect(() => {
@@ -131,6 +141,11 @@ export default function RecordModal({ open, type, date, onCancel, onSave }: Reco
     // 渲染表单字段
     const renderFormField = (field: FormFieldConfig) => {
         const rules = field.required ? [{ required: true, message: `请输入${field.label}` }] : [];
+        
+        // 如果是课程类型的 category 字段，使用动态加载的选项
+        const fieldOptions = (type === 'class' && field.name === 'category') 
+            ? sportCategories 
+            : field.options;
 
         switch (field.type) {
             case 'number':
@@ -178,7 +193,7 @@ export default function RecordModal({ open, type, date, onCancel, onSave }: Reco
                     >
                         <Select
                             placeholder={field.placeholder}
-                            options={field.options}
+                            options={fieldOptions}
                         />
                     </Form.Item>
                 );
@@ -192,7 +207,7 @@ export default function RecordModal({ open, type, date, onCancel, onSave }: Reco
                     >
                         <AutoComplete
                             placeholder={field.placeholder}
-                            options={field.options}
+                            options={fieldOptions}
                             allowClear
                             filterOption={(inputValue, option) =>
                                 option?.value?.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1

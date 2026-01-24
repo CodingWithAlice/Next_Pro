@@ -29,6 +29,11 @@ export const RoutineTypeModal = sequelize.define(
 		type: DataTypes.STRING,
 		des: DataTypes.STRING,
 		show: DataTypes.BOOLEAN,
+		sport: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: false,
+			comment: '是否为运动相关的分类',
+		},
 	},
 	{
 		tableName: 'routine_type',

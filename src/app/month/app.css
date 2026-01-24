@@ -2,7 +2,7 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: center;
 }
 
@@ -65,28 +65,31 @@
 /* 响应式设计 */
 @media (max-width: 768px) {
     .month {
-        flex-direction: column;
-        gap: 12px;
+        gap: 8px;
     }
 
-    .month-title {
-        font-size: 1.8rem;
-    }
-
-    .month-nav-btn {
-        font-size: 13px;
-        padding: 5px 12px;
-    }
-}
-
-@media (max-width: 480px) {
     .month-title {
         font-size: 1.5rem;
     }
 
     .month-nav-btn {
         font-size: 12px;
-        padding: 5px 12px;
+        padding: 5px 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .month {
+        gap: 6px;
+    }
+    
+    .month-title {
+        font-size: 1.2rem;
+    }
+
+    .month-nav-btn {
+        font-size: 11px;
+        padding: 4px 8px;
     }
 }
 

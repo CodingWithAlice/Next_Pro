@@ -50,7 +50,11 @@ export default function IssueRecord({ study, issueData, setIssueData, currentDat
             date: issueData?.date || currentDate
         }).then((e) => {
             if (e?.success) {
-                messageApi.success(e.message);
+                if (e.msg) {
+                    messageApi.warning(e.msg);
+                } else {
+                    messageApi.success(e.message);
+                }
             }
         }).catch((e) => {
             messageApi.error(e.message || '保存失败');

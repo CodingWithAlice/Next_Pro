@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useMemo } from 'react';
 import { Image } from 'antd';
 
 interface RecordItemContentProps {
@@ -9,9 +9,22 @@ interface RecordItemContentProps {
     record: string;
 }
 
+/** 转为绝对 URL，供预览弹窗使用，避免相对路径在 portal 中解析异常 */
+function toAbsoluteImageUrl(url: string): string {
+    if (!url) return url;
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    if (typeof window === 'undefined') return url;
+    try {
+        return new URL(url, window.location.origin).href;
+    } catch {
+        return url;
+    }
+}
+
 export default function RecordItemContent({ imageUrl, title, blogUrl, record }: RecordItemContentProps) {
     const textRef = useRef<HTMLDivElement>(null);
     const [imageMaxHeight, setImageMaxHeight] = useState(240);
+    const previewSrc = useMemo(() => (imageUrl ? toAbsoluteImageUrl(imageUrl) : undefined), [imageUrl]);
 
     useEffect(() => {
         if (!textRef.current) return;
@@ -56,6 +69,7 @@ export default function RecordItemContent({ imageUrl, title, blogUrl, record }: 
                         src={imageUrl}
                         alt={title}
                         preview={{
+                            src: previewSrc,
                             mask: '预览'
                         }}
                     />
