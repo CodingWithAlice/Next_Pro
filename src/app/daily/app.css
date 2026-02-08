@@ -86,15 +86,11 @@
 }
 
 .daily-note-label {
-    position: absolute;
-    top: 0;
-    left: 8rem;
-    right: 0;
-    font-size: 0.75rem;
-    color: rgba(255, 140, 0, 0.7);
+    margin: 0.25rem 0 0.5rem 0;
+    font-size: 0.8rem;
+    color: rgba(255, 140, 0, 0.9);
     font-weight: 500;
-    white-space: nowrap;
-    pointer-events: none;
+    line-height: 1.4;
 }
 
 .time-picker {

@@ -6,7 +6,7 @@ const config = {
     sportId: 17,
     workId: 18,
     sleepId: 10,
-    dailyNote: '! ! !请注意下班 -> 睡眠的时长',
+    dailyNote: '💡 周二/周四记下班 → 记录泡脚、冥想、早睡关系',
 };
 
 export default config;
