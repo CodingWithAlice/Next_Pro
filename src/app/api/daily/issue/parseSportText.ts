@@ -11,22 +11,10 @@ export interface ParsedSportRecord {
 	notes?: string | null;
 }
 
-// 运动类型缓存
-let sportCategoriesCache: string[] | null = null;
-let cacheExpiry: number = 0;
-const CACHE_DURATION = 5 * 60 * 1000; // 缓存 5 分钟
-
 /**
- * 获取运动课程类型列表（带缓存）
+ * 获取运动课程类型列表
  */
 async function getSportCategories(): Promise<string[]> {
-	const now = Date.now();
-	
-	// 如果缓存有效，直接返回
-	if (sportCategoriesCache && now < cacheExpiry) {
-		return sportCategoriesCache;
-	}
-
 	try {
 		const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 		const response = await fetch(`${baseUrl}/api/routine-types?sport=true`, {
@@ -40,9 +28,7 @@ async function getSportCategories(): Promise<string[]> {
 		const data = await response.json();
 		
 		if (data.success && data.data) {
-			sportCategoriesCache = data.data.map((item: any) => item.type);
-			cacheExpiry = now + CACHE_DURATION;
-			return sportCategoriesCache!; // 使用非空断言，因为上面刚赋值
+			return data.data.map((item: any) => item.type);
 		}
 	} catch (error) {
 		console.error('获取运动类型失败，使用默认列表:', error);
