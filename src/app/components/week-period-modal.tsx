@@ -35,6 +35,12 @@ export function WeekPeriodModal({ curSerial }: { curSerial: number }) {
             footer={null}
             onCancel={handleCancel}
             width={1200}
+            styles={{
+                body: {
+                    maxHeight: '75vh',
+                    overflowY: 'auto',
+                },
+            }}
         >
             <Period curSerial={curSerial} />
         </Modal>
