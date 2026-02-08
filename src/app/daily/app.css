@@ -93,6 +93,22 @@
     line-height: 1.4;
 }
 
+.work-mode-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 0;
+}
+
+.work-mode-label {
+    font-size: 0.9rem;
+}
+
+.work-mode-hint {
+    font-size: 0.75rem;
+    color: rgba(6, 128, 67, 0.7);
+}
+
 .time-picker {
     display: flex;
     align-items: center;
