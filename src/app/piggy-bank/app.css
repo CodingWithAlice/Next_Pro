@@ -1,0 +1,198 @@
+.piggy-bank-page {
+  width: 100%;
+}
+
+.piggy-bank-wrap {
+  width: 80vw;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.piggy-bank-title {
+  margin: 0 0 24px 0;
+  font-size: 1.8rem;
+  color: rgb(38, 157, 128);
+}
+
+.home-link-title {
+  color: inherit;
+  text-decoration: none;
+}
+
+.home-link-title:hover {
+  color: rgba(38, 157, 128, 0.8);
+}
+
+/* 上部分：待分配池 + 工资输入，水平平均分布 */
+.piggy-top {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #eee;
+}
+
+.piggy-top-item {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 576px) {
+  .piggy-top {
+    flex-direction: column;
+  }
+}
+
+.piggy-top-item h2 {
+  font-size: 1rem;
+  color: #333;
+  margin: 0 0 12px 0;
+}
+
+.pool-balance {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: rgb(38, 157, 128);
+  margin-bottom: 10px;
+}
+
+.salary-form .ant-form-item {
+  margin-bottom: 10px;
+}
+
+.salary-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* 下部分：梦想罐子 */
+.piggy-bottom {
+  margin-bottom: 0;
+}
+
+.piggy-bottom-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.piggy-bottom-header h2 {
+  font-size: 1.1rem;
+  color: #333;
+  margin: 0;
+}
+
+.jar-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+/* 罐子造型：独立罐子 + 金色水位 */
+.jar-vessel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 100px;
+}
+
+.jar-vessel .jar-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.jar-vessel .jar-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70px;
+}
+
+.jar-vessel .jar-body {
+  width: 72px;
+  height: 100px;
+  background: rgba(0, 0, 0, 0.06);
+  clip-path: polygon(25% 0, 75% 0, 100% 100%, 0 100%);
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 0 0 2px rgba(38, 157, 128, 0.4);
+}
+
+.jar-vessel .jar-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, #d4a84b, #f5d87a, #ffeb99);
+  transition: height 0.4s ease;
+  clip-path: polygon(25% 0, 75% 0, 100% 100%, 0 100%);
+  min-height: 0;
+}
+
+.jar-vessel .jar-footer {
+  margin-top: 8px;
+  text-align: center;
+}
+
+.jar-vessel .jar-abandon-btn {
+  padding: 2px 0;
+  font-size: 14px;
+  color: #666 !important;
+}
+
+.jar-vessel .jar-abandon-btn:hover {
+  color: #999 !important;
+}
+
+.jar-vessel .jar-balance {
+  font-size: 1rem;
+  font-weight: 700;
+  color: rgb(38, 157, 128);
+}
+
+.jar-vessel .jar-target {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.jar-vessel .jar-monthly {
+  font-size: 0.75rem;
+  color: #666;
+  margin-top: 2px;
+}
+
+
+.allocate-list {
+  margin: 12px 0;
+}
+
+.allocate-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.allocate-row .jar-name {
+  flex: 1;
+  min-width: 80px;
+}
+
+.allocate-sum {
+  margin-top: 12px;
+  font-weight: 600;
+}
+
+.loading-tip {
+  color: #999;
+}

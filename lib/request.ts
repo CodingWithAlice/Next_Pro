@@ -71,6 +71,22 @@ async function put<T>(api: string, data: T) {
 	}
 }
 
+async function del(
+	api: string,
+	params?: { [key: string]: string | number | boolean }
+) {
+	try {
+		const response = await axios.delete(`${url}/${api}`, {
+			params,
+			...postConfig,
+		})
+		return response.data
+	} catch (error) {
+		const errorObj = handleAxiosError(error)
+		throw errorObj
+	}
+}
+
 export async function AIPOST(messages: MessageProp[]) {
 	try {
 		// 获取客户端发送的数据
@@ -93,6 +109,7 @@ const request = {
 	get,
 	post,
 	put,
+	delete: del,
 	AIPOST,
 }
 

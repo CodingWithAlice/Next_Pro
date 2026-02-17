@@ -331,6 +331,109 @@ export const SportRecordModal = sequelize.define(
 	}
 )
 
+// 梦想罐子
+export const PiggyBankJarModal = sequelize.define(
+	'piggy_bank_jar',
+	{
+		id: {
+			type: DataTypes.INTEGER,
+			primaryKey: true,
+			autoIncrement: true,
+		},
+		name: {
+			type: DataTypes.STRING(50),
+			allowNull: false,
+		},
+		balance: {
+			type: DataTypes.DECIMAL(12, 2),
+			allowNull: false,
+			defaultValue: 0,
+		},
+		monthlyRepayment: {
+			type: DataTypes.DECIMAL(10, 2),
+			allowNull: true,
+			field: 'monthly_repayment',
+			comment: '月还款目标',
+		},
+		targetAmount: {
+			type: DataTypes.DECIMAL(12, 2),
+			allowNull: true,
+			field: 'target_amount',
+			comment: '目标金额',
+		},
+		status: {
+			type: DataTypes.ENUM('active', 'abandoned'),
+			allowNull: false,
+			defaultValue: 'active',
+		},
+		sortOrder: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 0,
+			field: 'sort_order',
+		},
+	},
+	{
+		tableName: 'piggy_bank_jar',
+		timestamps: true,
+		underscored: true,
+	}
+)
+
+// 待分配池（单行）
+export const PiggyBankPoolModal = sequelize.define(
+	'piggy_bank_pool',
+	{
+		id: {
+			type: DataTypes.INTEGER,
+			primaryKey: true,
+			autoIncrement: true,
+		},
+		balance: {
+			type: DataTypes.DECIMAL(12, 2),
+			allowNull: false,
+			defaultValue: 0,
+		},
+	},
+	{
+		tableName: 'piggy_bank_pool',
+		timestamps: true,
+		underscored: true,
+	}
+)
+
+export const PiggyBankModal = sequelize.define(
+	'piggy_bank_record',
+	{
+		id: {
+			type: DataTypes.INTEGER,
+			primaryKey: true,
+			autoIncrement: true,
+		},
+		amount: {
+			type: DataTypes.DECIMAL(10, 2),
+			allowNull: false,
+		},
+		type: {
+			type: DataTypes.ENUM('income', 'expense'),
+			allowNull: false,
+		},
+		note: {
+			type: DataTypes.STRING(200),
+			allowNull: true,
+		},
+		date: {
+			type: DataTypes.DATEONLY,
+			allowNull: false,
+		},
+	},
+	{
+		tableName: 'piggy_bank_record',
+		timestamps: true,
+		underscored: true,
+	}
+)
+
 export const RunningPlanModal = sequelize.define(
 	'running_plans',
 	{

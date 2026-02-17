@@ -112,6 +112,38 @@ const Api = {
 	getRunningPlansApi() {
 		return request.get('running-plans')
 	},
+
+	getPiggyBankApi() {
+		return request.get('piggy-bank')
+	},
+	postPiggyBankJarApi(data: {
+		name: string
+		monthlyRepayment?: number
+		targetAmount?: number
+		monthlyRepaymentAmount?: number
+		planMonths?: number
+		totalAdvance?: number
+	}) {
+		return request.post('piggy-bank/jar', data)
+	},
+	putPiggyBankJarApi(id: number, data: { name?: string; monthlyRepayment?: number | null; targetAmount?: number | null }) {
+		return request.put(`piggy-bank/jar/${id}`, data)
+	},
+	abandonPiggyBankJarApi(id: number) {
+		return request.post(`piggy-bank/jar/${id}`, { action: 'abandon' })
+	},
+	getPiggyBankAllocateSuggestionApi(amount: number) {
+		return request.post('piggy-bank/allocate', { amount, suggestOnly: true })
+	},
+	confirmPiggyBankAllocateApi(amount: number, allocations: { jarId: number; amount: number }[]) {
+		return request.post('piggy-bank/allocate', { amount, allocations })
+	},
+	putPiggyBankToPoolApi(amount: number) {
+		return request.post('piggy-bank/allocate', { amount, toPool: true })
+	},
+	allocateFromPoolApi(allocations: { jarId: number; amount: number }[]) {
+		return request.post('piggy-bank/pool', { allocations })
+	},
 }
 
 export default Api
