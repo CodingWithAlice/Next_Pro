@@ -38,6 +38,7 @@ export default function PiggyBankPage() {
   const [poolAllocateModalOpen, setPoolAllocateModalOpen] = useState(false);
   const [suggestedAllocations, setSuggestedAllocations] = useState<AllocationItem[]>([]);
   const [salaryInput, setSalaryInput] = useState(0);
+  const [suggestionLoading, setSuggestionLoading] = useState(false);
 
   const loadData = () => {
     setLoading(true);
@@ -110,6 +111,7 @@ export default function PiggyBankPage() {
       return;
     }
     setSalaryInput(amount);
+    setSuggestionLoading(true);
     Api.getPiggyBankAllocateSuggestionApi(amount)
       .then((res: { suggestion?: AllocationItem[]; message?: string }) => {
         if (res.suggestion?.length) {
@@ -119,19 +121,28 @@ export default function PiggyBankPage() {
           messageApi.info(res.message || '暂无建议');
         }
       })
-      .catch((e: { message?: string }) => messageApi.error(e.message || '获取失败'));
+      .catch((e: { message?: string }) => messageApi.error(e.message || '获取失败'))
+      .finally(() => setSuggestionLoading(false));
   };
 
   const onConfirmAllocate = () => {
+    const totalAmount = suggestedAllocations.reduce((s, a) => s + a.amount, 0);
+    if (totalAmount > salaryInput * 0.35) {
+      messageApi.warning('金额超过了薪资的 35%');
+      return Promise.reject();
+    }
     const allocations = suggestedAllocations.map((a) => ({ jarId: a.jarId, amount: a.amount }));
-    Api.confirmPiggyBankAllocateApi(salaryInput, allocations)
+    return Api.confirmPiggyBankAllocateApi(salaryInput, allocations)
       .then(() => {
         messageApi.success('分配成功');
         setAllocateModalOpen(false);
         allocateForm.resetFields();
         loadData();
       })
-      .catch((e: { message?: string }) => messageApi.error(e.message || '分配失败'));
+      .catch((e: { message?: string }) => {
+        messageApi.error(e.message || '分配失败');
+        throw e;
+      });
   };
 
   const onUpdateAllocation = (index: number, field: 'amount' | 'proportion', value: number) => {
@@ -210,7 +221,7 @@ export default function PiggyBankPage() {
                 <InputNumber placeholder="金额" min={0.01} step={1} precision={2} style={{ width: '100%' }} />
               </Form.Item>
               <div className="salary-actions">
-                <Button type="primary" size="small" onClick={onGetSuggestion}>
+                <Button type="primary" size="small" onClick={onGetSuggestion} loading={suggestionLoading}>
                   生成分配建议
                 </Button>
                 <Button size="small" onClick={onToPool}>
@@ -234,7 +245,9 @@ export default function PiggyBankPage() {
             ) : (
               activeJars.map((j) => {
                 const balance = parseFloat(String(j.balance)) || 0
-                const target = j.targetAmount != null ? parseFloat(String(j.targetAmount)) : 0
+                const targetRaw = j.targetAmount != null ? parseFloat(String(j.targetAmount)) : 0
+                const monthly = j.monthlyRepayment != null ? parseFloat(String(j.monthlyRepayment)) : 0
+                const target = targetRaw > 0 ? targetRaw : monthly > 0 ? monthly * 12 : 0
                 const fillPercent = target > 0 ? Math.min(100, (balance / target) * 100) : 0
                 return (
                   <div key={j.id} className="jar-vessel">
@@ -337,7 +350,12 @@ export default function PiggyBankPage() {
         <div className="allocate-list">
           {suggestedAllocations.map((a, i) => (
             <div key={a.jarId} className="allocate-row">
-              <span className="jar-name">{a.jarName}</span>
+              <span className="jar-name">
+                {a.jarName}
+                {a.monthlyRepayment != null && a.monthlyRepayment > 0 && (
+                  <span className="allocate-monthly-tip"> 月还 ¥{a.monthlyRepayment.toFixed(0)}</span>
+                )}
+              </span>
               <InputNumber
                 size="small"
                 value={a.amount}

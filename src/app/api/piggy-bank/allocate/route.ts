@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PiggyBankJarModal, PiggyBankPoolModal } from 'db'
 
+type JarRow = { id: number; name: string; balance: string | number; monthlyRepayment?: string | number | null; targetAmount?: string | number | null; status: string; sortOrder: number }
+
 async function POST(request: NextRequest) {
 	try {
 		const body = await request.json()
@@ -28,11 +30,11 @@ async function POST(request: NextRequest) {
 			})
 		}
 
-		const activeJars = await PiggyBankJarModal.findAll({
+		const activeJars = (await PiggyBankJarModal.findAll({
 			where: { status: 'active' },
 			order: [['sortOrder', 'ASC'], ['id', 'ASC']],
 			raw: true,
-		})
+		})) as unknown as JarRow[]
 
 		if (activeJars.length === 0) {
 			return NextResponse.json({
@@ -93,9 +95,9 @@ async function POST(request: NextRequest) {
 		}
 
 		const sumAllocated = allocations.reduce((s: number, a: { amount: number }) => s + parseFloat(String(a.amount)), 0)
-		if (Math.abs(sumAllocated - totalAmount) > 0.01) {
+		if (sumAllocated > totalAmount * 0.35) {
 			return NextResponse.json(
-				{ success: false, message: `分配总额 ${sumAllocated.toFixed(2)} 与输入金额不一致` },
+				{ success: false, message: '金额超过了薪资的 35%' },
 				{ status: 400 }
 			)
 		}

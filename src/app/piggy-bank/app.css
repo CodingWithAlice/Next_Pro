@@ -183,6 +183,11 @@
   margin-bottom: 8px;
 }
 
+.allocate-monthly-tip {
+  color: #e75480;
+  font-size: 0.85em;
+}
+
 .allocate-row .jar-name {
   flex: 1;
   min-width: 80px;
