@@ -15,12 +15,15 @@ async function POST(request: NextRequest) {
 		}
 
 		let monthlyRepaymentVal: number | null = null
+		let targetAmountVal: number | null = targetAmount != null && targetAmount !== '' ? parseFloat(targetAmount) : null
 		if (monthlyRepayment != null && monthlyRepayment !== '') {
 			monthlyRepaymentVal = parseFloat(monthlyRepayment)
 		} else if (monthlyRepaymentAmount != null && monthlyRepaymentAmount !== '') {
 			monthlyRepaymentVal = parseFloat(monthlyRepaymentAmount)
 		} else if (planMonths != null && totalAdvance != null && planMonths > 0) {
-			monthlyRepaymentVal = parseFloat(totalAdvance) / parseInt(planMonths, 10)
+			const total = parseFloat(totalAdvance)
+			monthlyRepaymentVal = total / parseInt(planMonths, 10)
+			targetAmountVal = total
 		}
 
 		const maxOrder = await PiggyBankJarModal.max('sortOrder')
@@ -29,7 +32,7 @@ async function POST(request: NextRequest) {
 			name: String(name).trim(),
 			balance: 0,
 			monthlyRepayment: monthlyRepaymentVal,
-			targetAmount: targetAmount != null ? parseFloat(targetAmount) : null,
+			targetAmount: targetAmountVal,
 			status: 'active',
 			sortOrder: nextOrder,
 		})

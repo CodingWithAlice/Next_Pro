@@ -44,6 +44,8 @@ export default function PiggyBankPage() {
   const [allocateRecords, setAllocateRecords] = useState<
     { id: number; amount: string | number; remark?: string | null; createdAt?: string; created_at?: string }[]
   >([]);
+  const [abandonModalOpen, setAbandonModalOpen] = useState(false);
+  const [abandonJarId, setAbandonJarId] = useState<number | null>(null);
 
   const loadData = () => {
     setLoading(true);
@@ -96,17 +98,20 @@ export default function PiggyBankPage() {
   };
 
   const onAbandon = (id: number) => {
-    Modal.confirm({
-      title: '放弃罐子',
-      content: '放弃后该罐子内的资金将进入待分配池，确定吗？',
-      onOk: () =>
-        Api.abandonPiggyBankJarApi(id)
-          .then(() => {
-            messageApi.success('已放弃');
-            loadData();
-          })
-          .catch((e: { message?: string }) => messageApi.error(e.message || '操作失败')),
-    });
+    setAbandonJarId(id);
+    setAbandonModalOpen(true);
+  };
+
+  const onConfirmAbandon = () => {
+    if (abandonJarId == null) return;
+    Api.abandonPiggyBankJarApi(abandonJarId)
+      .then(() => {
+        messageApi.success('已放弃');
+        setAbandonModalOpen(false);
+        setAbandonJarId(null);
+        loadData();
+      })
+      .catch((e: { message?: string }) => messageApi.error(e.message || '操作失败'));
   };
 
   const onGetSuggestion = () => {
@@ -457,6 +462,20 @@ export default function PiggyBankPage() {
             ))
           )}
         </div>
+      </Modal>
+
+      <Modal
+        title="放弃罐子"
+        open={abandonModalOpen}
+        onOk={onConfirmAbandon}
+        onCancel={() => {
+          setAbandonModalOpen(false);
+          setAbandonJarId(null);
+        }}
+        okText="确定"
+        cancelText="取消"
+      >
+        <p>放弃后该罐子内的资金将进入待分配池，确定吗？</p>
       </Modal>
     </div>
   );

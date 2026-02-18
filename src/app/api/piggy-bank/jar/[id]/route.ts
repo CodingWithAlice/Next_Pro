@@ -64,13 +64,11 @@ async function POST(
 			}
 			const balance = parseFloat(String(jar.get('balance')))
 			if (balance > 0) {
-				const poolRow = await PiggyBankPoolModal.findOne()
-				if (poolRow) {
-					const poolBalance = parseFloat(String(poolRow.get('balance')))
-					await poolRow.update({ balance: poolBalance + balance })
-				} else {
-					await PiggyBankPoolModal.create({ balance })
-				}
+				await PiggyBankPoolModal.create({
+					amount: balance,
+					status: 'pending',
+					remark: `放弃罐子：${jar.get('name')}`,
+				})
 			}
 			await jar.update({ balance: 0, status: 'abandoned' })
 			return NextResponse.json({
