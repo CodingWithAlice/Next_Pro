@@ -24,13 +24,14 @@ async function POST(request: NextRequest) {
 		}
 
 		const maxOrder = await PiggyBankJarModal.max('sortOrder')
+		const nextOrder = (Number(maxOrder) || 0) + 1
 		const jar = await PiggyBankJarModal.create({
 			name: String(name).trim(),
 			balance: 0,
 			monthlyRepayment: monthlyRepaymentVal,
 			targetAmount: targetAmount != null ? parseFloat(targetAmount) : null,
 			status: 'active',
-			sortOrder: (maxOrder ?? 0) + 1,
+			sortOrder: nextOrder,
 		})
 
 		return NextResponse.json({
