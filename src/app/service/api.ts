@@ -135,11 +135,14 @@ const Api = {
 	getPiggyBankAllocateSuggestionApi(amount: number) {
 		return request.post('piggy-bank/allocate', { amount, suggestOnly: true })
 	},
-	confirmPiggyBankAllocateApi(amount: number, allocations: { jarId: number; amount: number }[]) {
-		return request.post('piggy-bank/allocate', { amount, allocations })
+	confirmPiggyBankAllocateApi(amount: number, allocations: { jarId: number; amount: number }[], remark?: string) {
+		return request.post('piggy-bank/allocate', { amount, allocations, remark })
 	},
-	putPiggyBankToPoolApi(amount: number) {
-		return request.post('piggy-bank/allocate', { amount, toPool: true })
+	getPiggyBankAllocateRecordsApi() {
+		return request.get('piggy-bank/records')
+	},
+	putPiggyBankToPoolApi(amount: number, remark?: string) {
+		return request.post('piggy-bank/allocate', { amount, toPool: true, remark })
 	},
 	allocateFromPoolApi(allocations: { jarId: number; amount: number }[]) {
 		return request.post('piggy-bank/pool', { allocations })

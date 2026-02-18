@@ -8,13 +8,11 @@ async function GET() {
 			raw: true,
 		})
 
-		let poolBalance = 0
-		const poolRow = await PiggyBankPoolModal.findOne({ raw: true })
-		if (poolRow && typeof poolRow === 'object' && 'balance' in poolRow) {
-			poolBalance = parseFloat(String(poolRow.balance))
-		} else {
-			await PiggyBankPoolModal.create({ balance: 0 })
-		}
+		const pendingRows = (await PiggyBankPoolModal.findAll({
+			where: { status: 'pending' },
+			raw: true,
+		})) as unknown as { amount: string | number }[]
+		const poolBalance = pendingRows.reduce((s, r) => s + parseFloat(String(r.amount)), 0)
 
 		return NextResponse.json({
 			jars,

@@ -201,3 +201,37 @@
 .loading-tip {
   color: #999;
 }
+
+.allocate-records-list {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.allocate-record-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.allocate-record-item:last-child {
+  border-bottom: none;
+}
+
+.allocate-record-amount {
+  font-weight: 600;
+  color: rgb(38, 157, 128);
+  min-width: 90px;
+}
+
+.allocate-record-remark {
+  flex: 1;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.allocate-record-time {
+  font-size: 0.85rem;
+  color: #999;
+}

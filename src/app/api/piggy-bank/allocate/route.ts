@@ -7,7 +7,7 @@ async function POST(request: NextRequest) {
 	try {
 		const body = await request.json()
 		const data = body.data ?? body
-		const { amount, suggestOnly, allocations, toPool } = data
+		const { amount, suggestOnly, allocations, toPool, remark } = data
 
 		const totalAmount = parseFloat(amount)
 		if (isNaN(totalAmount) || totalAmount <= 0) {
@@ -110,6 +110,12 @@ async function POST(request: NextRequest) {
 				await jar.update({ balance: currentBalance + amt })
 			}
 		}
+
+		await PiggyBankPoolModal.create({
+			amount: totalAmount,
+			status: 'allocated',
+			remark: remark != null ? String(remark).trim() || null : null,
+		})
 
 		return NextResponse.json({
 			success: true,

@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { Button, Form, Input, InputNumber, Modal, Select, message } from 'antd';
-import { CloseCircleOutlined } from '@ant-design/icons';
+import { CloseCircleOutlined, HistoryOutlined } from '@ant-design/icons';
 import Link from 'next/link';
+import dayjs from 'dayjs';
 import Api from '@/service/api';
 import './app.css';
 
@@ -39,6 +40,10 @@ export default function PiggyBankPage() {
   const [suggestedAllocations, setSuggestedAllocations] = useState<AllocationItem[]>([]);
   const [salaryInput, setSalaryInput] = useState(0);
   const [suggestionLoading, setSuggestionLoading] = useState(false);
+  const [recordsModalOpen, setRecordsModalOpen] = useState(false);
+  const [allocateRecords, setAllocateRecords] = useState<
+    { id: number; amount: string | number; remark?: string | null; createdAt?: string; created_at?: string }[]
+  >([]);
 
   const loadData = () => {
     setLoading(true);
@@ -132,7 +137,8 @@ export default function PiggyBankPage() {
       return Promise.reject();
     }
     const allocations = suggestedAllocations.map((a) => ({ jarId: a.jarId, amount: a.amount }));
-    return Api.confirmPiggyBankAllocateApi(salaryInput, allocations)
+    const remark = allocateForm.getFieldValue('remark');
+    return Api.confirmPiggyBankAllocateApi(salaryInput, allocations, remark)
       .then(() => {
         messageApi.success('分配成功');
         setAllocateModalOpen(false);
@@ -161,7 +167,8 @@ export default function PiggyBankPage() {
       messageApi.warning('请输入金额');
       return;
     }
-    Api.putPiggyBankToPoolApi(amount)
+    const remark = allocateForm.getFieldValue('remark');
+    Api.putPiggyBankToPoolApi(amount, remark)
       .then(() => {
         messageApi.success('已放入待分配池');
         allocateForm.resetFields();
@@ -202,23 +209,43 @@ export default function PiggyBankPage() {
           <section className="piggy-top-item">
             <h2>待分配池</h2>
             <div className="pool-balance">¥{poolBalance.toFixed(2)}</div>
-            <Button
-              type="default"
-              size="small"
-              onClick={() => {
-                poolAllocateForm.resetFields();
-                setPoolAllocateModalOpen(true);
-              }}
-              disabled={poolBalance <= 0 || activeJars.length === 0}
-            >
-              从池中分配
-            </Button>
+            <div className="salary-actions">
+              <Button
+                type="default"
+                size="small"
+                onClick={() => {
+                  poolAllocateForm.resetFields();
+                  setPoolAllocateModalOpen(true);
+                }}
+                disabled={poolBalance <= 0 || activeJars.length === 0}
+              >
+                从池中分配
+              </Button>
+              <Button
+                type="default"
+                size="small"
+                icon={<HistoryOutlined />}
+                onClick={() => {
+                  setRecordsModalOpen(true);
+                  Api.getPiggyBankAllocateRecordsApi()
+                    .then((res: { records?: { id: number; amount: string | number; remark?: string | null; createdAt?: string }[] }) => {
+                      setAllocateRecords(res.records || []);
+                    })
+                    .catch((e: { message?: string }) => messageApi.error(e.message || '加载失败'));
+                }}
+              >
+                分配记录
+              </Button>
+            </div>
           </section>
           <section className="piggy-top-item">
             <h2>工资 / 金额输入</h2>
             <Form form={allocateForm} layout="vertical" className="salary-form">
               <Form.Item name="amount" rules={[{ required: true, message: '请输入金额' }]}>
                 <InputNumber placeholder="金额" min={0.01} step={1} precision={2} style={{ width: '100%' }} />
+              </Form.Item>
+              <Form.Item name="remark" label="备注">
+                <Input placeholder="如：2月工资、年终奖" maxLength={200} showCount />
               </Form.Item>
               <div className="salary-actions">
                 <Button type="primary" size="small" onClick={onGetSuggestion} loading={suggestionLoading}>
@@ -403,6 +430,31 @@ export default function PiggyBankPage() {
             </Button>
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        title="分配记录"
+        open={recordsModalOpen}
+        onCancel={() => setRecordsModalOpen(false)}
+        footer={null}
+      >
+        <div className="allocate-records-list">
+          {allocateRecords.length === 0 ? (
+            <div className="loading-tip">暂无记录</div>
+          ) : (
+            allocateRecords.map((r) => (
+              <div key={r.id} className="allocate-record-item">
+                <span className="allocate-record-amount">¥{parseFloat(String(r.amount)).toFixed(2)}</span>
+                {r.remark && <span className="allocate-record-remark">{r.remark}</span>}
+                <span className="allocate-record-time">
+                  {r.createdAt || r.created_at
+                    ? dayjs(r.createdAt || r.created_at).format('YYYY-MM-DD HH:mm')
+                    : '-'}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
       </Modal>
     </div>
   );

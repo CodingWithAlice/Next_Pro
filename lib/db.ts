@@ -380,7 +380,7 @@ export const PiggyBankJarModal = sequelize.define(
 	}
 )
 
-// 待分配池（单行）
+// 待分配池（多行：pending=可分配额度，allocated=已分配记录）
 export const PiggyBankPoolModal = sequelize.define(
 	'piggy_bank_pool',
 	{
@@ -389,10 +389,22 @@ export const PiggyBankPoolModal = sequelize.define(
 			primaryKey: true,
 			autoIncrement: true,
 		},
-		balance: {
+		amount: {
 			type: DataTypes.DECIMAL(12, 2),
 			allowNull: false,
 			defaultValue: 0,
+			comment: '金额',
+		},
+		status: {
+			type: DataTypes.ENUM('pending', 'allocated'),
+			allowNull: false,
+			defaultValue: 'pending',
+			comment: 'pending=待分配 allocated=已分配',
+		},
+		remark: {
+			type: DataTypes.STRING(200),
+			allowNull: true,
+			comment: '备注',
 		},
 	},
 	{

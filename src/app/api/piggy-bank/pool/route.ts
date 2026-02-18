@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PiggyBankJarModal, PiggyBankPoolModal } from 'db'
 
+type PoolRow = { id: number; amount: string | number }
+
 async function POST(request: NextRequest) {
 	try {
 		const body = await request.json()
@@ -25,11 +27,11 @@ async function POST(request: NextRequest) {
 			)
 		}
 
-		let poolRow = await PiggyBankPoolModal.findOne()
-		if (!poolRow) {
-			poolRow = await PiggyBankPoolModal.create({ balance: 0 })
-		}
-		const poolBalance = parseFloat(String(poolRow.get('balance')))
+		const pendingRows = (await PiggyBankPoolModal.findAll({
+			where: { status: 'pending' },
+			order: [['id', 'ASC']],
+		})) as unknown as PoolRow[]
+		const poolBalance = pendingRows.reduce((s, r) => s + parseFloat(String(r.amount)), 0)
 		if (totalAllocate > poolBalance) {
 			return NextResponse.json(
 				{
@@ -49,7 +51,21 @@ async function POST(request: NextRequest) {
 			}
 		}
 
-		await poolRow.update({ balance: poolBalance - totalAllocate })
+		let remain = totalAllocate
+		for (const row of pendingRows) {
+			if (remain <= 0) break
+			const rowAmt = parseFloat(String(row.amount))
+			const poolRow = await PiggyBankPoolModal.findByPk(row.id)
+			if (!poolRow) continue
+			if (rowAmt <= remain) {
+				await poolRow.update({ status: 'allocated', amount: rowAmt, remark: '从池分配' })
+				remain -= rowAmt
+			} else {
+				await PiggyBankPoolModal.create({ amount: rowAmt - remain, status: 'pending' })
+				await poolRow.update({ status: 'allocated', amount: remain, remark: '从池分配' })
+				remain = 0
+			}
+		}
 
 		return NextResponse.json({
 			success: true,
