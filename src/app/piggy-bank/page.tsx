@@ -289,11 +289,13 @@ export default function PiggyBankPage() {
                       />
                     </div>
                     <div className="jar-footer">
-                      <span className="jar-balance">¥{balance.toFixed(2)}</span>
-                      {target > 0 && <span className="jar-target">/ ¥{target.toFixed(0)}</span>}
-                      {j.monthlyRepayment != null && parseFloat(String(j.monthlyRepayment)) > 0 && (
-                        <div className="jar-monthly">月还 ¥{parseFloat(String(j.monthlyRepayment)).toFixed(0)}</div>
-                      )}
+                      <div className="jar-amount-row">
+                        <span className="jar-balance">¥{balance.toFixed(2)}</span>
+                        {target > 0 && <span className="jar-target">/ ¥{target.toFixed(0)}</span>}
+                        {j.monthlyRepayment != null && parseFloat(String(j.monthlyRepayment)) > 0 && (
+                          <div className="jar-monthly">月还 ¥{parseFloat(String(j.monthlyRepayment)).toFixed(0)}</div>
+                        )}
+                      </div>
                       <Button type="text" size="small" onClick={() => onAbandon(j.id)} className="jar-abandon-btn" icon={<CloseCircleOutlined />} title="放弃罐子" />
                     </div>
                   </div>
