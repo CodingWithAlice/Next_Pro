@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { SportRecordModal } from 'db'
 import { Op } from 'sequelize'
+import { incrementRunningPlanProgress } from 'utils'
 
 // 运动类型配置
 const SPORT_TYPES = ['running', 'resistance', 'hiking', 'class'] as const
@@ -127,6 +128,12 @@ async function POST(request: NextRequest) {
 			duration: data.duration || null,
 			notes: data.notes || null,
 		})
+
+		if (data.type === 'running' && data.value > 0 && data.category) {
+			incrementRunningPlanProgress(data.date, data.category, parseFloat(data.value)).catch((e) =>
+				console.error('更新跑步计划进度失败:', e)
+			)
+		}
 		
 		return NextResponse.json({
 			success: true,

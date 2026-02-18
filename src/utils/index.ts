@@ -3,5 +3,6 @@ import {
 	transTwoDateToWhereOptions,
 } from './transTimeWhereOption'
 import { GetWeekData } from './weekDataUtils'
+import { incrementRunningPlanProgress } from './incrementRunningPlanProgress'
 
-export { transOneDateToWhereOptions, transTwoDateToWhereOptions, GetWeekData }
+export { transOneDateToWhereOptions, transTwoDateToWhereOptions, GetWeekData, incrementRunningPlanProgress }

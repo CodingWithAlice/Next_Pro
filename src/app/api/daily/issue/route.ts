@@ -1,6 +1,6 @@
 import { IssueModal, TimeModal, SportRecordModal } from 'db'
 import { NextRequest, NextResponse } from 'next/server'
-import { transOneDateToWhereOptions } from 'utils'
+import { transOneDateToWhereOptions, incrementRunningPlanProgress } from 'utils'
 import { Op } from 'sequelize'
 import { parseSportText } from './parseSportText'
 
@@ -107,6 +107,10 @@ async function POST(request: NextRequest) {
 									notes: record.notes || null,
 								});
 								await sportRecord.save();
+							} else if (record.type === 'running' && record.value > 0 && record.category) {
+								incrementRunningPlanProgress(data.date, record.category, record.value).catch((e) =>
+									console.error('更新跑步计划进度失败:', e)
+								);
 							}
 						} catch (recordError) {
 							console.error('处理运动记录失败:', recordError, '记录:', record);

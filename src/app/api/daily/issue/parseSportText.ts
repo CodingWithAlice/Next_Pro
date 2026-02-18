@@ -106,12 +106,19 @@ function parseSingleRecord(
 	const notes = notesMatch ? notesMatch[1] : null;
 	const cleanText = text.replace(/[（(][^）)]+[）)]/g, '').trim();
 
-	// 尝试匹配跑步
-	const runningMatch = cleanText.match(/(匀速跑|变速跑|跑步|户外匀速跑|热身)\s*(\d+\.?\d*)\s*(km|公里)?/i);
+	// 尝试匹配跑步（含长跑）
+	const runningMatch = cleanText.match(/(匀速跑|变速跑|长跑|跑步|户外匀速跑|热身)\s*(\d+\.?\d*)\s*(km|公里)?/i);
 	if (runningMatch && runningMatch[2]) {
-		const category = runningMatch[1].includes('变速') ? '变速跑' : '匀速跑';
 		const value = parseFloat(runningMatch[2]);
 		if (!isNaN(value) && value > 0) {
+			let category: string
+			if (runningMatch[1].includes('长跑') || value > 5) {
+				category = '长跑'
+			} else if (runningMatch[1].includes('变速')) {
+				category = '变速跑'
+			} else {
+				category = '匀速跑'
+			}
 			return {
 				type: 'running',
 				value,
