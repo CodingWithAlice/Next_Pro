@@ -19,7 +19,6 @@ export async function incrementRunningPlanProgress(
 	let runType: string
 	let matchDistance: number
 
-    console.log('1', {value});
 	if (value > 5) {
 		runType = '长跑'
 		matchDistance = Math.round(value)
@@ -38,8 +37,6 @@ export async function incrementRunningPlanProgress(
 			startDate: { [Op.lt]: date },
 		},
 	})
-
-    console.log('1 🌹', {plans, matchDistance, runType});
     
 	for (const plan of plans) {
 		const current = plan.get('currentTimes') as number

@@ -56,14 +56,8 @@ export default function RunningPlansCard({ plans }: RunningPlansCardProps) {
         });
     };
 
-    // 格式化每个类型的显示：如 匀速跑4(15/18)、5(7/12)
-    const formatTypeDisplay = (runType: string, items: RunningPlanItem[]): string => {
-        const parts = items
-            .sort((a, b) => a.distance - b.distance) // 按距离排序
-            .map(item => `${item.distance}(${item.currentTimes}/${item.targetTimes})`)
-            .join('、')
-        return `${runType}${parts}`
-    }
+    // 类型标题：只显示类型名
+    const formatTypeDisplay = (runType: string): string => runType
 
     // 对计划进行排序：先按状态（active 优先），再按开始时间（新的在前）
     const sortedPlans = [...plans].sort((a, b) => {
@@ -128,7 +122,7 @@ export default function RunningPlansCard({ plans }: RunningPlansCardProps) {
                                     <span className="plan-name">{plan.planName}</span>
                                     <div className="plan-header-right">
                                         <span className="plan-overall">
-                                            总计：{plan.totalCompletedTimes}/{plan.totalTargetTimes}次
+                                            总计 {plan.totalCompletedTimes}/{plan.totalTargetTimes}次
                                         </span>
                                         {planRefs.current[plan.planName] && (
                                             <ShareImageButton
@@ -169,19 +163,20 @@ export default function RunningPlansCard({ plans }: RunningPlansCardProps) {
                                         />
                                     </div>
                                 </div>
-                                <div className="plan-info">
-                                    <div className="plan-summary">
-                                        <span>总距离：{plan.totalDistance}km</span>
-                                        <span className="plan-date">
-                                            {plan.startDate} 至 {plan.endDate}
-                                        </span>
-                                    </div>
+                                <div className="plan-progress-row">
+                                    <span className="plan-summary-text">
+                                        {plan.totalDistance}km · {plan.startDate}～{plan.endDate}
+                                    </span>
+                                    <Progress 
+                                        percent={plan.overallProgress} 
+                                        status={plan.overallProgress >= 100 ? 'success' : 'active'}
+                                        strokeColor={plan.overallProgress >= 100 ? '#52c41a' : '#1890ff'}
+                                        strokeWidth={6}
+                                        showInfo={false}
+                                        className="plan-progress-bar"
+                                    />
+                                    <span className="plan-percent">{Math.round(plan.overallProgress)}%</span>
                                 </div>
-                                <Progress 
-                                    percent={plan.overallProgress} 
-                                    status={plan.overallProgress >= 100 ? 'success' : 'active'}
-                                    strokeColor={plan.overallProgress >= 100 ? '#52c41a' : '#1890ff'}
-                                />
                                 
                                 {/* 按 run_type 分组显示 - 根据展开状态显示 */}
                                 {isExpanded && (
@@ -190,7 +185,7 @@ export default function RunningPlansCard({ plans }: RunningPlansCardProps) {
                                             <div key={runType} className="plan-type-group">
                                                 <div className="type-group-header">
                                                     <span className="type-group-title">
-                                                        {formatTypeDisplay(runType, itemsByType[runType])}
+                                                        {formatTypeDisplay(runType)}
                                                     </span>
                                                 </div>
                                                 <div className="type-group-items">
@@ -198,18 +193,20 @@ export default function RunningPlansCard({ plans }: RunningPlansCardProps) {
                                                         .sort((a, b) => a.distance - b.distance)
                                                         .map((item) => (
                                                             <div key={item.id} className="plan-item-detail">
-                                                                <div className="item-header">
-                                                                    <span className="item-distance">{item.distance}km × {item.targetTimes}次</span>
-                                                                    <span className="item-status">
-                                                                        {item.currentTimes}/{item.targetTimes}次
-                                                                        {` (${item.currentTimes * item.distance}km)`}
+                                                                <div className="plan-item-progress-row">
+                                                                    <span className="item-label">
+                                                                        {item.distance}km 已完成{item.currentTimes}/{item.targetTimes}次
                                                                     </span>
+                                                                    <Progress 
+                                                                        percent={item.progress}
+                                                                        size="small"
+                                                                        status={item.progress >= 100 ? 'success' : 'active'}
+                                                                        strokeWidth={5}
+                                                                        showInfo={false}
+                                                                        className="item-progress-bar"
+                                                                    />
+                                                                    <span className="item-percent">{Math.round(item.progress)}%</span>
                                                                 </div>
-                                                                <Progress 
-                                                                    percent={item.progress}
-                                                                    size="small"
-                                                                    status={item.progress >= 100 ? 'success' : 'active'}
-                                                                />
                                                                 {item.targetHeartRate && (
                                                                     <div className="item-heart-rate">
                                                                         目标心率：{item.targetHeartRate}

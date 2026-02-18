@@ -287,7 +287,7 @@
 }
 
 .running-plan-item {
-    padding: 16px;
+    padding: 12px;
     border: 1px solid #f0f0f0;
     border-radius: 8px;
     background-color: #fafafa;
@@ -297,7 +297,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .plan-name {
@@ -338,8 +338,41 @@
     background-color: #fafafa;
 }
 
+.plan-progress-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 0;
+}
+
+.plan-progress-row .plan-summary-text {
+    font-size: 13px;
+    color: #666;
+    flex-shrink: 0;
+    min-width: 180px;
+}
+
+.plan-progress-row .plan-progress-bar {
+    flex: 1;
+    margin: 0;
+    min-width: 80px;
+}
+
+.plan-progress-row .plan-progress-bar .ant-progress-bg {
+    height: 6px !important;
+}
+
+.plan-progress-row .plan-percent {
+    font-size: 12px;
+    color: #1890ff;
+    font-weight: 500;
+    flex-shrink: 0;
+    min-width: 36px;
+    text-align: right;
+}
+
 .plan-info {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .plan-summary {
@@ -388,22 +421,55 @@
 .type-group-items {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding-left: 16px;
+    gap: 6px;
+    padding-left: 12px;
 }
 
 .plan-item-detail {
-    padding: 10px;
+    padding: 8px 10px;
     background-color: #ffffff;
     border-radius: 6px;
     border: 1px solid #e8e8e8;
+}
+
+.plan-item-progress-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.plan-item-progress-row .item-label {
+    font-size: 12px;
+    color: #333;
+    flex-shrink: 0;
+    min-width: 140px;
+}
+
+.plan-item-progress-row .item-progress-bar {
+    flex: 1;
+    margin: 0;
+    min-width: 60px;
+    width: 80px;
+}
+
+.plan-item-progress-row .item-progress-bar .ant-progress-bg {
+    height: 5px !important;
+}
+
+.plan-item-progress-row .item-percent {
+    font-size: 11px;
+    color: #1890ff;
+    font-weight: 500;
+    flex-shrink: 0;
+    min-width: 28px;
+    text-align: right;
 }
 
 .item-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
 }
 
 .item-type {
@@ -435,9 +501,10 @@
 }
 
 .item-heart-rate {
-    font-size: 12px;
+    font-size: 11px;
     color: #999;
-    margin-top: 4px;
+    margin-top: 2px;
+    margin-left: 90px;
 }
 
 .form-item {
@@ -586,6 +653,26 @@
 
     .year-view-months {
         grid-template-columns: 1fr;
+    }
+
+    .plan-progress-row {
+        flex-wrap: nowrap;
+    }
+
+    .plan-progress-row .plan-summary-text {
+        min-width: 0;
+        flex-shrink: 1;
+        font-size: 12px;
+    }
+
+    .plan-item-progress-row {
+        flex-wrap: nowrap;
+    }
+
+    .plan-item-progress-row .item-label {
+        min-width: 0;
+        flex-shrink: 1;
+        font-size: 11px;
     }
 }
 
