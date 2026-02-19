@@ -133,7 +133,7 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
         <section className='section'>
             {transTitle('【战况速览】')}
             {!!weeksData?.length && [
-                { key: 'processMonth', desc: '年度目标完成度', tip: '参看、对齐2025年度计划，填写完成度记录' },
+                { key: 'processMonth', desc: '年度目标完成度', tip: '参看、对齐年度计划，填写完成度记录' },
             ].map(it => handleTrans(it, monthData))}
             {!!weeksData?.length && <FocusHeatmap data={rawRecords} periodTime={handlePeriodTime(weeksData)} />}
             {[
