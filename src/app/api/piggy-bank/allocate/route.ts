@@ -56,35 +56,46 @@ async function POST(request: NextRequest) {
 
 		if (suggestOnly || !allocations || allocations.length === 0) {
 			const monthlyTotal = hasMonthlyRepayment.reduce((s, j) => s + parseFloat(String(j.monthlyRepayment)), 0)
+			// 分配建议不限制月还合计是否大于输入金额：收入不足时按比例分配给月还罐子，其余罐子为 0
 			if (monthlyTotal > totalAmount) {
-				return NextResponse.json({
-					success: false,
-					message: `月还款目标合计 ¥${monthlyTotal.toFixed(2)} 大于输入金额，请调整`,
-				})
-			}
-			remaining = totalAmount - monthlyTotal
-
-			hasMonthlyRepayment.forEach((j) => {
-				const amt = parseFloat(String(j.monthlyRepayment))
-				suggestion.push({
-					jarId: j.id,
-					jarName: j.name,
-					amount: amt,
-					proportion: (amt / totalAmount) * 100,
-					monthlyRepayment: amt,
-				})
-			})
-
-			if (others.length > 0 && remaining > 0) {
-				const evenAmount = remaining / others.length
-				others.forEach((j) => {
+				// 全部输入金额按比例分给月还罐子
+				hasMonthlyRepayment.forEach((j) => {
+					const targetAmt = parseFloat(String(j.monthlyRepayment))
+					const amt = (targetAmt / monthlyTotal) * totalAmount
 					suggestion.push({
 						jarId: j.id,
 						jarName: j.name,
-						amount: evenAmount,
-						proportion: (evenAmount / totalAmount) * 100,
+						amount: amt,
+						proportion: (amt / totalAmount) * 100,
+						monthlyRepayment: targetAmt,
 					})
 				})
+				// 其他罐子本次不分配
+			} else {
+				remaining = totalAmount - monthlyTotal
+
+				hasMonthlyRepayment.forEach((j) => {
+					const amt = parseFloat(String(j.monthlyRepayment))
+					suggestion.push({
+						jarId: j.id,
+						jarName: j.name,
+						amount: amt,
+						proportion: (amt / totalAmount) * 100,
+						monthlyRepayment: amt,
+					})
+				})
+
+				if (others.length > 0 && remaining > 0) {
+					const evenAmount = remaining / others.length
+					others.forEach((j) => {
+						suggestion.push({
+							jarId: j.id,
+							jarName: j.name,
+							amount: evenAmount,
+							proportion: (evenAmount / totalAmount) * 100,
+						})
+					})
+				}
 			}
 
 			return NextResponse.json({

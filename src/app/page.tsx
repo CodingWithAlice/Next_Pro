@@ -3,13 +3,13 @@ import Link from "next/link";
 import config from "config";
 import withTypeStorage from "@/components/with-type-storage";
 import { useEffect } from "react";
-// import { DoubleRightOutlined } from "@ant-design/icons";
+import { BankOutlined } from "@ant-design/icons";
 
 function Home() {
     const linksList = [
         { href: './daily', title: '晨昏日志', key: 'daily', img: "/images/daily.png", subTitle: '每日系统自检协议' },
-        { href: './week', title: '周频扫描', key: 'week', img: "/images/week.png", subTitle: '每周期诊断报告' },
-        { href: `./month`, title: '月度沙盘', key: 'month', img: "/images/month.png", subTitle: '布局、推演和重塑' },
+        { href: './week', title: '双周扫描', key: 'week', img: "/images/week.png", subTitle: '每周期诊断报告' },
+        { href: `./month`, title: '季度沙盘', key: 'month', img: "/images/month.png", subTitle: '布局、推演和重塑' },
         { href: './plans?tab=ted', title: '知行录', key: 'read', img: "/images/read.png", subTitle: '思维培养皿、身体电源' },
     ]
     useEffect(() => {
@@ -32,9 +32,11 @@ function Home() {
             <a className='a-link' href="http://codingwithalice.top:4001">
                 莱特纳盒子学习法
             </a>
-            <div className='j-title'>
-                J型生存终端
-                {/* J型人机耦合 */}
+            <div className='j-title' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+                <span>J型生存终端</span>
+                <Link href="/piggy-bank" className="j-title-piggy" title="零钱罐子" style={{ color: 'inherit', opacity: 0.6, fontSize: '0.85em' }}>
+                    <BankOutlined />
+                </Link>
             </div>
             <br />
             {/* <Link href={'/ltn'}>
