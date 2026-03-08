@@ -34,6 +34,7 @@ const nextConfig: NextConfig = {
 		CHECK_AUTH: process.env.CHECK_AUTH,
 		MAIN_USER_ID: process.env.MAIN_USER_ID,
 		USER_TOKEN_MAP: process.env.USER_TOKEN_MAP,
+		NEXT_PUBLIC_PIGGY_BANK_ALLOCATE_MAX_RATIO: process.env.NEXT_PUBLIC_PIGGY_BANK_ALLOCATE_MAX_RATIO,
 	},
 }
 
