@@ -35,7 +35,7 @@ export async function incrementRunningPlanProgress(
 			status: 'active',
 			runType,
 			distance: matchDistance,
-			startDate: { [Op.lt]: date },
+			startDate: { [Op.lte]: date },
 		},
 	})
     
