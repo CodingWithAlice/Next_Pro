@@ -21,7 +21,7 @@ async function POST(request: NextRequest) {
 
 		const maxRatio = Math.min(1, Math.max(0, parseFloat(process.env.NEXT_PUBLIC_PIGGY_BANK_ALLOCATE_MAX_RATIO ?? '0.35') || 0.35))
 		if (toPool) {
-			let poolRow = await PiggyBankPoolModal.findOne({ where: { userId } })
+			let poolRow = await PiggyBankPoolModal.findOne({ where: { userId, status: 'pending' } })
 			if (!poolRow) {
 				poolRow = await PiggyBankPoolModal.create({ userId, amount: 0, status: 'pending' })
 			}

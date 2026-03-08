@@ -129,7 +129,7 @@ async function GetTimeTotalByRoutineType(serials: number[], userId: number) {
 		],
 		where: whereTime,
 		group: ['routine_type_id'],
-		include: { model: RoutineTypeModal, attributes: ['des', 'type'] },
+		include: { model: RoutineTypeModal, attributes: ['des', 'type'], where: { userId } },
 		raw: true,
 	})) as unknown as TimeTotalByRoutineType[]
 
@@ -142,7 +142,7 @@ async function GetTimeTotalByRoutineType(serials: number[], userId: number) {
 			],
 		},
 		raw: true,
-		include: { model: RoutineTypeModal, attributes: ['des', 'type'] },
+		include: { model: RoutineTypeModal, attributes: ['des', 'type'], where: { userId } },
 	})
 
 	const sleepTimes = await GetSleepAvgTime(startDate, endDate, userId)
