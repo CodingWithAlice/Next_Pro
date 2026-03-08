@@ -1,17 +1,16 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { TedModal, TedRecordModal } from 'db'
+import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 
-async function GET() {
+async function GET(request: NextRequest) {
 	try {
+		const userId = Number(getEffectiveUserIdFromRequest(request))
+		const where = { userId }
 		const tedList = await TedModal.findAll({
-			include: [
-				{
-					model: TedRecordModal,
-				},
-			],
+			where,
+			include: [{ model: TedRecordModal, where }],
 		})
-
-		const tedRecord = await TedRecordModal.findAll()
+		const tedRecord = await TedRecordModal.findAll({ where })
 
 		return NextResponse.json({
 			tedList,

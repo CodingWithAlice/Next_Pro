@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { BooksRecordModal } from 'db'
+import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 
-async function GET() {
+async function GET(request: NextRequest) {
 	try {
-		const booksData = await BooksRecordModal.findAll()
+		const userId = Number(getEffectiveUserIdFromRequest(request))
+		const booksData = await BooksRecordModal.findAll({ where: { userId } })
 		return NextResponse.json({
 			booksData,
 			success: true,
@@ -24,10 +26,11 @@ async function GET() {
 
 async function POST(request: NextRequest) {
 	try {
+		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const body = await request.json()
 		const data = body.data
 		const { readData } = data
-		await BooksRecordModal.create(readData, { validate: true })
+		await BooksRecordModal.create({ ...readData, userId }, { validate: true })
 
 		return NextResponse.json({
 			success: true,
@@ -48,23 +51,19 @@ async function POST(request: NextRequest) {
 
 async function PUT(request: NextRequest) {
 	try {
+		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const body = await request.json()
 		const data = body.data
 		const { readData } = data
 		const { id, ...updateData } = readData
-		
 		if (!id) {
 			return NextResponse.json(
-				{
-					success: false,
-					message: '缺少记录ID',
-				},
+				{ success: false, message: '缺少记录ID' },
 				{ status: 400 }
 			)
 		}
-
 		const [affectedCount] = await BooksRecordModal.update(updateData, {
-			where: { id },
+			where: { id, userId },
 		})
 
 		if (affectedCount === 0) {

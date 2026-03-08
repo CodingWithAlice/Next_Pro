@@ -1,26 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { RoutineTypeModal } from '@/../../lib/db';
+import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 
-/**
- * GET /api/routine-types
- * 获取所有的 routine types
- * 支持通过 sport 参数筛选运动类型
- */
 export async function GET(request: NextRequest) {
 	try {
+		const userId = Number(getEffectiveUserIdFromRequest(request));
 		const searchParams = request.nextUrl.searchParams;
 		const sportOnly = searchParams.get('sport') === 'true';
 		const showOnly = searchParams.get('show') === 'true';
-
-		const where: any = {};
-		
-		if (sportOnly) {
-			where.sport = true;
-		}
-		
-		if (showOnly) {
-			where.show = true;
-		}
+		const where: Record<string, unknown> = { userId };
+		if (sportOnly) where.sport = true;
+		if (showOnly) where.show = true;
 
 		const routineTypes = await RoutineTypeModal.findAll({
 			where,
@@ -49,35 +39,30 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
 	try {
+		const userId = Number(getEffectiveUserIdFromRequest(request));
 		const body = await request.json();
 		const { type, des, show = true, sport = false } = body;
 
 		if (!type) {
 			return NextResponse.json(
-				{
-					success: false,
-					message: 'type 字段是必填的',
-				},
+				{ success: false, message: 'type 字段是必填的' },
 				{ status: 400 }
 			);
 		}
 
-		// 检查是否已存在
 		const existing = await RoutineTypeModal.findOne({
-			where: { type },
+			where: { userId, type },
 		});
 
 		if (existing) {
 			return NextResponse.json(
-				{
-					success: false,
-					message: '该类型已存在',
-				},
+				{ success: false, message: '该类型已存在' },
 				{ status: 400 }
 			);
 		}
 
 		const newRoutineType = await RoutineTypeModal.create({
+			userId,
 			type,
 			des: des || type,
 			show,
@@ -120,7 +105,10 @@ export async function PUT(request: NextRequest) {
 			);
 		}
 
-		const routineType = await RoutineTypeModal.findByPk(id);
+		const userId = Number(getEffectiveUserIdFromRequest(request));
+		const routineType = await RoutineTypeModal.findOne({
+			where: { id, userId },
+		});
 
 		if (!routineType) {
 			return NextResponse.json(

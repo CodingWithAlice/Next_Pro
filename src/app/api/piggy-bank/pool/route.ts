@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PiggyBankJarModal, PiggyBankPoolModal } from 'db'
+import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 
 type PoolRow = { id: number; amount: string | number }
 
 async function POST(request: NextRequest) {
 	try {
+		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const body = await request.json()
 		const data = body.data ?? body
 		const { allocations } = data
@@ -28,7 +30,7 @@ async function POST(request: NextRequest) {
 		}
 
 		const pendingRows = (await PiggyBankPoolModal.findAll({
-			where: { status: 'pending' },
+			where: { userId, status: 'pending' },
 			order: [['id', 'ASC']],
 		})) as unknown as PoolRow[]
 		const poolBalance = pendingRows.reduce((s, r) => s + parseFloat(String(r.amount)), 0)
@@ -43,7 +45,7 @@ async function POST(request: NextRequest) {
 		}
 
 		for (const a of allocations) {
-			const jar = await PiggyBankJarModal.findByPk(a.jarId)
+			const jar = await PiggyBankJarModal.findOne({ where: { id: a.jarId, userId } })
 			if (jar && a.amount > 0 && jar.get('status') === 'active') {
 				const amt = parseFloat(String(a.amount))
 				const currentBalance = parseFloat(String(jar.get('balance')))
@@ -55,13 +57,13 @@ async function POST(request: NextRequest) {
 		for (const row of pendingRows) {
 			if (remain <= 0) break
 			const rowAmt = parseFloat(String(row.amount))
-			const poolRow = await PiggyBankPoolModal.findByPk(row.id)
+			const poolRow = await PiggyBankPoolModal.findOne({ where: { id: row.id, userId } })
 			if (!poolRow) continue
 			if (rowAmt <= remain) {
 				await poolRow.update({ status: 'allocated', amount: rowAmt, remark: '从池分配' })
 				remain -= rowAmt
 			} else {
-				await PiggyBankPoolModal.create({ amount: rowAmt - remain, status: 'pending' })
+				await PiggyBankPoolModal.create({ userId, amount: rowAmt - remain, status: 'pending' })
 				await poolRow.update({ status: 'allocated', amount: remain, remark: '从池分配' })
 				remain = 0
 			}

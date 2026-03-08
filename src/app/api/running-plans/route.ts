@@ -1,24 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { RunningPlanModal, SportRecordModal } from 'db'
 import { Op } from 'sequelize'
+import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 
 async function GET(request: NextRequest) {
 	try {
-		// 获取所有跑步计划（包括 active 和 completed）
+		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const plans = await RunningPlanModal.findAll({
 			where: {
-				status: {
-					[Op.in]: ['active', 'completed'],
-				},
+				userId,
+				status: { [Op.in]: ['active', 'completed'] },
 			},
 			order: [['plan_name', 'ASC'], ['start_date', 'DESC']],
 		})
 
-		// 获取所有跑步记录
 		const runningRecords = await SportRecordModal.findAll({
-			where: {
-				type: 'running',
-			},
+			where: { userId, type: 'running' },
 			order: [['date', 'DESC']],
 		})
 

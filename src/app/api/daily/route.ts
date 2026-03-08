@@ -1,15 +1,18 @@
 import { TimeModal, IssueModal, RoutineTypeModal } from 'db'
 import { NextRequest, NextResponse } from 'next/server'
 import { transOneDateToWhereOptions } from 'utils'
+import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 
 async function POST(request: NextRequest) {
 	try {
+		const userId = getEffectiveUserIdFromRequest(request)
 		const body = await request.json()
 		if (Array.isArray(body?.data)) {
-			// 以 data 批量插入
-			await TimeModal.bulkCreate(body?.data, {
+			const rows = body.data.map((row: Record<string, unknown>) => ({ ...row, userId }))
+			await TimeModal.bulkCreate(rows, {
 				validate: true,
 				updateOnDuplicate: [
+					'user_id',
 					'routineTypeId',
 					'startTime',
 					'endTime',
@@ -35,13 +38,15 @@ async function POST(request: NextRequest) {
 
 async function GET(request: NextRequest) {
 	try {
+		const userId = getEffectiveUserIdFromRequest(request)
 		const { searchParams } = request.nextUrl
 		const date = searchParams.get('date')
 		const options = date ? transOneDateToWhereOptions(date) : {}
+		const where = { ...options, userId: Number(userId) }
 
-		const dailyData = await TimeModal.findAll({ where: options })
-		const routineData = await RoutineTypeModal.findAll()
-		const IssueList = await IssueModal.findAll({ where: options })
+		const dailyData = await TimeModal.findAll({ where })
+		const routineData = await RoutineTypeModal.findAll({ where: { userId: Number(userId) } })
+		const IssueList = await IssueModal.findAll({ where })
 		return NextResponse.json({
 			dailyData,
 			routineData,
@@ -65,19 +70,16 @@ async function GET(request: NextRequest) {
 // 删除数据 - 该功能不导出，仅供内部使用
 // eslint-disable-next-line
 async function DELETE(request: NextRequest) {
+	const userId = getEffectiveUserIdFromRequest(request)
 	const { searchParams } = request.nextUrl
 	const id = searchParams.get('id')
 	if (id) {
-		// 删除指定id的数据
 		await TimeModal.destroy({
-			where: {
-				id,
-			},
+			where: { id, userId: Number(userId) },
 		})
 	} else {
-		// 清空表
 		await TimeModal.destroy({
-			truncate: true,
+			where: { userId: Number(userId) },
 		})
 	}
 }

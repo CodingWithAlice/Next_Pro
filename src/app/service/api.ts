@@ -86,10 +86,14 @@ const Api = {
 			formData.append('title', title)
 		}
 		const url = process.env.NEXT_PUBLIC_API_HOST
-		const authToken = typeof localStorage !== 'undefined' ? localStorage.getItem('type') : null
+		const token = typeof localStorage !== 'undefined'
+			? (localStorage.getItem('j-user-id') || localStorage.getItem('type'))
+			: null
+		const headers: Record<string, string> = {}
+		if (token) headers['j-user-id'] = token
 		return fetch(`${url}/books/upload`, {
 			method: 'POST',
-			headers: authToken ? { 'Authorization': authToken } : {},
+			headers,
 			body: formData
 		}).then(res => res.json())
 	},

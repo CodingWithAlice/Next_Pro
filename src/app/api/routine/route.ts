@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { RoutineTypeModal } from 'db'
+import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 
-async function GET() {
+async function GET(request: NextRequest) {
 	try {
-		// const { searchParams } = request.nextUrl
-		const res = await RoutineTypeModal.findAll()
+		const userId = Number(getEffectiveUserIdFromRequest(request))
+		const res = await RoutineTypeModal.findAll({ where: { userId } })
 		return NextResponse.json({
 			data: res,
 			success: true,
@@ -25,11 +26,11 @@ async function GET() {
 
 async function POST(request: NextRequest) {
 	try {
+		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const body = await request.json()
-		// 以 id 查询更新
 		if (Array.isArray(body?.data)) {
-			// 以 data 批量插入
-			await RoutineTypeModal.bulkCreate(body?.data, { validate: true })
+			const rows = body.data.map((row: Record<string, unknown>) => ({ ...row, userId }))
+			await RoutineTypeModal.bulkCreate(rows, { validate: true })
 			return NextResponse.json({ success: true, message: '操作成功' })
 		}
 	} catch (error) {
@@ -47,17 +48,13 @@ async function POST(request: NextRequest) {
 
 async function PUT(request: NextRequest) {
 	try {
+		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const body = await request.json()
-		// 以 id 查询更新
 		const { id, type, des } = body
 		if (id) {
 			await RoutineTypeModal.update(
 				{ type, des },
-				{
-					where: {
-						id,
-					},
-				}
+				{ where: { id, userId } }
 			)
 			return NextResponse.json({ success: true, message: '操作成功' })
 		}
@@ -74,23 +71,15 @@ async function PUT(request: NextRequest) {
 	}
 }
 
-// 删除数据 - 该功能不导出，仅供内部使用
 // eslint-disable-next-line
 async function DELETE(request: NextRequest) {
+	const userId = Number(getEffectiveUserIdFromRequest(request))
 	const { searchParams } = request.nextUrl
 	const id = searchParams.get('id')
 	if (id) {
-		// 删除指定id的数据
-		await RoutineTypeModal.destroy({
-			where: {
-				id,
-			},
-		})
+		await RoutineTypeModal.destroy({ where: { id, userId } })
 	} else {
-		// 清空表
-		await RoutineTypeModal.destroy({
-			truncate: true,
-		})
+		await RoutineTypeModal.destroy({ where: { userId } })
 	}
 }
 

@@ -1,15 +1,18 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { PiggyBankJarModal, PiggyBankPoolModal } from 'db'
+import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 
-async function GET() {
+async function GET(request: NextRequest) {
 	try {
+		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const jars = await PiggyBankJarModal.findAll({
+			where: { userId },
 			order: [['sortOrder', 'ASC'], ['id', 'ASC']],
 			raw: true,
 		})
 
 		const pendingRows = (await PiggyBankPoolModal.findAll({
-			where: { status: 'pending' },
+			where: { userId, status: 'pending' },
 			raw: true,
 		})) as unknown as { amount: string | number }[]
 		const poolBalance = pendingRows.reduce((s, r) => s + parseFloat(String(r.amount)), 0)

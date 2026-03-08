@@ -20,6 +20,7 @@
     ],
     "paths": {
       "@/*": ["./src/app/*"],
+      "@lib/*": ["./lib/*"],
       "db":["./lib/db.ts"],
       "utils":["./src/utils"],
       "config":["./config.tsx"]

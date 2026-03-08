@@ -1,17 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PiggyBankJarModal, PiggyBankPoolModal } from 'db'
+import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 
 async function PUT(
 	request: NextRequest,
 	{ params }: { params: Promise<{ id: string }> }
 ) {
 	try {
+		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const { id } = await params
 		const body = await request.json()
 		const data = body.data ?? body
-		const { name, monthlyRepayment, targetAmount, proportion } = data
+		const { name, monthlyRepayment, targetAmount } = data
 
-		const jar = await PiggyBankJarModal.findByPk(id)
+		const jar = await PiggyBankJarModal.findOne({ where: { id, userId } })
 		if (!jar) {
 			return NextResponse.json(
 				{ success: false, message: '罐子不存在' },
@@ -49,13 +51,14 @@ async function POST(
 	{ params }: { params: Promise<{ id: string }> }
 ) {
 	try {
+		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const { id } = await params
 		const body = await request.json()
 		const data = body.data ?? body
 		const action = data?.action ?? body?.action
 
 		if (action === 'abandon') {
-			const jar = await PiggyBankJarModal.findByPk(id)
+			const jar = await PiggyBankJarModal.findOne({ where: { id, userId } })
 			if (!jar) {
 				return NextResponse.json(
 					{ success: false, message: '罐子不存在' },
@@ -65,6 +68,7 @@ async function POST(
 			const balance = parseFloat(String(jar.get('balance')))
 			if (balance > 0) {
 				await PiggyBankPoolModal.create({
+					userId,
 					amount: balance,
 					status: 'pending',
 					remark: `放弃罐子：${jar.get('name')}`,

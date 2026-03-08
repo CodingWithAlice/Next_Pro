@@ -2,17 +2,17 @@ import { RunningPlanModal } from 'db'
 import { Op } from 'sequelize'
 
 /**
- * 根据跑步记录更新跑步计划进度
- * - 距离 4km 或 5km：按 category 分类（匀速跑、变速跑）
- * - 距离 > 5km：统一为长跑
+ * 根据跑步记录更新跑步计划进度（按 user_id 隔离）
  * @param date 运动日期 YYYY-MM-DD
  * @param category 跑步类型：匀速跑、变速跑、长跑
  * @param value 距离 km
+ * @param userId 用户 id
  */
 export async function incrementRunningPlanProgress(
 	date: string,
 	category: string,
-	value: number
+	value: number,
+	userId: number
 ): Promise<void> {
 	if (value <= 0) return
 
@@ -31,6 +31,7 @@ export async function incrementRunningPlanProgress(
 
 	const plans = await RunningPlanModal.findAll({
 		where: {
+			userId,
 			status: 'active',
 			runType,
 			distance: matchDistance,

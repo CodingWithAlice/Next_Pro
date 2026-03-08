@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PiggyBankJarModal } from 'db'
+import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 
 async function POST(request: NextRequest) {
 	try {
+		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const body = await request.json()
 		const data = body.data ?? body
 		const { name, monthlyRepayment, targetAmount, monthlyRepaymentAmount, planMonths, totalAdvance } = data
@@ -26,9 +28,10 @@ async function POST(request: NextRequest) {
 			targetAmountVal = total
 		}
 
-		const maxOrder = await PiggyBankJarModal.max('sortOrder')
+		const maxOrder = await PiggyBankJarModal.max('sortOrder', { where: { userId } })
 		const nextOrder = (Number(maxOrder) || 0) + 1
 		const jar = await PiggyBankJarModal.create({
+			userId,
 			name: String(name).trim(),
 			balance: 0,
 			monthlyRepayment: monthlyRepaymentVal,

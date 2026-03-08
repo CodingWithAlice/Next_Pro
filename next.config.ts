@@ -32,6 +32,8 @@ const nextConfig: NextConfig = {
 	env: {
 		DEEPSEEK_API_KEY: process.env.DEEPSEEK_API_KEY,
 		CHECK_AUTH: process.env.CHECK_AUTH,
+		MAIN_USER_ID: process.env.MAIN_USER_ID,
+		USER_TOKEN_MAP: process.env.USER_TOKEN_MAP,
 	},
 }
 

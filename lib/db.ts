@@ -26,6 +26,12 @@ export const RoutineTypeModal = sequelize.define(
 			primaryKey: true,
 			autoIncrement: true,
 		},
+		userId: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 1,
+			field: 'user_id',
+		},
 		type: DataTypes.STRING,
 		des: DataTypes.STRING,
 		show: DataTypes.BOOLEAN,
@@ -50,6 +56,12 @@ export const TimeModal = sequelize.define(
 			primaryKey: true,
 			autoIncrement: true,
 		},
+		userId: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 1,
+			field: 'user_id',
+		},
 		routineTypeId: DataTypes.INTEGER,
 		date: {
 			type: DataTypes.DATE,
@@ -72,13 +84,15 @@ export const TimeModal = sequelize.define(
 		indexes: [
 			{
 				unique: true,
-				fields: ['date', 'day_sort'], // 为 date 和 sort 字段组合设置唯一索引
+				name: 'user_date_day_sort_unique',
+				fields: ['user_id', 'date', 'day_sort'],
 			},
 		],
 	}
 )
 export interface IssueAttributes {
 	id: number
+	userId: number
 	better: string
 	front: string
 	work: string
@@ -105,6 +119,12 @@ export const IssueModal: ModelDefined<
 			primaryKey: true,
 			autoIncrement: true,
 		},
+		userId: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 1,
+			field: 'user_id',
+		},
 		better: DataTypes.STRING,
 		front: DataTypes.STRING,
 		work: DataTypes.STRING,
@@ -117,7 +137,6 @@ export const IssueModal: ModelDefined<
 		video: DataTypes.STRING,
 		date: {
 			type: DataTypes.DATE,
-			unique: true,
 			field: 'date', // 显式指定字段
 		},
 	},
@@ -125,6 +144,9 @@ export const IssueModal: ModelDefined<
 		tableName: 'daily_issue_record',
 		timestamps: false,
 		underscored: true,
+		indexes: [
+			{ unique: true, name: 'user_date_unique', fields: ['user_id', 'date'] },
+		],
 	}
 )
 
@@ -135,6 +157,12 @@ export const MonthModal = sequelize.define(
 			type: DataTypes.INTEGER,
 			primaryKey: true,
 			autoIncrement: true,
+		},
+		userId: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 1,
+			field: 'user_id',
 		},
 		periods: DataTypes.STRING,
 		timeDiffDesc: DataTypes.STRING,
@@ -159,6 +187,12 @@ export const BooksRecordModal = sequelize.define(
 			primaryKey: true,
 			autoIncrement: true,
 		},
+		userId: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 1,
+			field: 'user_id',
+		},
 		recent: DataTypes.DATE,
 		lastTime: DataTypes.DATE,
 		title: DataTypes.STRING,
@@ -175,6 +209,7 @@ export const BooksRecordModal = sequelize.define(
 
 export interface SerialAttributes {
 	id: number
+	userId: number
 	serialNumber: number
 	startTime: Date
 	endTime: Date
@@ -225,6 +260,12 @@ export const SerialModal: ModelDefined<
 			primaryKey: true,
 			autoIncrement: true,
 		},
+		userId: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 1,
+			field: 'user_id',
+		},
 		serialNumber: DataTypes.INTEGER,
 		startTime: DataTypes.DATE,
 		endTime: DataTypes.DATE,
@@ -257,6 +298,12 @@ export const TedModal = sequelize.define(
 			primaryKey: true,
 			autoIncrement: true,
 		},
+		userId: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 1,
+			field: 'user_id',
+		},
 		title: DataTypes.STRING,
 		times: DataTypes.STRING,
 	},
@@ -275,9 +322,15 @@ export const TedRecordModal = sequelize.define(
 			primaryKey: true,
 			autoIncrement: true,
 		},
+		userId: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 1,
+			field: 'user_id',
+		},
 		tedId: DataTypes.NUMBER,
 		record: DataTypes.STRING,
-        date: DataTypes.DATE
+		date: DataTypes.DATE,
 	},
 	{
 		tableName: 'ted_record',
@@ -293,6 +346,12 @@ export const SportRecordModal = sequelize.define(
 			type: DataTypes.INTEGER,
 			primaryKey: true,
 			autoIncrement: true,
+		},
+		userId: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 1,
+			field: 'user_id',
 		},
 		type: {
 			type: DataTypes.ENUM('running', 'resistance', 'hiking', 'class'),
@@ -339,6 +398,12 @@ export const PiggyBankJarModal = sequelize.define(
 			type: DataTypes.INTEGER,
 			primaryKey: true,
 			autoIncrement: true,
+		},
+		userId: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 1,
+			field: 'user_id',
 		},
 		name: {
 			type: DataTypes.STRING(50),
@@ -389,6 +454,12 @@ export const PiggyBankPoolModal = sequelize.define(
 			primaryKey: true,
 			autoIncrement: true,
 		},
+		userId: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 1,
+			field: 'user_id',
+		},
 		amount: {
 			type: DataTypes.DECIMAL(12, 2),
 			allowNull: false,
@@ -414,38 +485,6 @@ export const PiggyBankPoolModal = sequelize.define(
 	}
 )
 
-export const PiggyBankModal = sequelize.define(
-	'piggy_bank_record',
-	{
-		id: {
-			type: DataTypes.INTEGER,
-			primaryKey: true,
-			autoIncrement: true,
-		},
-		amount: {
-			type: DataTypes.DECIMAL(10, 2),
-			allowNull: false,
-		},
-		type: {
-			type: DataTypes.ENUM('income', 'expense'),
-			allowNull: false,
-		},
-		note: {
-			type: DataTypes.STRING(200),
-			allowNull: true,
-		},
-		date: {
-			type: DataTypes.DATEONLY,
-			allowNull: false,
-		},
-	},
-	{
-		tableName: 'piggy_bank_record',
-		timestamps: true,
-		underscored: true,
-	}
-)
-
 export const RunningPlanModal = sequelize.define(
 	'running_plans',
 	{
@@ -453,6 +492,12 @@ export const RunningPlanModal = sequelize.define(
 			type: DataTypes.INTEGER,
 			primaryKey: true,
 			autoIncrement: true,
+		},
+		userId: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 1,
+			field: 'user_id',
 		},
 		planName: {
 			type: DataTypes.STRING(50),

@@ -1,10 +1,12 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { PiggyBankPoolModal } from 'db'
+import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 
-async function GET() {
+async function GET(request: NextRequest) {
 	try {
+		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const records = await PiggyBankPoolModal.findAll({
-			where: { status: 'allocated' },
+			where: { userId, status: 'allocated' },
 			order: [['createdAt', 'DESC']],
 			limit: 50,
 			raw: true,

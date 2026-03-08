@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PiggyBankJarModal, PiggyBankPoolModal } from 'db'
+import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 
 type JarRow = { id: number; name: string; balance: string | number; monthlyRepayment?: string | number | null; targetAmount?: string | number | null; status: string; sortOrder: number }
 
 async function POST(request: NextRequest) {
 	try {
+		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const body = await request.json()
 		const data = body.data ?? body
 		const { amount, suggestOnly, allocations, toPool, remark } = data
@@ -18,12 +20,12 @@ async function POST(request: NextRequest) {
 		}
 
 		if (toPool) {
-			let poolRow = await PiggyBankPoolModal.findOne()
+			let poolRow = await PiggyBankPoolModal.findOne({ where: { userId } })
 			if (!poolRow) {
-				poolRow = await PiggyBankPoolModal.create({ balance: 0 })
+				poolRow = await PiggyBankPoolModal.create({ userId, amount: 0, status: 'pending' })
 			}
-			const poolBalance = parseFloat(String(poolRow.get('balance')))
-			await poolRow.update({ balance: poolBalance + totalAmount })
+			const poolBalance = parseFloat(String(poolRow.get('amount')))
+			await poolRow.update({ amount: poolBalance + totalAmount })
 			return NextResponse.json({
 				success: true,
 				message: '已放入待分配池',
@@ -31,7 +33,7 @@ async function POST(request: NextRequest) {
 		}
 
 		const activeJars = (await PiggyBankJarModal.findAll({
-			where: { status: 'active' },
+			where: { userId, status: 'active' },
 			order: [['sortOrder', 'ASC'], ['id', 'ASC']],
 			raw: true,
 		})) as unknown as JarRow[]
@@ -114,7 +116,7 @@ async function POST(request: NextRequest) {
 		}
 
 		for (const a of allocations) {
-			const jar = await PiggyBankJarModal.findByPk(a.jarId)
+			const jar = await PiggyBankJarModal.findOne({ where: { id: a.jarId, userId } })
 			if (jar && a.amount > 0) {
 				const amt = parseFloat(String(a.amount))
 				const currentBalance = parseFloat(String(jar.get('balance')))
@@ -123,6 +125,7 @@ async function POST(request: NextRequest) {
 		}
 
 		await PiggyBankPoolModal.create({
+			userId,
 			amount: totalAmount,
 			status: 'allocated',
 			remark: remark != null ? String(remark).trim() || null : null,

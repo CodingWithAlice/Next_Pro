@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { SportRecordModal } from 'db'
-import { Op } from 'sequelize'
 import { incrementRunningPlanProgress } from 'utils'
+import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 
 // 运动类型配置
 const SPORT_TYPES = ['running', 'resistance', 'hiking', 'class'] as const
@@ -38,27 +38,20 @@ const calculateSummary = (records: any[]): Record<SummaryKeys, number> => {
 
 async function GET(request: NextRequest) {
 	try {
+		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const { searchParams } = request.nextUrl
-		const date = searchParams.get('date') // 日期，格式：YYYY-MM-DD
-		const type = searchParams.get('type') // 运动类型：running, resistance, hiking, class
-		
-		const whereClause: any = {}
-		
-		if (date) {
-			whereClause.date = date
-		}
-		
-		if (type) {
-			whereClause.type = type
-		}
-		
+		const date = searchParams.get('date')
+		const type = searchParams.get('type')
+		const whereClause: Record<string, unknown> = { userId }
+		if (date) whereClause.date = date
+		if (type) whereClause.type = type
+
 		const records = await SportRecordModal.findAll({
 			where: whereClause,
 			order: [['date', 'DESC'], ['created_at', 'DESC']],
 		})
-		
-		// 只查询一次全量数据
-		const allRecords = await SportRecordModal.findAll()
+
+		const allRecords = await SportRecordModal.findAll({ where: { userId } })
 		
 		// 计算今日汇总（从全量数据中过滤）
 		const today = new Date().toISOString().split('T')[0]
@@ -104,22 +97,18 @@ async function GET(request: NextRequest) {
 
 async function POST(request: NextRequest) {
 	try {
+		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const body = await request.json()
 		const data = body.data
-		
-		// 验证必填字段
 		if (!data.type || !data.date || data.value === undefined || !data.category) {
 			return NextResponse.json(
-				{
-					success: false,
-					message: '缺少必填字段：type, date, value, category',
-				},
+				{ success: false, message: '缺少必填字段：type, date, value, category' },
 				{ status: 400 }
 			)
 		}
-		
-		// 创建记录
+
 		const record = await SportRecordModal.create({
+			userId,
 			type: data.type,
 			date: data.date,
 			value: data.value,
@@ -130,7 +119,7 @@ async function POST(request: NextRequest) {
 		})
 
 		if (data.type === 'running' && data.value > 0 && data.category) {
-			incrementRunningPlanProgress(data.date, data.category, parseFloat(data.value)).catch((e) =>
+			incrementRunningPlanProgress(data.date, data.category, parseFloat(data.value), userId).catch((e) =>
 				console.error('更新跑步计划进度失败:', e)
 			)
 		}
