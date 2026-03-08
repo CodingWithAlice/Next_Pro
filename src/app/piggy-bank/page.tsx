@@ -25,6 +25,9 @@ interface AllocationItem {
   monthlyRepayment?: number;
 }
 
+// config.env 的 NEXT_PUBLIC_PIGGY_BANK_ALLOCATE_MAX_RATIO，不存在时默认 35%
+const PIGGY_ALLOCATE_MAX_RATIO = Math.min(1, Math.max(0, parseFloat(process.env.NEXT_PUBLIC_PIGGY_BANK_ALLOCATE_MAX_RATIO ?? '0.35') || 0.35));
+
 export default function PiggyBankPage() {
   const [jars, setJars] = useState<Jar[]>([]);
   const [poolBalance, setPoolBalance] = useState(0);
@@ -137,8 +140,9 @@ export default function PiggyBankPage() {
 
   const onConfirmAllocate = () => {
     const totalAmount = suggestedAllocations.reduce((s, a) => s + a.amount, 0);
-    if (totalAmount > salaryInput * 0.35) {
-      messageApi.warning('金额超过了薪资的 35%');
+    if (totalAmount > salaryInput * PIGGY_ALLOCATE_MAX_RATIO) {
+      const pct = Math.round(PIGGY_ALLOCATE_MAX_RATIO * 100);
+      messageApi.warning(`金额超过了薪资的 ${pct}%`);
       return Promise.reject();
     }
     const allocations = suggestedAllocations.map((a) => ({ jarId: a.jarId, amount: a.amount }));

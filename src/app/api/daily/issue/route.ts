@@ -58,7 +58,7 @@ async function POST(request: NextRequest) {
 		let msg: string | undefined;
 		if (data.sport && typeof data.sport === 'string' && data.sport.trim()) {
 			try {
-				const { records: parsedRecords, unrecognizedClasses } = await parseSportText(data.sport);
+				const { records: parsedRecords, unrecognizedClasses } = await parseSportText(data.sport, { userId });
 				if (unrecognizedClasses.length > 0) {
 					msg = `以下课程类型未识别，请先在运动类型中添加：${unrecognizedClasses.join('、')}`;
 				}

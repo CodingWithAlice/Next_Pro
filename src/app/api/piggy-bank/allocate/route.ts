@@ -19,6 +19,7 @@ async function POST(request: NextRequest) {
 			)
 		}
 
+		const maxRatio = Math.min(1, Math.max(0, parseFloat(process.env.NEXT_PUBLIC_PIGGY_BANK_ALLOCATE_MAX_RATIO ?? '0.35') || 0.35))
 		if (toPool) {
 			let poolRow = await PiggyBankPoolModal.findOne({ where: { userId } })
 			if (!poolRow) {
@@ -100,6 +101,18 @@ async function POST(request: NextRequest) {
 				}
 			}
 
+			// 建议总额限制在输入金额的 config.env maxAllowed 比例以内，与确认时的校验一致
+			const maxAllowed = totalAmount * maxRatio
+			const suggestedTotal = suggestion.reduce((s, i) => s + i.amount, 0)
+			if (suggestedTotal > maxAllowed && suggestedTotal > 0) {
+				const scale = maxAllowed / suggestedTotal
+				suggestion = suggestion.map((i) => ({
+					...i,
+					amount: i.amount * scale,
+					proportion: (i.amount * scale / totalAmount) * 100,
+				}))
+			}
+
 			return NextResponse.json({
 				success: true,
 				suggestion,
@@ -108,9 +121,10 @@ async function POST(request: NextRequest) {
 		}
 
 		const sumAllocated = allocations.reduce((s: number, a: { amount: number }) => s + parseFloat(String(a.amount)), 0)
-		if (sumAllocated > totalAmount * 0.35) {
+		if (sumAllocated > totalAmount * maxRatio) {
+			const pct = Math.round(maxRatio * 100)
 			return NextResponse.json(
-				{ success: false, message: '金额超过了薪资的 35%' },
+				{ success: false, message: `金额超过了薪资的 ${pct}%` },
 				{ status: 400 }
 			)
 		}

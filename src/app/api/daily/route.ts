@@ -5,7 +5,7 @@ import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 
 async function POST(request: NextRequest) {
 	try {
-		const userId = getEffectiveUserIdFromRequest(request)
+		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const body = await request.json()
 		if (Array.isArray(body?.data)) {
 			const rows = body.data.map((row: Record<string, unknown>) => ({ ...row, userId }))
@@ -38,14 +38,14 @@ async function POST(request: NextRequest) {
 
 async function GET(request: NextRequest) {
 	try {
-		const userId = getEffectiveUserIdFromRequest(request)
+		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const { searchParams } = request.nextUrl
 		const date = searchParams.get('date')
 		const options = date ? transOneDateToWhereOptions(date) : {}
-		const where = { ...options, userId: Number(userId) }
+		const where = { ...options, userId }
 
 		const dailyData = await TimeModal.findAll({ where })
-		const routineData = await RoutineTypeModal.findAll({ where: { userId: Number(userId) } })
+		const routineData = await RoutineTypeModal.findAll({ where: { userId } })
 		const IssueList = await IssueModal.findAll({ where })
 		return NextResponse.json({
 			dailyData,
@@ -70,16 +70,16 @@ async function GET(request: NextRequest) {
 // 删除数据 - 该功能不导出，仅供内部使用
 // eslint-disable-next-line
 async function DELETE(request: NextRequest) {
-	const userId = getEffectiveUserIdFromRequest(request)
+	const userId = Number(getEffectiveUserIdFromRequest(request))
 	const { searchParams } = request.nextUrl
 	const id = searchParams.get('id')
 	if (id) {
 		await TimeModal.destroy({
-			where: { id, userId: Number(userId) },
+			where: { id, userId },
 		})
 	} else {
 		await TimeModal.destroy({
-			where: { userId: Number(userId) },
+			where: { userId },
 		})
 	}
 }

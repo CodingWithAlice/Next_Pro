@@ -8,7 +8,7 @@ async function GET(request: NextRequest) {
 		const where = { userId }
 		const tedList = await TedModal.findAll({
 			where,
-			include: [{ model: TedRecordModal, where }],
+			include: [{ model: TedRecordModal, where, required: false }],
 		})
 		const tedRecord = await TedRecordModal.findAll({ where })
 

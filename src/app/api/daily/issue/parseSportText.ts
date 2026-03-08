@@ -12,13 +12,19 @@ export interface ParsedSportRecord {
 }
 
 /**
- * 获取运动课程类型列表
+ * 获取运动课程类型列表（多用户：传入 userId 以使用该用户的类型，否则请求无认证会走主账号）
+ * @param userId 当前用户 ID，用于请求 /api/routine-types 时携带 x-user-id
  */
-async function getSportCategories(): Promise<string[]> {
+async function getSportCategories(userId?: number): Promise<string[]> {
 	try {
 		const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+		const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+		if (userId != null) {
+			headers['x-user-id'] = String(userId);
+		}
 		const response = await fetch(`${baseUrl}/api/routine-types?sport=true`, {
 			cache: 'no-store',
+			headers,
 		});
 		
 		if (!response.ok) {
@@ -54,9 +60,13 @@ export interface ParseSportResult {
 /**
  * 解析运动文本为运动记录，仅匹配已声明的运动类型
  * @param text 运动文本
+ * @param options.userId 当前用户 ID，用于按用户拉取运动类型列表（多用户必传，否则使用主账号类型）
  * @returns 解析结果，含 records 与未识别的课程名列表 unrecognizedClasses
  */
-export async function parseSportText(text: string): Promise<ParseSportResult> {
+export async function parseSportText(
+	text: string,
+	options?: { userId?: number }
+): Promise<ParseSportResult> {
 	const empty: ParseSportResult = { records: [], unrecognizedClasses: [] };
 	if (!text || typeof text !== 'string') {
 		return empty;
@@ -72,7 +82,7 @@ export async function parseSportText(text: string): Promise<ParseSportResult> {
 		return empty;
 	}
 
-	const sportCategories = await getSportCategories();
+	const sportCategories = await getSportCategories(options?.userId);
 	const records: ParsedSportRecord[] = [];
 	const unrecognizedCollector: string[] = [];
 
