@@ -17,10 +17,6 @@ export default function middleware(request: NextRequest) {
 	const userId = resolveUserId(token)
 	const mainUserId = getMainUserId()
 
-	const res = NextResponse.next()
-	res.headers.set('x-user-id', userId ?? '')
-	res.headers.set('x-main-user-id', mainUserId)
-
 	// 旁观者：只放行 GET，其余 401
 	if (userId == null || userId === '') {
 		if (request.method !== 'GET') {
@@ -28,5 +24,10 @@ export default function middleware(request: NextRequest) {
 		}
 	}
 
-	return res
+	// 把 user id 写入请求头，供 API 路由通过 request.headers.get('x-user-id') 读取
+	const requestHeaders = new Headers(request.headers)
+	requestHeaders.set('x-user-id', userId ?? '')
+	requestHeaders.set('x-main-user-id', mainUserId)
+
+	return NextResponse.next({ request: { headers: requestHeaders } })
 }
