@@ -18,6 +18,13 @@ export const sequelize = new Sequelize(
 	}
 )
 
+// 与 SQL 迁移 2026.3.3-user_id.sql 一致：未传 userId 时的默认值为主账号 ID，避免产生 user_id=1 的孤立数据
+const mainUserIdEnv = process.env.MAIN_USER_ID
+const defaultUserId =
+	mainUserIdEnv != null && String(mainUserIdEnv).trim() !== ''
+		? parseInt(String(mainUserIdEnv).trim(), 10) || 9301
+		: 9301
+
 export const RoutineTypeModal = sequelize.define(
 	'routine_type',
 	{
@@ -29,7 +36,7 @@ export const RoutineTypeModal = sequelize.define(
 		userId: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
-			defaultValue: 1,
+			defaultValue: defaultUserId,
 			field: 'user_id',
 		},
 		type: DataTypes.STRING,
@@ -59,7 +66,7 @@ export const TimeModal = sequelize.define(
 		userId: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
-			defaultValue: 1,
+			defaultValue: defaultUserId,
 			field: 'user_id',
 		},
 		routineTypeId: DataTypes.INTEGER,
@@ -122,7 +129,7 @@ export const IssueModal: ModelDefined<
 		userId: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
-			defaultValue: 1,
+			defaultValue: defaultUserId,
 			field: 'user_id',
 		},
 		better: DataTypes.STRING,
@@ -161,7 +168,7 @@ export const MonthModal = sequelize.define(
 		userId: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
-			defaultValue: 1,
+			defaultValue: defaultUserId,
 			field: 'user_id',
 		},
 		periods: DataTypes.STRING,
@@ -190,7 +197,7 @@ export const BooksRecordModal = sequelize.define(
 		userId: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
-			defaultValue: 1,
+			defaultValue: defaultUserId,
 			field: 'user_id',
 		},
 		recent: DataTypes.DATE,
@@ -263,7 +270,7 @@ export const SerialModal: ModelDefined<
 		userId: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
-			defaultValue: 1,
+			defaultValue: defaultUserId,
 			field: 'user_id',
 		},
 		serialNumber: DataTypes.INTEGER,
@@ -301,7 +308,7 @@ export const TedModal = sequelize.define(
 		userId: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
-			defaultValue: 1,
+			defaultValue: defaultUserId,
 			field: 'user_id',
 		},
 		title: DataTypes.STRING,
@@ -325,7 +332,7 @@ export const TedRecordModal = sequelize.define(
 		userId: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
-			defaultValue: 1,
+			defaultValue: defaultUserId,
 			field: 'user_id',
 		},
 		tedId: DataTypes.NUMBER,
@@ -350,7 +357,7 @@ export const SportRecordModal = sequelize.define(
 		userId: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
-			defaultValue: 1,
+			defaultValue: defaultUserId,
 			field: 'user_id',
 		},
 		type: {
@@ -402,7 +409,7 @@ export const PiggyBankJarModal = sequelize.define(
 		userId: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
-			defaultValue: 1,
+			defaultValue: defaultUserId,
 			field: 'user_id',
 		},
 		name: {
@@ -457,7 +464,7 @@ export const PiggyBankPoolModal = sequelize.define(
 		userId: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
-			defaultValue: 1,
+			defaultValue: defaultUserId,
 			field: 'user_id',
 		},
 		amount: {
@@ -496,7 +503,7 @@ export const RunningPlanModal = sequelize.define(
 		userId: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
-			defaultValue: 1,
+			defaultValue: defaultUserId,
 			field: 'user_id',
 		},
 		planName: {
