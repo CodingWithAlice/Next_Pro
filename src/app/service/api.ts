@@ -86,10 +86,14 @@ const Api = {
 			formData.append('title', title)
 		}
 		const url = process.env.NEXT_PUBLIC_API_HOST
-		const authToken = typeof localStorage !== 'undefined' ? localStorage.getItem('type') : null
+		const token = typeof localStorage !== 'undefined'
+			? (localStorage.getItem('j-user-id') || localStorage.getItem('type'))
+			: null
+		const headers: Record<string, string> = {}
+		if (token) headers['j-user-id'] = token
 		return fetch(`${url}/books/upload`, {
 			method: 'POST',
-			headers: authToken ? { 'Authorization': authToken } : {},
+			headers,
 			body: formData
 		}).then(res => res.json())
 	},
@@ -111,6 +115,41 @@ const Api = {
 
 	getRunningPlansApi() {
 		return request.get('running-plans')
+	},
+
+	getPiggyBankApi() {
+		return request.get('piggy-bank')
+	},
+	postPiggyBankJarApi(data: {
+		name: string
+		monthlyRepayment?: number
+		targetAmount?: number
+		monthlyRepaymentAmount?: number
+		planMonths?: number
+		totalAdvance?: number
+	}) {
+		return request.post('piggy-bank/jar', data)
+	},
+	putPiggyBankJarApi(id: number, data: { name?: string; monthlyRepayment?: number | null; targetAmount?: number | null }) {
+		return request.put(`piggy-bank/jar/${id}`, data)
+	},
+	abandonPiggyBankJarApi(id: number) {
+		return request.post(`piggy-bank/jar/${id}`, { action: 'abandon' })
+	},
+	getPiggyBankAllocateSuggestionApi(amount: number) {
+		return request.post('piggy-bank/allocate', { amount, suggestOnly: true })
+	},
+	confirmPiggyBankAllocateApi(amount: number, allocations: { jarId: number; amount: number }[], remark?: string) {
+		return request.post('piggy-bank/allocate', { amount, allocations, remark })
+	},
+	getPiggyBankAllocateRecordsApi() {
+		return request.get('piggy-bank/records')
+	},
+	putPiggyBankToPoolApi(amount: number, remark?: string) {
+		return request.post('piggy-bank/allocate', { amount, toPool: true, remark })
+	},
+	allocateFromPoolApi(allocations: { jarId: number; amount: number }[]) {
+		return request.post('piggy-bank/pool', { allocations })
 	},
 }
 

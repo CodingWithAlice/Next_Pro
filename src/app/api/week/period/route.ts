@@ -1,15 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GetWeekData } from 'utils'
-
-// 按照周期整合数据
-// function getPeriodData(dailyTimeRecord: any, dailyIssueRecord: any) {
-// 	console.log(dailyTimeRecord, dailyIssueRecord)
-// 	return {}
-// }
+import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 
 async function GET(request: NextRequest) {
 	try {
-		// 查询周期
+		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const { searchParams } = request.nextUrl
 		const serialNumber = searchParams.get('serialNumber')
 		if (!serialNumber) {
@@ -18,8 +13,7 @@ async function GET(request: NextRequest) {
 				{ status: 400 }
 			)
 		}
-
-		const data = await GetWeekData(serialNumber)
+		const data = await GetWeekData(serialNumber, userId)
 		return NextResponse.json(data, { status: 200 })
 	} catch (error) {
 		console.error(error)

@@ -15,12 +15,31 @@ export interface MessageProp {
 }
 
 const url = process.env.NEXT_PUBLIC_API_HOST
-// 解析 请求链接 / localstorage 的查询参数
-const postConfig: AxiosRequestConfig = {
-	headers: {},
+const TOKEN_KEY = 'j-user-id'
+
+function getToken(): string | null {
+	if (typeof localStorage === 'undefined') return null
+	return localStorage.getItem(TOKEN_KEY) || localStorage.getItem('type')
 }
-if (typeof localStorage !== 'undefined') {
-	postConfig.headers = { Authorization: localStorage.getItem('type') }
+
+function getConfig(): AxiosRequestConfig {
+	const token = getToken()
+	const headers: Record<string, string> = {}
+	if (token) headers['j-user-id'] = token
+	return { headers }
+}
+
+// 401 时跳转登录页（可选）
+if (typeof window !== 'undefined') {
+	axios.interceptors.response.use(
+		(r) => r,
+		(err) => {
+			if (err.response?.status === 401) {
+				window.location.href = '/login?next=' + encodeURIComponent(window.location.pathname)
+			}
+			return Promise.reject(err)
+		}
+	)
 }
 
 function handleAxiosError(error: unknown): { status: number; message: string } {
@@ -43,6 +62,7 @@ async function get(
 	try {
 		const response: AxiosResponse = await axios.get(`${url}/${api}`, {
 			params,
+			...getConfig(),
 		})
 		return response.data
 	} catch (error) {
@@ -53,7 +73,7 @@ async function get(
 
 async function post<T>(api: string, data: T) {
 	try {
-		const response = await axios.post(`${url}/${api}`, { data }, postConfig)
+		const response = await axios.post(`${url}/${api}`, { data }, getConfig())
 		return response.data
 	} catch (error) {
 		const errorObj = handleAxiosError(error)
@@ -63,7 +83,23 @@ async function post<T>(api: string, data: T) {
 
 async function put<T>(api: string, data: T) {
 	try {
-		const response = await axios.put(`${url}/${api}`, { data }, postConfig)
+		const response = await axios.put(`${url}/${api}`, { data }, getConfig())
+		return response.data
+	} catch (error) {
+		const errorObj = handleAxiosError(error)
+		throw errorObj
+	}
+}
+
+async function del(
+	api: string,
+	params?: { [key: string]: string | number | boolean }
+) {
+	try {
+		const response = await axios.delete(`${url}/${api}`, {
+			params,
+			...getConfig(),
+		})
 		return response.data
 	} catch (error) {
 		const errorObj = handleAxiosError(error)
@@ -93,6 +129,7 @@ const request = {
 	get,
 	post,
 	put,
+	delete: del,
 	AIPOST,
 }
 

@@ -216,7 +216,61 @@ export default function Daily() {
             <LifeFootprint currentDate={currentDate} />
         </div>
         <div className="flex-around">
-            <TimeRecord total={total} read={read} study={study} ltnTotal={ltnTotal} onChange={handleFunc} issues={issues} setIssues={setIssues} routineType={routineType} />
+            <TimeRecord
+                total={total}
+                read={read}
+                study={study}
+                ltnTotal={ltnTotal}
+                onChange={handleFunc}
+                issues={issues}
+                setIssues={setIssues}
+                routineType={routineType}
+                workMode={issues.some((it) => +it.type === +config.workId)}
+                onWorkModeChange={(v) => {
+                    const hasWork = issues.some((it) => +it.type === +config.workId);
+                    if (v) {
+                        // 打开：无工作类型时添加 9 点、18 点
+                        if (!hasWork) {
+                            const baseDate = currentDate;
+                            const startHour = config.workModeStartHour ?? 9;
+                            const endHour = config.workModeEndHour ?? 18;
+                            const newWorkIssues: Issue[] = [
+                                {
+                                    startTime: dayjs(`${baseDate} ${String(startHour).padStart(2, '0')}:00:00`),
+                                    endTime: dayjs(`${baseDate} ${String(startHour).padStart(2, '0')}:00:00`),
+                                    type: config.workId as unknown as string,
+                                    daySort: issues.length,
+                                    duration: 0,
+                                    interval: 0
+                                },
+                                {
+                                    startTime: dayjs(`${baseDate} ${String(endHour).padStart(2, '0')}:00:00`),
+                                    endTime: dayjs(`${baseDate} ${String(endHour).padStart(2, '0')}:00:00`),
+                                    type: config.workId as unknown as string,
+                                    daySort: issues.length + 1,
+                                    duration: 0,
+                                    interval: 0
+                                }
+                            ];
+                            const merged = sortIssuesWithSleepLast([...issues, ...newWorkIssues]).map((it, i) => ({
+                                ...it,
+                                daySort: i
+                            }));
+                            setIssues(merged);
+                        }
+                    } else {
+                        // 关闭：移除所有工作类型
+                        if (hasWork) {
+                            const filtered = issues.filter((it) => +it.type !== +config.workId);
+                            const merged = sortIssuesWithSleepLast(filtered).map((it, i) => ({
+                                ...it,
+                                daySort: i
+                            }));
+                            setIssues(merged);
+                        }
+                    }
+                }}
+            />
             <IssueRecord study={study} issueData={issueData} setIssueData={setIssueData} currentDate={currentDate} />
         </div></div>)
 }

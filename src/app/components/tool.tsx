@@ -217,7 +217,6 @@ function FormatDateToMonthDayWeek({ handle = config.current }: { handle?: number
         <span style={{ color: '#f68084', fontWeight: 800 }}>{urlDate || date}</span>
         &nbsp;
         周{weekday}
-        <span className='daily-note-label'>{config.dailyNote}</span>
     </div>
 }
 

@@ -32,6 +32,7 @@ const nextConfig: NextConfig = {
 	env: {
 		DEEPSEEK_API_KEY: process.env.DEEPSEEK_API_KEY,
 		CHECK_AUTH: process.env.CHECK_AUTH,
+		NEXT_PUBLIC_PIGGY_BANK_ALLOCATE_MAX_RATIO: process.env.NEXT_PUBLIC_PIGGY_BANK_ALLOCATE_MAX_RATIO,
 	},
 }
 

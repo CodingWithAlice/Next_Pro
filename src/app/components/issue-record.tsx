@@ -3,6 +3,8 @@ import { Button, Input, message } from "antd";
 import { FormatDateToMonthDayWeek, formatMinToHM, IssueRecordProps } from "@/components/tool"
 import { ExperimentFilled } from "@ant-design/icons";
 import Api from "@/service/api";
+import dayjs from "dayjs";
+import config from "config";
 const { TextArea } = Input;
 
 interface UniformTextAreaWithStyleProps {
@@ -88,6 +90,9 @@ export default function IssueRecord({ study, issueData, setIssueData, currentDat
                 ].map(it => getTextArea(it.key as keyof IssueRecordProps, it.placeholder, issueData))}
             </section>
             【做得棒的3件事】
+            {[2, 4].includes(dayjs(currentDate).day()) && (
+                <div className="daily-note-label">{config.dailyNote}</div>
+            )}
             {getTextArea('good', '积极心理学', issueData)}
             【今天有犯错吗？错误是纠正偏差的大好机会】
             {getTextArea('better', '可以变得更好的事情', issueData)}

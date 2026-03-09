@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { TedRecordModal } from 'db'
+import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 
 async function POST(request: NextRequest) {
 	try {
+		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const body = await request.json()
 		const data = body.data
-		await TedRecordModal.bulkCreate([data], {updateOnDuplicate: ['record']})
+		await TedRecordModal.bulkCreate([{ ...data, userId }], { updateOnDuplicate: ['user_id', 'record'] })
 		
 		return NextResponse.json({
 			success: true,

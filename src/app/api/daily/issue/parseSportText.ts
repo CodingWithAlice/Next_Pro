@@ -11,26 +11,20 @@ export interface ParsedSportRecord {
 	notes?: string | null;
 }
 
-// 运动类型缓存
-let sportCategoriesCache: string[] | null = null;
-let cacheExpiry: number = 0;
-const CACHE_DURATION = 5 * 60 * 1000; // 缓存 5 分钟
-
 /**
- * 获取运动课程类型列表（带缓存）
+ * 获取运动课程类型列表（多用户：传入 userId 以使用该用户的类型，否则请求无认证会走主账号）
+ * @param userId 当前用户 ID，用于请求 /api/routine-types 时携带 x-user-id
  */
-async function getSportCategories(): Promise<string[]> {
-	const now = Date.now();
-	
-	// 如果缓存有效，直接返回
-	if (sportCategoriesCache && now < cacheExpiry) {
-		return sportCategoriesCache;
-	}
-
+async function getSportCategories(userId?: number): Promise<string[]> {
 	try {
 		const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+		const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+		if (userId != null) {
+			headers['x-user-id'] = String(userId);
+		}
 		const response = await fetch(`${baseUrl}/api/routine-types?sport=true`, {
 			cache: 'no-store',
+			headers,
 		});
 		
 		if (!response.ok) {
@@ -40,9 +34,7 @@ async function getSportCategories(): Promise<string[]> {
 		const data = await response.json();
 		
 		if (data.success && data.data) {
-			sportCategoriesCache = data.data.map((item: any) => item.type);
-			cacheExpiry = now + CACHE_DURATION;
-			return sportCategoriesCache!; // 使用非空断言，因为上面刚赋值
+			return data.data.map((item: any) => item.type);
 		}
 	} catch (error) {
 		console.error('获取运动类型失败，使用默认列表:', error);
@@ -68,9 +60,13 @@ export interface ParseSportResult {
 /**
  * 解析运动文本为运动记录，仅匹配已声明的运动类型
  * @param text 运动文本
+ * @param options.userId 当前用户 ID，用于按用户拉取运动类型列表（多用户必传，否则使用主账号类型）
  * @returns 解析结果，含 records 与未识别的课程名列表 unrecognizedClasses
  */
-export async function parseSportText(text: string): Promise<ParseSportResult> {
+export async function parseSportText(
+	text: string,
+	options?: { userId?: number }
+): Promise<ParseSportResult> {
 	const empty: ParseSportResult = { records: [], unrecognizedClasses: [] };
 	if (!text || typeof text !== 'string') {
 		return empty;
@@ -86,7 +82,7 @@ export async function parseSportText(text: string): Promise<ParseSportResult> {
 		return empty;
 	}
 
-	const sportCategories = await getSportCategories();
+	const sportCategories = await getSportCategories(options?.userId);
 	const records: ParsedSportRecord[] = [];
 	const unrecognizedCollector: string[] = [];
 
@@ -120,12 +116,19 @@ function parseSingleRecord(
 	const notes = notesMatch ? notesMatch[1] : null;
 	const cleanText = text.replace(/[（(][^）)]+[）)]/g, '').trim();
 
-	// 尝试匹配跑步
-	const runningMatch = cleanText.match(/(匀速跑|变速跑|跑步|户外匀速跑|热身)\s*(\d+\.?\d*)\s*(km|公里)?/i);
+	// 尝试匹配跑步（含长跑）
+	const runningMatch = cleanText.match(/(匀速跑|变速跑|长跑|跑步|户外匀速跑|热身)\s*(\d+\.?\d*)\s*(km|公里)?/i);
 	if (runningMatch && runningMatch[2]) {
-		const category = runningMatch[1].includes('变速') ? '变速跑' : '匀速跑';
 		const value = parseFloat(runningMatch[2]);
 		if (!isNaN(value) && value > 0) {
+			let category: string
+			if (runningMatch[1].includes('长跑') || value > 5) {
+				category = '长跑'
+			} else if (runningMatch[1].includes('变速')) {
+				category = '变速跑'
+			} else {
+				category = '匀速跑'
+			}
 			return {
 				type: 'running',
 				value,

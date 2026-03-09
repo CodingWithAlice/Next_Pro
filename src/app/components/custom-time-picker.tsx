@@ -86,6 +86,7 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
                         <TimePicker
                             className="picker"
                             format='HH:mm'
+                            minuteStep={5}
                             value={init.startTime}
                             onChange={(value) => handleChange(init.daySort, value, 'startTime')}
                             needConfirm={false} />
@@ -99,6 +100,7 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
                         key={init.daySort}
                         className="picker"
                         format='HH:mm'
+                        minuteStep={5}
                         value={init[timeType as keyof Issue] as dayjs.Dayjs}
                         onChange={(value) => handleChange(init.daySort, value, timeType as keyof Issue)}
                         needConfirm={false} />

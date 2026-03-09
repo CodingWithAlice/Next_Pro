@@ -9,6 +9,7 @@ import {
 import { Op, Sequelize } from 'sequelize'
 import { transTwoDateToWhereOptions } from 'utils'
 import dayjs from 'dayjs'
+import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 
 interface RoutineType {
 	des: string
@@ -42,22 +43,17 @@ interface MetricTypeProps {
 	type: { desc: string; typeId: number; target?: string }[]
 }
 
-// 每周周报信息查询 - 根据输入 serial 周期查询多个周期信息
-async function GetWeekInfo(serials: number[]): Promise<SerialAttributes[]> {
+async function GetWeekInfo(serials: number[], userId: number): Promise<SerialAttributes[]> {
 	const serialsData = await SerialModal.findAll({
-		where: {
-			serialNumber: {
-				[Op.or]: serials,
-			},
-		},
+		where: { userId, serialNumber: { [Op.in]: serials } },
 	})
-	return serialsData.map((serial) => serial.get({ plain: true }))
+	return serialsData.map((serial) => serial.get({ plain: true }) as SerialAttributes)
 }
 
-// 睡眠的 起始时间 在周期中的平均值
 async function GetSleepAvgTime(
 	startDate: string | Date,
-	endDate: string | Date
+	endDate: string | Date,
+	userId: number
 ) {
 	const timeRecords = (await TimeModal.findAll({
 		attributes: [
@@ -77,6 +73,7 @@ async function GetSleepAvgTime(
 		],
 		where: {
 			...transTwoDateToWhereOptions(startDate, endDate),
+			userId,
 			routine_type_id: 10,
 		},
 		raw: true,
@@ -116,61 +113,44 @@ async function GetSleepAvgTime(
 	return result
 }
 
-async function GetTimeTotalByRoutineType(serials: number[]) {
-	const { start, end } = await transSerialsToStartAndEnd(serials)
+async function GetTimeTotalByRoutineType(serials: number[], userId: number) {
+	const { start, end } = await transSerialsToStartAndEnd(serials, userId)
 	if (!start || !end) {
 		return { timeTotalByRoutineType: [], rawRecords: [] }
 	}
 
 	const startDate = start.get('startTime') as string | Date
 	const endDate = end.get('endTime') as string | Date
-	// 1. 获取分组聚合数据
+	const whereTime = { ...transTwoDateToWhereOptions(startDate, endDate), userId }
 	const timeTotalByRoutineType = (await TimeModal.findAll({
 		attributes: [
 			'routine_type_id',
-			[Sequelize.fn('SUM', Sequelize.col('duration')), 'totalDuration'], // 按照 routine_type_id 分组，计算 duration 总时长
+			[Sequelize.fn('SUM', Sequelize.col('duration')), 'totalDuration'],
 		],
-		where: transTwoDateToWhereOptions(startDate, endDate),
+		where: whereTime,
 		group: ['routine_type_id'],
-		include: {
-			model: RoutineTypeModal,
-			attributes: ['des', 'type'],
-		},
+		include: { model: RoutineTypeModal, attributes: ['des', 'type'], where: { userId } },
 		raw: true,
 	})) as unknown as TimeTotalByRoutineType[]
 
-	// 2. 获取原始记录数据（热力图专用）
 	const rawRecords = await TimeModal.findAll({
-		attributes: [
-			'date',
-			'startTime',
-			'duration',
-			'routineTypeId',
-			'endTime',
-		],
+		attributes: ['date', 'startTime', 'duration', 'routineTypeId', 'endTime'],
 		where: {
 			[Op.and]: [
 				transTwoDateToWhereOptions(startDate, endDate),
-				{ routineTypeId: { [Op.not]: [14, 10] } },
+				{ userId, routineTypeId: { [Op.not]: [14, 10] } },
 			],
 		},
 		raw: true,
-		include: {
-			model: RoutineTypeModal,
-			attributes: ['des', 'type'],
-		},
+		include: { model: RoutineTypeModal, attributes: ['des', 'type'], where: { userId } },
 	})
 
-	// 睡眠时间关注 入睡时间、起床时间
-	const sleepTimes = await GetSleepAvgTime(startDate, endDate)
+	const sleepTimes = await GetSleepAvgTime(startDate, endDate, userId)
 	return { timeTotalByRoutineType, rawRecords, sleepTimes }
 }
 
-// 每个周期的时长信息查询 - 查询起始时间
-async function transSerialsToStartAndEnd(serials: number[]) {
-	const serialData = await SerialModal.findAll()
-
-	// 当前月报周期的起始时间
+async function transSerialsToStartAndEnd(serials: number[], userId: number) {
+	const serialData = await SerialModal.findAll({ where: { userId } })
 	const start = serialData.find((it) => it.get('serialNumber') === serials[0])
 	const end = serialData.find(
 		(it) => it.get('serialNumber') === serials[serials.length - 1]
@@ -178,29 +158,30 @@ async function transSerialsToStartAndEnd(serials: number[]) {
 	return { start, end }
 }
 
-const getLastSerialId = async (currentSerials: number[]) => {
-	// 1、根据最小的周数，查询对应的月份
+const getLastSerialId = async (currentSerials: number[], userId: number) => {
+	const whereBase = { userId }
 	let currentMonth = await MonthModal.findOne({
 		where: {
-			periods: {
-				[Op.substring]: currentSerials[0] + '',
-			},
+			...whereBase,
+			periods: { [Op.substring]: currentSerials[0] + '' },
 		},
 		attributes: ['id', 'periods'],
 	})
-    
-	// 2. 获取全部月份 获取上一月id
-    const allMonths = await MonthModal.findAll({ attributes: ['id'], order: [['id', 'ASC']] });
-	const ids = allMonths.map(m => m.get('id'));
-    const currentIdx = ids.indexOf(currentMonth?.get('id'));
 
-    let lastMonthId = currentMonth?.get({ plain: true })?.id; // 默认当前月 id
-    if (currentIdx > 0) {
-        lastMonthId = ids[currentIdx - 1];
-    }
+	const allMonths = await MonthModal.findAll({
+		where: whereBase,
+		attributes: ['id'],
+		order: [['id', 'ASC']],
+	})
+	const ids = allMonths.map((m) => m.get('id'))
+	const currentIdx = ids.indexOf(currentMonth?.get('id'))
+	let lastMonthId = currentMonth?.get({ plain: true })?.id
+	if (currentIdx > 0) {
+		lastMonthId = ids[currentIdx - 1]
+	}
 
 	const monthData = await MonthModal.findOne({
-		where: { id: lastMonthId },
+		where: { ...whereBase, id: lastMonthId },
 	})
 	// 上个月的 周期
 	const lastSerials: number[] = monthData
@@ -346,26 +327,23 @@ async function CalcMetricFromTwoSerials({
 	return compareData
 }
 
-// 根据周期查询 - 每个周期环比数据
 async function GetMetricDataCompareLastMonth(
 	currentSerials: number[],
-	currentGapTime: number
+	currentGapTime: number,
+	userId: number
 ) {
-	// 1、上个月的周期 ids
-	const lastSerials = await getLastSerialId(currentSerials)
-	const { gapTime: lastGapTime } = await GetWeeListAndGapTime(lastSerials)
-
-	// 2、根据周期查询每周数据 - 每日时长总计【用于环比计算】
+	const lastSerials = await getLastSerialId(currentSerials, userId)
+	const { gapTime: lastGapTime } = await GetWeeListAndGapTime(lastSerials, userId)
 	const {
 		timeTotalByRoutineType: currentTimeTotalByRoutineType,
 		rawRecords: currentRawRecords,
 		sleepTimes: currentSleepTimes,
-	} = await GetTimeTotalByRoutineType(currentSerials)
+	} = await GetTimeTotalByRoutineType(currentSerials, userId)
 	const {
 		timeTotalByRoutineType: lastTimeTotalByRoutineType,
 		rawRecords: lastRawRecords,
 		sleepTimes: lastSleepTimes,
-	} = await GetTimeTotalByRoutineType(lastSerials)
+	} = await GetTimeTotalByRoutineType(lastSerials, userId)
 
 	// 3、组装核心数据需要的结构
 	const metricType = GetMetricStatic()
@@ -402,25 +380,20 @@ function getSortedSerials(serialNumber: string) {
 		.sort((a, b) => a - b)
 }
 
-async function GetWeeListAndGapTime(serials: number[]) {
-	// 每周周报信息查询 - 查询多个周期
-	const weekList = await GetWeekInfo(serials)
-
-	// 计算当前周期的时长
+async function GetWeeListAndGapTime(serials: number[], userId: number) {
+	const weekList = await GetWeekInfo(serials, userId)
 	const startTime = weekList?.[0]?.startTime
 	const endTime = weekList?.[weekList?.length - 1]?.endTime
-	const gapTime = dayjs(endTime).diff(dayjs(startTime), 'day')    
+	const gapTime = dayjs(endTime).diff(dayjs(startTime), 'day')
 	return { weekList, gapTime }
 }
 
-async function GetMonthWeekInfosAndTimeTotals(serialNumber: string) {
+async function GetMonthWeekInfosAndTimeTotals(serialNumber: string, userId: number) {
 	const serials = getSortedSerials(serialNumber)
-    if(!serials) return {}
+	if (!serials?.length) return {}
 
-	const { weekList, gapTime } = await GetWeeListAndGapTime(serials)
-
-	// 根据周期查询 - 每个周期环比数据
-	const result = await GetMetricDataCompareLastMonth(serials, gapTime)
+	const { weekList, gapTime } = await GetWeeListAndGapTime(serials, userId)
+	const result = await GetMetricDataCompareLastMonth(serials, gapTime, userId)
 	const {
 		currentTimeTotalByRoutineType,
 		currentRawRecords,
@@ -438,6 +411,7 @@ async function GetMonthWeekInfosAndTimeTotals(serialNumber: string) {
 
 async function GET(request: NextRequest) {
 	try {
+		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const { searchParams } = request.nextUrl
 		const serialNumber = searchParams.get('serialNumber')
 		if (!serialNumber)
@@ -445,7 +419,7 @@ async function GET(request: NextRequest) {
 				{ error: '缺少 serialNumber' },
 				{ status: 500 }
 			)
-		const result = await GetMonthWeekInfosAndTimeTotals(serialNumber)
+		const result = await GetMonthWeekInfosAndTimeTotals(serialNumber, userId)
 
 		return NextResponse.json(result)
 	} catch (error) {

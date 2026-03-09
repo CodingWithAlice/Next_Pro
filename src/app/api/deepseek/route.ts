@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-// import { AIPOST, MessageProp } from '../../../../lib/request'
-// import { GetMonthWeekInfosAndTimeTotals } from '../month/detail/route'
 import { IssueAttributes } from 'db'
 import { GetWeekData } from 'utils'
 import { DailyDataProps } from '@/daily/page'
 import { AIPOST, MessageProp } from '../../../../lib/request'
+import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 
 type Primitive = string | number | boolean | null | undefined
 type Flatten = Primitive | { [key: string]: Flatten } | Flatten[]
@@ -107,14 +106,12 @@ function transDaysData({
 	})
 }
 
-async function GetRawContentByType(serialNumber: string, type: string) {
+async function GetRawContentByType(serialNumber: string, type: string, userId: number) {
 	if (type === 'month') {
 		throw Error('暂时关闭月报 AI 查询通道，改版后重新开放')
-		// const { weekList } = await GetMonthWeekInfosAndTimeTotals(serialNumber)
-		// return GetAIMonthInputText(weekList)
 	}
 	if (type === 'week') {
-		const data: WeekInputProps = await GetWeekData(serialNumber)
+		const data: WeekInputProps = await GetWeekData(serialNumber, userId)
 		return transDaysData(data as WeekInputProps)
 	}
 }
@@ -302,15 +299,16 @@ const transToString = (aiData: { [key: string]: Flatten }) => {
 
 async function GET(request: NextRequest) {
 	try {
+		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const { searchParams } = request.nextUrl
 		const serialNumber = searchParams.get('serialNumber')
 		const type = searchParams.get('type')
 		if (!serialNumber) return
 
-		// 阶段1：预处理 - 获取两张表的数据每天数据
 		const daysData = await GetRawContentByType(
 			serialNumber,
-			type || 'month'
+			type || 'month',
+			userId
 		)
 
 		// 阶段2：将每日数据整合

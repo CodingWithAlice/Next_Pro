@@ -78,6 +78,12 @@
     overflow-x: auto;
 }
 
+/* 周期页面：一屏高度，超出内容在容器内滚动 */
+.period-page-container {
+    height: 100vh;
+    overflow: auto;
+}
+
 .week-period {
     text-align: center;
     margin-bottom: 2px;

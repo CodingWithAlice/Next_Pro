@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
-// import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "./responsive.css";
 import { Suspense } from "react";
+import HeaderAuth from "./components/header-auth";
 
 // const geistSans = Geist({
 //     variable: "--font-geist-sans",
@@ -33,10 +33,8 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body
-                // ${geistSans.variable} ${geistMono.variable}
-                className={`antialiased`}
-            >
+            <body className="antialiased">
+                <HeaderAuth />
                 <Suspense fallback={<div>Loading...</div>}>
                     {children}
                 </Suspense>

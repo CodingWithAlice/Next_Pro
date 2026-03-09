@@ -1,10 +1,12 @@
-import {  NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { SerialModal } from 'db'
+import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 
-async function GET() {
-    try {
-        const serialData = await SerialModal.findAll()
-        return NextResponse.json({ serialData })
+async function GET(request: NextRequest) {
+	try {
+		const userId = Number(getEffectiveUserIdFromRequest(request))
+		const serialData = await SerialModal.findAll({ where: { userId } })
+		return NextResponse.json({ serialData })
     } catch (error) {
         console.error(error)
         return NextResponse.json(
@@ -15,10 +17,11 @@ async function GET() {
 }
 
 async function POST(request: NextRequest) {
-    try {
-        const body = await request.json()
-        const data = body.data
-        await SerialModal.bulkCreate([data], {updateOnDuplicate: ['serialNumber']})
+	try {
+		const userId = Number(getEffectiveUserIdFromRequest(request))
+		const body = await request.json()
+		const data = body.data
+		await SerialModal.bulkCreate([{ ...data, userId }], { updateOnDuplicate: ['userId', 'serialNumber'] })
         
         return NextResponse.json({
             success: true,

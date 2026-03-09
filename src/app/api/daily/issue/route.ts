@@ -1,20 +1,20 @@
 import { IssueModal, TimeModal, SportRecordModal } from 'db'
 import { NextRequest, NextResponse } from 'next/server'
-import { transOneDateToWhereOptions } from 'utils'
+import { transOneDateToWhereOptions, incrementRunningPlanProgress } from 'utils'
 import { Op } from 'sequelize'
 import { parseSportText } from './parseSportText'
+import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 
 /**
- * 查询指定日期的运动时长
- * @param date 日期字符串 (YYYY-MM-DD)
- * @returns 运动时长（分钟），如果没有找到返回 null
+ * 查询指定日期的运动时长（按 user_id 隔离）
  */
-async function getSportDuration(date: string): Promise<number | null> {
+async function getSportDuration(date: string, userId: number): Promise<number | null> {
 	try {
 		const dateOption = transOneDateToWhereOptions(date)
 		const timeRecords = await TimeModal.findAll({
 			where: {
 				...dateOption,
+				userId,
 				routineTypeId: {
 					[Op.in]: [2, 3, 17],
 				},
@@ -40,13 +40,13 @@ async function getSportDuration(date: string): Promise<number | null> {
 
 async function POST(request: NextRequest) {
 	try {
+		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const body = await request.json()
 		const data = body.data
-		// 日期转换
 		const option = transOneDateToWhereOptions(data.date)
 		const [issue, created] = await IssueModal.findOrCreate({
-			where: option,
-			defaults: data,
+			where: { ...option, userId },
+			defaults: { ...data, userId },
 		})
 		if (!created) {
 			issue.set(data)
@@ -58,37 +58,34 @@ async function POST(request: NextRequest) {
 		let msg: string | undefined;
 		if (data.sport && typeof data.sport === 'string' && data.sport.trim()) {
 			try {
-				const { records: parsedRecords, unrecognizedClasses } = await parseSportText(data.sport);
+				const { records: parsedRecords, unrecognizedClasses } = await parseSportText(data.sport, { userId });
 				if (unrecognizedClasses.length > 0) {
 					msg = `以下课程类型未识别，请先在运动类型中添加：${unrecognizedClasses.join('、')}`;
 				}
 
 				if (parsedRecords.length > 0) {
-					// 对于 running 和 resistance 类型，如果没有 duration，查询运动时长
-					const sportDuration = await getSportDuration(data.date);
+					const sportDuration = await getSportDuration(data.date, userId)
 
-					// 创建或更新运动记录
 					for (const record of parsedRecords) {
 						try {
-							// 如果是 running 或 resistance 类型且没有 duration，使用查询到的时长
 							if (
 								(record.type === 'running' || record.type === 'resistance') &&
 								!record.duration &&
 								sportDuration !== null
 							) {
-								record.duration = sportDuration;
+								record.duration = sportDuration
 							}
 
-							// 使用 findOrCreate 避免重复创建
-							// 判断条件：date、type、category、value 都相同
 							const [sportRecord, created] = await SportRecordModal.findOrCreate({
 								where: {
+									userId,
 									date: data.date,
 									type: record.type,
 									category: record.category,
 									value: record.value,
 								},
 								defaults: {
+									userId,
 									type: record.type,
 									date: data.date,
 									value: record.value,
@@ -97,7 +94,7 @@ async function POST(request: NextRequest) {
 									duration: record.duration || null,
 									notes: record.notes || null,
 								},
-							});
+							})
 
 							// 如果记录已存在，更新相关信息
 							if (!created) {
@@ -107,6 +104,10 @@ async function POST(request: NextRequest) {
 									notes: record.notes || null,
 								});
 								await sportRecord.save();
+							} else if (record.type === 'running' && record.value > 0 && record.category) {
+								incrementRunningPlanProgress(data.date, record.category, record.value, userId).catch((e) =>
+									console.error('更新跑步计划进度失败:', e)
+								)
 							}
 						} catch (recordError) {
 							console.error('处理运动记录失败:', recordError, '记录:', record);
@@ -140,11 +141,10 @@ async function POST(request: NextRequest) {
 
 async function GET(request: NextRequest) {
 	try {
-		const { searchParams } = request.nextUrl
-		
-		// 查询所有 IssueModal 数据
+		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const issueList = await IssueModal.findAll({
-			order: [['date', 'DESC']], // 按日期倒序排列
+			where: { userId },
+			order: [['date', 'DESC']],
 		})
 
 		// 统计有记录的天数（列表长度）
