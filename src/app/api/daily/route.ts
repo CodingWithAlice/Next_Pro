@@ -12,7 +12,7 @@ async function POST(request: NextRequest) {
 			await TimeModal.bulkCreate(rows, {
 				validate: true,
 				updateOnDuplicate: [
-					'user_id',
+					'userId',
 					'routineTypeId',
 					'startTime',
 					'endTime',
