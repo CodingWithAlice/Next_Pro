@@ -64,6 +64,7 @@ async function POST(request: NextRequest) {
 			}
 		}
 		for (const { jar, toAdd } of cappedAllocations) {
+			if (!jar) continue
 			const currentBalance = parseFloat(String(jar.get('balance')))
 			const newBalance = currentBalance + toAdd
 			const targetRaw = jar.get('targetAmount') != null ? parseFloat(String(jar.get('targetAmount'))) : 0
