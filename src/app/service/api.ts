@@ -130,7 +130,7 @@ const Api = {
 	}) {
 		return request.post('piggy-bank/jar', data)
 	},
-	putPiggyBankJarApi(id: number, data: { name?: string; monthlyRepayment?: number | null; targetAmount?: number | null }) {
+	putPiggyBankJarApi(id: number, data: { name?: string; monthlyRepayment?: number | null; targetAmount?: number | null; actualConsumption?: number }) {
 		return request.put(`piggy-bank/jar/${id}`, data)
 	},
 	abandonPiggyBankJarApi(id: number) {

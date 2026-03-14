@@ -49,6 +49,9 @@ export default function PiggyBankPage() {
   >([]);
   const [abandonModalOpen, setAbandonModalOpen] = useState(false);
   const [abandonJarId, setAbandonJarId] = useState<number | null>(null);
+  const [actualConsumptionModalOpen, setActualConsumptionModalOpen] = useState(false);
+  const [actualConsumptionJar, setActualConsumptionJar] = useState<Jar | null>(null);
+  const [actualConsumptionForm] = Form.useForm();
 
   const loadData = () => {
     setLoading(true);
@@ -68,6 +71,7 @@ export default function PiggyBankPage() {
   }, []);
 
   const activeJars = jars.filter((j) => j.status === 'active');
+  const displayJars = jars.filter((j) => j.status !== 'abandoned'); // 展示中 + 已满额关闭的罐子
 
   const onAddJar = (values: {
     name: string;
@@ -115,6 +119,30 @@ export default function PiggyBankPage() {
         loadData();
       })
       .catch((e: { message?: string }) => messageApi.error(e.message || '操作失败'));
+  };
+
+  const onOpenActualConsumption = (jar: Jar) => {
+    setActualConsumptionJar(jar);
+    const targetRaw = jar.targetAmount != null ? parseFloat(String(jar.targetAmount)) : 0;
+    const monthly = jar.monthlyRepayment != null ? parseFloat(String(jar.monthlyRepayment)) : 0;
+    const target = targetRaw > 0 ? targetRaw : monthly > 0 ? monthly * 12 : 0;
+    actualConsumptionForm.setFieldsValue({ actualConsumption: target > 0 ? target : undefined });
+    setActualConsumptionModalOpen(true);
+  };
+
+  const onConfirmActualConsumption = () => {
+    if (!actualConsumptionJar) return;
+    actualConsumptionForm.validateFields().then((values: { actualConsumption: number }) => {
+      Api.putPiggyBankJarApi(actualConsumptionJar.id, { actualConsumption: values.actualConsumption })
+        .then(() => {
+          messageApi.success('已按真实消费调整');
+          setActualConsumptionModalOpen(false);
+          setActualConsumptionJar(null);
+          actualConsumptionForm.resetFields();
+          loadData();
+        })
+        .catch((e: { message?: string }) => messageApi.error(e.message || '调整失败'));
+    });
   };
 
   const onGetSuggestion = () => {
@@ -279,33 +307,39 @@ export default function PiggyBankPage() {
             {loading ? (
               <div className="loading-tip">加载中...</div>
             ) : (
-              activeJars.map((j) => {
+              displayJars.map((j) => {
                 const balance = parseFloat(String(j.balance)) || 0
                 const targetRaw = j.targetAmount != null ? parseFloat(String(j.targetAmount)) : 0
                 const monthly = j.monthlyRepayment != null ? parseFloat(String(j.monthlyRepayment)) : 0
                 const target = targetRaw > 0 ? targetRaw : monthly > 0 ? monthly * 12 : 0
                 const fillPercent = target > 0 ? Math.min(100, (balance / target) * 100) : 0
                 return (
-                  <div key={j.id} className="jar-vessel">
+                  <div key={j.id} className={`jar-vessel ${j.status === 'completed' ? 'jar-completed' : ''}`}>
                     <div className="jar-header">
                       <span className="jar-name">{j.name}</span>
+                      {j.status === 'completed' && <span className="jar-status-badge">已完成</span>}
                     </div>
-                    <div className="jar-body">
+                    <div
+                      className="jar-body jar-body-clickable"
+                      onClick={() => onOpenActualConsumption(j)}
+                      title={`${balance.toFixed(0)} / ${target > 0 ? target.toFixed(0) : '-'}，点击按真实消费调整`}
+                    >
                       <div
                         className="jar-fill"
                         style={{ height: `${fillPercent}%` }}
-                        title={`${balance.toFixed(0)} / ${target > 0 ? target.toFixed(0) : '-'}`}
                       />
                     </div>
                     <div className="jar-footer">
                       <div className="jar-amount-row">
                         <span className="jar-balance">¥{balance.toFixed(2)}</span>
                         {target > 0 && <span className="jar-target">/ ¥{target.toFixed(0)}</span>}
-                        {j.monthlyRepayment != null && parseFloat(String(j.monthlyRepayment)) > 0 && (
-                          <div className="jar-monthly">月还 ¥{parseFloat(String(j.monthlyRepayment)).toFixed(0)}</div>
-                        )}
                       </div>
-                      <Button type="text" size="small" onClick={() => onAbandon(j.id)} className="jar-abandon-btn" icon={<CloseCircleOutlined />} title="放弃罐子" />
+                      <div className="jar-footer-bottom">
+                        {j.monthlyRepayment != null && parseFloat(String(j.monthlyRepayment)) > 0 && (
+                          <span className="jar-monthly">月还 ¥{parseFloat(String(j.monthlyRepayment)).toFixed(0)}</span>
+                        )}
+                        <Button type="text" size="small" onClick={() => onAbandon(j.id)} className="jar-abandon-btn" icon={<CloseCircleOutlined />} title="放弃罐子" />
+                      </div>
                     </div>
                   </div>
                 )
@@ -480,6 +514,26 @@ export default function PiggyBankPage() {
         cancelText="取消"
       >
         <p>放弃后该罐子内的资金将进入待分配池，确定吗？</p>
+      </Modal>
+
+      <Modal
+        title={actualConsumptionJar ? `按真实消费调整：${actualConsumptionJar.name}` : '按真实消费调整'}
+        open={actualConsumptionModalOpen}
+        onOk={onConfirmActualConsumption}
+        onCancel={() => {
+          setActualConsumptionModalOpen(false);
+          setActualConsumptionJar(null);
+          actualConsumptionForm.resetFields();
+        }}
+        okText="确定"
+        cancelText="取消"
+      >
+        <p style={{ marginBottom: 8 }}>罐子创建早于消费时，还款结束前可在此填入真实消费金额以调整罐子目标。多出的已分配金额将退回待分配池；若真实消费大于原目标，罐子将保持/重新开启以继续还款。</p>
+        <Form form={actualConsumptionForm} layout="vertical">
+          <Form.Item name="actualConsumption" label="真实消费金额（元）" rules={[{ required: true, message: '请输入金额' }, { type: 'number', min: 0, message: '须为非负数' }]}>
+            <InputNumber min={0} step={0.01} precision={2} style={{ width: '100%' }} placeholder="与真实消费一致" />
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   );

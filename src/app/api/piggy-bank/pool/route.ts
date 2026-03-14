@@ -44,16 +44,37 @@ async function POST(request: NextRequest) {
 			)
 		}
 
+		// 先计算每个罐子的实际上限，得到实际可分配总额，避免分配超过罐子所需
+		const cappedAllocations: { jarId: number; toAdd: number; jar: Awaited<ReturnType<typeof PiggyBankJarModal.findOne>> }[] = []
+		let actualTotalAllocate = 0
 		for (const a of allocations) {
 			const jar = await PiggyBankJarModal.findOne({ where: { id: a.jarId, userId } })
 			if (jar && a.amount > 0 && jar.get('status') === 'active') {
 				const amt = parseFloat(String(a.amount))
 				const currentBalance = parseFloat(String(jar.get('balance')))
-				await jar.update({ balance: currentBalance + amt })
+				const targetRaw = jar.get('targetAmount') != null ? parseFloat(String(jar.get('targetAmount'))) : 0
+				const monthly = jar.get('monthlyRepayment') != null ? parseFloat(String(jar.get('monthlyRepayment'))) : 0
+				const target = targetRaw > 0 ? targetRaw : monthly > 0 ? monthly * 12 : 0
+				const cap = target > 0 ? Math.max(0, target - currentBalance) : Infinity
+				const toAdd = Math.min(amt, cap)
+				if (toAdd > 0) {
+					cappedAllocations.push({ jarId: a.jarId, toAdd, jar })
+					actualTotalAllocate += toAdd
+				}
 			}
 		}
+		for (const { jar, toAdd } of cappedAllocations) {
+			const currentBalance = parseFloat(String(jar.get('balance')))
+			const newBalance = currentBalance + toAdd
+			const targetRaw = jar.get('targetAmount') != null ? parseFloat(String(jar.get('targetAmount'))) : 0
+			const monthly = jar.get('monthlyRepayment') != null ? parseFloat(String(jar.get('monthlyRepayment'))) : 0
+			const target = targetRaw > 0 ? targetRaw : monthly > 0 ? monthly * 12 : 0
+			const shouldClose = target > 0 && newBalance >= target
+			await jar.update({ balance: newBalance, ...(shouldClose ? { status: 'completed' as const } : {}) })
+		}
 
-		let remain = totalAllocate
+		// 只从池中扣除实际分配到罐子的金额
+		let remain = actualTotalAllocate
 		for (const row of pendingRows) {
 			if (remain <= 0) break
 			const rowAmt = parseFloat(String(row.amount))

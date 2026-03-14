@@ -434,9 +434,10 @@ export const PiggyBankJarModal = sequelize.define(
 			comment: '目标金额',
 		},
 		status: {
-			type: DataTypes.ENUM('active', 'abandoned'),
+			type: DataTypes.ENUM('active', 'abandoned', 'completed'),
 			allowNull: false,
 			defaultValue: 'active',
+			comment: 'active=进行中 abandoned=已放弃 completed=已满额关闭',
 		},
 		sortOrder: {
 			type: DataTypes.INTEGER,

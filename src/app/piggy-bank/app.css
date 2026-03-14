@@ -118,6 +118,10 @@
   max-width: 70px;
 }
 
+.jar-vessel .jar-body.jar-body-clickable {
+  cursor: pointer;
+}
+
 .jar-vessel .jar-body {
   width: 72px;
   height: 100px;
@@ -150,6 +154,36 @@
 
 .jar-vessel .jar-amount-row {
   text-align: center;
+}
+
+.jar-vessel .jar-footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.jar-vessel.jar-completed {
+  opacity: 0.85;
+}
+
+.jar-vessel .jar-status-badge {
+  font-size: 11px;
+  color: #52c41a;
+  margin-left: 4px;
+}
+
+.jar-vessel .jar-footer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.jar-vessel .jar-actual-consumption-btn {
+  padding: 0;
+  font-size: 12px;
 }
 
 .jar-vessel .jar-abandon-btn {
