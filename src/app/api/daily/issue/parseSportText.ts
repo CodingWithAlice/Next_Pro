@@ -106,6 +106,11 @@ export async function parseSportText(
 /**
  * 解析单条运动记录，仅使用已声明的类型；未识别的课程名写入 unrecognizedCollector
  */
+/** 口语/别名统一到 routine_type 中的 type，便于匹配课程类正则 */
+function normalizeSportAliases(input: string): string {
+	return input.replace(/爬楼梯/g, '爬楼').trim();
+}
+
 function parseSingleRecord(
 	text: string,
 	sportCategories: string[],
@@ -114,7 +119,7 @@ function parseSingleRecord(
 	// 提取备注（括号内容）
 	const notesMatch = text.match(/[（(]([^）)]+)[）)]/);
 	const notes = notesMatch ? notesMatch[1] : null;
-	const cleanText = text.replace(/[（(][^）)]+[）)]/g, '').trim();
+	const cleanText = normalizeSportAliases(text.replace(/[（(][^）)]+[）)]/g, '').trim());
 
 	// 尝试匹配跑步（含长跑）
 	const runningMatch = cleanText.match(/(匀速跑|变速跑|长跑|跑步|户外匀速跑|热身)\s*(\d+\.?\d*)\s*(km|公里)?/i);
@@ -189,6 +194,31 @@ function parseSingleRecord(
 			subInfo,
 			notes: notes || null,
 		};
+	}
+
+	// 爬楼（含「爬楼梯」别名）：库中类型为「爬楼」；裸数字时大数按台阶、≤180 按分钟，避免「爬楼 1030」被整条丢弃
+	const stairCategory = '爬楼';
+	if (sportCategories.includes(stairCategory)) {
+		const stairMatch = cleanText.match(
+			new RegExp(`^${stairCategory.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+(\\d+)(?:\\s*(阶|层|级|台阶))?\\s*$`, 'i')
+		);
+		if (stairMatch) {
+			const n = parseInt(stairMatch[1], 10);
+			if (!isNaN(n) && n > 0) {
+				const hasStepSuffix = Boolean(stairMatch[2]);
+				const asSteps = hasStepSuffix || n > 180;
+				const stepNotes = asSteps ? `爬${n}阶` : null;
+				const durationMin = asSteps ? Math.max(1, Math.round(n / 20)) : n;
+				const combinedNotes = [notes, stepNotes].filter(Boolean).join('、') || null;
+				return {
+					type: 'class',
+					value: durationMin,
+					category: stairCategory,
+					duration: durationMin,
+					notes: combinedNotes || null,
+				};
+			}
+		}
 	}
 
 	// 动态匹配课程 - 使用从数据库获取的类型列表
