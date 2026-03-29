@@ -195,7 +195,7 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
             ].map(it => handleTrans(it, monthData))}
         </section>
         <section className='section'>
-            {transTitle('【核心指标】')}
+            {transTitle('【核心年度指标】')}
             <CoreMetricsTable source={metricData || {}} />
             {/* {handleTrans({ key: 'timeDiffDesc', desc: '非短期决策' }, monthData)} */}
         </section>
@@ -219,7 +219,7 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
             {!!weeksData.length && (
                 <Spin
                     spinning={aiMergeLoading}
-                    tip="正在汇聚集合睡眠与复盘（学习任务由系统按各周期板块汇总；运动/影视/TED 为规则合并）"
+                    tip="聚合中…"
                     size="large"
                 >
                     <div

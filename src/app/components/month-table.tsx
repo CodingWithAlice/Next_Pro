@@ -53,25 +53,20 @@ export default function MonthTable({
 			}
 		: { ...ruleRow, TEDRead: tedRead };
 
+	const hm = formatMinToHM(row.studyTotalMinutes)
 	const taskSub = aiActive
-		? `（学习任务：系统按各周期内「学习体验/工作·技术向/工作·非技术向」板块汇总；睡眠与复盘为 AI 聚合 · 「前端总计」合计 ${formatMinToHM(
-				row.studyTotalMinutes
-			)}）`
+		? `（已聚合 · 前端 ${hm}）`
 		: aiMergeLoading
-			? `（聚合请求中，暂显示规则合并 · 「前端总计」合计 ${formatMinToHM(
-					row.studyTotalMinutes
-				)}）`
-			: `（规则合并 · 「前端总计」合计 ${formatMinToHM(
-					row.studyTotalMinutes
-				)}）`;
+			? `（聚合中 · 前端 ${hm}）`
+			: `（规则 · 前端 ${hm}）`;
 
 	const colSleepTitle = aiActive
-		? '运动+睡眠+电影（睡眠客观/主观为聚合 · 运动/影视规则合并）'
-		: '运动+睡眠+电影（已合并）';
+		? '运动+睡眠+电影（聚合）'
+		: '运动+睡眠+电影（规则）';
 
 	const colIdeaTitle = aiActive
-		? '学习/工作方法复盘和改进（聚合罗列，非总结）'
-		: '学习/工作方法复盘和改进（已合并）';
+		? '复盘与改进（聚合）'
+		: '复盘与改进（规则）';
 
 	const columns: TableProps<DataType>['columns'] = [
 		{
@@ -103,7 +98,7 @@ export default function MonthTable({
 			render,
 		},
 		{
-			title: 'TED+阅读+播客（规则合并）',
+			title: 'TED+阅读+播客',
 			dataIndex: 'TEDRead',
 			key: 'TEDRead',
 			width: 360,

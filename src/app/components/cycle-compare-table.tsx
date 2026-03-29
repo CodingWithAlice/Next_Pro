@@ -1,18 +1,12 @@
 import type { ReactNode } from 'react'
 import { Table } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
+import type { PerSerialMetricRow } from '@lib/month-per-serial-metrics'
 import { formatMinToHM, formatSerialNumber } from './tool'
 
-export type PerSerialMetricRow = {
-	serialNumber: number
-	startTime: string
-	endTime: string
-	gapDays: number
-	routineTotals: { typeId: number; des: string; totalMinutes: number }[]
-	sleepAvg: { startTime: string; endTime: string }
-}
+export type { PerSerialMetricRow }
 
-type RowKind = 'min' | 'sleepStart' | 'sleepEnd'
+type RowKind = 'min' | 'sleepStart' | 'sleepEnd' | 'sleepDuration'
 
 type MetricDef = {
 	key: string
@@ -30,6 +24,7 @@ const METRICS: MetricDef[] = [
 	{ key: 'm17', label: '运动', kind: 'min', typeId: 17 },
 	{ key: 'sleepIn', label: '平均入睡（圆均）', kind: 'sleepStart' },
 	{ key: 'sleepOut', label: '平均起床（圆均）', kind: 'sleepEnd' },
+	{ key: 'sleepDur', label: '睡眠时长', kind: 'sleepDuration' },
 ]
 
 function minutesFor(row: PerSerialMetricRow, typeId: number) {
@@ -126,6 +121,12 @@ export default function CycleCompareTable({
 				const pv = prev?.sleepAvg?.endTime ?? null
 				record[`s${m.serialNumber}`] = (
 					<CellTime value={v} prev={pv} />
+				)
+			} else if (def.kind === 'sleepDuration') {
+				const v = m.sleepAvg?.durationMinutesAvg ?? 0
+				const pv = prev ? prev.sleepAvg?.durationMinutesAvg ?? 0 : null
+				record[`s${m.serialNumber}`] = (
+					<CellMin value={v} prevValue={pv} />
 				)
 			}
 		})

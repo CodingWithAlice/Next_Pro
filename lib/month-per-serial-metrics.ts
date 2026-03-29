@@ -32,7 +32,8 @@ export type PerSerialMetricRow = {
 	endTime: string
 	gapDays: number
 	routineTotals: { typeId: number; des: string; totalMinutes: number }[]
-	sleepAvg: { startTime: string; endTime: string }
+	/** 睡眠：平均入睡/起床为圆均时刻；睡眠时长为各条睡眠记录 duration（分钟）的算术平均 */
+	sleepAvg: { startTime: string; endTime: string; durationMinutesAvg: number }
 }
 
 export async function GetWeekInfo(
@@ -62,6 +63,7 @@ async function GetSleepAvgTime(
 	const timeRecords = (await TimeModal.findAll({
 		attributes: [
 			'routine_type_id',
+			'duration',
 			[
 				Sequelize.fn(
 					'TIME_FORMAT',
@@ -107,11 +109,22 @@ async function GetSleepAvgTime(
 		)}:${String(avgMinutes % 60).padStart(2, '0')}`
 	}
 
+	const durations = timeRecords
+		.map((r) => Number(r.duration))
+		.filter((n) => Number.isFinite(n) && n > 0)
+	const durationMinutesAvg =
+		durations.length > 0
+			? Math.round(
+					durations.reduce((a, b) => a + b, 0) / durations.length
+				)
+			: 0
+
 	return {
 		startTime: calculateCircularAverage(
 			timeRecords.map((r) => r.startTime)
 		),
 		endTime: calculateCircularAverage(timeRecords.map((r) => r.endTime)),
+		durationMinutesAvg,
 	}
 }
 
@@ -124,7 +137,11 @@ export async function GetTimeTotalByRoutineType(
 		return {
 			timeTotalByRoutineType: [] as TimeTotalByRoutineTypeRow[],
 			rawRecords: [],
-			sleepTimes: { startTime: '--:--', endTime: '--:--' },
+			sleepTimes: {
+				startTime: '--:--',
+				endTime: '--:--',
+				durationMinutesAvg: 0,
+			},
 		}
 	}
 
@@ -192,10 +209,12 @@ export async function GetWeeListAndGapTime(serials: number[], userId: number) {
 }
 
 function rowDes(row: TimeTotalByRoutineTypeRow): string {
-	const r = row as Record<string, unknown>
+	const plain = row as unknown as Record<string, unknown>
 	return (
 		row.RoutineType?.des ??
-		(r['RoutineType.des'] as string) ??
+		(typeof plain['RoutineType.des'] === 'string'
+			? plain['RoutineType.des']
+			: '') ??
 		''
 	)
 }
