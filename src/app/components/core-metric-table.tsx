@@ -27,6 +27,13 @@ const CoreMetricsTable = ({source}: {source: Record<string, Metric[]>}) => {
     };
 
     const getMonthOverMonth = (current: number, last: number) => {
+        if (last === 0 || !Number.isFinite(last)) {
+            return {
+                value: '—',
+                isUp: true,
+                color: '#999'
+            };
+        }
         const change = ((current - last) / last) * 100;
         return {
             value: Math.abs(change).toFixed(1) + '%',
@@ -54,11 +61,16 @@ const CoreMetricsTable = ({source}: {source: Record<string, Metric[]>}) => {
             title: '本月值',
             dataIndex: 'current',
             key: 'current',
-            render: (value: number | string, record: Metric) => (
-                record.isDimension ? null : (
-                    typeof value === 'string' ? value : `${value.toFixed(2)}${record.unit || ''}`
-                )
-            )
+            render: (value: number | string | null | undefined, record: Metric) => {
+                if (record.isDimension) return null;
+                if (value === null || value === undefined) return '-';
+                if (typeof value === 'string') return value;
+                if (typeof value === 'number') {
+                    if (Number.isNaN(value)) return '-';
+                    return `${value.toFixed(2)}${record.unit || ''}`;
+                }
+                return String(value);
+            }
         },
         {
             title: '环比',

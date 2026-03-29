@@ -58,6 +58,12 @@ const Api = {
 	postMonthApi(data: { [key: string]: string | number }) {
 		return request.post('month', data)
 	},
+	postMonthSynthesizeApi(serialNumber: string) {
+		return request.post('month/synthesize', { serialNumber }) as Promise<{
+			studyConclude: string
+			others: string
+		}>
+	},
 
 	getWeekApi(serialNumber: number) {
 		return request.get('week', { serialNumber })

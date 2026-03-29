@@ -4,7 +4,8 @@ import Api from "@/service/api";
 import { timeTotalByRoutineTypeProps } from "./month-total-time";
 import MonthTable from "./month-table";
 import { transTextArea, transTitle } from "./tool";
-import DeepSeek from "./deep-seek";
+import MonthAiSynthesize from "./month-ai-synthesize";
+import CycleCompareTable, { type PerSerialMetricRow } from "./cycle-compare-table";
 import FocusHeatmap from "./focus-heatmap";
 import CoreMetricsTable from "./core-metric-table";
 // import MonthTotalTime from "./month-total-time";
@@ -54,8 +55,9 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
     const [weeksData, setWeeksData] = useState<dataProps[]>([]); // 每周数据
     const [rawRecords, setRawRecords] = useState<rawRecord[]>([]); // 每周数据
     const [metricData, setMetricData] = useState<Record<string, Metric[]>>(); // 每周数据
-    const [studyTotal, setStudyTotal] = useState(0); // 学习总时长
+    const [studyTotal, setStudyTotal] = useState(0); // 所选跨度内「前端总计」合计（分钟）
     const [duration, setDuration] = useState(0); // 学习总时长
+    const [perSerialMetrics, setPerSerialMetrics] = useState<PerSerialMetricRow[]>([]);
     const [serials, setSerials] = useState<{ serialNumber: number, startTime: string, endTime: string }[]>([]);
  
 
@@ -97,14 +99,15 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
     useEffect(() => {
         // 更新选择的 LTN 周期后，刷新当前页面数据
         if (periods.length >= 1 && +periods[0] !== 0) {
-            Api.getMonthDetailApi(periods.join(',')).then(({ weekList, currentRawRecords, currentTimeTotalByRoutineType, metricData, gapTime }) => {
+            Api.getMonthDetailApi(periods.join(',')).then(({ weekList, currentRawRecords, currentTimeTotalByRoutineType, metricData, gapTime, perSerialMetrics: serialMetrics }) => {
                 setRawRecords(currentRawRecords)
                 setTimeTotalByRoutineType(currentTimeTotalByRoutineType);
                 setWeeksData(weekList);
                 setMetricData(metricData);
                 setDuration(gapTime)
+                setPerSerialMetrics(Array.isArray(serialMetrics) ? serialMetrics : [])
                 let study = 0
-                timeTotalByRoutineType?.forEach((it: timeTotalByRoutineTypeProps) => {
+                currentTimeTotalByRoutineType?.forEach((it: timeTotalByRoutineTypeProps) => {
                     if (it.routine_type?.des === '前端总计') {
                         study += +it.totalDuration
                     }
@@ -149,7 +152,9 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
         <section className='section'>
             <div className="month-review">
                 {!!weeksData.length && transTitle('【决策】')}
-                {/* <DeepSeek periods={periods} handleChange={handleDeepSeek} type='month' /> */}
+                {!!weeksData.length && (
+                    <MonthAiSynthesize periods={periods} handleChange={handleDeepSeek} />
+                )}
             </div>
             {[
                 { key: 'frontMonthDesc', desc: '非短期决策 - 前端' },
@@ -158,6 +163,9 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
         </section>
         <section className='section'>
             {!!weeksData.length && transTitle('【月度详情：不同LTN周期任务对比】')}
+            {!!perSerialMetrics.length && (
+                    <CycleCompareTable data={perSerialMetrics} />
+            )}
             {!!weeksData.length && <MonthTable key={weeksData.length} data={weeksData} study={studyTotal} />}
         </section>
     </section>

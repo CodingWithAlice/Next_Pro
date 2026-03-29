@@ -24,7 +24,14 @@ export default function MonthTable({ data, study }: { data: dataProps[], study: 
             render
         },
         {
-            title: `学习任务: ${formatMinToHM(study)}`,
+            title: (
+                <span>
+                    学习任务
+                    <span style={{ fontWeight: 400, fontSize: 12, marginLeft: 8, color: '#666' }}>
+                        （所选周期「前端总计」合计 {formatMinToHM(study)}，各周期以行内正文为准）
+                    </span>
+                </span>
+            ),
             dataIndex: 'frontOverview',
             key: 'frontOverview',
             width: 600,
