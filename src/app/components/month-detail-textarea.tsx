@@ -7,6 +7,7 @@ import MonthTable from "./month-table";
 import { transTextArea, transTitle } from "./tool";
 import MonthAiSynthesize from "./month-ai-synthesize";
 import type { MonthStructuredMerge } from "./month-structured-merge";
+import { isNonShortDecisionFieldFilled } from "@lib/month-non-short-decision";
 import CycleCompareTable, { type PerSerialMetricRow } from "./cycle-compare-table";
 import FocusHeatmap from "./focus-heatmap";
 import CoreMetricsTable from "./core-metric-table";
@@ -108,6 +109,11 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
             return;
         }
 
+        /** 两项均已真实填写时仅展示规则合并，不请求汇聚集合（AI） */
+        const skipStructuredMerge =
+            isNonShortDecisionFieldFilled(monthData.frontMonthDesc) &&
+            isNonShortDecisionFieldFilled(monthData.otherMonthDesc);
+
         let cancelled = false;
 
         Api.getMonthDetailApi(periods.join(','))
@@ -129,6 +135,10 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
                 setStudyTotal(study);
 
                 if (!weekList?.length) {
+                    return Promise.resolve(null);
+                }
+
+                if (skipStructuredMerge) {
                     return Promise.resolve(null);
                 }
 
@@ -155,7 +165,7 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
         return () => {
             cancelled = true;
         };
-    }, [periods])
+    }, [periods, monthData.frontMonthDesc, monthData.otherMonthDesc])
     
     // 初始化周期数据
     useEffect(() => {
