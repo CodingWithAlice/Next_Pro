@@ -1,6 +1,7 @@
 import { Dayjs } from 'dayjs'
 import request from '../../../lib/request'
 import { SearchType } from '@/components/tool'
+import type { MonthStructuredMerge } from '@/components/month-structured-merge'
 
 export interface TedRecordDTO {
 	date: Date | string
@@ -63,6 +64,14 @@ const Api = {
 			studyConclude: string
 			others: string
 		}>
+	},
+	/** AI 将多周期周报合并为固定 JSON 结构（耗时较长，5 分钟超时） */
+	postMonthMergeStructuredApi(serialNumber: string) {
+		return request.post(
+			'month/merge-structured',
+			{ serialNumber },
+			300000
+		) as Promise<MonthStructuredMerge>
 	},
 
 	getWeekApi(serialNumber: number) {

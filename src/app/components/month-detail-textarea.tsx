@@ -5,6 +5,7 @@ import { timeTotalByRoutineTypeProps } from "./month-total-time";
 import MonthTable from "./month-table";
 import { transTextArea, transTitle } from "./tool";
 import MonthAiSynthesize from "./month-ai-synthesize";
+import type { MonthStructuredMerge } from "./month-structured-merge";
 import CycleCompareTable, { type PerSerialMetricRow } from "./cycle-compare-table";
 import FocusHeatmap from "./focus-heatmap";
 import CoreMetricsTable from "./core-metric-table";
@@ -58,6 +59,8 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
     const [studyTotal, setStudyTotal] = useState(0); // 所选跨度内「前端总计」合计（分钟）
     const [duration, setDuration] = useState(0); // 学习总时长
     const [perSerialMetrics, setPerSerialMetrics] = useState<PerSerialMetricRow[]>([]);
+    const [structuredMerge, setStructuredMerge] = useState<MonthStructuredMerge | null>(null);
+    const [aiMergeLoading, setAiMergeLoading] = useState(false);
     const [serials, setSerials] = useState<{ serialNumber: number, startTime: string, endTime: string }[]>([]);
  
 
@@ -97,9 +100,19 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
     }
 
     useEffect(() => {
-        // 更新选择的 LTN 周期后，刷新当前页面数据
-        if (periods.length >= 1 && +periods[0] !== 0) {
-            Api.getMonthDetailApi(periods.join(',')).then(({ weekList, currentRawRecords, currentTimeTotalByRoutineType, metricData, gapTime, perSerialMetrics: serialMetrics }) => {
+        setStructuredMerge(null);
+        setAiMergeLoading(false);
+
+        if (!(periods.length >= 1 && +periods[0] !== 0)) {
+            return;
+        }
+
+        let cancelled = false;
+
+        Api.getMonthDetailApi(periods.join(','))
+            .then(({ weekList, currentRawRecords, currentTimeTotalByRoutineType, metricData, gapTime, perSerialMetrics: serialMetrics }) => {
+                if (cancelled) return;
+
                 setRawRecords(currentRawRecords)
                 setTimeTotalByRoutineType(currentTimeTotalByRoutineType);
                 setWeeksData(weekList);
@@ -113,8 +126,34 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
                     }
                 })
                 setStudyTotal(study);
+
+                if (!weekList?.length) {
+                    return Promise.resolve(null);
+                }
+
+                setAiMergeLoading(true);
+                return Api.postMonthMergeStructuredApi(periods.join(','))
             })
-        }
+            .then((merge) => {
+                if (cancelled) return;
+                if (merge && typeof merge === 'object' && 'learning_task_merged' in merge) {
+                    setStructuredMerge(merge as MonthStructuredMerge);
+                }
+            })
+            .catch(() => {
+                if (!cancelled) {
+                    setStructuredMerge(null);
+                }
+            })
+            .finally(() => {
+                if (!cancelled) {
+                    setAiMergeLoading(false);
+                }
+            });
+
+        return () => {
+            cancelled = true;
+        };
     }, [periods])
     
     // 初始化周期数据
@@ -163,10 +202,23 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
         </section>
         <section className='section'>
             {!!weeksData.length && transTitle('【月度详情：不同LTN周期任务对比】')}
+            {aiMergeLoading && (
+                <div style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>
+                    正在请求 AI 合并学习任务、睡眠与复盘（运动/影视/TED 为规则合并）…
+                </div>
+            )}
             {!!perSerialMetrics.length && (
                     <CycleCompareTable data={perSerialMetrics} />
             )}
-            {!!weeksData.length && <MonthTable key={weeksData.length} data={weeksData} study={studyTotal} />}
+            {!!weeksData.length && (
+                <MonthTable
+                    key={`${weeksData.length}-${structuredMerge ? 'ai' : 'rule'}`}
+                    data={weeksData}
+                    study={studyTotal}
+                    structuredMerge={structuredMerge}
+                    aiMergeLoading={aiMergeLoading}
+                />
+            )}
         </section>
     </section>
 }

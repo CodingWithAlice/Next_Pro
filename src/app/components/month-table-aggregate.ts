@@ -119,6 +119,21 @@ export function aggregateSleepSportMovie(weeks: MonthTableWeekRow[]): string {
 	return parts.join('\n\n') || '（暂无运动/睡眠/影视记录）'
 }
 
+/** 仅运动 + 影视（规则合并），与 AI 睡眠块拼接时使用 */
+export function aggregateSportAndMovieOnly(weeks: MonthTableWeekRow[]): string {
+	const b = joinPeriodBlocks(weeks, (w) => w.sport, '【运动】')
+	const c = joinPeriodBlocks(weeks, (w) => w.movie, '【影视与娱乐】')
+	return [b, c].filter(Boolean).join('\n\n')
+}
+
+/** 仅运动 + 影视（规则合并），与 AI 睡眠块拼接成一列时使用 */
+export function aggregateSportAndMovieOnly(weeks: MonthTableWeekRow[]): string {
+	const b = joinPeriodBlocks(weeks, (w) => w.sport, '【运动】')
+	const c = joinPeriodBlocks(weeks, (w) => w.movie, '【影视与娱乐】')
+	const parts = [b, c].filter(Boolean)
+	return parts.join('\n\n') || ''
+}
+
 /** TED + 阅读 */
 export function aggregateTedRead(weeks: MonthTableWeekRow[]): string {
 	const a = joinPeriodBlocks(weeks, (w) => w.ted, '【TED】')
