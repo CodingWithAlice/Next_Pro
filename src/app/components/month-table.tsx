@@ -1,86 +1,80 @@
 import { Table } from 'antd';
 import type { TableProps } from 'antd';
-import { formatMinToHM, formatSerialNumber, getGapTime } from './tool';
-import { dataProps } from './month-detail-textarea';
+import { formatMinToHM } from './tool';
+import { buildAggregatedMonthRow, type MonthTableWeekRow } from './month-table-aggregate';
 
 interface DataType {
-    time: string;
-    frontOverview: string;
-    sleepSportMovie: string;
-    TEDRead: string;
-    idea: string;
+	frontOverview: string;
+	sleepSportMovie: string;
+	TEDRead: string;
+	idea: string;
 }
 
-const render = (text: string) => <div key={text} style={{ whiteSpace: 'pre-wrap' }}>{text}</div> // 换行显示
+const render = (text: string) => (
+	<div style={{ whiteSpace: 'pre-wrap' }}>{text}</div>
+);
 
-export default function MonthTable({ data, study }: { data: dataProps[], study: number }) {
-    const columns: TableProps<DataType>['columns'] = [
-        {
-            title: '时间',
-            dataIndex: 'time',
-            key: 'time',
-            fixed: 'left',
-            width: 140,
-            render
-        },
-        {
-            title: (
-                <span>
-                    学习任务
-                    <span style={{ fontWeight: 400, fontSize: 12, marginLeft: 8, color: '#666' }}>
-                        （所选周期「前端总计」合计 {formatMinToHM(study)}，各周期以行内正文为准）
-                    </span>
-                </span>
-            ),
-            dataIndex: 'frontOverview',
-            key: 'frontOverview',
-            width: 600,
-            render
-        },
-        {
-            title: '运动+睡眠+电影',
-            dataIndex: 'sleepSportMovie',
-            key: 'sleepSportMovie',
-            width: 450,
-            render
-        },
-        {
-            title: 'TED+阅读+播客',
-            dataIndex: 'TEDRead',
-            key: 'TEDRead',
-            width: 333,
-            render
-        },
-        {
-            title: '学习/工作方法复盘和改进',
-            dataIndex: 'idea',
-            key: 'idea',
-            width: 350,
-            render
-        }
-    ];
+/**
+ * 将所选多个 LTN 周期的周报字段，按固定结构合并为单行展示（不再按周期分行）。
+ */
+export default function MonthTable({ data, study }: { data: MonthTableWeekRow[]; study: number }) {
+	const row = buildAggregatedMonthRow(data, study);
 
-    const source = data.map(it => {
-        return {
-            frontOverview: it.frontOverview,
-            time: `LTN ${formatSerialNumber(it.serialNumber)} 
-${it.startTime.slice(5)} 至 ${it.endTime.slice(5)}
-${getGapTime(it.startTime, it.endTime)}天`,
-            sleepSportMovie: `${it.sleep}
-${it.sport}
-${it.movie}`,
-            TEDRead: `${it.ted}
-${it.read}`,
-            idea: it.improveMethods,
-            key: it.id
-        }
-    })
+	const columns: TableProps<DataType>['columns'] = [
+		{
+			title: (
+				<span>
+					学习任务
+					<span style={{ fontWeight: 400, fontSize: 12, marginLeft: 8, color: '#666' }}>
+						（已合并所选各周期；「前端总计」合计 {formatMinToHM(row.studyTotalMinutes)}）
+					</span>
+				</span>
+			),
+			dataIndex: 'frontOverview',
+			key: 'frontOverview',
+			width: 620,
+			render,
+		},
+		{
+			title: '运动+睡眠+电影（已合并）',
+			dataIndex: 'sleepSportMovie',
+			key: 'sleepSportMovie',
+			width: 480,
+			render,
+		},
+		{
+			title: 'TED+阅读+播客（已合并）',
+			dataIndex: 'TEDRead',
+			key: 'TEDRead',
+			width: 360,
+			render,
+		},
+		{
+			title: '学习/工作方法复盘和改进（已合并）',
+			dataIndex: 'idea',
+			key: 'idea',
+			width: 380,
+			render,
+		},
+	];
 
-    return <Table<DataType>
-        bordered
-        pagination={false}
-        scroll={{ x: 'max-content' }}
-        columns={columns}
-        dataSource={source}
-    />
+	const source = [
+		{
+			frontOverview: row.frontOverview,
+			sleepSportMovie: row.sleepSportMovie,
+			TEDRead: row.TEDRead,
+			idea: row.idea,
+			key: row.key,
+		},
+	];
+
+	return (
+		<Table<DataType>
+			bordered
+			pagination={false}
+			scroll={{ x: 'max-content' }}
+			columns={columns}
+			dataSource={source}
+		/>
+	);
 }
