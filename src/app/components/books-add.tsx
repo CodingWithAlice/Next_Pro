@@ -13,7 +13,8 @@ const colorMap = {
     '话剧': 'magenta',
     '综艺': 'orange',
     '电视剧': 'purple',
-    '音乐剧': 'green'
+    '音乐剧': 'green',
+    '广播剧': 'blue'
 }
 interface BooksDTO {
     title: string;
