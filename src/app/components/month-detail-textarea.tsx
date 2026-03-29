@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Spin } from "antd";
 import { SerialsPicker } from "@/components/serials-picker";
 import Api from "@/service/api";
 import { timeTotalByRoutineTypeProps } from "./month-total-time";
@@ -202,22 +203,37 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
         </section>
         <section className='section'>
             {!!weeksData.length && transTitle('【月度详情：不同LTN周期任务对比】')}
-            {aiMergeLoading && (
-                <div style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>
-                    正在请求 AI 合并学习任务、睡眠与复盘（运动/影视/TED 为规则合并）…
-                </div>
-            )}
             {!!perSerialMetrics.length && (
                     <CycleCompareTable data={perSerialMetrics} />
             )}
             {!!weeksData.length && (
-                <MonthTable
-                    key={`${weeksData.length}-${structuredMerge ? 'ai' : 'rule'}`}
-                    data={weeksData}
-                    study={studyTotal}
-                    structuredMerge={structuredMerge}
-                    aiMergeLoading={aiMergeLoading}
-                />
+                <Spin
+                    spinning={aiMergeLoading}
+                    tip="正在汇聚集合睡眠与复盘（学习任务由系统按各周期板块汇总；运动/影视/TED 为规则合并）"
+                    size="large"
+                >
+                    <div
+                        style={{
+                            marginTop: 8,
+                            padding: aiMergeLoading ? 12 : 0,
+                            borderRadius: 8,
+                            background: aiMergeLoading ? '#f5f5f5' : undefined,
+                            boxSizing: 'border-box',
+                            minHeight: aiMergeLoading ? 200 : undefined,
+                            pointerEvents: aiMergeLoading ? 'none' : undefined,
+                            userSelect: aiMergeLoading ? 'none' : undefined,
+                            transition: 'background 0.2s ease, padding 0.2s ease',
+                        }}
+                    >
+                        <MonthTable
+                            key={`${weeksData.length}-${structuredMerge ? 'ai' : 'rule'}`}
+                            data={weeksData}
+                            study={studyTotal}
+                            structuredMerge={structuredMerge}
+                            aiMergeLoading={aiMergeLoading}
+                        />
+                    </div>
+                </Spin>
             )}
         </section>
     </section>

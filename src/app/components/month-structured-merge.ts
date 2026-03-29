@@ -3,7 +3,7 @@ import {
 	type MonthTableWeekRow,
 } from './month-table-aggregate'
 
-/** AI 仅负责：学习任务合并、睡眠客观/主观拆分、复盘去重；运动/影视/TED 为规则合并 */
+/** AI 仅做汇聚集合（并列、归类、去重完全重复项），不做总结；运动/影视/TED 为规则合并 */
 export type MonthStructuredMerge = {
 	learning_task_merged: string
 	sleep_objective_merged: string

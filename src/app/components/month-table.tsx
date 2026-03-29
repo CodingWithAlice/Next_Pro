@@ -23,7 +23,7 @@ const render = (text: string) => (
 );
 
 /**
- * structuredMerge 存在时：学习任务 / 睡眠(客观+主观) / 复盘 为 AI；运动与影视为规则合并并拼入第三列；TED 列始终规则合并。
+ * structuredMerge 存在时：学习任务 / 睡眠(客观+主观) / 复盘 为 AI **数据汇聚集合**（非总结）；运动与影视规则合并拼入第三列；TED 列始终规则合并。
  */
 export default function MonthTable({
 	data,
@@ -34,7 +34,7 @@ export default function MonthTable({
 	data: MonthTableWeekRow[];
 	study: number;
 	structuredMerge?: MonthStructuredMerge | null;
-	/** 已进入页面并正在请求 AI 合并 */
+	/** 正在请求汇聚集合 */
 	aiMergeLoading?: boolean;
 }) {
 	const ruleRow = buildAggregatedMonthRow(data, study);
@@ -54,11 +54,11 @@ export default function MonthTable({
 		: { ...ruleRow, TEDRead: tedRead };
 
 	const taskSub = aiActive
-		? `（AI：学习+工作技术+工作非技术 合并 · 「前端总计」合计 ${formatMinToHM(
+		? `（学习任务：系统按各周期内「学习体验/工作·技术向/工作·非技术向」板块汇总；睡眠与复盘为 AI 聚合 · 「前端总计」合计 ${formatMinToHM(
 				row.studyTotalMinutes
 			)}）`
 		: aiMergeLoading
-			? `（AI 合并请求中，暂显示规则合并 · 「前端总计」合计 ${formatMinToHM(
+			? `（聚合请求中，暂显示规则合并 · 「前端总计」合计 ${formatMinToHM(
 					row.studyTotalMinutes
 				)}）`
 			: `（规则合并 · 「前端总计」合计 ${formatMinToHM(
@@ -66,11 +66,11 @@ export default function MonthTable({
 				)}）`;
 
 	const colSleepTitle = aiActive
-		? '运动+睡眠+电影（AI 睡眠客观/主观 + 规则运动/影视）'
+		? '运动+睡眠+电影（睡眠客观/主观为聚合 · 运动/影视规则合并）'
 		: '运动+睡眠+电影（已合并）';
 
 	const colIdeaTitle = aiActive
-		? '学习/工作方法复盘和改进（AI 去重合并）'
+		? '学习/工作方法复盘和改进（聚合罗列，非总结）'
 		: '学习/工作方法复盘和改进（已合并）';
 
 	const columns: TableProps<DataType>['columns'] = [
@@ -135,6 +135,11 @@ export default function MonthTable({
 			scroll={{ x: 'max-content' }}
 			columns={columns}
 			dataSource={source}
+			style={
+				aiMergeLoading
+					? { opacity: 0.92, background: '#fafafa' }
+					: undefined
+			}
 		/>
 	);
 }
