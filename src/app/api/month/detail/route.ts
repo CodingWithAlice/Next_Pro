@@ -127,6 +127,13 @@ function GetMetricStatic() {
 	]
 }
 
+/** 与 GetSleepAvgTime / GetTimeTotalByRoutineType 返回的 sleepTimes 一致 */
+type SleepTimesPayload = {
+	startTime: string
+	endTime: string
+	durationMinutesAvg: number
+}
+
 async function CalcMetricFromTwoSerials({
 	metricType,
 	currentData,
@@ -141,8 +148,8 @@ async function CalcMetricFromTwoSerials({
 	lastData: TimeTotalByRoutineTypeRow[]
 	currentGapTime: number
 	lastGapTime: number
-	currentSleep?: { [key: string]: string; startTime: string; endTime: string }
-	lastSleep?: { [key: string]: string; startTime: string; endTime: string }
+	currentSleep?: SleepTimesPayload
+	lastSleep?: SleepTimesPayload
 }) {
 	const compareData: Record<string, MetricDataProps[]> = {}
 
@@ -173,8 +180,9 @@ async function CalcMetricFromTwoSerials({
 					) / lastGapTime
 
 				if (item.type === 'sleep' && item?.target && currentSleep) {
-					data.current = currentSleep?.[item.target]
-					data.lastMonth = lastSleep?.[item.target]
+					const k = item.target as 'startTime' | 'endTime'
+					data.current = currentSleep[k]
+					data.lastMonth = lastSleep?.[k]
 				}
 
 				if (!compareData?.[it.metricDesc]) {
