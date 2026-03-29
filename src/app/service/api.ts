@@ -1,6 +1,7 @@
 import { Dayjs } from 'dayjs'
 import request from '../../../lib/request'
 import { SearchType } from '@/components/tool'
+import type { MonthStructuredMerge } from '@/components/month-structured-merge'
 
 export interface TedRecordDTO {
 	date: Date | string
@@ -57,6 +58,20 @@ const Api = {
 	},
 	postMonthApi(data: { [key: string]: string | number }) {
 		return request.post('month', data)
+	},
+	postMonthSynthesizeApi(serialNumber: string) {
+		return request.post('month/synthesize', { serialNumber }) as Promise<{
+			studyConclude: string
+			others: string
+		}>
+	},
+	/** AI 将多周期周报合并为固定 JSON 结构（耗时较长，5 分钟超时） */
+	postMonthMergeStructuredApi(serialNumber: string) {
+		return request.post(
+			'month/merge-structured',
+			{ serialNumber },
+			300000
+		) as Promise<MonthStructuredMerge>
 	},
 
 	getWeekApi(serialNumber: number) {
@@ -130,7 +145,7 @@ const Api = {
 	}) {
 		return request.post('piggy-bank/jar', data)
 	},
-	putPiggyBankJarApi(id: number, data: { name?: string; monthlyRepayment?: number | null; targetAmount?: number | null }) {
+	putPiggyBankJarApi(id: number, data: { name?: string; monthlyRepayment?: number | null; targetAmount?: number | null; actualConsumption?: number }) {
 		return request.put(`piggy-bank/jar/${id}`, data)
 	},
 	abandonPiggyBankJarApi(id: number) {

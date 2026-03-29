@@ -7,6 +7,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { MonthDetailTextarea } from "@/components/month-detail-textarea";
 import Api from "@/service/api";
 import Link from 'next/link';
+import { MONTH_NON_SHORT_DECISION_PLACEHOLDER } from '@lib/month-non-short-decision';
 
 export default function Month() {
     const searchParams = useSearchParams();
@@ -82,12 +83,8 @@ export default function Month() {
     // 处理月份数据的公共逻辑
     const processMonthData = (monthData: any) => {
         if (monthData?.periods) {
-            const longTimeDecision = `【保持】已验证有效模式：
-【尝试】方法论迁移场景：
-【放弃】低ROI事项：
-【纠正】偏离年度目标：`
-            let editMonth = monthData?.frontMonthDesc ? monthData :  {...monthData, frontMonthDesc: longTimeDecision}
-            editMonth = monthData?.otherMonthDesc ? monthData :  {...editMonth, otherMonthDesc: longTimeDecision}
+            let editMonth = monthData?.frontMonthDesc ? monthData :  {...monthData, frontMonthDesc: MONTH_NON_SHORT_DECISION_PLACEHOLDER}
+            editMonth = monthData?.otherMonthDesc ? monthData :  {...editMonth, otherMonthDesc: MONTH_NON_SHORT_DECISION_PLACEHOLDER}
             setMonthData(editMonth);
             setPeriods(monthData.periods.split(',').map((it: string) => +it));
         }

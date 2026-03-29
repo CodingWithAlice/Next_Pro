@@ -103,7 +103,7 @@ async function POST(request: NextRequest) {
 
 			// 建议总额限制在输入金额的 config.env maxAllowed 比例以内，与确认时的校验一致
 			const maxAllowed = totalAmount * maxRatio
-			const suggestedTotal = suggestion.reduce((s, i) => s + i.amount, 0)
+			let suggestedTotal = suggestion.reduce((s, i) => s + i.amount, 0)
 			if (suggestedTotal > maxAllowed && suggestedTotal > 0) {
 				const scale = maxAllowed / suggestedTotal
 				suggestion = suggestion.map((i) => ({
@@ -111,7 +111,21 @@ async function POST(request: NextRequest) {
 					amount: i.amount * scale,
 					proportion: (i.amount * scale / totalAmount) * 100,
 				}))
+				suggestedTotal = maxAllowed
 			}
+			// 单罐建议不超过罐子剩余所需（目标 - 当前余额）
+			const jarMap = new Map(activeJars.map((j) => [j.id, j]))
+			suggestion = suggestion.map((i) => {
+				const j = jarMap.get(i.jarId)
+				if (!j) return i
+				const balance = parseFloat(String(j.balance)) || 0
+				const targetRaw = j.targetAmount != null ? parseFloat(String(j.targetAmount)) : 0
+				const monthly = j.monthlyRepayment != null ? parseFloat(String(j.monthlyRepayment)) : 0
+				const target = targetRaw > 0 ? targetRaw : monthly > 0 ? monthly * 12 : 0
+				const cap = target > 0 ? Math.max(0, target - balance) : Infinity
+				const amount = Math.min(i.amount, cap)
+				return { ...i, amount, proportion: totalAmount > 0 ? (amount / totalAmount) * 100 : 0 }
+			})
 
 			return NextResponse.json({
 				success: true,
@@ -129,13 +143,33 @@ async function POST(request: NextRequest) {
 			)
 		}
 
+		let totalAdded = 0
 		for (const a of allocations) {
 			const jar = await PiggyBankJarModal.findOne({ where: { id: a.jarId, userId } })
 			if (jar && a.amount > 0) {
 				const amt = parseFloat(String(a.amount))
 				const currentBalance = parseFloat(String(jar.get('balance')))
-				await jar.update({ balance: currentBalance + amt })
+				const targetRaw = jar.get('targetAmount') != null ? parseFloat(String(jar.get('targetAmount'))) : 0
+				const monthly = jar.get('monthlyRepayment') != null ? parseFloat(String(jar.get('monthlyRepayment'))) : 0
+				const target = targetRaw > 0 ? targetRaw : monthly > 0 ? monthly * 12 : 0
+				const cap = target > 0 ? Math.max(0, target - currentBalance) : Infinity
+				const toAdd = Math.min(amt, cap)
+				if (toAdd <= 0) continue
+				totalAdded += toAdd
+				const newBalance = currentBalance + toAdd
+				const shouldClose = target > 0 && newBalance >= target
+				await jar.update({ balance: newBalance, ...(shouldClose ? { status: 'completed' as const } : {}) })
 			}
+		}
+		// 因罐子上限未能进入罐子的金额，退回待分配池
+		const overflow = sumAllocated - totalAdded
+		if (overflow > 0) {
+			await PiggyBankPoolModal.create({
+				userId,
+				amount: overflow,
+				status: 'pending',
+				remark: '分配超出罐子上限退回',
+			})
 		}
 
 		await PiggyBankPoolModal.create({

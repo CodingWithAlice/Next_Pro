@@ -46,9 +46,11 @@ function handleAxiosError(error: unknown): { status: number; message: string } {
 	if (axios.isAxiosError(error)) {
 		const axiosError = error as AxiosError
 		const status = axiosError.response?.status || 500
+		const data = axiosError.response?.data as
+			| { message?: string; error?: string }
+			| undefined
 		const message =
-			(axiosError.response?.data as { message?: string })?.message ||
-			axiosError.message
+			data?.message || data?.error || axiosError.message
 		return { status, message }
 	}
 	// 非 Axios 错误
@@ -71,9 +73,12 @@ async function get(
 	}
 }
 
-async function post<T>(api: string, data: T) {
+async function post<T>(api: string, data: T, timeoutMs?: number) {
 	try {
-		const response = await axios.post(`${url}/${api}`, { data }, getConfig())
+		const response = await axios.post(`${url}/${api}`, { data }, {
+			...getConfig(),
+			...(timeoutMs != null ? { timeout: timeoutMs } : {}),
+		})
 		return response.data
 	} catch (error) {
 		const errorObj = handleAxiosError(error)

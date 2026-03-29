@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
+import { Spin } from "antd";
 import { SerialsPicker } from "@/components/serials-picker";
 import Api from "@/service/api";
 import { timeTotalByRoutineTypeProps } from "./month-total-time";
 import MonthTable from "./month-table";
 import { transTextArea, transTitle } from "./tool";
-import DeepSeek from "./deep-seek";
+import MonthAiSynthesize from "./month-ai-synthesize";
+import type { MonthStructuredMerge } from "./month-structured-merge";
+import { isNonShortDecisionFieldFilled } from "@lib/month-non-short-decision";
+import CycleCompareTable, { type PerSerialMetricRow } from "./cycle-compare-table";
 import FocusHeatmap from "./focus-heatmap";
 import CoreMetricsTable from "./core-metric-table";
 // import MonthTotalTime from "./month-total-time";
@@ -54,8 +58,11 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
     const [weeksData, setWeeksData] = useState<dataProps[]>([]); // 每周数据
     const [rawRecords, setRawRecords] = useState<rawRecord[]>([]); // 每周数据
     const [metricData, setMetricData] = useState<Record<string, Metric[]>>(); // 每周数据
-    const [studyTotal, setStudyTotal] = useState(0); // 学习总时长
+    const [studyTotal, setStudyTotal] = useState(0); // 所选跨度内「前端总计」合计（分钟）
     const [duration, setDuration] = useState(0); // 学习总时长
+    const [perSerialMetrics, setPerSerialMetrics] = useState<PerSerialMetricRow[]>([]);
+    const [structuredMerge, setStructuredMerge] = useState<MonthStructuredMerge | null>(null);
+    const [aiMergeLoading, setAiMergeLoading] = useState(false);
     const [serials, setSerials] = useState<{ serialNumber: number, startTime: string, endTime: string }[]>([]);
  
 
@@ -95,24 +102,70 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
     }
 
     useEffect(() => {
-        // 更新选择的 LTN 周期后，刷新当前页面数据
-        if (periods.length >= 1 && +periods[0] !== 0) {
-            Api.getMonthDetailApi(periods.join(',')).then(({ weekList, currentRawRecords, currentTimeTotalByRoutineType, metricData, gapTime }) => {
+        setStructuredMerge(null);
+        setAiMergeLoading(false);
+
+        if (!(periods.length >= 1 && +periods[0] !== 0)) {
+            return;
+        }
+
+        /** 两项均已真实填写时仅展示规则合并，不请求汇聚集合（AI） */
+        const skipStructuredMerge =
+            isNonShortDecisionFieldFilled(monthData.frontMonthDesc) &&
+            isNonShortDecisionFieldFilled(monthData.otherMonthDesc);
+
+        let cancelled = false;
+
+        Api.getMonthDetailApi(periods.join(','))
+            .then(({ weekList, currentRawRecords, currentTimeTotalByRoutineType, metricData, gapTime, perSerialMetrics: serialMetrics }) => {
+                if (cancelled) return;
+
                 setRawRecords(currentRawRecords)
                 setTimeTotalByRoutineType(currentTimeTotalByRoutineType);
                 setWeeksData(weekList);
                 setMetricData(metricData);
                 setDuration(gapTime)
+                setPerSerialMetrics(Array.isArray(serialMetrics) ? serialMetrics : [])
                 let study = 0
-                timeTotalByRoutineType?.forEach((it: timeTotalByRoutineTypeProps) => {
+                currentTimeTotalByRoutineType?.forEach((it: timeTotalByRoutineTypeProps) => {
                     if (it.routine_type?.des === '前端总计') {
                         study += +it.totalDuration
                     }
                 })
                 setStudyTotal(study);
+
+                if (!weekList?.length) {
+                    return Promise.resolve(null);
+                }
+
+                if (skipStructuredMerge) {
+                    return Promise.resolve(null);
+                }
+
+                setAiMergeLoading(true);
+                return Api.postMonthMergeStructuredApi(periods.join(','))
             })
-        }
-    }, [periods])
+            .then((merge) => {
+                if (cancelled) return;
+                if (merge && typeof merge === 'object' && 'learning_task_merged' in merge) {
+                    setStructuredMerge(merge as MonthStructuredMerge);
+                }
+            })
+            .catch(() => {
+                if (!cancelled) {
+                    setStructuredMerge(null);
+                }
+            })
+            .finally(() => {
+                if (!cancelled) {
+                    setAiMergeLoading(false);
+                }
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [periods, monthData.frontMonthDesc, monthData.otherMonthDesc])
     
     // 初始化周期数据
     useEffect(() => {
@@ -142,14 +195,16 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
             ].map(it => handleTrans(it, monthData))}
         </section>
         <section className='section'>
-            {transTitle('【核心指标】')}
+            {transTitle('【核心年度指标】')}
             <CoreMetricsTable source={metricData || {}} />
             {/* {handleTrans({ key: 'timeDiffDesc', desc: '非短期决策' }, monthData)} */}
         </section>
         <section className='section'>
             <div className="month-review">
                 {!!weeksData.length && transTitle('【决策】')}
-                {/* <DeepSeek periods={periods} handleChange={handleDeepSeek} type='month' /> */}
+                {!!weeksData.length && (
+                    <MonthAiSynthesize periods={periods} handleChange={handleDeepSeek} />
+                )}
             </div>
             {[
                 { key: 'frontMonthDesc', desc: '非短期决策 - 前端' },
@@ -158,7 +213,38 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
         </section>
         <section className='section'>
             {!!weeksData.length && transTitle('【月度详情：不同LTN周期任务对比】')}
-            {!!weeksData.length && <MonthTable key={weeksData.length} data={weeksData} study={studyTotal} />}
+            {!!perSerialMetrics.length && (
+                    <CycleCompareTable data={perSerialMetrics} />
+            )}
+            {!!weeksData.length && (
+                <Spin
+                    spinning={aiMergeLoading}
+                    tip="聚合中…"
+                    size="large"
+                >
+                    <div
+                        style={{
+                            marginTop: 8,
+                            padding: aiMergeLoading ? 12 : 0,
+                            borderRadius: 8,
+                            background: aiMergeLoading ? '#f5f5f5' : undefined,
+                            boxSizing: 'border-box',
+                            minHeight: aiMergeLoading ? 200 : undefined,
+                            pointerEvents: aiMergeLoading ? 'none' : undefined,
+                            userSelect: aiMergeLoading ? 'none' : undefined,
+                            transition: 'background 0.2s ease, padding 0.2s ease',
+                        }}
+                    >
+                        <MonthTable
+                            key={`${weeksData.length}-${structuredMerge ? 'ai' : 'rule'}`}
+                            data={weeksData}
+                            study={studyTotal}
+                            structuredMerge={structuredMerge}
+                            aiMergeLoading={aiMergeLoading}
+                        />
+                    </div>
+                </Spin>
+            )}
         </section>
     </section>
 }
