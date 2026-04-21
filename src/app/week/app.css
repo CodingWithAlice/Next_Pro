@@ -73,9 +73,40 @@
     background-color: rgb(6, 128, 67);
 }
 
+.week-outer {
+    /* 给底部悬浮按钮留出空间，避免遮挡底部内容 */
+    padding-bottom: calc(2rem + 92px);
+}
+
+.floating-save-wrap {
+    position: fixed;
+    left: 50%;
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
 .week-data-wrap {
     display: flex;
     overflow-x: auto;
+}
+
+.floating-save-btn {
+    background-color: rgb(6, 128, 67);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+    border-radius: 999px;
+    padding: 0 18px;
+    /* 对齐 AntD FloatButton(square + description) 的视觉高度 */
+    height: 56px;
+    font-weight: 700;
+}
+
+.floating-save-btn:hover {
+    background-color: rgb(6, 128, 67);
+}
+
+.floating-save-btn:active {
+    transform: translateY(1px);
 }
 
 /* 周期页面：一屏高度，超出内容在容器内滚动 */
@@ -137,6 +168,10 @@
         flex: 1 1 auto;
         min-width: 0;
         max-width: 200px;
+    }
+
+    .floating-save-wrap {
+        bottom: calc(16px + env(safe-area-inset-bottom, 0px));
     }
 }
 

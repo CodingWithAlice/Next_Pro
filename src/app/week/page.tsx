@@ -144,7 +144,7 @@ export default function Week() {
     const canGoPrev = prevSerial !== null && !loading;
     const canGoNext = nextSerial !== null && !loading;
 
-    return <div className="outer">
+    return <div className="outer week-outer">
         {contextHolder}
         <div className="week">
             <Button
@@ -177,7 +177,16 @@ export default function Week() {
         </div>
         <WeekDetailTextarea weekData={weekData} setWeekData={setWeekData} curSerial={curSerial} />
         <SerialsRangeEditModal curSerial={curSerial} serials={serials} onFresh={handleTargetSerial} />
-        <Button type="primary" className='btn' onClick={handleSave}>保存</Button>
+        <div className="floating-save-wrap">
+            <Button
+                type="primary"
+                className="floating-save-btn"
+                onClick={handleSave}
+                loading={loading}
+            >
+                保存
+            </Button>
+        </div>
         {curSerial !== 0 && <WeekPeriodModal curSerial={curSerial} />}
     </div>
 }
