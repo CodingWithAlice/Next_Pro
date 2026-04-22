@@ -86,9 +86,13 @@
     z-index: 1000;
 }
 
+/* 限制高度 + 内部纵向滚动，横向滚动条始终在可视区域底部，无需先滚到整页末尾 */
 .week-data-wrap {
     display: flex;
+    align-items: flex-start;
     overflow-x: auto;
+    overflow-y: auto;
+    max-height: var(--week-data-wrap-max-height, calc(100dvh - 10rem));
 }
 
 .floating-save-btn {
@@ -113,6 +117,12 @@
 .period-page-container {
     height: 100vh;
     overflow: auto;
+    --week-data-wrap-max-height: calc(100dvh - 10rem);
+}
+
+/* 每日数据 Modal：按弹窗可视高度压缩表格区，与 .week-data-wrap 变量配合 */
+.week-period-modal__body {
+    --week-data-wrap-max-height: calc(75vh - 11rem);
 }
 
 .week-period {
