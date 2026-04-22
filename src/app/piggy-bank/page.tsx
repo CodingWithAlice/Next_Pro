@@ -27,6 +27,12 @@ interface AllocationItem {
 
 // config.env 的 NEXT_PUBLIC_PIGGY_BANK_ALLOCATE_MAX_RATIO，不存在时默认 35%
 const PIGGY_ALLOCATE_MAX_RATIO = Math.min(1, Math.max(0, parseFloat(process.env.NEXT_PUBLIC_PIGGY_BANK_ALLOCATE_MAX_RATIO ?? '0.35') || 0.35));
+const PIGGY_ALLOCATE_MAX_PCT = Math.round(PIGGY_ALLOCATE_MAX_RATIO * 100);
+
+function formatAllocatePctDisplay(value: number): string {
+  const rounded = Math.round(value * 10) / 10;
+  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+}
 
 export default function PiggyBankPage() {
   const [jars, setJars] = useState<Jar[]>([]);
@@ -169,8 +175,7 @@ export default function PiggyBankPage() {
   const onConfirmAllocate = () => {
     const totalAmount = suggestedAllocations.reduce((s, a) => s + a.amount, 0);
     if (totalAmount > salaryInput * PIGGY_ALLOCATE_MAX_RATIO) {
-      const pct = Math.round(PIGGY_ALLOCATE_MAX_RATIO * 100);
-      messageApi.warning(`金额超过了薪资的 ${pct}%`);
+      messageApi.warning(`金额超过了薪资的 ${PIGGY_ALLOCATE_MAX_PCT}%`);
       return Promise.reject();
     }
     const allocations = suggestedAllocations.map((a) => ({ jarId: a.jarId, amount: a.amount }));
@@ -231,6 +236,10 @@ export default function PiggyBankPage() {
       })
       .catch((e: { message?: string }) => messageApi.error(e.message || '分配失败'));
   };
+
+  const allocateConfirmTotal = suggestedAllocations.reduce((s, a) => s + a.amount, 0);
+  const allocateConfirmInputPct = salaryInput > 0 ? (allocateConfirmTotal / salaryInput) * 100 : 0;
+  const allocateConfirmOverPct = allocateConfirmInputPct > PIGGY_ALLOCATE_MAX_RATIO * 100 + 1e-6;
 
   return (
     <div className="outer piggy-bank-page">
@@ -450,9 +459,10 @@ export default function PiggyBankPage() {
             </div>
           ))}
         </div>
-        <p className="allocate-sum">
-          合计：¥
-          {suggestedAllocations.reduce((s, a) => s + a.amount, 0).toFixed(2)}
+        <p className="allocate-sum">合计：¥{allocateConfirmTotal.toFixed(2)}</p>
+        <p className={`allocate-pct-hint${allocateConfirmOverPct ? ' allocate-pct-over' : ''}`}>
+          占输入金额比例：{formatAllocatePctDisplay(allocateConfirmInputPct)}% / {PIGGY_ALLOCATE_MAX_PCT}%
+          {allocateConfirmOverPct ? '（超过上限，无法确认）' : ''}
         </p>
       </Modal>
 
