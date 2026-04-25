@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PiggyBankJarModal, PiggyBankPoolModal } from 'db'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
+import { computeComputedPendingBalance, refreshComputedPendingRow } from '../pool-balance'
 
 type PoolRow = { id: number; amount: string | number }
 
@@ -29,11 +30,8 @@ async function POST(request: NextRequest) {
 			)
 		}
 
-		const pendingRows = (await PiggyBankPoolModal.findAll({
-			where: { userId, status: 'pending' },
-			order: [['id', 'ASC']],
-		})) as unknown as PoolRow[]
-		const poolBalance = pendingRows.reduce((s, r) => s + parseFloat(String(r.amount)), 0)
+		// 先按最新公式计算余额（不依赖 pending 多行流水），并在成功后刷新 pending 行
+		const poolBalance = await computeComputedPendingBalance(userId)
 		if (totalAllocate > poolBalance) {
 			return NextResponse.json(
 				{
@@ -73,23 +71,16 @@ async function POST(request: NextRequest) {
 			const shouldClose = target > 0 && newBalance >= target
 			await jar.update({ balance: newBalance, ...(shouldClose ? { status: 'completed' as const } : {}) })
 		}
-
-		// 只从池中扣除实际分配到罐子的金额
-		let remain = actualTotalAllocate
-		for (const row of pendingRows) {
-			if (remain <= 0) break
-			const rowAmt = parseFloat(String(row.amount))
-			const poolRow = await PiggyBankPoolModal.findOne({ where: { id: row.id, userId } })
-			if (!poolRow) continue
-			if (rowAmt <= remain) {
-				await poolRow.update({ status: 'allocated', amount: rowAmt, remark: '从池分配' })
-				remain -= rowAmt
-			} else {
-				await PiggyBankPoolModal.create({ userId, amount: rowAmt - remain, status: 'pending' })
-				await poolRow.update({ status: 'allocated', amount: remain, remark: '从池分配' })
-				remain = 0
-			}
+		// 记录一次“从池分配”，用于历史（不会计入入账总额）
+		if (actualTotalAllocate > 0) {
+			await PiggyBankPoolModal.create({
+				userId,
+				amount: actualTotalAllocate,
+				status: 'allocated',
+				remark: '从池分配',
+			})
 		}
+		await refreshComputedPendingRow(userId)
 
 		return NextResponse.json({
 			success: true,

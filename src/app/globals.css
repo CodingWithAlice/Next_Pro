@@ -231,6 +231,23 @@ h1 {
     flex: none;
 }
 
+/* 每日数据横向多列：在 .week-data-wrap 内纵向滚动时，日期标题粘在可视区顶部 */
+.week-day-head {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    margin: 0 -8px;
+    padding: 6px 8px 8px;
+    background-color: rgb(245, 244, 242);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+}
+
+.week-day-head__title {
+    margin: 0;
+    font-size: 1.1rem;
+    line-height: 1.35;
+}
+
 .btn-group {
     display: flex;
     justify-content: space-around;

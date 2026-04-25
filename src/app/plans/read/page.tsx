@@ -33,7 +33,8 @@ const colorMap = {
     '话剧': 'magenta',
     '综艺': 'orange',
     '电视剧': 'purple',
-    '音乐剧': 'green'
+    '音乐剧': 'green',
+    '广播剧': 'blue'
 }
 
 // 每个类别对应的色系（同一色系的不同深浅颜色）
@@ -44,6 +45,7 @@ const categoryColorSchemes: Record<string, string[]> = {
     '综艺': ['orange', 'volcano', 'gold'], // 橙红色系
     '电视剧': ['purple', 'magenta', 'geekblue'], // 紫色系
     '音乐剧': ['green', 'lime', 'cyan'], // 绿色系
+    '广播剧': ['blue', 'geekblue', 'cyan'], // 蓝色系
 }
 
 export default function ReadPage() {
@@ -162,6 +164,7 @@ export default function ReadPage() {
             '阅读': { count: 0, items: [] },
             '电视剧': { count: 0, items: [] },
             '音乐剧': { count: 0, items: [] },
+            '广播剧': { count: 0, items: [] },
             // '话剧': { count: 0, items: [] },
             // '综艺': { count: 0, items: [] },
         };

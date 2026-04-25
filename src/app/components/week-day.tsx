@@ -111,8 +111,8 @@ export function WeekDay({ data, index }: { data: WeekDayProps, index: number }) 
       };
     
     return <div className="week-day">
-        <section>
-            <h2>Day{index + 1} {data.date}</h2>
+        <section className="week-day-head">
+            <h2 className="week-day-head__title">Day{index + 1} {data.date}</h2>
         </section>
         <Form form={form} labelCol={labelCol} wrapperCol={wrapperCol}>
             {items.map(item =>

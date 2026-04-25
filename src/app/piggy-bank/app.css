@@ -240,6 +240,17 @@
   font-weight: 600;
 }
 
+.allocate-pct-hint {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.allocate-pct-hint.allocate-pct-over {
+  color: #cf1322;
+  font-weight: 600;
+}
+
 .loading-tip {
   color: #999;
 }

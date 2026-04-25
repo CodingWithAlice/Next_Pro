@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PiggyBankJarModal, PiggyBankPoolModal } from 'db'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
+import { refreshComputedPendingRow } from '../pool-balance'
 
 type JarRow = { id: number; name: string; balance: string | number; monthlyRepayment?: string | number | null; targetAmount?: string | number | null; status: string; sortOrder: number }
 
@@ -21,12 +22,14 @@ async function POST(request: NextRequest) {
 
 		const maxRatio = Math.min(1, Math.max(0, parseFloat(process.env.NEXT_PUBLIC_PIGGY_BANK_ALLOCATE_MAX_RATIO ?? '0.35') || 0.35))
 		if (toPool) {
-			let poolRow = await PiggyBankPoolModal.findOne({ where: { userId, status: 'pending' } })
-			if (!poolRow) {
-				poolRow = await PiggyBankPoolModal.create({ userId, amount: 0, status: 'pending' })
-			}
-			const poolBalance = parseFloat(String(poolRow.get('amount')))
-			await poolRow.update({ amount: poolBalance + totalAmount })
+			// 入账记录写入 allocated，pending 由公式刷新得到
+			await PiggyBankPoolModal.create({
+				userId,
+				amount: totalAmount,
+				status: 'allocated',
+				remark: remark != null ? String(remark).trim() || null : null,
+			})
+			await refreshComputedPendingRow(userId)
 			return NextResponse.json({
 				success: true,
 				message: '已放入待分配池',
@@ -161,23 +164,14 @@ async function POST(request: NextRequest) {
 				await jar.update({ balance: newBalance, ...(shouldClose ? { status: 'completed' as const } : {}) })
 			}
 		}
-		// 因罐子上限未能进入罐子的金额，退回待分配池
-		const overflow = sumAllocated - totalAdded
-		if (overflow > 0) {
-			await PiggyBankPoolModal.create({
-				userId,
-				amount: overflow,
-				status: 'pending',
-				remark: '分配超出罐子上限退回',
-			})
-		}
-
 		await PiggyBankPoolModal.create({
 			userId,
 			amount: totalAmount,
 			status: 'allocated',
 			remark: remark != null ? String(remark).trim() || null : null,
 		})
+		// 分配后刷新 pending
+		await refreshComputedPendingRow(userId)
 
 		return NextResponse.json({
 			success: true,
