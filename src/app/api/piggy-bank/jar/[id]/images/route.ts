@@ -5,19 +5,6 @@ import path from 'path'
 import { PiggyBankJarModal } from 'db'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 
-function safeParseJsonArray(value: unknown): string[] {
-	if (value == null) return []
-	if (Array.isArray(value)) return value.map(String).filter(Boolean)
-	const raw = String(value).trim()
-	if (!raw) return []
-	try {
-		const parsed = JSON.parse(raw)
-		return Array.isArray(parsed) ? parsed.map(String).filter(Boolean) : []
-	} catch {
-		return []
-	}
-}
-
 function buildStorageBaseDir(): { baseUploadDir: string; isExternalDir: boolean } {
 	let baseUploadDir: string
 	if (process.env.UPLOAD_DIR) {
@@ -122,16 +109,14 @@ export async function POST(
 			? `/api/uploads/piggy-jars/${jarId}/${year}/${fileName}`
 			: `/uploads/piggy-jars/${jarId}/${year}/${fileName}`
 
-		const existing = safeParseJsonArray(jar.get('imageUrls'))
-		const next = [...existing, fileUrl].slice(-30) // 防止无限增长：最多保留最近30张
-		await jar.update({ imageUrls: JSON.stringify(next) })
+		await jar.update({ imageUrl: fileUrl })
 
 		return NextResponse.json({
 			success: true,
 			message: '上传成功',
 			data: {
 				url: fileUrl,
-				imageUrls: next,
+				imageUrl: fileUrl,
 			},
 		})
 	} catch (error) {
@@ -170,23 +155,12 @@ export async function DELETE(
 			)
 		}
 
-		const body = await request.json().catch(() => ({}))
-		const url = (body?.url as string | undefined) ?? undefined
-		if (!url) {
-			return NextResponse.json(
-				{ success: false, message: '缺少 url' },
-				{ status: 400 }
-			)
-		}
-
-		const existing = safeParseJsonArray(jar.get('imageUrls'))
-		const next = existing.filter((u) => u !== url)
-		await jar.update({ imageUrls: JSON.stringify(next) })
+		await jar.update({ imageUrl: null })
 
 		return NextResponse.json({
 			success: true,
 			message: '已移除',
-			data: { imageUrls: next },
+			data: { imageUrl: null },
 		})
 	} catch (error) {
 		console.error('移除图片失败:', error)

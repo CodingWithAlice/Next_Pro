@@ -130,7 +130,7 @@ const Api = {
 		}).then(res => res.json())
 	},
 
-	removePiggyJarImage(jarId: number, imageUrl: string) {
+	removePiggyJarImage(jarId: number) {
 		return fetch(`${process.env.NEXT_PUBLIC_API_HOST}/piggy-bank/jar/${jarId}/images`, {
 			method: 'DELETE',
 			headers: (() => {
@@ -141,7 +141,7 @@ const Api = {
 				if (token) headers['j-user-id'] = token
 				return headers
 			})(),
-			body: JSON.stringify({ url: imageUrl })
+			body: JSON.stringify({})
 		}).then(res => res.json())
 	},
 

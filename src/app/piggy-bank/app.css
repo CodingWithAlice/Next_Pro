@@ -182,14 +182,8 @@
   background: linear-gradient(to top, #c9c9c9, #e6e6e6, #f5f5f5);
 }
 
-.jar-vessel .jar-album-btn {
-  padding: 2px 0;
-  font-size: 12px;
-  color: #666 !important;
-}
-
-.jar-vessel .jar-album-btn:hover {
-  color: #999 !important;
+.jar-image-inline {
+  margin-bottom: 6px;
 }
 
 .jar-vessel .jar-footer-actions {

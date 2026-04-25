@@ -445,11 +445,11 @@ export const PiggyBankJarModal = sequelize.define(
 			defaultValue: 0,
 			field: 'sort_order',
 		},
-		imageUrls: {
-			type: DataTypes.TEXT,
+		imageUrl: {
+			type: DataTypes.STRING(500),
 			allowNull: true,
-			field: 'image_urls',
-			comment: '相册图片URL列表(JSON数组字符串)',
+			field: 'image_url',
+			comment: '梦想照片URL（每个罐子一张）',
 		},
 	},
 	{
