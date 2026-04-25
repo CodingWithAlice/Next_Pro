@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PiggyBankJarModal, PiggyBankPoolModal } from 'db'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
+import { refreshComputedPendingRow } from './pool-balance'
 
 async function GET(request: NextRequest) {
 	try {
@@ -11,11 +12,13 @@ async function GET(request: NextRequest) {
 			raw: true,
 		})
 
+		// 进入页面时刷新 pending，使前端仍旧读取 pending 求和即可拿到最新值
+		await refreshComputedPendingRow(userId)
 		const pendingRows = (await PiggyBankPoolModal.findAll({
 			where: { userId, status: 'pending' },
 			raw: true,
 		})) as unknown as { amount: string | number }[]
-		const poolBalance = pendingRows.reduce((s, r) => s + parseFloat(String(r.amount)), 0)
+		const poolBalance = pendingRows.reduce((s, r) => s + (parseFloat(String(r.amount)) || 0), 0)
 
 		return NextResponse.json({
 			jars,

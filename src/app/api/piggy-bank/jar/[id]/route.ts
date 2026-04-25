@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PiggyBankJarModal, PiggyBankPoolModal } from 'db'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
+import { refreshComputedPendingRow } from '../../pool-balance'
 
 async function PUT(
 	request: NextRequest,
@@ -49,18 +50,13 @@ async function PUT(
 			}
 			// 实际消费小于原目标：多分配的金额退回待分配池
 			if (real < currentTarget && balance > real) {
-				const toPool = balance - real
+				// pending 会由公式自动变大，这里只需要把罐子余额调回真实消费
 				updateData.balance = real
-				await PiggyBankPoolModal.create({
-					userId,
-					amount: toPool,
-					status: 'pending',
-					remark: `罐子「${jar.get('name')}」按真实消费调整，多出金额退回`,
-				})
 			}
 		}
 
 		await jar.update(updateData)
+		await refreshComputedPendingRow(userId)
 
 		return NextResponse.json({
 			success: true,
@@ -99,16 +95,8 @@ async function POST(
 					{ status: 404 }
 				)
 			}
-			const balance = parseFloat(String(jar.get('balance')))
-			if (balance > 0) {
-				await PiggyBankPoolModal.create({
-					userId,
-					amount: balance,
-					status: 'pending',
-					remark: `放弃罐子：${jar.get('name')}`,
-				})
-			}
 			await jar.update({ balance: 0, status: 'abandoned' })
+			await refreshComputedPendingRow(userId)
 			return NextResponse.json({
 				success: true,
 				message: '已放弃，资金已进入待分配池',
