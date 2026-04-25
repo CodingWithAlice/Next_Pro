@@ -113,6 +113,38 @@ const Api = {
 		}).then(res => res.json())
 	},
 
+	uploadPiggyJarImage(jarId: number, file: File, name?: string) {
+		const formData = new FormData()
+		formData.append('file', file)
+		if (name) formData.append('name', name)
+		const url = process.env.NEXT_PUBLIC_API_HOST
+		const token = typeof localStorage !== 'undefined'
+			? (localStorage.getItem('j-user-id') || localStorage.getItem('type'))
+			: null
+		const headers: Record<string, string> = {}
+		if (token) headers['j-user-id'] = token
+		return fetch(`${url}/piggy-bank/jar/${jarId}/images`, {
+			method: 'POST',
+			headers,
+			body: formData
+		}).then(res => res.json())
+	},
+
+	removePiggyJarImage(jarId: number, imageUrl: string) {
+		return fetch(`${process.env.NEXT_PUBLIC_API_HOST}/piggy-bank/jar/${jarId}/images`, {
+			method: 'DELETE',
+			headers: (() => {
+				const token = typeof localStorage !== 'undefined'
+					? (localStorage.getItem('j-user-id') || localStorage.getItem('type'))
+					: null
+				const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+				if (token) headers['j-user-id'] = token
+				return headers
+			})(),
+			body: JSON.stringify({ url: imageUrl })
+		}).then(res => res.json())
+	},
+
 	getSportApi(params?: { date?: string; type?: string }) {
 		return request.get('sport', params)
 	},

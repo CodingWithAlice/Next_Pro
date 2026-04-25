@@ -6,6 +6,7 @@ import { CloseCircleOutlined, HistoryOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import dayjs from 'dayjs';
 import Api from '@/service/api';
+import PiggyJarImageInput from '@/components/piggy-jar-image-input';
 import './app.css';
 
 interface Jar {
@@ -15,6 +16,7 @@ interface Jar {
   monthlyRepayment?: string | number | null;
   targetAmount?: string | number | null;
   status: string;
+  imageUrls?: string | string[] | null;
 }
 
 interface AllocationItem {
@@ -59,6 +61,23 @@ export default function PiggyBankPage() {
   const [actualConsumptionJar, setActualConsumptionJar] = useState<Jar | null>(null);
   const [actualConsumptionForm] = Form.useForm();
 
+  const [jarImageModalOpen, setJarImageModalOpen] = useState(false);
+  const [jarImageEditing, setJarImageEditing] = useState<Jar | null>(null);
+  const [jarImageUploading, setJarImageUploading] = useState(false);
+
+  const normalizeImageUrls = (raw: Jar['imageUrls']): string[] => {
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw.filter(Boolean);
+    const s = String(raw).trim();
+    if (!s) return [];
+    try {
+      const parsed = JSON.parse(s);
+      return Array.isArray(parsed) ? parsed.map(String).filter(Boolean) : [];
+    } catch {
+      return [];
+    }
+  };
+
   const loadData = () => {
     setLoading(true);
     Api.getPiggyBankApi()
@@ -76,8 +95,21 @@ export default function PiggyBankPage() {
     loadData();
   }, []);
 
+  useEffect(() => {
+    if (jarImageModalOpen) return;
+    if (!jarImageUploading) return;
+    setJarImageUploading(false);
+  }, [jarImageModalOpen, jarImageUploading]);
+
   const activeJars = jars.filter((j) => j.status === 'active');
   const displayJars = jars.filter((j) => j.status !== 'abandoned'); // 展示中 + 已满额关闭的罐子
+
+  const sortedDisplayJars = [...displayJars].sort((a, b) => {
+    const ac = a.status === 'completed' ? 1 : 0;
+    const bc = b.status === 'completed' ? 1 : 0;
+    if (ac !== bc) return ac - bc;
+    return a.id - b.id;
+  });
 
   const onAddJar = (values: {
     name: string;
@@ -316,12 +348,13 @@ export default function PiggyBankPage() {
             {loading ? (
               <div className="loading-tip">加载中...</div>
             ) : (
-              displayJars.map((j) => {
+              sortedDisplayJars.map((j) => {
                 const balance = parseFloat(String(j.balance)) || 0
                 const targetRaw = j.targetAmount != null ? parseFloat(String(j.targetAmount)) : 0
                 const monthly = j.monthlyRepayment != null ? parseFloat(String(j.monthlyRepayment)) : 0
                 const target = targetRaw > 0 ? targetRaw : monthly > 0 ? monthly * 12 : 0
                 const fillPercent = target > 0 ? Math.min(100, (balance / target) * 100) : 0
+                const images = normalizeImageUrls(j.imageUrls);
                 return (
                   <div key={j.id} className={`jar-vessel ${j.status === 'completed' ? 'jar-completed' : ''}`}>
                     <div className="jar-header">
@@ -347,6 +380,18 @@ export default function PiggyBankPage() {
                         {j.monthlyRepayment != null && parseFloat(String(j.monthlyRepayment)) > 0 && (
                           <span className="jar-monthly">月还 ¥{parseFloat(String(j.monthlyRepayment)).toFixed(0)}</span>
                         )}
+                        <Button
+                          type="text"
+                          size="small"
+                          onClick={() => {
+                            setJarImageEditing(j);
+                            setJarImageModalOpen(true);
+                          }}
+                          className="jar-album-btn"
+                          title="梦想相册"
+                        >
+                          相册{images.length ? `（${images.length}）` : ''}
+                        </Button>
                         <Button type="text" size="small" onClick={() => onAbandon(j.id)} className="jar-abandon-btn" icon={<CloseCircleOutlined />} title="放弃罐子" />
                       </div>
                     </div>
@@ -357,6 +402,40 @@ export default function PiggyBankPage() {
           </div>
         </section>
       </div>
+
+      <Modal
+        title={jarImageEditing ? `梦想相册：${jarImageEditing.name}` : '梦想相册'}
+        open={jarImageModalOpen}
+        onCancel={() => {
+          setJarImageModalOpen(false);
+          setJarImageEditing(null);
+        }}
+        footer={null}
+        width={640}
+        centered
+      >
+        {jarImageEditing ? (
+          <PiggyJarImageInput
+            jarId={jarImageEditing.id}
+            jarName={jarImageEditing.name}
+            value={normalizeImageUrls(jarImageEditing.imageUrls)}
+            disabled={jarImageEditing.status === 'completed'}
+            onUploadingChange={setJarImageUploading}
+            onChange={(next) => {
+              // 本地同步，避免重新 loadData 才能看到计数变化
+              setJars((prev) =>
+                prev.map((it) => (it.id === jarImageEditing.id ? { ...it, imageUrls: next } : it))
+              );
+              setJarImageEditing((prev) => (prev ? { ...prev, imageUrls: next } : prev));
+            }}
+          />
+        ) : null}
+        {jarImageEditing?.status === 'completed' ? (
+          <div style={{ marginTop: 12, color: '#999', fontSize: 12 }}>
+            已完成的罐子相册仅支持查看，不支持继续上传。
+          </div>
+        ) : null}
+      </Modal>
 
       <Modal
         title="添加梦想罐子"

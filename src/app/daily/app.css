@@ -93,6 +93,23 @@
     line-height: 1.4;
 }
 
+.success-diary-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.success-diary-tip-icon {
+    color: rgba(6, 128, 67, 0.7);
+    cursor: help;
+    font-size: 14px;
+}
+
+.success-diary-tip-icon:hover {
+    color: rgba(6, 128, 67, 0.95);
+}
+
 .work-mode-row {
     display: flex;
     align-items: center;

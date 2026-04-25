@@ -8,7 +8,16 @@ async function GET(request: NextRequest) {
 		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const jars = await PiggyBankJarModal.findAll({
 			where: { userId },
-			order: [['sortOrder', 'ASC'], ['id', 'ASC']],
+			order: [
+				[
+					PiggyBankJarModal.sequelize!.literal(
+						"CASE WHEN status = 'completed' THEN 1 ELSE 0 END"
+					),
+					'ASC',
+				],
+				['sortOrder', 'ASC'],
+				['id', 'ASC'],
+			],
 			raw: true,
 		})
 

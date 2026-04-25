@@ -164,13 +164,32 @@
 }
 
 .jar-vessel.jar-completed {
-  opacity: 0.85;
+  opacity: 0.55;
+  filter: grayscale(0.8);
 }
 
 .jar-vessel .jar-status-badge {
   font-size: 11px;
   color: #52c41a;
   margin-left: 4px;
+}
+
+.jar-vessel.jar-completed .jar-status-badge {
+  color: #999;
+}
+
+.jar-vessel.jar-completed .jar-fill {
+  background: linear-gradient(to top, #c9c9c9, #e6e6e6, #f5f5f5);
+}
+
+.jar-vessel .jar-album-btn {
+  padding: 2px 0;
+  font-size: 12px;
+  color: #666 !important;
+}
+
+.jar-vessel .jar-album-btn:hover {
+  color: #999 !important;
 }
 
 .jar-vessel .jar-footer-actions {
