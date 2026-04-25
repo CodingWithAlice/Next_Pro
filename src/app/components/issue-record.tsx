@@ -1,7 +1,7 @@
 
-import { Button, Input, message } from "antd";
+import { Button, Input, Tooltip, message } from "antd";
 import { FormatDateToMonthDayWeek, formatMinToHM, IssueRecordProps } from "@/components/tool"
-import { ExperimentFilled } from "@ant-design/icons";
+import { ExperimentFilled, InfoCircleOutlined } from "@ant-design/icons";
 import Api from "@/service/api";
 import dayjs from "dayjs";
 import config from "config";
@@ -37,6 +37,8 @@ function UniformTextAreaWithStyle({ type, placeholder, source, emit }: UniformTe
 export default function IssueRecord({ study, issueData, setIssueData, currentDate }: IssueRecordFuncProps) {
     const [messageApi, contextHolder] = message.useMessage();
     // const { styles } = useStyle();
+    const successDiaryTip =
+        '先记录今天做成的事情（越具体越好），再在此基础上描述你想要的未来（你希望把它发展成什么）';
 
     const handleInput = (type: string, value: string) => {
         const change = { ...issueData, [type]: value };
@@ -89,12 +91,17 @@ export default function IssueRecord({ study, issueData, setIssueData, currentDat
                     { key: 'reading', placeholder: '阅读情况' }
                 ].map(it => getTextArea(it.key as keyof IssueRecordProps, it.placeholder, issueData))}
             </section>
-            【做得棒的3件事】
+            <div className="success-diary-title">
+                <span>【成功日记】</span>
+                <Tooltip title={successDiaryTip} placement="top">
+                    <InfoCircleOutlined className="success-diary-tip-icon" />
+                </Tooltip>
+            </div>
             {[2, 4].includes(dayjs(currentDate).day()) && (
                 <div className="daily-note-label">{config.dailyNote}</div>
             )}
-            {getTextArea('good', '积极心理学', issueData)}
-            【今天有犯错吗？错误是纠正偏差的大好机会】
+            {getTextArea('good', '写下今天做成的事情（建议 3 条），再补一句：我想把它发展成……', issueData)}
+            【今天有哪些可以校准的小偏差？把它当作一次温柔的纠偏】
             {getTextArea('better', '可以变得更好的事情', issueData)}
             <div className='btn-group'>
                 <Button onClick={handleSave} icon={<ExperimentFilled />}>
