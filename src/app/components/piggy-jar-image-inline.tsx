@@ -59,7 +59,7 @@ export default function PiggyJarImageInline(props: {
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
 			{imageSrc ? (
-				<div style={{ position: 'relative' }}>
+				<div className="jar-image-thumb" style={{ position: 'relative' }}>
 					<Image
 						src={imageSrc}
 						alt="dream"
@@ -69,6 +69,7 @@ export default function PiggyJarImageInline(props: {
 						preview={true}
 					/>
 					<Button
+						className="jar-image-remove"
 						size="small"
 						danger
 						type="primary"

@@ -186,6 +186,17 @@
   margin-bottom: 6px;
 }
 
+.jar-image-thumb .jar-image-remove {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.16s ease;
+}
+
+.jar-image-thumb:hover .jar-image-remove {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .jar-vessel .jar-footer-actions {
   display: flex;
   align-items: center;
