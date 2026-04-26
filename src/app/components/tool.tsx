@@ -15,6 +15,19 @@ const getCurrentBySub = (subtractDay?: number) => {
     return dayjs().subtract(subtractDay, 'day')
 };
 
+/**
+ * 将一个时间（时分秒）对齐到指定日期（YYYY-MM-DD），避免补录时混入“今天”的日期导致 diff 超过 24h。
+ */
+function alignTimeToDate(time: Dayjs, date: string | Dayjs): Dayjs {
+    const t = dayjs(time);
+    const d = dayjs(date);
+    return d
+        .hour(t.hour())
+        .minute(t.minute())
+        .second(t.second())
+        .millisecond(t.millisecond());
+}
+
 // 展示 月.日 周几 - 默认展示昨天
 function getYesterdayDate(handle: number = config.current, urlDate?: string) {
     const date = getCurrentBySub(handle);
@@ -235,6 +248,7 @@ export {
     Category,
     CategoryColor,
     getCurrentBySub,
+    alignTimeToDate,
     transTitle,
     sortIssuesWithSleepLast,
     type IssueRecordProps,

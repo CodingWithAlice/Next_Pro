@@ -1,6 +1,6 @@
 import { Select, TimePicker } from "antd";
 import dayjs from "dayjs";
-import { formatMinToHM, getGapTime } from "./tool";
+import { alignTimeToDate, formatMinToHM, getGapTime } from "./tool";
 import classNames from "classnames";
 import { routineType } from '@/daily/page';
 import config from "config";
@@ -9,6 +9,7 @@ interface CustomTimePickerProps {
     onIssue?: (issue: Issue) => void;
     init: Issue;
     routineTypes: routineType[];
+    baseDate: string;
 }
 
 interface Issue {
@@ -20,20 +21,25 @@ interface Issue {
     interval: number;
 }
 
-function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps) {
+function CustomTimePicker({ init, onIssue, routineTypes, baseDate }: CustomTimePickerProps) {
     const options = routineTypes.map((type: routineType) => ({
         value: type.id,
         label: type.des,
     }));
 
     const isWorkType = +init.type === +config.workId; // 判断是否为工作类型
+    const normalize = (t: dayjs.Dayjs | null) => (t ? alignTimeToDate(t, baseDate) : t);
 
     const handleChange = (daySort: number, value: string | number | dayjs.Dayjs | null, changeType: keyof Issue) => {
-        const newIssue = { ...init, daySort, [changeType]: value };
+        const v =
+            changeType === 'startTime' || changeType === 'endTime'
+                ? normalize(value as dayjs.Dayjs | null)
+                : value;
+        const newIssue = { ...init, daySort, [changeType]: v };
         
         // 如果是工作类型且修改的是时间，同时更新 startTime 和 endTime
         if (+newIssue.type === +(config.workId) && (changeType === 'startTime' || changeType === 'endTime')) {
-            const timeValue = value as dayjs.Dayjs;
+            const timeValue = v as dayjs.Dayjs | null;
             if (timeValue) {
                 newIssue.startTime = timeValue;
                 newIssue.endTime = timeValue;
@@ -52,7 +58,7 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
         if (changeType === 'type') {
             if (+(value ?? '') === +(config.workId)) {
                 // 切换到工作类型，设置时间相同
-                const currentTime = newIssue.startTime || dayjs();
+                const currentTime = newIssue.startTime || alignTimeToDate(dayjs(), baseDate);
                 newIssue.startTime = currentTime;
                 newIssue.endTime = currentTime;
                 newIssue.duration = 0;
