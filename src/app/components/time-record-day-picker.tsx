@@ -7,6 +7,8 @@ import Api from '@/service/api';
 import { AntDesignOutlined } from '@ant-design/icons';
 import { type Issue } from '@/components/custom-time-picker';
 import { routineType } from '@/daily/page';
+import VoiceTimeAssistant from './voice-time-assistant';
+import dayjs from 'dayjs';
 
 interface TimeRecordPickerProps {
     total: number,
@@ -22,6 +24,7 @@ export default function TimeRecordDayPicker({ issues, setIssues, routineType, to
     const [messageApi, contextHolder] = message.useMessage();
     const urlParams = useSearchParams();
     const urlDate = urlParams?.get('date');
+    const currentDate = urlDate || dayjs().format('YYYY-MM-DD');
 
     const handleAddIssue = () => {
         const lastIssue = issues[issues.length - 1];
@@ -133,6 +136,16 @@ export default function TimeRecordDayPicker({ issues, setIssues, routineType, to
             freshTime={onChange} />}
         <Space className='btn-group'>
             <Button disabled={!routineType.length} onClick={handleAddIssue}>添加一项</Button>
+            <VoiceTimeAssistant
+                currentDate={currentDate}
+                issues={issues}
+                onApply={(issue) => {
+                    const merged = [...issues, issue].map((it, i) => ({ ...it, daySort: i }));
+                    setIssues(merged);
+                    onChange(merged);
+                    messageApi.success('已添加到列表，记得点保存');
+                }}
+            />
             <Button disabled={!routineType.length} onClick={handleSave} icon={<AntDesignOutlined />}>
                 保存
             </Button>

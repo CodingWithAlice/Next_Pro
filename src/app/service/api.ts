@@ -56,6 +56,15 @@ const Api = {
 	getDeepSeekApi(serialNumber: string, searchType: SearchType) {
 		return request.get('deepseek', { serialNumber, type: searchType, timeout: 300000 }) // 300秒
 	},
+	postAiParseTimeApi(text: string, date?: string) {
+		return request.post('ai/parse-time', { text, date }) as Promise<{
+			raw: string
+			start: string | null
+			end: string | null
+			title: string | null
+			isCrossDay: boolean
+		}>
+	},
 	postMonthApi(data: { [key: string]: string | number }) {
 		return request.post('month', data)
 	},
