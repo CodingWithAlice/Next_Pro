@@ -24,12 +24,6 @@ function normalizeString(input: unknown): string {
 	return input.trim()
 }
 
-function ensureTedPrefix(ted: string) {
-	const s = (ted || '').trim()
-	if (!s) return 'Round4: '
-	return /^Round4\s*:/.test(s) ? s : `Round4: ${s}`
-}
-
 export async function POST(request: NextRequest) {
 	try {
 		const body = (await request.json()) as { data?: ParseIssueRequest } | ParseIssueRequest
@@ -57,7 +51,7 @@ export async function POST(request: NextRequest) {
 					'2) work（工作）必须区分并按模板输出：\n' +
 					'   1、技术方向：<内容或空>\n' +
 					'   2、业务方向：<内容或空>\n' +
-					'3) ted 字段必须以 "Round4: " 开头（如果用户没说，也要输出 "Round4: "）。\n' +
+					'3) ted 字段只需要输出内容本身，不要添加任何前缀（例如不要写 "Round4:"），不确定就留空字符串。\n' +
 					'4) 其它字段（sport/video/reading/good/better）尽量提取要点，允许多行；不确定就留空字符串。\n' +
 					'请仅返回 JSON 对象，且所有字段必须是字符串（不要返回 null/数组/多余字段）。不要输出除 JSON 以外的任何内容。',
 			},
@@ -88,7 +82,7 @@ export async function POST(request: NextRequest) {
 			video: normalizeString(parsed.video),
 			front: normalizeString(parsed.front),
 			work: normalizeString(parsed.work),
-			ted: ensureTedPrefix(normalizeString(parsed.ted)),
+			ted: normalizeString(parsed.ted),
 			reading: normalizeString(parsed.reading),
 			good: normalizeString(parsed.good),
 			better: normalizeString(parsed.better),

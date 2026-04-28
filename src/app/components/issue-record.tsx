@@ -89,17 +89,86 @@ export default function IssueRecord({ study, issueData, setIssueData, currentDat
             return;
         }
 
-        const mergeIfNonEmpty = (next: string, prev: string) => (next && next.trim() ? next : (prev || ''));
+        const appendBlock = (prevRaw: string, nextRaw: string) => {
+            const prev = (prevRaw || '').trim();
+            const next = (nextRaw || '').trim();
+            if (!next) return prevRaw || '';
+            if (!prev) return nextRaw || next;
+            return `${prev}\n${next}`;
+        };
+
+        const extractNumberedSection = (textRaw: string, sectionName: string) => {
+            const text = textRaw || '';
+            const escaped = sectionName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const reg = new RegExp(`(^|\\n)\\s*\\d+、\\s*${escaped}：([\\s\\S]*?)(?=\\n\\s*\\d+、|\\s*$)`, 'm');
+            const m = text.match(reg);
+            return (m?.[2] ?? '').trim();
+        };
+
+        const buildFrontMerged = (prev: string, next: string) => {
+            const keys = ['LTN', 'BOX1', '在线工具'] as const;
+            const prevParts = {
+                LTN: extractNumberedSection(prev, 'LTN'),
+                BOX1: extractNumberedSection(prev, 'BOX1'),
+                在线工具: extractNumberedSection(prev, '在线工具'),
+            };
+            const nextParts = {
+                LTN: extractNumberedSection(next, 'LTN'),
+                BOX1: extractNumberedSection(next, 'BOX1'),
+                在线工具: extractNumberedSection(next, '在线工具'),
+            };
+
+            const mergedParts = {
+                LTN: appendBlock(prevParts.LTN, nextParts.LTN).trim(),
+                BOX1: appendBlock(prevParts.BOX1, nextParts.BOX1).trim(),
+                在线工具: appendBlock(prevParts.在线工具, nextParts.在线工具).trim(),
+            };
+
+            return [
+                `1、LTN：${mergedParts.LTN ? mergedParts.LTN : ''}`,
+                `2、BOX1：${mergedParts.BOX1 ? mergedParts.BOX1 : ''}`,
+                `3、在线工具：${mergedParts.在线工具 ? mergedParts.在线工具 : ''}`,
+            ].join('\n');
+        };
+
+        const buildWorkMerged = (prev: string, next: string) => {
+            const prevTech = extractNumberedSection(prev, '技术方向');
+            const prevBiz = extractNumberedSection(prev, '业务方向');
+            const nextTech = extractNumberedSection(next, '技术方向');
+            const nextBiz = extractNumberedSection(next, '业务方向');
+
+            const tech = appendBlock(prevTech, nextTech).trim();
+            const biz = appendBlock(prevBiz, nextBiz).trim();
+            return [
+                `1、技术方向：${tech ? tech : ''}`,
+                `2、业务方向：${biz ? biz : ''}`,
+            ].join('\n');
+        };
+
+        const appendTed = (prevRaw: string, nextRaw: string) => {
+            const prev = prevRaw || '';
+            const next = (nextRaw || '').trim();
+            if (!next) return prev;
+
+            const prevTrim = prev.trim();
+            const isJustPrefix = /^Round4\s*:\s*$/.test(prevTrim);
+            if (isJustPrefix) return `Round4: ${next}`;
+
+            if (!prevTrim) return next;
+            // 若已有 Round4 前缀但还有内容，则换行追加
+            return `${prevTrim}\n${next}`;
+        };
+
         const merged: IssueRecordProps = {
             ...issueData,
-            sport: mergeIfNonEmpty(aiParsed.sport, issueData.sport),
-            video: mergeIfNonEmpty(aiParsed.video, issueData.video),
-            front: mergeIfNonEmpty(aiParsed.front, issueData.front),
-            work: mergeIfNonEmpty(aiParsed.work, issueData.work),
-            ted: mergeIfNonEmpty(aiParsed.ted, issueData.ted),
-            reading: mergeIfNonEmpty(aiParsed.reading, issueData.reading),
-            good: mergeIfNonEmpty(aiParsed.good, issueData.good),
-            better: mergeIfNonEmpty(aiParsed.better, issueData.better),
+            sport: appendBlock(issueData.sport, aiParsed.sport),
+            video: appendBlock(issueData.video, aiParsed.video),
+            front: buildFrontMerged(issueData.front || '', aiParsed.front || ''),
+            work: buildWorkMerged(issueData.work || '', aiParsed.work || ''),
+            ted: appendTed(issueData.ted || '', aiParsed.ted || ''),
+            reading: appendBlock(issueData.reading, aiParsed.reading),
+            good: appendBlock(issueData.good, aiParsed.good),
+            better: appendBlock(issueData.better, aiParsed.better),
         };
         setIssueData(merged);
         setAiOpen(false);
