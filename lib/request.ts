@@ -1,12 +1,19 @@
 import axios, { AxiosResponse, AxiosRequestConfig, AxiosError } from 'axios'
 import OpenAI from 'openai'
 
-const apiKey = process.env.DEEPSEEK_API_KEY || 'a'
-const openai = new OpenAI({
-	baseURL: 'https://api.deepseek.com',
-	apiKey,
-	dangerouslyAllowBrowser: true,
-})
+function getDeepSeekClient() {
+	const apiKey = process.env.DEEPSEEK_API_KEY
+	if (!apiKey) {
+		throw new Error(
+			'缺少 DEEPSEEK_API_KEY'
+		)
+	}
+	return new OpenAI({
+		baseURL: 'https://api.deepseek.com',
+		apiKey,
+		dangerouslyAllowBrowser: true,
+	})
+}
 
 // 定义请求体的类型
 export interface MessageProp {
@@ -114,6 +121,7 @@ async function del(
 
 export async function AIPOST(messages: MessageProp[]) {
 	try {
+		const openai = getDeepSeekClient()
 		// 获取客户端发送的数据
 		const completion = await openai.chat.completions.create({
 			messages: messages,
@@ -127,6 +135,7 @@ export async function AIPOST(messages: MessageProp[]) {
 		return completion.choices[0].message?.content
 	} catch (error) {
 		console.error('Error calling DeepSeek API:', error)
+		throw error
 	}
 }
 

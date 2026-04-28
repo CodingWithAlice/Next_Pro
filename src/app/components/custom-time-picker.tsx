@@ -23,7 +23,7 @@ interface Issue {
 
 function CustomTimePicker({ init, onIssue, routineTypes, baseDate }: CustomTimePickerProps) {
     const options = routineTypes.map((type: routineType) => ({
-        value: type.id,
+        value: String(type.id),
         label: type.des,
     }));
 
@@ -34,7 +34,7 @@ function CustomTimePicker({ init, onIssue, routineTypes, baseDate }: CustomTimeP
         const v =
             changeType === 'startTime' || changeType === 'endTime'
                 ? normalize(value as dayjs.Dayjs | null)
-                : value;
+                : (changeType === 'type' ? String(value ?? '') : value);
         const newIssue = { ...init, daySort, [changeType]: v };
         
         // 如果是工作类型且修改的是时间，同时更新 startTime 和 endTime
@@ -120,7 +120,7 @@ function CustomTimePicker({ init, onIssue, routineTypes, baseDate }: CustomTimeP
                 )}
             </div>
             <Select
-                value={init.type}
+                value={String(init.type ?? '')}
                 options={options}
                 onChange={value => handleChange(init.daySort, value, 'type')}
                 size='middle'
