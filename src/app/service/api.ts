@@ -70,6 +70,19 @@ const Api = {
 			routineTypeId: number | null
 		}>
 	},
+	postAiParseIssueApi(text: string, date?: string) {
+		return request.post('ai/parse-issue', { text, date }) as Promise<{
+			raw: string
+			sport: string
+			video: string
+			front: string
+			work: string
+			ted: string
+			reading: string
+			good: string
+			better: string
+		}>
+	},
 	postMonthApi(data: { [key: string]: string | number }) {
 		return request.post('month', data)
 	},
