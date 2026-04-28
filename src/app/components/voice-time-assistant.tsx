@@ -1,11 +1,13 @@
 "use client"
 
-import { Button, Modal, message } from 'antd'
+import { Button, Input, Modal, message } from 'antd'
 import { AudioOutlined } from '@ant-design/icons'
-import { useMemo, useRef, useState } from 'react'
+import { useState } from 'react'
 import Api from '@/service/api'
 import dayjs from 'dayjs'
 import type { Issue } from '@/components/custom-time-picker'
+import type { routineType } from '@/daily/page'
+import config from 'config'
 
 type Parsed = {
 	raw: string
@@ -13,95 +15,30 @@ type Parsed = {
 	end: string | null
 	title: string | null
 	isCrossDay: boolean
-}
-
-type WebkitSpeechRecognitionResultAlternative = { transcript: string }
-type WebkitSpeechRecognitionResult = ArrayLike<WebkitSpeechRecognitionResultAlternative>
-type WebkitSpeechRecognitionEventLike = {
-	results: ArrayLike<WebkitSpeechRecognitionResult>
-}
-type WebkitSpeechRecognitionErrorEventLike = { error?: string }
-type WebkitSpeechRecognitionLike = {
-	lang: string
-	continuous: boolean
-	interimResults: boolean
-	start: () => void
-	stop: () => void
-	onresult?: (event: WebkitSpeechRecognitionEventLike) => void
-	onerror?: (event: WebkitSpeechRecognitionErrorEventLike) => void
-	onend?: () => void
-}
-
-function hasWebkitSpeechRecognition(): boolean {
-	return typeof window !== 'undefined' && 'webkitSpeechRecognition' in window
+	routineTypeId: number | null
 }
 
 export default function VoiceTimeAssistant({
 	currentDate,
 	issues,
+	routineTypes,
 	onApply,
 }: {
 	currentDate: string
 	issues: Issue[]
+	routineTypes: routineType[]
 	onApply: (issue: Issue) => void
 }) {
 	const [open, setOpen] = useState(false)
-	const [listening, setListening] = useState(false)
 	const [loading, setLoading] = useState(false)
 	const [text, setText] = useState<string>('')
 	const [parsed, setParsed] = useState<Parsed | null>(null)
 	const [messageApi, contextHolder] = message.useMessage()
 
-	const recognitionRef = useRef<WebkitSpeechRecognitionLike | null>(null)
-
-	const canSpeech = useMemo(() => hasWebkitSpeechRecognition(), [])
-
-	const handleStart = async () => {
-		setParsed(null)
-		setText('')
-
-		if (!canSpeech) {
-			messageApi.warning('当前浏览器不支持语音识别（建议 Android Chrome）。可改用系统语音输入后粘贴文字。')
-			return
-		}
-
-		try {
-			const Rec = (window as unknown as { webkitSpeechRecognition?: new () => WebkitSpeechRecognitionLike })
-				.webkitSpeechRecognition
-			if (!Rec) throw new Error('webkitSpeechRecognition 不可用')
-			const recognition = new Rec()
-			recognition.lang = 'zh-CN'
-			recognition.continuous = false
-			recognition.interimResults = false
-
-			recognition.onresult = (event: WebkitSpeechRecognitionEventLike) => {
-				const t = event.results?.[0]?.[0]?.transcript || ''
-				setText(String(t).trim())
-			}
-			recognition.onerror = (event: WebkitSpeechRecognitionErrorEventLike) => {
-				setListening(false)
-				messageApi.error(event?.error || '语音识别失败')
-			}
-			recognition.onend = () => {
-				setListening(false)
-			}
-
-			recognitionRef.current = recognition
-			setListening(true)
-			recognition.start()
-		} catch (e: unknown) {
-			setListening(false)
-			const errMsg = e instanceof Error ? e.message : '无法启动语音识别'
-			messageApi.error(errMsg)
-		}
-	}
-
-	const handleStop = () => {
-		try {
-			recognitionRef.current?.stop?.()
-		} finally {
-			setListening(false)
-		}
+	const getRoutineTypeLabel = (id: number | null) => {
+		if (id == null) return '未选择'
+		const hit = (routineTypes || []).find((rt) => rt.id === id)
+		return hit?.des || `未匹配(${id})`
 	}
 
 	const handleParse = async () => {
@@ -113,7 +50,11 @@ export default function VoiceTimeAssistant({
 		setLoading(true)
 		setParsed(null)
 		try {
-			const res = await Api.postAiParseTimeApi(t, currentDate)
+			const res = await Api.postAiParseTimeApi(
+				t,
+				currentDate,
+				(routineTypes || []).map((rt) => ({ id: rt.id, des: rt.des, type: rt.type }))
+			)
 			setParsed(res)
 		} catch (e: unknown) {
 			const errMsg =
@@ -135,16 +76,20 @@ export default function VoiceTimeAssistant({
 		const base = currentDate
 		const start = dayjs(`${base} ${parsed.start}:00`)
 		const endRaw = parsed.end ? dayjs(`${base} ${parsed.end}:00`) : null
-		const end = endRaw
+		const endMaybeCross = endRaw
 			? (parsed.isCrossDay ? endRaw.add(1, 'day') : endRaw)
 			: start.add(1, 'minute')
+
+		const pickedTypeId = parsed.routineTypeId != null ? String(parsed.routineTypeId) : ''
+		const isWorkType = pickedTypeId && +pickedTypeId === +config.workId
+		const end = isWorkType ? start : endMaybeCross
 
 		const newIssue: Issue = {
 			startTime: start,
 			endTime: end.isBefore(start) ? start.add(1, 'minute') : end,
-			type: '',
+			type: pickedTypeId,
 			daySort: issues.length,
-			duration: Math.max(0, end.diff(start, 'minute')),
+			duration: isWorkType ? 0 : Math.max(0, end.diff(start, 'minute')),
 			interval: 0,
 		}
 
@@ -156,35 +101,32 @@ export default function VoiceTimeAssistant({
 		<>
 			{contextHolder}
 			<Button onClick={() => setOpen(true)} icon={<AudioOutlined />}>
-				语音填时间
+				AI 填时间
 			</Button>
 			<Modal
-				title="语音填时间"
+				title="AI 填时间（建议用输入法语音）"
 				open={open}
-				onCancel={() => {
-					handleStop()
-					setOpen(false)
-				}}
+				onCancel={() => setOpen(false)}
 				okText="应用到列表"
 				onOk={handleApply}
 				okButtonProps={{ disabled: !parsed?.start }}
 				confirmLoading={loading}
 			>
-				<div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12 }}>
-					<Button onClick={listening ? handleStop : handleStart} type={listening ? 'primary' : 'default'}>
-						{listening ? '停止' : '开始说话'}
-					</Button>
-					<Button onClick={handleParse} loading={loading} disabled={!text.trim()}>
-						解析
-					</Button>
-				</div>
-
 				<div style={{ fontSize: 12, opacity: 0.75, marginBottom: 8 }}>
-					示例： “晚上七点到八点半 普拉提” / “9:15 到 10:05 写周报” / “下午两点到四点”
+					用输入法自带语音把内容说出来即可（Chrome/Safari 都可用）。示例： “晚上七点到八点半 普拉提” / “9:15 到 10:05 写周报” / “下午两点到四点 工作”
 				</div>
 
-				<div style={{ padding: 10, border: '1px solid #eee', borderRadius: 6, minHeight: 44 }}>
-					{text ? text : <span style={{ opacity: 0.5 }}>识别文本会显示在这里</span>}
+				<Input.TextArea
+					value={text}
+					onChange={(e) => setText(e.target.value)}
+					placeholder="把输入法语音转成的文本放这里（支持口语）"
+					autoSize={{ minRows: 2, maxRows: 6 }}
+				/>
+
+				<div style={{ marginTop: 12 }}>
+					<Button onClick={handleParse} loading={loading} disabled={!text.trim()}>
+						解析并预览
+					</Button>
 				</div>
 
 				{parsed && (
@@ -193,12 +135,7 @@ export default function VoiceTimeAssistant({
 						<div>结束：{parsed.end ?? '-'}</div>
 						<div>跨天：{parsed.isCrossDay ? '是' : '否'}</div>
 						{parsed.title && <div>标题：{parsed.title}</div>}
-					</div>
-				)}
-
-				{!canSpeech && (
-					<div style={{ marginTop: 12, fontSize: 12, color: '#999' }}>
-						说明：DeepSeek 不提供语音转文字（ASR）。当前实现使用浏览器语音识别；如果你的手机浏览器不支持，可用系统语音输入把文字粘贴到这里再点解析。
+						<div>类型：{getRoutineTypeLabel(parsed.routineTypeId)}</div>
 					</div>
 				)}
 			</Modal>

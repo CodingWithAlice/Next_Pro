@@ -143,6 +143,7 @@ export default function TimeRecordDayPicker({ issues, setIssues, routineType, to
             <VoiceTimeAssistant
                 currentDate={currentDate}
                 issues={issues}
+                routineTypes={routineType}
                 onApply={(issue) => {
                     const merged = [...issues, issue].map((it, i) => ({ ...it, daySort: i }));
                     setIssues(merged);
