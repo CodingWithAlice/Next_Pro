@@ -74,7 +74,7 @@ export async function countLtnTopicsInRange(
 		where: { userId, type: 'LTN' },
 		attributes: ['id'],
 		raw: true,
-	})) as { id: number }[]
+	})) as unknown as { id: number }[]
 
 	const typeIds = ltnTypes.map((t) => Number(t.id)).filter(Boolean)
 	if (!typeIds.length) return 0
