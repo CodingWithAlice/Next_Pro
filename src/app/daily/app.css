@@ -60,6 +60,27 @@
     text-align: left;
 }
 
+.daily-week-header__title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.daily-week-header__piggy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.42em;
+    color: rgb(38, 157, 128);
+    opacity: 0.6;
+    line-height: 1;
+    transition: opacity 0.15s ease;
+}
+
+.daily-week-header__piggy:hover {
+    opacity: 0.9;
+}
+
 .daily-week-header__title {
     display: block;
     margin: 0;

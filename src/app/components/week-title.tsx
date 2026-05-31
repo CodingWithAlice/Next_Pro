@@ -4,6 +4,7 @@ import { getCurrentBySub } from './tool';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import dayjs from 'dayjs';
+import { BankOutlined } from '@ant-design/icons';
 
 interface WeekTitleProps {
     /** 当前日报日期，供连续记录天数联动刷新 */
@@ -60,9 +61,19 @@ export default function WeekTitle({ currentDate }: WeekTitleProps) {
             </div>
             <div className="daily-week-header__center">
                 <div className="daily-week-header__title-block">
-                    <Link href="/" className="daily-week-header__title home-link-title">
-                        Week {now.week()}
-                    </Link>
+                    <div className="daily-week-header__title-row">
+                        <Link href="/" className="daily-week-header__title home-link-title">
+                            Week {now.week()}
+                        </Link>
+                        <Link
+                            href="/piggy-bank"
+                            className="daily-week-header__piggy"
+                            title="零钱罐子"
+                            aria-label="零钱罐子"
+                        >
+                            <BankOutlined />
+                        </Link>
+                    </div>
                     <LifeFootprint
                         currentDate={currentDate}
                         className="daily-week-header__subtitle"
