@@ -203,10 +203,10 @@
     color: white;
 }
 
-/* 主内容：左 1/3 时间统计，右 2/3 事项统计 */
+/* 主内容：左时间统计略宽，避免类型选择与时间选择重叠 */
 .daily-columns {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    grid-template-columns: minmax(22rem, 2fr) minmax(0, 3fr);
     gap: 14px 20px;
     width: 100%;
     align-items: start;
@@ -342,7 +342,7 @@
     color: rgba(6, 128, 67, 0.95);
 }
 
-/* 事项统计：首屏紧凑，内容多时在框内滚动，可拖拽增高 */
+/* 事项统计：新增/模板占位首屏紧凑；有内容时随 autoSize 全部展开 */
 .issue-wrap {
     display: flex;
     flex-direction: column;
@@ -364,11 +364,15 @@
     line-height: 1.35;
     padding-block: 4px !important;
     white-space: pre-wrap;
+    overflow-y: hidden !important;
+}
+
+.issue-wrap .issue-textarea--compact textarea {
     overflow-y: auto !important;
 }
 
 /* 柔光·光亮条件：默认三行高度，空态不因 placeholder 出现滚动条 */
-.issue-wrap .issue-textarea--better textarea:placeholder-shown {
+.issue-wrap .issue-textarea--compact.issue-textarea--better textarea:placeholder-shown {
     overflow-y: hidden !important;
 }
 
@@ -433,15 +437,22 @@
     display: flex;
     align-items: center;
     margin-top: 4px;
+    gap: 8px;
     white-space: nowrap;
-    justify-content: space-between;
 }
 
 .time-picker-wrapper {
     display: flex;
     align-items: center;
     gap: 0;
-    width: 14rem;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.daily-panel--time .routine-select {
+    flex: 0 0 auto;
+    min-width: 5.5rem;
+    width: auto;
 }
 
 .purple {

@@ -8,6 +8,22 @@ import config from "config";
 import { useState } from "react";
 const { TextArea } = Input;
 
+const ISSUE_FIELD_TEMPLATES: Partial<Record<keyof IssueRecordProps, string>> = {
+    front: '1、LTN：做？题 + 错题重做(时长) \n2、BOX1： \n3、在线工具：',
+    work: '1、技术方向： \n2、业务方向：',
+    ted: 'Round4: ',
+};
+
+function isCompactIssueField(
+    key: keyof IssueRecordProps,
+    value: string | undefined
+): boolean {
+    const trimmed = (value || '').trim();
+    if (!trimmed) return true;
+    const template = ISSUE_FIELD_TEMPLATES[key];
+    return template !== undefined && value === template;
+}
+
 interface UniformTextAreaWithStyleProps {
     type: keyof IssueRecordProps,
     placeholder: string,
@@ -34,16 +50,21 @@ function UniformTextAreaWithStyle({
     minRows = 1,
     maxRows = 12,
 }: UniformTextAreaWithStyleProps) {
+    const value = String(source[type] ?? '');
+    const compact = isCompactIssueField(type, value);
     return <TextArea
         key={type}
-        className={className}
-        value={source[type]}
+        className={[
+            className,
+            compact ? 'issue-textarea--compact' : '',
+        ].filter(Boolean).join(' ')}
+        value={value}
         onChange={(e) => emit(type, (e.target as HTMLTextAreaElement).value)}
         placeholder={placeholder}
         style={{
             resize: 'vertical',
         }}
-        autoSize={{ minRows, maxRows }}
+        autoSize={compact ? { minRows, maxRows } : { minRows }}
     />
 }
 
