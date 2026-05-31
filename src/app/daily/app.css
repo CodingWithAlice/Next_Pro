@@ -1,5 +1,9 @@
 /* 日报顶栏：左导航与标题同高 + 居中 Week / 副标题，共约两行（避免四行堆叠） */
 .daily-outer {
+    --daily-content-width: 100%;
+    --daily-time-col-min: 27rem;
+    --daily-time-col-max: 32rem;
+    --daily-time-col-pct: 34%;
     align-items: stretch;
     justify-content: flex-start;
     padding: 1rem 1.25rem 1.5rem;
@@ -7,9 +11,16 @@
     box-sizing: border-box;
 }
 
+@media only screen and (min-width: 701px) {
+    .daily-outer {
+        /* 大屏：主内容占视口 90% */
+        --daily-content-width: 90%;
+    }
+}
+
 .daily-main {
-    width: 100%;
-    max-width: 72rem;
+    width: var(--daily-content-width);
+    max-width: none;
     margin: 0 auto;
 }
 
@@ -18,8 +29,8 @@
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: center;
     gap: 8px 12px;
-    width: 100%;
-    max-width: 72rem;
+    width: var(--daily-content-width);
+    max-width: none;
     margin: 0 auto 10px;
     padding: 0 4px;
     box-sizing: border-box;
@@ -203,13 +214,28 @@
     color: white;
 }
 
-/* 主内容：左时间统计略宽，避免类型选择与时间选择重叠 */
+/* 主内容：时间列 clamp(最小, 百分比, 最大)，事项列占剩余 */
 .daily-columns {
     display: grid;
-    grid-template-columns: minmax(22rem, 2fr) minmax(0, 3fr);
+    grid-template-columns:
+        clamp(
+            var(--daily-time-col-min),
+            var(--daily-time-col-pct),
+            var(--daily-time-col-max)
+        )
+        minmax(0, 1fr);
     gap: 14px 20px;
     width: 100%;
     align-items: start;
+}
+
+.daily-panel--time {
+    --time-col-picker: 5.5rem;
+    --time-col-duration: 5.5rem;
+    --time-col-type: 6rem;
+    width: 100%;
+    min-width: min(100%, var(--daily-time-col-min));
+    max-width: 100%;
 }
 
 .daily-panel {
@@ -433,26 +459,79 @@
     color: rgba(6, 128, 67, 0.95);
 }
 
-.time-picker {
+/* 每行 flex：左侧时间区固定槽位，右侧类型+间隔成组 */
+.time-picker-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.time-picker-row {
     display: flex;
     align-items: center;
-    margin-top: 4px;
-    gap: 8px;
+    gap: 6px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.time-picker-times {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+}
+
+.time-picker-slot {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.time-picker-slot--start,
+.time-picker-slot--end {
+    width: var(--time-col-picker);
+}
+
+.time-picker-slot--duration {
+    width: var(--time-col-duration);
+    justify-content: center;
+    text-align: center;
     white-space: nowrap;
 }
 
-.time-picker-wrapper {
+.time-picker-actions {
     display: flex;
     align-items: center;
-    gap: 0;
-    flex: 1 1 auto;
+    gap: 4px;
+    flex: 0 0 auto;
     min-width: 0;
 }
 
+.daily-panel--time .time-picker-item {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
 .daily-panel--time .routine-select {
-    flex: 0 0 auto;
-    min-width: 5.5rem;
+    width: var(--time-col-type) !important;
+    min-width: var(--time-col-type);
+    max-width: var(--time-col-type);
+    flex-shrink: 0;
+}
+
+.daily-panel--time .duration-time {
     width: auto;
+    max-width: 100%;
+}
+
+.daily-panel--time .interval {
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .purple {

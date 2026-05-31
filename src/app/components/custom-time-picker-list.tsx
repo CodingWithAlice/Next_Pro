@@ -63,15 +63,17 @@ export default function CustomTimePickerList({ list, routineTypes, setList, fres
         freshTime(updatedList);
     }
     
-    return <>
-        {sortedList.map((it) => (
-            <CustomTimePicker 
-                routineTypes={routineTypes} 
-                init={it} 
-                key={it.daySort} 
-                onIssue={handleIssueUPdate} 
-                baseDate={baseDate}
-            />
-        ))}
-    </>
+    return (
+        <div className="time-picker-list">
+            {sortedList.map((it) => (
+                <CustomTimePicker
+                    routineTypes={routineTypes}
+                    init={it}
+                    key={it.daySort}
+                    onIssue={handleIssueUPdate}
+                    baseDate={baseDate}
+                />
+            ))}
+        </div>
+    )
 }

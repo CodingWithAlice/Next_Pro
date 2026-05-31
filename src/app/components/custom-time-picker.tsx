@@ -84,49 +84,50 @@ function CustomTimePicker({ init, onIssue, routineTypes, baseDate }: CustomTimeP
     })
 
     return (
-        <div className='time-picker' key={init.daySort}>
-            <div className='time-picker-wrapper'>
-                {isWorkType ? (
-                    // 工作类型：只显示一个时间选择器
-                    <div className='time-picker-item'>
+        <div className="time-picker-row">
+            <div className="time-picker-times">
+                <div className="time-picker-slot time-picker-slot--start time-picker-item">
+                    <TimePicker
+                        className="picker"
+                        format='HH:mm'
+                        minuteStep={5}
+                        value={init.startTime}
+                        onChange={(value) => handleChange(init.daySort, value, 'startTime')}
+                        needConfirm={false} />
+                </div>
+                <div className="time-picker-slot time-picker-slot--duration duration">
+                    {!isWorkType && (
+                        <>
+                            <span className="phone-hidden">-</span>
+                            <span className="duration-time">{formatMinToHM(init.duration)}</span>
+                            <span className="phone-hidden">{'->'}</span>
+                        </>
+                    )}
+                </div>
+                <div className="time-picker-slot time-picker-slot--end">
+                    {!isWorkType && (
                         <TimePicker
                             className="picker"
                             format='HH:mm'
                             minuteStep={5}
-                            value={init.startTime}
-                            onChange={(value) => handleChange(init.daySort, value, 'startTime')}
+                            value={init.endTime}
+                            onChange={(value) => handleChange(init.daySort, value, 'endTime')}
                             needConfirm={false} />
-                    </div>
-                ) : (
-                    // 非工作类型：显示两个时间选择器
-                    ['startTime', 'endTime'].map((timeType, index) => {
-                return <div key={`${init.daySort}-${timeType}`} className={index === 0 ? 'time-picker-item' : ''
-                }>
-                    <TimePicker
-                        key={init.daySort}
-                        className="picker"
-                        format='HH:mm'
-                        minuteStep={5}
-                        value={init[timeType as keyof Issue] as dayjs.Dayjs}
-                        onChange={(value) => handleChange(init.daySort, value, timeType as keyof Issue)}
-                        needConfirm={false} />
-                    {index === 0 && <div className='duration'>
-                        <span className="phone-hidden">-</span>
-                        <span className="duration-time"> {formatMinToHM(init.duration)}</span>
-                        <span className="phone-hidden">{'->'}</span>
-                    </div>}
+                    )}
                 </div>
-                    })
-                )}
             </div>
-            <Select
-                value={String(init.type ?? '')}
-                options={options}
-                onChange={value => handleChange(init.daySort, value, 'type')}
-                size='middle'
-                className="routine-select" />
-            {<span className={`${intervalClass} interval phone-hidden`}> {!!init.interval && formatMinToHM(init.interval)}</span>}
-        </div >
+            <div className="time-picker-actions">
+                <Select
+                    value={String(init.type ?? '')}
+                    options={options}
+                    onChange={value => handleChange(init.daySort, value, 'type')}
+                    size='middle'
+                    className="routine-select" />
+                <span className={`${intervalClass} interval phone-hidden`}>
+                    {!!init.interval && formatMinToHM(init.interval)}
+                </span>
+            </div>
+        </div>
     );
 }
 
