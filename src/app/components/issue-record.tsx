@@ -13,6 +13,9 @@ interface UniformTextAreaWithStyleProps {
     placeholder: string,
     source: IssueRecordProps,
     emit: (type: string, value: string) => void
+    className?: string
+    minRows?: number
+    maxRows?: number
 }
 
 interface IssueRecordFuncProps {
@@ -22,16 +25,25 @@ interface IssueRecordFuncProps {
     currentDate: string;
 }
 
-function UniformTextAreaWithStyle({ type, placeholder, source, emit }: UniformTextAreaWithStyleProps) {
+function UniformTextAreaWithStyle({
+    type,
+    placeholder,
+    source,
+    emit,
+    className,
+    minRows = 1,
+    maxRows = 12,
+}: UniformTextAreaWithStyleProps) {
     return <TextArea
         key={type}
+        className={className}
         value={source[type]}
         onChange={(e) => emit(type, (e.target as HTMLTextAreaElement).value)}
         placeholder={placeholder}
         style={{
-            resize: 'both',
+            resize: 'vertical',
         }}
-        autoSize={{ minRows: 1, maxRows: 12 }}
+        autoSize={{ minRows, maxRows }}
     />
 }
 
@@ -39,7 +51,9 @@ export default function IssueRecord({ study, issueData, setIssueData, currentDat
     const [messageApi, contextHolder] = message.useMessage();
     // const { styles } = useStyle();
     const successDiaryTip =
-        '先记录今天做成的事情（越具体越好），再在此基础上描述你想要的未来（你希望把它发展成什么）';
+        '记录克服困境后仍做对的那一步';
+    const shineWiringTip =
+        '客观看见微光背后的条件（睡眠、时段、地点等），就是在辨认自己已经做得好的习惯；再为明天动一个外部旋钮，让 shining 更容易再发生。不写缺点。';
 
     const [aiOpen, setAiOpen] = useState(false);
     const [aiLoading, setAiLoading] = useState(false);
@@ -193,45 +207,115 @@ export default function IssueRecord({ study, issueData, setIssueData, currentDat
             messageApi.error(e.message || '保存失败');
         })
     }
-    const getTextArea = (key: keyof IssueRecordProps, placeholder: string, source: IssueRecordProps) => (<UniformTextAreaWithStyle key={key} type={key} placeholder={placeholder} source={source} emit={handleInput} />)
+    const getTextArea = (
+        key: keyof IssueRecordProps,
+        placeholder: string,
+        source: IssueRecordProps,
+        opts?: { className?: string; minRows?: number; maxRows?: number }
+    ) => (
+        <UniformTextAreaWithStyle
+            key={key}
+            type={key}
+            placeholder={placeholder}
+            source={source}
+            emit={handleInput}
+            className={opts?.className}
+            minRows={opts?.minRows}
+            maxRows={opts?.maxRows}
+        />
+    )
 
-    return (<div className='wrap-week'>
+    return (<div className="daily-panel daily-panel--issues">
         {contextHolder}
-        <b>二、事项统计</b>
-        <FormatDateToMonthDayWeek />
-        <h4>前端学习时长：{formatMinToHM(study)} 🎉🎉🎉</h4>
-        <section className='issue-wrap'>
-            【复盘】
-            ①运动 + 电影：
-            <section className='flex'>
+        <header className="daily-panel__head">
+            <h2 className="daily-panel__title">二、事项统计</h2>
+            <p className="daily-panel__meta issue-study-time">
+                前端学习时长：{formatMinToHM(study)} 🎉
+            </p>
+            <FormatDateToMonthDayWeek />
+        </header>
+        <section className="daily-panel__body issue-wrap">
+            <div className="issue-section-label">【复盘】①运动 + 电影</div>
+            <section className='flex issue-flex-pair'>
                 {[
                     { key: 'sport', placeholder: '运动情况' },
                     { key: 'video', placeholder: '电影' }
-                ].map(it => getTextArea(it.key as keyof IssueRecordProps, it.placeholder, issueData))}
+                ].map(it => getTextArea(it.key as keyof IssueRecordProps, it.placeholder, issueData, {
+                    className: 'issue-textarea issue-textarea--inline',
+                    minRows: 1,
+                    maxRows: 2,
+                }))}
             </section>
-            ② 学习：
-            {getTextArea('front', '前端学习情况', issueData)}
-            ③ 工作：
-            {getTextArea('work', '前端工作情况', issueData)}
-            ④ TED+阅读：
-            <section className='flex'>
+            <div className="issue-wrap-pair">
+                <div className="issue-pair-cell">
+                    <div className="issue-section-label">② 学习</div>
+                    {getTextArea('front', '前端学习情况', issueData, {
+                        className: 'issue-textarea issue-textarea--template',
+                        minRows: 2,
+                        maxRows: 3,
+                    })}
+                </div>
+                <div className="issue-pair-cell">
+                    <div className="issue-section-label">③ 工作</div>
+                    {getTextArea('work', '前端工作情况', issueData, {
+                        className: 'issue-textarea issue-textarea--template',
+                        minRows: 2,
+                        maxRows: 3,
+                    })}
+                </div>
+            </div>
+            <div className="issue-section-label">④ TED+阅读</div>
+            <section className='flex issue-flex-pair'>
                 {[
                     { key: 'ted', placeholder: 'TED主题' },
                     { key: 'reading', placeholder: '阅读情况' }
-                ].map(it => getTextArea(it.key as keyof IssueRecordProps, it.placeholder, issueData))}
+                ].map(it => getTextArea(it.key as keyof IssueRecordProps, it.placeholder, issueData, {
+                    className: 'issue-textarea issue-textarea--inline',
+                    minRows: 1,
+                    maxRows: 2,
+                }))}
             </section>
-            <div className="success-diary-title">
-                <span>【成功日记】</span>
-                <Tooltip title={successDiaryTip} placement="top">
-                    <InfoCircleOutlined className="success-diary-tip-icon" />
-                </Tooltip>
+            <div className="issue-wrap-pair issue-wrap-pair--reflect">
+                <div className="issue-pair-cell">
+                    <div className="success-diary-title">
+                        <span>【成功日记】Catch my shining</span>
+                        <Tooltip title={successDiaryTip} placement="top">
+                            <InfoCircleOutlined className="success-diary-tip-icon" />
+                        </Tooltip>
+                    </div>
+                    {[2, 4].includes(dayjs(currentDate).day()) && (
+                        <div className="daily-note-label">{config.dailyNote}</div>
+                    )}
+                    {getTextArea(
+                        'good',
+                        '我觉得这件事情我做得很棒',
+                        issueData,
+                        {
+                            className: 'issue-textarea issue-textarea--reflect',
+                            minRows: 1,
+                            maxRows: 3,
+                        }
+                    )}
+                </div>
+                <div className="issue-pair-cell">
+                    <div className="success-diary-title">
+                        <span>【柔光 · 光亮条件】</span>
+                        <Tooltip title={shineWiringTip} placement="top">
+                            <InfoCircleOutlined className="success-diary-tip-icon" />
+                        </Tooltip>
+                    </div>
+                    {getTextArea(
+                        'better',
+                        '今天最亮的一刻，前面有什么在帮忙？（睡眠/时段/地点/情绪/谁/先做哪件小事）\n· 若今天几乎没微光：我允许自己怎样算过关？',
+                        issueData,
+                        {
+                            className: 'issue-textarea issue-textarea--reflect issue-textarea--better',
+                            minRows: 3,
+                            maxRows: 8,
+                        }
+                    )}
+                </div>
             </div>
-            {[2, 4].includes(dayjs(currentDate).day()) && (
-                <div className="daily-note-label">{config.dailyNote}</div>
-            )}
-            {getTextArea('good', '写下今天做成的事情（建议 3 条），再补一句：我想把它发展成……', issueData)}
-            【今天有哪些可以校准的小偏差？把它当作一次温柔的纠偏】
-            {getTextArea('better', '可以变得更好的事情', issueData)}
             <div className='btn-group'>
                 <Button onClick={handleSave} icon={<ExperimentFilled />}>
                     保存☞☞☞观察自己数据库
@@ -251,7 +335,7 @@ export default function IssueRecord({ study, issueData, setIssueData, currentDat
             confirmLoading={aiLoading}
         >
             <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 8 }}>
-                用输入法自带语音把内容说出来即可。示例：“运动普拉提 40 分钟，电影看了沙丘2；学习 LTN 做了两题，BOX1 复盘；工作技术方向修了登录 bug，业务方向写了周报；TED 讲拖延；阅读《原则》；成功日记……缺点……”
+                用输入法自带语音把内容说出来即可。示例：“运动普拉提 40 分钟，电影看了沙丘2；学习 LTN 做了两题，BOX1 复盘；工作技术方向修了登录 bug，业务方向写了周报；TED 讲拖延；阅读《原则》；微光瞬间很累仍打开 LTN 五分钟，做对的那一步是先开再算；光亮条件九点半后效率好；明天接线继续先开五分钟……”
             </div>
 
             <Input.TextArea
@@ -279,7 +363,7 @@ export default function IssueRecord({ study, issueData, setIssueData, currentDat
                     <div><b>阅读</b>：{aiParsed.reading || '-'}</div>
                     <div style={{ marginTop: 6 }}><b>成功日记</b>：</div>
                     <div style={{ whiteSpace: 'pre-wrap' }}>{aiParsed.good || '-'}</div>
-                    <div style={{ marginTop: 6 }}><b>缺点/校准</b>：</div>
+                    <div style={{ marginTop: 6 }}><b>柔光接线/光亮条件</b>：</div>
                     <div style={{ whiteSpace: 'pre-wrap' }}>{aiParsed.better || '-'}</div>
                 </div>
             )}

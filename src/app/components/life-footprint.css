@@ -1,9 +1,7 @@
+/* 默认随文档流；日报顶栏内由 .daily-week-header__footprint 覆盖为 flex 子项 */
 .life-footprint {
-    position: absolute;
-    top: 42%;
-    right: -50px;
-    transform: translateY(-50%);
-    z-index: 10;
+    position: relative;
+    z-index: 1;
     pointer-events: none;
 }
 

@@ -4,7 +4,6 @@ import './app.css';
 import IssueRecord from '@/components/issue-record';
 import TimeRecord from '@/components/time-record';
 import WeekTitle from '@/components/week-title';
-import LifeFootprint from '@/components/life-footprint';
 import Api from '@/service/api';
 import dayjs from 'dayjs';
 import { type Issue } from '@/components/custom-time-picker';
@@ -210,12 +209,10 @@ export default function Daily() {
         })
     }, [currentDate]);
 
-    return (<div className='outer'>
-        <div style={{ position: 'relative' }}>
-            <WeekTitle />
-            <LifeFootprint currentDate={currentDate} />
-        </div>
-        <div className="flex-around">
+    return (<div className="outer daily-outer">
+        <WeekTitle currentDate={currentDate} />
+        <main className="daily-main">
+        <div className="daily-columns">
             <TimeRecord
                 total={total}
                 read={read}
@@ -272,5 +269,7 @@ export default function Daily() {
                 }}
             />
             <IssueRecord study={study} issueData={issueData} setIssueData={setIssueData} currentDate={currentDate} />
-        </div></div>)
+        </div>
+        </main>
+    </div>)
 }

@@ -146,7 +146,7 @@ export default function Week() {
 
     return <div className="outer week-outer">
         {contextHolder}
-        <div className="week">
+        <div className="week-page-toolbar">
             <Button
                 icon={<LeftOutlined />}
                 onClick={handlePrevSerial}

@@ -221,16 +221,23 @@ function sortIssuesWithSleepLast<T extends SortableIssue>(issues: T[]): T[] {
 }
 
 // 公共组件
-function FormatDateToMonthDayWeek({ handle = config.current }: { handle?: number }) {
+function FormatDateToMonthDayWeek({
+    handle = config.current,
+    className,
+}: {
+    handle?: number
+    className?: string
+}) {
     const urlParams = useSearchParams();
     const urlDate = urlParams?.get('date');
     const { weekday, date } = getYesterdayDate(handle, urlDate || '');
-    
-    return <div className='flex' style={{ position: 'relative' }}>
-        <span style={{ color: '#f68084', fontWeight: 800 }}>{urlDate || date}</span>
-        &nbsp;
-        周{weekday}
-    </div>
+
+    return (
+        <div className={['daily-panel__date', className].filter(Boolean).join(' ')}>
+            <span className="daily-panel__date-value">{urlDate || date}</span>
+            <span className="daily-panel__date-week">周{weekday}</span>
+        </div>
+    );
 }
 
 export {
