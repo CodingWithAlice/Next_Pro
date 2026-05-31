@@ -3,8 +3,9 @@ import {
 	SerialAttributes,
 	SerialModal,
 	TimeModal,
+	sequelize,
 } from 'db'
-import { Op, Sequelize } from 'sequelize'
+import { Op, QueryTypes, Sequelize } from 'sequelize'
 import { transTwoDateToWhereOptions } from 'utils'
 import dayjs from 'dayjs'
 
@@ -32,8 +33,59 @@ export type PerSerialMetricRow = {
 	endTime: string
 	gapDays: number
 	routineTotals: { typeId: number; des: string; totalMinutes: number }[]
-	/** 睡眠：平均入睡/起床为圆均时刻；睡眠时长为各条睡眠记录 duration（分钟）的算术平均 */
+	/** 周期内 LTN 做题数量（优先 ltn_daily_coins 汇总，否则统计 routine_type=LTN 的时间记录条数） */
+	ltnTopicCount: number
+	/** 睡眠：平均入睡/起床为圆均时刻；睡眠时长为各条 sleep 记录 duration（分钟）的算术平均 */
 	sleepAvg: { startTime: string; endTime: string; durationMinutesAvg: number }
+}
+
+const LTN_DURATION_TYPE_ID = 16
+
+export function ltnMinutesFor(row: PerSerialMetricRow): number {
+	return (
+		row.routineTotals.find((t) => t.typeId === LTN_DURATION_TYPE_ID)
+			?.totalMinutes ?? 0
+	)
+}
+
+/** 按日期范围汇总 LTN 题目数 */
+export async function countLtnTopicsInRange(
+	startDate: string | Date,
+	endDate: string | Date,
+	userId: number
+): Promise<number> {
+	const start = dayjs(startDate).format('YYYY-MM-DD')
+	const end = dayjs(endDate).format('YYYY-MM-DD')
+
+	try {
+		const rows = await sequelize.query<{ total: string | number }>(
+			`SELECT COALESCE(SUM(coins), 0) AS total
+			 FROM ltn_daily_coins
+			 WHERE date >= :start AND date <= :end`,
+			{ replacements: { start, end }, type: QueryTypes.SELECT }
+		)
+		const fromCoins = Number(rows[0]?.total ?? 0)
+		if (fromCoins > 0) return fromCoins
+	} catch {
+		// 表不存在或未迁移时回退到时间记录条数
+	}
+
+	const ltnTypes = (await RoutineTypeModal.findAll({
+		where: { userId, type: 'LTN' },
+		attributes: ['id'],
+		raw: true,
+	})) as { id: number }[]
+
+	const typeIds = ltnTypes.map((t) => Number(t.id)).filter(Boolean)
+	if (!typeIds.length) return 0
+
+	return TimeModal.count({
+		where: {
+			...transTwoDateToWhereOptions(startDate, endDate),
+			userId,
+			routineTypeId: { [Op.in]: typeIds },
+		},
+	})
 }
 
 export async function GetWeekInfo(
@@ -235,12 +287,18 @@ export async function buildPerSerialMetrics(
 			des: rowDes(row),
 			totalMinutes: Math.round(Number(row.totalDuration) || 0),
 		}))
+		const ltnTopicCount = await countLtnTopicsInRange(
+			week.startTime,
+			week.endTime,
+			userId
+		)
 		result.push({
 			serialNumber: sn,
 			startTime: String(week.startTime),
 			endTime: String(week.endTime),
 			gapDays: gapTime,
 			routineTotals,
+			ltnTopicCount,
 			sleepAvg: sleepTimes,
 		})
 	}

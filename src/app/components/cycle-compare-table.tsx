@@ -6,7 +6,7 @@ import { formatMinToHM, formatSerialNumber } from './tool'
 
 export type { PerSerialMetricRow }
 
-type RowKind = 'min' | 'sleepStart' | 'sleepEnd' | 'sleepDuration'
+type RowKind = 'min' | 'count' | 'sleepStart' | 'sleepEnd' | 'sleepDuration'
 
 type MetricDef = {
 	key: string
@@ -17,7 +17,8 @@ type MetricDef = {
 
 const METRICS: MetricDef[] = [
 	{ key: 'm13', label: '学习专注', kind: 'min', typeId: 13 },
-	{ key: 'm16', label: 'LTN', kind: 'min', typeId: 16 },
+	{ key: 'm16', label: 'LTN 时长', kind: 'min', typeId: 16 },
+	{ key: 'ltnCount', label: 'LTN 题目', kind: 'count' },
 	{ key: 'm7', label: '复盘', kind: 'min', typeId: 7 },
 	{ key: 'm4', label: 'TED', kind: 'min', typeId: 4 },
 	{ key: 'm8', label: '阅读', kind: 'min', typeId: 8 },
@@ -47,6 +48,23 @@ function DeltaNote({ cur, prev }: { cur: number; prev: number }) {
 		<div style={{ fontSize: 12, color, marginTop: 2 }}>
 			较上周期 {d >= 0 ? '↑' : '↓'}
 			{Math.abs(d)}%
+		</div>
+	)
+}
+
+function CellCount({
+	value,
+	prevValue,
+}: {
+	value: number
+	prevValue: number | null
+}) {
+	return (
+		<div>
+			<div>{value} 题</div>
+			{prevValue !== null && (
+				<DeltaNote cur={value} prev={prevValue} />
+			)}
 		</div>
 	)
 }
@@ -109,6 +127,12 @@ export default function CycleCompareTable({
 				const pv = prev ? minutesFor(prev, def.typeId) : null
 				record[`s${m.serialNumber}`] = (
 					<CellMin value={v} prevValue={pv} />
+				)
+			} else if (def.kind === 'count') {
+				const v = m.ltnTopicCount ?? 0
+				const pv = prev ? prev.ltnTopicCount ?? 0 : null
+				record[`s${m.serialNumber}`] = (
+					<CellCount value={v} prevValue={pv} />
 				)
 			} else if (def.kind === 'sleepStart') {
 				const v = m.sleepAvg?.startTime ?? '--:--'

@@ -5,10 +5,12 @@ import {
 	buildPerSerialMetrics,
 	getSortedSerials,
 	GetWeekInfo,
+	ltnMinutesFor,
 } from '@lib/month-per-serial-metrics'
 import type { SerialAttributes } from 'db'
 import {
 	aggregateLearningTasks,
+	aggregateImproveMethodsLastOnly,
 	type MonthTableWeekRow,
 } from '@lib/month-learning-aggregate'
 
@@ -52,15 +54,23 @@ async function POST(request: NextRequest) {
 		const weekList = await GetWeekInfo(serials, userId)
 		const perSerialMetrics = await buildPerSerialMetrics(serials, userId)
 
-		// 学习任务：与前端完全相同的规则拆分（二、工作体验 / 非技术方向），按三方向汇总，**不由模型自由发挥**，避免混淆板块
-		const learning_task_merged = aggregateLearningTasks(toWeekRows(weekList))
+		// 学习任务与复盘：规则生成（复盘仅保留最后一周期）
+		const weekRows = toWeekRows(weekList)
+		const ltnMetrics = perSerialMetrics.map((m) => ({
+			serialNumber: m.serialNumber,
+			startTime: m.startTime,
+			endTime: m.endTime,
+			ltnMinutes: ltnMinutesFor(m),
+			ltnTopicCount: m.ltnTopicCount ?? 0,
+		}))
+		const learning_task_merged = aggregateLearningTasks(weekRows, ltnMetrics)
+		const improve_methods_merged = aggregateImproveMethodsLastOnly(weekRows)
 
-		// 仅传睡眠与复盘给模型；学习任务已由规则生成
+		// 仅传睡眠给模型
 		const periodsPayload = weekList.map((w) => ({
 			serialNumber: w.serialNumber,
 			range: `${String(w.startTime).slice(0, 10)}~${String(w.endTime).slice(0, 10)}`,
 			sleep: clip(w.sleep || '', MAX_FIELD),
-			improveMethods: clip(w.improveMethods || '', MAX_FIELD),
 		}))
 
 		const userPayload = {
@@ -74,7 +84,7 @@ async function POST(request: NextRequest) {
 
 运动、影视、TED、阅读由系统规则合并，你**不要**输出这些板块。
 
-你必须只输出一个 JSON 对象，且必须恰好包含以下 **3** 个键（键名完全一致，英文蛇形命名），每个值为一个中文字符串。可适当换行与编号，不要使用 Markdown 代码块。
+你必须只输出一个 JSON 对象，且必须恰好包含以下 **2** 个键（键名完全一致，英文蛇形命名），每个值为一个中文字符串。可适当换行与编号，不要使用 Markdown 代码块。
 
 **禁止**：「综上所述」「总之」「小结」「核心发现」等总结性段落；把多周期内容改写成一篇故事化长文；用更短的句子重写原文含义；评价优劣或给建议（除非原文已有）。
 
@@ -87,10 +97,6 @@ async function POST(request: NextRequest) {
 2. sleep_awareness_merged
    - **仅**主观段落：如「提高睡眠质量的一些意识调整」及同类内容。
    - 按周期**并列聚合**（建议每周期一小节）；**不要**把多周期揉成一段「综合感悟」；**不要**「语义去重」后重写——仅可去掉**完全重复**的句子。
-
-3. improve_methods_merged
-   - 各周期「学习/工作方法复盘和改进」原文的**汇聚集合**：按周期顺序罗列；若不同周期出现**完全相同**的句子，保留一条即可。
-   - **不要**提炼成新的「要点清单」或「方法论总结」；不要合并「意思相近」的条目为新表述。
 
 约束：不编造数字与事实；perSerialMetrics 可作核对参考；仅输出合法 JSON，不要输出 JSON 以外的文字。`
 
@@ -120,11 +126,11 @@ async function POST(request: NextRequest) {
 		const keys = [
 			'sleep_objective_merged',
 			'sleep_awareness_merged',
-			'improve_methods_merged',
 		] as const
 
 		const out: Record<string, string> = {
 			learning_task_merged,
+			improve_methods_merged,
 		}
 		for (const k of keys) {
 			const v = parsed[k]

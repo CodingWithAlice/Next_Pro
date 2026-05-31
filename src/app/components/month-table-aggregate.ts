@@ -1,12 +1,32 @@
+import type { PerSerialMetricRow } from '@lib/month-per-serial-metrics'
 import {
 	type MonthTableWeekRow,
 	periodCaption,
 	aggregateLearningTasks,
 	splitLearningTask,
+	aggregateImproveMethodsLastOnly,
+	type LtnMetricSummary,
 } from '@lib/month-learning-aggregate'
 
 export type { MonthTableWeekRow }
 export { splitLearningTask, periodCaption, aggregateLearningTasks }
+
+function ltnMinutesFromRow(m: PerSerialMetricRow): number {
+	return m.routineTotals.find((t) => t.typeId === 16)?.totalMinutes ?? 0
+}
+
+export function toLtnMetricSummaries(
+	metrics?: PerSerialMetricRow[]
+): LtnMetricSummary[] | undefined {
+	if (!metrics?.length) return undefined
+	return metrics.map((m) => ({
+		serialNumber: m.serialNumber,
+		startTime: m.startTime,
+		endTime: m.endTime,
+		ltnMinutes: ltnMinutesFromRow(m),
+		ltnTopicCount: m.ltnTopicCount ?? 0,
+	}))
+}
 
 function sortWeeks(weeks: MonthTableWeekRow[]) {
 	return [...weeks].sort((a, b) => a.serialNumber - b.serialNumber)
@@ -51,26 +71,23 @@ export function aggregateTedRead(weeks: MonthTableWeekRow[]): string {
 	return parts.join('\n\n') || '（暂无 TED/阅读记录）'
 }
 
-/** 学习/工作方法复盘和改进 */
+/** 学习/工作方法复盘和改进：仅保留最后一周期 */
 export function aggregateImproveMethods(weeks: MonthTableWeekRow[]): string {
-	const sorted = sortWeeks(weeks)
-	const blocks: string[] = []
-	for (const w of sorted) {
-		const body = (w.improveMethods || '').trim()
-		if (body) blocks.push(`${periodCaption(w)}\n${body}`)
-	}
-	if (!blocks.length) return '（暂无复盘记录）'
-	return `学习/工作方法复盘和改进（各周期汇总）\n${'—'.repeat(28)}\n\n${blocks.join('\n\n')}`
+	return aggregateImproveMethodsLastOnly(weeks)
 }
 
 /** 生成合并后的单行数据源（不含「时间」列） */
 export function buildAggregatedMonthRow(
 	weeks: MonthTableWeekRow[],
-	studyTotalMinutes: number
+	studyTotalMinutes: number,
+	perSerialMetrics?: PerSerialMetricRow[]
 ) {
 	return {
 		key: 'aggregated',
-		frontOverview: aggregateLearningTasks(weeks),
+		frontOverview: aggregateLearningTasks(
+			weeks,
+			toLtnMetricSummaries(perSerialMetrics)
+		),
 		sleepSportMovie: aggregateSleepSportMovie(weeks),
 		TEDRead: aggregateTedRead(weeks),
 		idea: aggregateImproveMethods(weeks),
