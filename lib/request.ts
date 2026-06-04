@@ -125,7 +125,7 @@ export async function AIPOST(messages: MessageProp[]) {
 		// 获取客户端发送的数据
 		const completion = await openai.chat.completions.create({
 			messages: messages,
-			model: 'deepseek-chat',
+			model: 'deepseek-v4-flash',
 			response_format: {
 				type: 'json_object',
 			},
