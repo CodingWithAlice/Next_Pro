@@ -241,6 +241,7 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
                             study={studyTotal}
                             structuredMerge={structuredMerge}
                             aiMergeLoading={aiMergeLoading}
+                            perSerialMetrics={perSerialMetrics}
                         />
                     </div>
                 </Spin>

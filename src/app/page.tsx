@@ -3,7 +3,6 @@ import Link from "next/link";
 import config from "config";
 import withTypeStorage from "@/components/with-type-storage";
 import { useEffect } from "react";
-import { BankOutlined } from "@ant-design/icons";
 
 function Home() {
     const linksList = [
@@ -32,12 +31,7 @@ function Home() {
             <a className='a-link' href="http://codingwithalice.top:4001">
                 莱特纳盒子学习法
             </a>
-            <div className='j-title' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-                <span>J型生存终端</span>
-                <Link href="/piggy-bank" className="j-title-piggy" title="零钱罐子" style={{ color: 'inherit', opacity: 0.6, fontSize: '0.85em' }}>
-                    <BankOutlined />
-                </Link>
-            </div>
+            <div className='j-title'>J型生存终端</div>
             <br />
             {/* <Link href={'/ltn'}>
                 莱特纳盒子学习法

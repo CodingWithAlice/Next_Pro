@@ -1,4 +1,4 @@
-import { getYesterdayDate, formatTime, getCurrentBySub, sortIssuesWithSleepLast } from '@/components/tool';
+import { getYesterdayDate, formatTime, getCurrentBySub, sortIssuesWithSleepLast, alignTimeToDate } from '@/components/tool';
 import { Button, Space, message } from 'antd';
 import config from 'config';
 import { useSearchParams } from 'next/navigation';
@@ -7,6 +7,8 @@ import Api from '@/service/api';
 import { AntDesignOutlined } from '@ant-design/icons';
 import { type Issue } from '@/components/custom-time-picker';
 import { routineType } from '@/daily/page';
+import VoiceTimeAssistant from './voice-time-assistant';
+import dayjs from 'dayjs';
 
 interface TimeRecordPickerProps {
     total: number,
@@ -22,6 +24,8 @@ export default function TimeRecordDayPicker({ issues, setIssues, routineType, to
     const [messageApi, contextHolder] = message.useMessage();
     const urlParams = useSearchParams();
     const urlDate = urlParams?.get('date');
+    const currentDate = urlDate || dayjs().format('YYYY-MM-DD');
+    const normalize = (t: dayjs.Dayjs) => alignTimeToDate(t, currentDate);
 
     const handleAddIssue = () => {
         const lastIssue = issues[issues.length - 1];
@@ -31,8 +35,8 @@ export default function TimeRecordDayPicker({ issues, setIssues, routineType, to
             ? (+lastIssue.type === +(config.workId) ? lastIssue.startTime : lastIssue.endTime)
             : getCurrentBySub();
         const newIssue = {
-            startTime: suggestTime,
-            endTime: suggestTime.add(1, 'minute'),
+            startTime: normalize(suggestTime),
+            endTime: normalize(suggestTime).add(1, 'minute'),
             type: '',
             daySort: issues.length,
             duration: 0,
@@ -43,10 +47,11 @@ export default function TimeRecordDayPicker({ issues, setIssues, routineType, to
 
     function addTotalIssue(issues: Issue[], totalTime: number, studyTime: number, ltnTotal: number): Issue[] {
         const length = issues.length;
+        const baseNow = normalize(getCurrentBySub());
         const totalIssue = {
             ...issues[0],
-            startTime: getCurrentBySub(),
-            endTime: getCurrentBySub(),
+            startTime: baseNow,
+            endTime: baseNow,
             interval: 0,
             id: null,
             ...getYesterdayDate(config.current, urlDate || ''),
@@ -130,9 +135,22 @@ export default function TimeRecordDayPicker({ issues, setIssues, routineType, to
             list={issues}
             routineTypes={routineType}
             setList={setIssues}
-            freshTime={onChange} />}
+            freshTime={onChange}
+            baseDate={currentDate}
+        />}
         <Space className='btn-group'>
             <Button disabled={!routineType.length} onClick={handleAddIssue}>添加一项</Button>
+            <VoiceTimeAssistant
+                currentDate={currentDate}
+                issues={issues}
+                routineTypes={routineType}
+                onApply={(issue) => {
+                    const merged = [...issues, issue].map((it, i) => ({ ...it, daySort: i }));
+                    setIssues(merged);
+                    onChange(merged);
+                    messageApi.success('已添加到列表，记得点保存');
+                }}
+            />
             <Button disabled={!routineType.length} onClick={handleSave} icon={<AntDesignOutlined />}>
                 保存
             </Button>

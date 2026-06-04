@@ -15,6 +15,19 @@ const getCurrentBySub = (subtractDay?: number) => {
     return dayjs().subtract(subtractDay, 'day')
 };
 
+/**
+ * 将一个时间（时分秒）对齐到指定日期（YYYY-MM-DD），避免补录时混入“今天”的日期导致 diff 超过 24h。
+ */
+function alignTimeToDate(time: Dayjs, date: string | Dayjs): Dayjs {
+    const t = dayjs(time);
+    const d = dayjs(date);
+    return d
+        .hour(t.hour())
+        .minute(t.minute())
+        .second(t.second())
+        .millisecond(t.millisecond());
+}
+
 // 展示 月.日 周几 - 默认展示昨天
 function getYesterdayDate(handle: number = config.current, urlDate?: string) {
     const date = getCurrentBySub(handle);
@@ -208,16 +221,23 @@ function sortIssuesWithSleepLast<T extends SortableIssue>(issues: T[]): T[] {
 }
 
 // 公共组件
-function FormatDateToMonthDayWeek({ handle = config.current }: { handle?: number }) {
+function FormatDateToMonthDayWeek({
+    handle = config.current,
+    className,
+}: {
+    handle?: number
+    className?: string
+}) {
     const urlParams = useSearchParams();
     const urlDate = urlParams?.get('date');
     const { weekday, date } = getYesterdayDate(handle, urlDate || '');
-    
-    return <div className='flex' style={{ position: 'relative' }}>
-        <span style={{ color: '#f68084', fontWeight: 800 }}>{urlDate || date}</span>
-        &nbsp;
-        周{weekday}
-    </div>
+
+    return (
+        <div className={['daily-panel__date', className].filter(Boolean).join(' ')}>
+            <span className="daily-panel__date-value">{urlDate || date}</span>
+            <span className="daily-panel__date-week">周{weekday}</span>
+        </div>
+    );
 }
 
 export {
@@ -235,6 +255,7 @@ export {
     Category,
     CategoryColor,
     getCurrentBySub,
+    alignTimeToDate,
     transTitle,
     sortIssuesWithSleepLast,
     type IssueRecordProps,

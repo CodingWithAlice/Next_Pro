@@ -56,6 +56,33 @@ const Api = {
 	getDeepSeekApi(serialNumber: string, searchType: SearchType) {
 		return request.get('deepseek', { serialNumber, type: searchType, timeout: 300000 }) // 300秒
 	},
+	postAiParseTimeApi(
+		text: string,
+		date?: string,
+		routineTypes?: { id: number; des: string; type?: string }[]
+	) {
+		return request.post('ai/parse-time', { text, date, routineTypes }) as Promise<{
+			raw: string
+			start: string | null
+			end: string | null
+			title: string | null
+			isCrossDay: boolean
+			routineTypeId: number | null
+		}>
+	},
+	postAiParseIssueApi(text: string, date?: string) {
+		return request.post('ai/parse-issue', { text, date }) as Promise<{
+			raw: string
+			sport: string
+			video: string
+			front: string
+			work: string
+			ted: string
+			reading: string
+			good: string
+			better: string
+		}>
+	},
 	postMonthApi(data: { [key: string]: string | number }) {
 		return request.post('month', data)
 	},
@@ -110,6 +137,38 @@ const Api = {
 			method: 'POST',
 			headers,
 			body: formData
+		}).then(res => res.json())
+	},
+
+	uploadPiggyJarImage(jarId: number, file: File, name?: string) {
+		const formData = new FormData()
+		formData.append('file', file)
+		if (name) formData.append('name', name)
+		const url = process.env.NEXT_PUBLIC_API_HOST
+		const token = typeof localStorage !== 'undefined'
+			? (localStorage.getItem('j-user-id') || localStorage.getItem('type'))
+			: null
+		const headers: Record<string, string> = {}
+		if (token) headers['j-user-id'] = token
+		return fetch(`${url}/piggy-bank/jar/${jarId}/images`, {
+			method: 'POST',
+			headers,
+			body: formData
+		}).then(res => res.json())
+	},
+
+	removePiggyJarImage(jarId: number) {
+		return fetch(`${process.env.NEXT_PUBLIC_API_HOST}/piggy-bank/jar/${jarId}/images`, {
+			method: 'DELETE',
+			headers: (() => {
+				const token = typeof localStorage !== 'undefined'
+					? (localStorage.getItem('j-user-id') || localStorage.getItem('type'))
+					: null
+				const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+				if (token) headers['j-user-id'] = token
+				return headers
+			})(),
+			body: JSON.stringify({})
 		}).then(res => res.json())
 	},
 

@@ -35,6 +35,15 @@ function getGapTime(
 	return dayjs(endTime).diff(dayjs(startTime), type)
 }
 
+function formatMinToHM(minutes: number): string {
+	if (!minutes) return '0m'
+	const h = Math.floor(minutes / 60)
+	const m = minutes % 60
+	if (h === 0) return `${m}m`
+	if (m === 0) return `${h}h`
+	return `${h}h${m}m`
+}
+
 function sortWeeks(weeks: MonthTableWeekRow[]) {
 	return [...weeks].sort((a, b) => a.serialNumber - b.serialNumber)
 }
@@ -45,6 +54,42 @@ export function periodCaption(it: MonthTableWeekRow): string {
 	const en = it.endTime.slice(5, 10)
 	const days = getGapTime(it.startTime, it.endTime)
 	return `【${sn} · ${st}～${en} · ${days}天】`
+}
+
+/** 学习任务列顶部展示的 LTN 汇总（不含 DB 依赖） */
+export type LtnMetricSummary = {
+	serialNumber: number
+	startTime: string
+	endTime: string
+	ltnMinutes: number
+	ltnTopicCount: number
+}
+
+/** 各周期 LTN 时长与题目数概览，用于学习任务列顶部 */
+export function formatLtnMetricsBlock(metrics: LtnMetricSummary[]): string {
+	if (!metrics?.length) return ''
+	const sorted = [...metrics].sort((a, b) => a.serialNumber - b.serialNumber)
+	const blocks = sorted.map((m) => {
+		const cap = periodCaption({
+			serialNumber: m.serialNumber,
+			startTime: m.startTime,
+			endTime: m.endTime,
+		} as MonthTableWeekRow)
+		return `${cap}\n时长 ${formatMinToHM(m.ltnMinutes)} · ${m.ltnTopicCount} 题`
+	})
+	return `【LTN 概况】\n${'—'.repeat(32)}\n\n${blocks.join('\n\n')}`
+}
+
+/** 复盘与改进：各周期内容大多相同，仅保留最后一周期 */
+export function aggregateImproveMethodsLastOnly(
+	weeks: MonthTableWeekRow[]
+): string {
+	const sorted = sortWeeks(weeks)
+	const last = sorted[sorted.length - 1]
+	if (!last) return '（暂无复盘记录）'
+	const body = (last.improveMethods || '').trim()
+	if (!body) return '（暂无复盘记录）'
+	return `学习/工作方法复盘和改进（最后一周期）\n${'—'.repeat(28)}\n\n${periodCaption(last)}\n${body}`
 }
 
 /** 工作段落起点：常见「二、工作体验」或「一、工作体验 技术方向」（与「一、学习体验」区分） */
@@ -196,8 +241,12 @@ function stripDuplicateSectionHeading(
 
 /**
  * 合并学习任务：先按三个方向分块，每块内按周期顺序罗列（与用户每周期内划分一致，不按条目重组）。
+ * 顶部附带各周期 LTN 时长与题目数。
  */
-export function aggregateLearningTasks(weeks: MonthTableWeekRow[]): string {
+export function aggregateLearningTasks(
+	weeks: MonthTableWeekRow[],
+	ltnMetrics?: LtnMetricSummary[]
+): string {
 	const sorted = sortWeeks(weeks)
 	const studyBlocks: string[] = []
 	const techBlocks: string[] = []
@@ -216,6 +265,9 @@ export function aggregateLearningTasks(weeks: MonthTableWeekRow[]): string {
 
 	const line = '—'.repeat(32)
 	const parts: string[] = []
+
+	const ltnBlock = ltnMetrics?.length ? formatLtnMetricsBlock(ltnMetrics) : ''
+	if (ltnBlock) parts.push(ltnBlock)
 
 	if (studyBlocks.length) {
 		parts.push(

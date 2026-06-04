@@ -1,14 +1,159 @@
-.week {
-    text-align: center;
-    margin: 0 5px;
-    letter-spacing: 0.2rem;
-    font-size: 2.5rem;
-    font-weight: 600;
-    color: rgb(38, 157, 128);
+/* 日报顶栏：左导航与标题同高 + 居中 Week / 副标题，共约两行（避免四行堆叠） */
+.daily-outer {
+    --daily-content-width: 100%;
+    --daily-time-col-min: 27rem;
+    --daily-time-col-max: 32rem;
+    --daily-time-col-pct: 34%;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 1rem 1.25rem 1.5rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-.week-title-container {
-    position: relative;
+@media only screen and (min-width: 701px) {
+    .daily-outer {
+        /* 大屏：主内容占视口 90% */
+        --daily-content-width: 90%;
+    }
+}
+
+.daily-main {
+    width: var(--daily-content-width);
+    max-width: none;
+    margin: 0 auto;
+}
+
+.daily-week-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 8px 12px;
+    width: var(--daily-content-width);
+    max-width: none;
+    margin: 0 auto 10px;
+    padding: 0 4px;
+    box-sizing: border-box;
+}
+
+.daily-week-header__aside {
+    --daily-nav-progress-width: 12.5rem;
+    grid-column: 1;
+    justify-self: start;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    margin-top: 0.75rem;
+    width: var(--daily-nav-progress-width);
+    max-width: 13rem;
+}
+
+.daily-week-header__nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.daily-week-header__center {
+    grid-column: 2;
+    text-align: center;
+    justify-self: center;
+}
+
+.daily-week-header__title-block {
+    display: inline-block;
+    max-width: 100%;
+    font-size: 2.5rem;
+    text-align: left;
+}
+
+.daily-week-header__title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.daily-week-header__piggy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.42em;
+    color: rgb(38, 157, 128);
+    opacity: 0.6;
+    line-height: 1;
+    transition: opacity 0.15s ease;
+}
+
+.daily-week-header__piggy:hover {
+    opacity: 0.9;
+}
+
+.daily-week-header__title {
+    display: block;
+    margin: 0;
+    font-size: 1em;
+    font-weight: 600;
+    letter-spacing: 0.2rem;
+    color: rgb(38, 157, 128);
+    line-height: 1.15;
+    white-space: nowrap;
+}
+
+/* 副标题：固定右缩进，字号与早期版本一致 */
+.daily-week-header__subtitle.life-footprint {
+    position: static;
+    top: auto;
+    right: auto;
+    transform: none;
+    display: block;
+    margin-top: 4px;
+    margin-left: 3.5rem;
+}
+
+.daily-week-header__subtitle .footprint-content {
+    justify-content: flex-start;
+}
+
+.daily-week-header__subtitle .footprint-text {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: rgba(38, 157, 128, 0.82);
+    letter-spacing: 0.04rem;
+}
+
+.daily-week-header__subtitle .days-number {
+    font-size: 1.15rem;
+}
+
+/* 周期进度：日期按钮正下方，文案 hover 提示；宽度与 aside 一致 */
+.daily-serial-progress--nav {
+    width: 100%;
+    min-width: 0;
+}
+
+.daily-serial-progress__bar {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 26px;
+    cursor: help;
+}
+
+.daily-serial-progress__bar .process-circle-steps {
+    display: flex !important;
+    align-items: center !important;
+    margin: 0;
+    width: 100%;
+    line-height: 1;
+}
+
+.daily-serial-progress__bar .process-circle-steps .ant-progress-text {
+    line-height: 1;
+    margin-inline-start: 6px;
 }
 
 .home-link-title {
@@ -24,16 +169,8 @@
     text-underline-offset: 4px;
 }
 
-.date-navigation {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-top: 15px;
-    flex-wrap: wrap;
-}
-
 .nav-btn {
-    padding: 6px 16px;
+    padding: 4px 12px;
     background-color: rgba(38, 157, 128, 0.1);
     border: 1px solid rgb(38, 157, 128);
     border-radius: 4px;
@@ -41,7 +178,35 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;
-    font-size: 14px;
+    font-size: 13px;
+}
+
+@media only screen and (min-width: 300px) and (max-width: 700px) {
+    .daily-week-header {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+    }
+
+    .daily-week-header__aside {
+        grid-column: 1;
+        grid-row: 1;
+        justify-self: center;
+        --daily-nav-progress-width: min(100%, 14rem);
+        width: var(--daily-nav-progress-width);
+    }
+
+    .daily-week-header__center {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    .daily-serial-progress--nav {
+        max-width: 14rem;
+    }
+
+    .daily-week-header__title {
+        font-size: 2rem;
+    }
 }
 
 .nav-btn:hover {
@@ -49,18 +214,109 @@
     color: white;
 }
 
-.flex-around {
+/* 主内容：时间列 clamp(最小, 百分比, 最大)，事项列占剩余 */
+.daily-columns {
+    display: grid;
+    grid-template-columns:
+        clamp(
+            var(--daily-time-col-min),
+            var(--daily-time-col-pct),
+            var(--daily-time-col-max)
+        )
+        minmax(0, 1fr);
+    gap: 14px 20px;
+    width: 100%;
+    align-items: start;
+}
+
+.daily-panel--time {
+    --time-col-picker: 5.5rem;
+    --time-col-duration: 5.5rem;
+    --time-col-type: 6rem;
+    width: 100%;
+    min-width: min(100%, var(--daily-time-col-min));
+    max-width: 100%;
+}
+
+.daily-panel {
+    min-width: 0;
     display: flex;
-    justify-content: space-around;
+    flex-direction: column;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.28);
+    box-sizing: border-box;
+}
+
+.daily-panel__head {
+    text-align: center;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(38, 157, 128, 0.12);
+}
+
+.daily-panel__title {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: rgb(38, 157, 128);
+    letter-spacing: 0.06rem;
+}
+
+.daily-panel__meta {
+    margin: 0 0 4px;
+    font-size: 0.88rem;
+    line-height: 1.45;
+    color: rgba(6, 128, 67, 0.92);
+}
+
+.daily-panel__date {
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.35rem;
     flex-wrap: wrap;
+    margin: 2px 0 4px;
+}
+
+.daily-panel__date-value {
+    color: #f68084;
+    font-weight: 800;
+}
+
+.daily-panel__date-week {
+    color: rgba(38, 157, 128, 0.9);
+    font-weight: 600;
+}
+
+.daily-panel__body {
     width: 100%;
 }
 
-.wrap-week {
+.daily-panel--time .daily-panel__body {
     display: flex;
     flex-direction: column;
-    margin-top: 1rem;
-    min-width: 25%;
+    align-items: stretch;
+}
+
+.daily-panel--time .work-mode-row {
+    justify-content: center;
+}
+
+.daily-panel--issues .issue-study-time {
+    margin: 0;
+}
+
+.daily-panel--issues .issue-section-label,
+.daily-panel--issues .success-diary-title {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.daily-panel--issues .daily-note-label {
+    text-align: center;
 }
 
 .front-time {
@@ -93,6 +349,95 @@
     line-height: 1.4;
 }
 
+.success-diary-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    font-size: 0.92rem;
+}
+
+.success-diary-tip-icon {
+    color: rgba(6, 128, 67, 0.7);
+    cursor: help;
+    font-size: 14px;
+}
+
+.success-diary-tip-icon:hover {
+    color: rgba(6, 128, 67, 0.95);
+}
+
+/* 事项统计：新增/模板占位首屏紧凑；有内容时随 autoSize 全部展开 */
+.issue-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+
+.issue-wrap .issue-section-label {
+    font-size: 0.92rem;
+    line-height: 1.3;
+    margin-top: 2px;
+}
+
+.issue-wrap .issue-textarea {
+    width: 100%;
+}
+
+.issue-wrap .issue-textarea textarea {
+    line-height: 1.35;
+    padding-block: 4px !important;
+    white-space: pre-wrap;
+    overflow-y: hidden !important;
+}
+
+.issue-wrap .issue-textarea--compact textarea {
+    overflow-y: auto !important;
+}
+
+/* 柔光·光亮条件：默认三行高度，空态不因 placeholder 出现滚动条 */
+.issue-wrap .issue-textarea--compact.issue-textarea--better textarea:placeholder-shown {
+    overflow-y: hidden !important;
+}
+
+.issue-wrap .issue-flex-pair {
+    gap: 8px;
+}
+
+.issue-wrap .issue-flex-pair > * {
+    flex: 1;
+    min-width: 0;
+}
+
+.issue-wrap-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    align-items: start;
+}
+
+.issue-wrap-pair .issue-pair-cell {
+    min-width: 0;
+}
+
+@media only screen and (min-width: 300px) and (max-width: 700px) {
+    .daily-outer {
+        padding: 0.75rem 0.5rem 1rem;
+    }
+
+    .daily-columns {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .issue-wrap-pair,
+    .issue-wrap-pair--reflect {
+        grid-template-columns: 1fr;
+    }
+}
+
 .work-mode-row {
     display: flex;
     align-items: center;
@@ -104,24 +449,89 @@
     font-size: 0.9rem;
 }
 
-.work-mode-hint {
-    font-size: 0.75rem;
+.work-mode-tip-icon {
     color: rgba(6, 128, 67, 0.7);
+    cursor: help;
+    font-size: 14px;
 }
 
-.time-picker {
+.work-mode-tip-icon:hover {
+    color: rgba(6, 128, 67, 0.95);
+}
+
+/* 每行 flex：左侧时间区固定槽位，右侧类型+间隔成组 */
+.time-picker-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.time-picker-row {
     display: flex;
     align-items: center;
-    margin-top: 4px;
+    gap: 6px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.time-picker-times {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+}
+
+.time-picker-slot {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.time-picker-slot--start,
+.time-picker-slot--end {
+    width: var(--time-col-picker);
+}
+
+.time-picker-slot--duration {
+    width: var(--time-col-duration);
+    justify-content: center;
+    text-align: center;
     white-space: nowrap;
-    justify-content: space-between;
 }
 
-.time-picker-wrapper {
+.time-picker-actions {
     display: flex;
     align-items: center;
-    gap: 0;
-    width: 14rem;
+    gap: 4px;
+    flex: 0 0 auto;
+    min-width: 0;
+}
+
+.daily-panel--time .time-picker-item {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.daily-panel--time .routine-select {
+    width: var(--time-col-type) !important;
+    min-width: var(--time-col-type);
+    max-width: var(--time-col-type);
+    flex-shrink: 0;
+}
+
+.daily-panel--time .duration-time {
+    width: auto;
+    max-width: 100%;
+}
+
+.daily-panel--time .interval {
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .purple {

@@ -4,12 +4,18 @@ import { formatMinToHM } from './tool';
 import {
 	buildAggregatedMonthRow,
 	aggregateTedRead,
+	toLtnMetricSummaries,
 	type MonthTableWeekRow,
 } from './month-table-aggregate';
 import {
 	formatSleepSportMovieColumn,
 	type MonthStructuredMerge,
 } from './month-structured-merge';
+import {
+	aggregateImproveMethodsLastOnly,
+	aggregateLearningTasks,
+} from '@lib/month-learning-aggregate';
+import type { PerSerialMetricRow } from '@lib/month-per-serial-metrics';
 
 interface DataType {
 	frontOverview: string;
@@ -30,14 +36,17 @@ export default function MonthTable({
 	study,
 	structuredMerge,
 	aiMergeLoading,
+	perSerialMetrics,
 }: {
 	data: MonthTableWeekRow[];
 	study: number;
 	structuredMerge?: MonthStructuredMerge | null;
 	/** 正在请求汇聚集合 */
 	aiMergeLoading?: boolean;
+	perSerialMetrics?: PerSerialMetricRow[];
 }) {
-	const ruleRow = buildAggregatedMonthRow(data, study);
+	const ltnMetrics = toLtnMetricSummaries(perSerialMetrics)
+	const ruleRow = buildAggregatedMonthRow(data, study, perSerialMetrics);
 	const tedRead = aggregateTedRead(data);
 
 	const aiActive = structuredMerge != null;
@@ -45,10 +54,10 @@ export default function MonthTable({
 	const row = aiActive
 		? {
 				key: 'ai-structured',
-				frontOverview: structuredMerge!.learning_task_merged,
+				frontOverview: aggregateLearningTasks(data, ltnMetrics),
 				sleepSportMovie: formatSleepSportMovieColumn(structuredMerge!, data),
 				TEDRead: tedRead,
-				idea: structuredMerge!.improve_methods_merged,
+				idea: aggregateImproveMethodsLastOnly(data),
 				studyTotalMinutes: study,
 			}
 		: { ...ruleRow, TEDRead: tedRead };

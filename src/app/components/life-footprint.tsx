@@ -7,9 +7,10 @@ import './life-footprint.css';
 interface LifeFootprintProps {
     /** 当前显示的日期 */
     currentDate?: string;
+    className?: string;
 }
 
-export default function LifeFootprint({ currentDate }: LifeFootprintProps) {
+export default function LifeFootprint({ currentDate, className }: LifeFootprintProps) {
     const [totalDays, setTotalDays] = useState<number>(0);
     const [loading, setLoading] = useState(true);
 
@@ -37,7 +38,7 @@ export default function LifeFootprint({ currentDate }: LifeFootprintProps) {
     }, [currentDate]); // 当日期改变时重新计算（用户保存数据后）
 
     return (
-        <div className="life-footprint">
+        <div className={['life-footprint', className].filter(Boolean).join(' ')}>
             {loading ? (
                 <div className="footprint-loading">计算中...</div>
             ) : (

@@ -49,7 +49,19 @@ async function POST(request: NextRequest) {
 			defaults: { ...data, userId },
 		})
 		if (!created) {
-			issue.set(data)
+			// PATCH 语义：空字段不覆盖已有值（避免 AI/表单把内容清空）
+			const patch: Record<string, unknown> = {}
+			for (const [k, v] of Object.entries(data || {})) {
+				if (k === 'id' || k === 'userId') continue
+				if (v == null) continue
+				if (typeof v === 'string') {
+					if (!v.trim()) continue
+					patch[k] = v
+					continue
+				}
+				patch[k] = v
+			}
+			issue.set(patch)
 			// 如果已经存在，更新描述
 			await issue.save()
 		}

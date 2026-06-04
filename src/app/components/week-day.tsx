@@ -60,7 +60,7 @@ const items = [
         render: <Input.TextArea autoSize={{ minRows: 6, maxRows: 15 }} disabled />
     },
     {
-        label: "可以更好",
+        label: "柔光接线/光亮条件",
         name: "better",
         render: <Input.TextArea autoSize={{ minRows: 6, maxRows: 15 }} disabled />
     },

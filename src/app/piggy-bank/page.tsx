@@ -6,6 +6,7 @@ import { CloseCircleOutlined, HistoryOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import dayjs from 'dayjs';
 import Api from '@/service/api';
+import PiggyJarImageInline from '@/components/piggy-jar-image-inline';
 import './app.css';
 
 interface Jar {
@@ -15,6 +16,7 @@ interface Jar {
   monthlyRepayment?: string | number | null;
   targetAmount?: string | number | null;
   status: string;
+  imageUrl?: string | null;
 }
 
 interface AllocationItem {
@@ -59,6 +61,10 @@ export default function PiggyBankPage() {
   const [actualConsumptionJar, setActualConsumptionJar] = useState<Jar | null>(null);
   const [actualConsumptionForm] = Form.useForm();
 
+  const onJarImageChange = (jarId: number, next: string | null) => {
+    setJars((prev) => prev.map((it) => (it.id === jarId ? { ...it, imageUrl: next } : it)));
+  };
+
   const loadData = () => {
     setLoading(true);
     Api.getPiggyBankApi()
@@ -78,6 +84,13 @@ export default function PiggyBankPage() {
 
   const activeJars = jars.filter((j) => j.status === 'active');
   const displayJars = jars.filter((j) => j.status !== 'abandoned'); // 展示中 + 已满额关闭的罐子
+
+  const sortedDisplayJars = [...displayJars].sort((a, b) => {
+    const ac = a.status === 'completed' ? 1 : 0;
+    const bc = b.status === 'completed' ? 1 : 0;
+    if (ac !== bc) return ac - bc;
+    return a.id - b.id;
+  });
 
   const onAddJar = (values: {
     name: string;
@@ -316,7 +329,7 @@ export default function PiggyBankPage() {
             {loading ? (
               <div className="loading-tip">加载中...</div>
             ) : (
-              displayJars.map((j) => {
+              sortedDisplayJars.map((j) => {
                 const balance = parseFloat(String(j.balance)) || 0
                 const targetRaw = j.targetAmount != null ? parseFloat(String(j.targetAmount)) : 0
                 const monthly = j.monthlyRepayment != null ? parseFloat(String(j.monthlyRepayment)) : 0
@@ -339,6 +352,15 @@ export default function PiggyBankPage() {
                       />
                     </div>
                     <div className="jar-footer">
+                      <div className="jar-image-inline">
+                        <PiggyJarImageInline
+                          jarId={j.id}
+                          jarName={j.name}
+                          value={j.imageUrl ?? null}
+                          disabled={j.status === 'completed'}
+                          onChange={(next) => onJarImageChange(j.id, next)}
+                        />
+                      </div>
                       <div className="jar-amount-row">
                         <span className="jar-balance">¥{balance.toFixed(2)}</span>
                         {target > 0 && <span className="jar-target">/ ¥{target.toFixed(0)}</span>}

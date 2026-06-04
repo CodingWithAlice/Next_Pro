@@ -136,7 +136,7 @@ export default function Month() {
     const canGoPrev = !loading && monthId > 0;
     const canGoNext = !loading && monthId > 0;
 
-    return <div className="outer">
+    return <div className="outer month-outer">
         {contextHolder}
         <div className="month">
             <Button
@@ -164,6 +164,15 @@ export default function Month() {
             </Button>
         </div>
          <MonthDetailTextarea monthData={monthData} setMonthData={setMonthData} periods={periods} setPeriods={setPeriods} />
-        <Button type="primary" className='btn' onClick={handleSave}>保存</Button>
+        <div className="floating-save-wrap">
+            <Button
+                type="primary"
+                className="floating-save-btn"
+                onClick={handleSave}
+                loading={loading}
+            >
+                保存
+            </Button>
+        </div>
     </div>
 }

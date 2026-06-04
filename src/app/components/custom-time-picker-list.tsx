@@ -7,10 +7,11 @@ interface CustomTimePickerListProps {
     list: Issue[],
     routineTypes: routineType[],
     setList: (list: Issue[]) => void,
-    freshTime: (arr: Issue[]) => void
+    freshTime: (arr: Issue[]) => void,
+    baseDate: string
 }
 
-export default function CustomTimePickerList({ list, routineTypes, setList, freshTime }: CustomTimePickerListProps) {
+export default function CustomTimePickerList({ list, routineTypes, setList, freshTime, baseDate }: CustomTimePickerListProps) {
     // 对列表按开始时间排序，睡眠始终排在最后
     const sortedList = sortIssuesWithSleepLast(list);
 
@@ -62,14 +63,17 @@ export default function CustomTimePickerList({ list, routineTypes, setList, fres
         freshTime(updatedList);
     }
     
-    return <>
-        {sortedList.map((it, index) => (
-            <CustomTimePicker 
-                routineTypes={routineTypes} 
-                init={it} 
-                key={it.daySort} 
-                onIssue={handleIssueUPdate} 
-            />
-        ))}
-    </>
+    return (
+        <div className="time-picker-list">
+            {sortedList.map((it) => (
+                <CustomTimePicker
+                    routineTypes={routineTypes}
+                    init={it}
+                    key={it.daySort}
+                    onIssue={handleIssueUPdate}
+                    baseDate={baseDate}
+                />
+            ))}
+        </div>
+    )
 }

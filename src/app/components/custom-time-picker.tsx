@@ -1,6 +1,6 @@
 import { Select, TimePicker } from "antd";
 import dayjs from "dayjs";
-import { formatMinToHM, getGapTime } from "./tool";
+import { alignTimeToDate, formatMinToHM, getGapTime } from "./tool";
 import classNames from "classnames";
 import { routineType } from '@/daily/page';
 import config from "config";
@@ -9,6 +9,7 @@ interface CustomTimePickerProps {
     onIssue?: (issue: Issue) => void;
     init: Issue;
     routineTypes: routineType[];
+    baseDate: string;
 }
 
 interface Issue {
@@ -20,20 +21,25 @@ interface Issue {
     interval: number;
 }
 
-function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps) {
+function CustomTimePicker({ init, onIssue, routineTypes, baseDate }: CustomTimePickerProps) {
     const options = routineTypes.map((type: routineType) => ({
-        value: type.id,
+        value: String(type.id),
         label: type.des,
     }));
 
     const isWorkType = +init.type === +config.workId; // 判断是否为工作类型
+    const normalize = (t: dayjs.Dayjs | null) => (t ? alignTimeToDate(t, baseDate) : t);
 
     const handleChange = (daySort: number, value: string | number | dayjs.Dayjs | null, changeType: keyof Issue) => {
-        const newIssue = { ...init, daySort, [changeType]: value };
+        const v =
+            changeType === 'startTime' || changeType === 'endTime'
+                ? normalize(value as dayjs.Dayjs | null)
+                : (changeType === 'type' ? String(value ?? '') : value);
+        const newIssue = { ...init, daySort, [changeType]: v };
         
         // 如果是工作类型且修改的是时间，同时更新 startTime 和 endTime
         if (+newIssue.type === +(config.workId) && (changeType === 'startTime' || changeType === 'endTime')) {
-            const timeValue = value as dayjs.Dayjs;
+            const timeValue = v as dayjs.Dayjs | null;
             if (timeValue) {
                 newIssue.startTime = timeValue;
                 newIssue.endTime = timeValue;
@@ -52,7 +58,7 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
         if (changeType === 'type') {
             if (+(value ?? '') === +(config.workId)) {
                 // 切换到工作类型，设置时间相同
-                const currentTime = newIssue.startTime || dayjs();
+                const currentTime = newIssue.startTime || alignTimeToDate(dayjs(), baseDate);
                 newIssue.startTime = currentTime;
                 newIssue.endTime = currentTime;
                 newIssue.duration = 0;
@@ -78,49 +84,50 @@ function CustomTimePicker({ init, onIssue, routineTypes }: CustomTimePickerProps
     })
 
     return (
-        <div className='time-picker' key={init.daySort}>
-            <div className='time-picker-wrapper'>
-                {isWorkType ? (
-                    // 工作类型：只显示一个时间选择器
-                    <div className='time-picker-item'>
+        <div className="time-picker-row">
+            <div className="time-picker-times">
+                <div className="time-picker-slot time-picker-slot--start time-picker-item">
+                    <TimePicker
+                        className="picker"
+                        format='HH:mm'
+                        minuteStep={5}
+                        value={init.startTime}
+                        onChange={(value) => handleChange(init.daySort, value, 'startTime')}
+                        needConfirm={false} />
+                </div>
+                <div className="time-picker-slot time-picker-slot--duration duration">
+                    {!isWorkType && (
+                        <>
+                            <span className="phone-hidden">-</span>
+                            <span className="duration-time">{formatMinToHM(init.duration)}</span>
+                            <span className="phone-hidden">{'->'}</span>
+                        </>
+                    )}
+                </div>
+                <div className="time-picker-slot time-picker-slot--end">
+                    {!isWorkType && (
                         <TimePicker
                             className="picker"
                             format='HH:mm'
                             minuteStep={5}
-                            value={init.startTime}
-                            onChange={(value) => handleChange(init.daySort, value, 'startTime')}
+                            value={init.endTime}
+                            onChange={(value) => handleChange(init.daySort, value, 'endTime')}
                             needConfirm={false} />
-                    </div>
-                ) : (
-                    // 非工作类型：显示两个时间选择器
-                    ['startTime', 'endTime'].map((timeType, index) => {
-                return <div key={`${init.daySort}-${timeType}`} className={index === 0 ? 'time-picker-item' : ''
-                }>
-                    <TimePicker
-                        key={init.daySort}
-                        className="picker"
-                        format='HH:mm'
-                        minuteStep={5}
-                        value={init[timeType as keyof Issue] as dayjs.Dayjs}
-                        onChange={(value) => handleChange(init.daySort, value, timeType as keyof Issue)}
-                        needConfirm={false} />
-                    {index === 0 && <div className='duration'>
-                        <span className="phone-hidden">-</span>
-                        <span className="duration-time"> {formatMinToHM(init.duration)}</span>
-                        <span className="phone-hidden">{'->'}</span>
-                    </div>}
+                    )}
                 </div>
-                    })
-                )}
             </div>
-            <Select
-                value={init.type}
-                options={options}
-                onChange={value => handleChange(init.daySort, value, 'type')}
-                size='middle'
-                className="routine-select" />
-            {<span className={`${intervalClass} interval phone-hidden`}> {!!init.interval && formatMinToHM(init.interval)}</span>}
-        </div >
+            <div className="time-picker-actions">
+                <Select
+                    value={String(init.type ?? '')}
+                    options={options}
+                    onChange={value => handleChange(init.daySort, value, 'type')}
+                    size='middle'
+                    className="routine-select" />
+                <span className={`${intervalClass} interval phone-hidden`}>
+                    {!!init.interval && formatMinToHM(init.interval)}
+                </span>
+            </div>
+        </div>
     );
 }
 
