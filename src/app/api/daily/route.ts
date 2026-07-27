@@ -1,4 +1,4 @@
-import { TimeModal, IssueModal, RoutineTypeModal } from 'db'
+import { TimeModal, IssueModal, RoutineTypeModal, sequelize } from 'db'
 import { NextRequest, NextResponse } from 'next/server'
 import { transOneDateToWhereOptions } from 'utils'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
@@ -7,22 +7,38 @@ async function POST(request: NextRequest) {
 	try {
 		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const body = await request.json()
-		if (Array.isArray(body?.data)) {
-			const rows = body.data.map((row: Record<string, unknown>) => ({ ...row, userId }))
-			await TimeModal.bulkCreate(rows, {
-				validate: true,
-				updateOnDuplicate: [
-					'userId',
-					'routineTypeId',
-					'startTime',
-					'endTime',
-					'duration',
-					'weekday',
-					'interval',
-				],
-			})
-			return NextResponse.json({ success: true, message: '操作成功' })
+		if (!Array.isArray(body?.data)) {
+			return NextResponse.json(
+				{ success: false, message: '请求数据格式错误' },
+				{ status: 400 }
+			)
 		}
+
+		// 去掉 UI 字段 type / id：保存时 daySort 会重排，带 id 的 bulkCreate 会触发主键
+		// ON DUPLICATE KEY UPDATE，覆盖掉同批次里无 id 新记录的写入（例如新增西班牙语）。
+		const rows = body.data.map((row: Record<string, unknown>) => {
+			const { id: _id, type: _type, ...rest } = row
+			return { ...rest, userId }
+		})
+
+		const date = rows[0]?.date as string | undefined
+		if (!date) {
+			return NextResponse.json(
+				{ success: false, message: '缺少 date 字段' },
+				{ status: 400 }
+			)
+		}
+
+		const dateWhere = transOneDateToWhereOptions(date)
+		await sequelize.transaction(async (transaction) => {
+			await TimeModal.destroy({
+				where: { userId, ...dateWhere },
+				transaction,
+			})
+			await TimeModal.bulkCreate(rows, { validate: true, transaction })
+		})
+
+		return NextResponse.json({ success: true, message: '操作成功' })
 	} catch (error) {
 		console.error(error)
 		return NextResponse.json(
