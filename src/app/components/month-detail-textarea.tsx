@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Spin } from "antd";
 import { SerialsPicker } from "@/components/serials-picker";
 import Api from "@/service/api";
@@ -11,6 +11,7 @@ import { isNonShortDecisionFieldFilled } from "@lib/month-non-short-decision";
 import CycleCompareTable, { type PerSerialMetricRow } from "./cycle-compare-table";
 import FocusHeatmap from "./focus-heatmap";
 import CoreMetricsTable from "./core-metric-table";
+import { formatStagePeriodsSummary } from "@lib/serial-display";
 // import MonthTotalTime from "./month-total-time";
 
 export interface dataProps {
@@ -172,9 +173,14 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
         handleSerials()
     }, [])
 
+    const stagePeriodsSummary = useMemo(
+        () => formatStagePeriodsSummary(periods, serials),
+        [periods, serials]
+    )
+
     return <section className='wrap'>
         <section>
-            本月周期：
+            本阶段周期：
             <SerialsPicker
                 onValueChange={onSerialChange}
                 value={periods} mode='multiple'
@@ -182,6 +188,11 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
                 duration={duration}
                 serials={serials}
             />
+            {stagePeriodsSummary && (
+                <span className="stage-periods-summary" title="按归属年展示（跨年周期归天数更多的一年）">
+                    {stagePeriodsSummary}
+                </span>
+            )}
         </section>
         <section className='section'>
             {transTitle('【战况速览】')}
@@ -212,9 +223,9 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
             ].map(it => handleTrans(it, monthData))}
         </section>
         <section className='section'>
-            {!!weeksData.length && transTitle('【月度详情：不同LTN周期任务对比】')}
+            {!!weeksData.length && transTitle('【阶段详情：不同周期任务对比】')}
             {!!perSerialMetrics.length && (
-                    <CycleCompareTable data={perSerialMetrics} />
+                    <CycleCompareTable data={perSerialMetrics} serialCatalog={serials} />
             )}
             {!!weeksData.length && (
                 <Spin
@@ -242,6 +253,7 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
                             structuredMerge={structuredMerge}
                             aiMergeLoading={aiMergeLoading}
                             perSerialMetrics={perSerialMetrics}
+                            serialCatalog={serials}
                         />
                     </div>
                 </Spin>

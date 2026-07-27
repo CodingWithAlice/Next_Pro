@@ -16,6 +16,7 @@ import {
 	aggregateLearningTasks,
 } from '@lib/month-learning-aggregate';
 import type { PerSerialMetricRow } from '@lib/month-per-serial-metrics';
+import type { SerialTimeRange } from '@lib/serial-display';
 
 interface DataType {
 	frontOverview: string;
@@ -37,6 +38,7 @@ export default function MonthTable({
 	structuredMerge,
 	aiMergeLoading,
 	perSerialMetrics,
+	serialCatalog,
 }: {
 	data: MonthTableWeekRow[];
 	study: number;
@@ -44,20 +46,35 @@ export default function MonthTable({
 	/** 正在请求汇聚集合 */
 	aiMergeLoading?: boolean;
 	perSerialMetrics?: PerSerialMetricRow[];
+	/** 全量周期，用于年内序号展示 */
+	serialCatalog?: SerialTimeRange[];
 }) {
 	const ltnMetrics = toLtnMetricSummaries(perSerialMetrics)
-	const ruleRow = buildAggregatedMonthRow(data, study, perSerialMetrics);
-	const tedRead = aggregateTedRead(data);
+	const ruleRow = buildAggregatedMonthRow(
+		data,
+		study,
+		perSerialMetrics,
+		serialCatalog
+	);
+	const tedRead = aggregateTedRead(data, serialCatalog);
 
 	const aiActive = structuredMerge != null;
 
 	const row = aiActive
 		? {
 				key: 'ai-structured',
-				frontOverview: aggregateLearningTasks(data, ltnMetrics),
-				sleepSportMovie: formatSleepSportMovieColumn(structuredMerge!, data),
+				frontOverview: aggregateLearningTasks(
+					data,
+					ltnMetrics,
+					serialCatalog
+				),
+				sleepSportMovie: formatSleepSportMovieColumn(
+					structuredMerge!,
+					data,
+					serialCatalog
+				),
 				TEDRead: tedRead,
-				idea: aggregateImproveMethodsLastOnly(data),
+				idea: aggregateImproveMethodsLastOnly(data, serialCatalog),
 				studyTotalMinutes: study,
 			}
 		: { ...ruleRow, TEDRead: tedRead };

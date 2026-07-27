@@ -288,7 +288,8 @@ h1 {
 
 /* week */
 .serial-week {
-    width: 8rem;
+    width: 11rem;
+    min-width: 10rem;
 }
 
 .serial-week-br {
@@ -296,11 +297,50 @@ h1 {
 }
 
 .serial-month {
-    min-width: 108px;
+    min-width: 10rem;
 }
 
 .serial-month-br {
     display: none;
+}
+
+.serial-year-group {
+    color: #999;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+.serial-option-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    vertical-align: middle;
+}
+
+.serial-option-days {
+    font-size: 11px;
+    line-height: 1;
+    color: rgb(38, 157, 128);
+    font-weight: 500;
+}
+
+/* Ant Design 分组标题：灰色小号年份 */
+.ant-select-item-group {
+    color: #999 !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    min-height: 24px !important;
+    line-height: 24px !important;
+    padding-top: 4px !important;
+    padding-bottom: 0 !important;
+}
+
+.stage-periods-summary {
+    margin-left: 12px;
+    color: #666;
+    font-size: 13px;
+    white-space: nowrap;
 }
 
 .week-period-time {

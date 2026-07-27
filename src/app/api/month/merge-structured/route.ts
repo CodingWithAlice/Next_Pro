@@ -7,12 +7,13 @@ import {
 	GetWeekInfo,
 	ltnMinutesFor,
 } from '@lib/month-per-serial-metrics'
-import type { SerialAttributes } from 'db'
+import { SerialModal, type SerialAttributes } from 'db'
 import {
 	aggregateLearningTasks,
 	aggregateImproveMethodsLastOnly,
 	type MonthTableWeekRow,
 } from '@lib/month-learning-aggregate'
+import type { SerialTimeRange } from '@lib/serial-display'
 
 function toWeekRows(weekList: SerialAttributes[]): MonthTableWeekRow[] {
 	return weekList.map((w) => ({
@@ -37,6 +38,21 @@ function clip(s: string, max: number) {
 
 const MAX_FIELD = 12000
 
+async function loadSerialCatalog(userId: number): Promise<SerialTimeRange[]> {
+	const rows = await SerialModal.findAll({
+		where: { userId },
+		attributes: ['serialNumber', 'startTime', 'endTime'],
+	})
+	return rows.map((r) => {
+		const p = r.get({ plain: true }) as SerialAttributes
+		return {
+			serialNumber: p.serialNumber,
+			startTime: String(p.startTime),
+			endTime: String(p.endTime),
+		}
+	})
+}
+
 async function POST(request: NextRequest) {
 	try {
 		const userId = Number(getEffectiveUserIdFromRequest(request))
@@ -53,6 +69,7 @@ async function POST(request: NextRequest) {
 
 		const weekList = await GetWeekInfo(serials, userId)
 		const perSerialMetrics = await buildPerSerialMetrics(serials, userId)
+		const catalog = await loadSerialCatalog(userId)
 
 		// 学习任务与复盘：规则生成（复盘仅保留最后一周期）
 		const weekRows = toWeekRows(weekList)
@@ -63,8 +80,15 @@ async function POST(request: NextRequest) {
 			ltnMinutes: ltnMinutesFor(m),
 			ltnTopicCount: m.ltnTopicCount ?? 0,
 		}))
-		const learning_task_merged = aggregateLearningTasks(weekRows, ltnMetrics)
-		const improve_methods_merged = aggregateImproveMethodsLastOnly(weekRows)
+		const learning_task_merged = aggregateLearningTasks(
+			weekRows,
+			ltnMetrics,
+			catalog
+		)
+		const improve_methods_merged = aggregateImproveMethodsLastOnly(
+			weekRows,
+			catalog
+		)
 
 		// 仅传睡眠给模型
 		const periodsPayload = weekList.map((w) => ({

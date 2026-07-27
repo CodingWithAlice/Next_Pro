@@ -187,7 +187,7 @@
     .serial-navigation .serial-week {
         flex: 1 1 auto;
         min-width: 0;
-        max-width: 200px;
+        max-width: 160px;
     }
 
     .floating-save-wrap {
@@ -211,6 +211,6 @@
     }
 
     .serial-navigation .serial-week {
-        max-width: 160px;
+        max-width: 140px;
     }
 }

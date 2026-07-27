@@ -1,3 +1,4 @@
+import type { SerialTimeRange } from '@lib/serial-display'
 import {
 	aggregateSportAndMovieOnly,
 	type MonthTableWeekRow,
@@ -13,7 +14,8 @@ export type MonthStructuredMerge = {
 
 export function formatSleepSportMovieColumn(
 	ai: MonthStructuredMerge,
-	weeks: MonthTableWeekRow[]
+	weeks: MonthTableWeekRow[],
+	catalog?: SerialTimeRange[]
 ): string {
 	const parts: string[] = []
 	if (ai.sleep_objective_merged?.trim()) {
@@ -26,7 +28,7 @@ export function formatSleepSportMovieColumn(
 			`【睡眠 · 提高质量与意识调整】\n${ai.sleep_awareness_merged.trim()}`
 		)
 	}
-	const sportMovie = aggregateSportAndMovieOnly(weeks)
+	const sportMovie = aggregateSportAndMovieOnly(weeks, catalog)
 	if (sportMovie) {
 		parts.push(sportMovie)
 	}

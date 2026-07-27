@@ -150,7 +150,7 @@ export default function Month() {
                 上一阶段
             </Button>
             <h1 className="month-title">
-                <Link href="/" className="home-link-title">{monthId} 阶段报</Link>
+                <Link href="/" className="home-link-title">阶段 {monthId}</Link>
             </h1>
             <Button
                 icon={<RightOutlined />}
