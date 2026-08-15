@@ -40,6 +40,10 @@ const Api = {
 		return request.get('ted')
 	},
 
+	postTedApi(data: { title: string; times?: string | number }) {
+		return request.post('ted', data)
+	},
+
 	postTedRecord(data: TedRecordDTO) {
 		return request.post('ted/record', data)
 	},
