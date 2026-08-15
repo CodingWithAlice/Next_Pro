@@ -35,6 +35,14 @@ export default function Week() {
     }
 
     const handleTargetSerial = (target: number) => {
+        if (target === curSerial) {
+            // 同一周期更新起止后需主动刷新列表与展示
+            setLoading(true);
+            Promise.all([initData(curSerial), handleSerialRange()]).finally(() => {
+                setLoading(false);
+            });
+            return;
+        }
         setCurSerial(target);
     }
 
