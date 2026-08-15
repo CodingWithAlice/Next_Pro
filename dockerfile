@@ -7,8 +7,8 @@ WORKDIR /app
 # 复制 package.json 和 package-lock.json 到工作目录
 COPY package*.json ./
 
-# 安装项目依赖
-RUN npm install --production
+# 构建需要 typescript / eslint 等 devDependencies，不能用 --production
+RUN npm install
 
 # 复制项目所有文件到工作目录
 COPY . .
