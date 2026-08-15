@@ -75,7 +75,7 @@ export default function SerialsRangeEditModal({
         Api.postSerialApi(params)
             .then((e) => {
                 changeModalShow(false);
-                onFresh && onFresh(e?.data?.targetSerial);
+                onFresh?.(e?.data?.targetSerial);
                 messageApi.success(e?.data?.message || e?.message);
             })
             .catch((e) => {

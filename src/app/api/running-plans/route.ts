@@ -20,9 +20,9 @@ async function GET(request: NextRequest) {
 		})
 
 		// 按 plan_name 分组
-		const plansByName: { [key: string]: any[] } = {}
-		plans.forEach((plan: any) => {
-			const planName = plan.get('planName')
+		const plansByName: { [key: string]: typeof plans } = {}
+		plans.forEach((plan) => {
+			const planName = plan.get('planName') as string
 			if (!plansByName[planName]) {
 				plansByName[planName] = []
 			}
@@ -34,13 +34,13 @@ async function GET(request: NextRequest) {
 			const planItems = plansByName[planName]
 			
 			// 获取计划的日期范围（最早的开始日期和最晚的结束日期）
-			const startDates = planItems.map((item: any) => item.get('startDate')).sort()
-			const endDates = planItems.map((item: any) => item.get('endDate')).sort()
+			const startDates = planItems.map((item) => item.get('startDate') as string).sort()
+			const endDates = planItems.map((item) => item.get('endDate') as string).sort()
 			const planStartDate = startDates[0]
 			const planEndDate = endDates[endDates.length - 1]
 			
 			// 获取计划状态（取第一个子项的状态，或者如果所有子项都是 completed，则为 completed）
-			const planStatus = planItems.every((item: any) => item.get('status') === 'completed') 
+			const planStatus = planItems.every((item) => item.get('status') === 'completed') 
 				? 'completed' 
 				: 'active'
 
@@ -48,8 +48,8 @@ async function GET(request: NextRequest) {
 			// 将日期字符串转换为 Date 对象进行比较，确保比较准确
 			const planStart = new Date(planStartDate)
 			const planEnd = new Date(planEndDate)
-			const planRecords = runningRecords.filter((record: any) => {
-				const recordDate = new Date(record.get('date'))
+			const planRecords = runningRecords.filter((record) => {
+				const recordDate = new Date(record.get('date') as string)
 				return recordDate >= planStart && recordDate <= planEnd
 			})
 
@@ -58,19 +58,19 @@ async function GET(request: NextRequest) {
 			let totalCompletedTimes = 0
 			let totalDistance = 0
 			
-			const items = planItems.map((item: any) => {
-				const itemDistance = parseFloat(item.get('distance')) || 0
-				const itemTargetTimes = item.get('targetTimes') || 0
-				const itemCurrentTimes = item.get('currentTimes') || 0 // 直接使用数据库中的 currentTimes
-				const itemStartDate = item.get('startDate')
-				const itemEndDate = item.get('endDate')
+			const items = planItems.map((item) => {
+				const itemDistance = parseFloat(String(item.get('distance'))) || 0
+				const itemTargetTimes = (item.get('targetTimes') as number) || 0
+				const itemCurrentTimes = (item.get('currentTimes') as number) || 0 // 直接使用数据库中的 currentTimes
+				const itemStartDate = item.get('startDate') as string
+				const itemEndDate = item.get('endDate') as string
 
 				// 计算该子项期间的跑步记录（用于计算实际完成情况）
 				// 将日期字符串转换为 Date 对象进行比较，确保比较准确
 				const itemStart = new Date(itemStartDate)
 				const itemEnd = new Date(itemEndDate)
-				const itemRecords = planRecords.filter((record: any) => {
-					const recordDate = new Date(record.get('date'))
+				const itemRecords = planRecords.filter((record) => {
+					const recordDate = new Date(record.get('date') as string)
 					return recordDate >= itemStart && recordDate <= itemEnd
 				})
 

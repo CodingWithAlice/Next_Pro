@@ -82,9 +82,9 @@ export default function TedPage() {
             form.resetFields();
             setAddModalOpen(false);
             refreshData();
-        } catch (error: any) {
-            if (error?.errorFields) return;
-            messageApi.error(error?.message || '添加失败');
+        } catch (error) {
+            if (error && typeof error === 'object' && 'errorFields' in error) return;
+            messageApi.error((error as Error)?.message || '添加失败');
         } finally {
             setSubmitting(false);
         }

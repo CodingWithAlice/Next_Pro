@@ -21,12 +21,12 @@ export async function GET(request: NextRequest) {
 			success: true,
 			data: routineTypes,
 		});
-	} catch (error: any) {
+	} catch (error) {
 		console.error('获取 routine types 失败:', error);
 		return NextResponse.json(
 			{
 				success: false,
-				message: error.message || '获取 routine types 失败',
+				message: (error as Error).message || '获取 routine types 失败',
 			},
 			{ status: 500 }
 		);
@@ -74,12 +74,12 @@ export async function POST(request: NextRequest) {
 			data: newRoutineType,
 			message: '创建成功',
 		});
-	} catch (error: any) {
+	} catch (error) {
 		console.error('创建 routine type 失败:', error);
 		return NextResponse.json(
 			{
 				success: false,
-				message: error.message || '创建失败',
+				message: (error as Error).message || '创建失败',
 			},
 			{ status: 500 }
 		);
@@ -120,7 +120,7 @@ export async function PUT(request: NextRequest) {
 			);
 		}
 
-		const updateData: any = {};
+		const updateData: Record<string, unknown> = {};
 		if (type !== undefined) updateData.type = type;
 		if (des !== undefined) updateData.des = des;
 		if (show !== undefined) updateData.show = show;
@@ -133,12 +133,12 @@ export async function PUT(request: NextRequest) {
 			data: routineType,
 			message: '更新成功',
 		});
-	} catch (error: any) {
+	} catch (error) {
 		console.error('更新 routine type 失败:', error);
 		return NextResponse.json(
 			{
 				success: false,
-				message: error.message || '更新失败',
+				message: (error as Error).message || '更新失败',
 			},
 			{ status: 500 }
 		);

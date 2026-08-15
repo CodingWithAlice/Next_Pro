@@ -55,8 +55,8 @@ export default function SportPage() {
             if (plansResponse.success) {
                 setRunningPlans(plansResponse.plans || []);
             }
-        } catch (error: any) {
-            messageApi.error(error.message || '加载数据失败');
+        } catch (error) {
+            messageApi.error((error as Error).message || '加载数据失败');
         } finally {
             setLoading(false);
         }
@@ -74,17 +74,30 @@ export default function SportPage() {
     };
 
     // 保存记录
-    const handleSaveRecord = async (values: any) => {
+    const handleSaveRecord = async (values: {
+        type: SportType;
+        date: string;
+        value: number;
+        category: string;
+        subInfo?: string | null;
+        duration?: number | null;
+        notes?: string | null;
+    }) => {
         try {
-            const response = await Api.postSportApi(values);
+            const response = await Api.postSportApi({
+                ...values,
+                subInfo: values.subInfo ?? undefined,
+                duration: values.duration ?? undefined,
+                notes: values.notes ?? undefined,
+            });
             if (response.success) {
                 messageApi.success('记录保存成功');
                 setIsModalOpen(false);
                 // 刷新数据
                 await loadData();
             }
-        } catch (error: any) {
-            messageApi.error(error.message || '保存失败');
+        } catch (error) {
+            messageApi.error((error as Error).message || '保存失败');
         }
     };
 

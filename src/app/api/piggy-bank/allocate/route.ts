@@ -146,7 +146,6 @@ async function POST(request: NextRequest) {
 			)
 		}
 
-		let totalAdded = 0
 		for (const a of allocations) {
 			const jar = await PiggyBankJarModal.findOne({ where: { id: a.jarId, userId } })
 			if (jar && a.amount > 0) {
@@ -158,7 +157,6 @@ async function POST(request: NextRequest) {
 				const cap = target > 0 ? Math.max(0, target - currentBalance) : Infinity
 				const toAdd = Math.min(amt, cap)
 				if (toAdd <= 0) continue
-				totalAdded += toAdd
 				const newBalance = currentBalance + toAdd
 				const shouldClose = target > 0 && newBalance >= target
 				await jar.update({ balance: newBalance, ...(shouldClose ? { status: 'completed' as const } : {}) })

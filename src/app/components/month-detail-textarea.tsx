@@ -55,7 +55,6 @@ export interface Metric {
 }
 
 export function MonthDetailTextarea({ monthData, setMonthData, periods, setPeriods }: MonthDetailTextareaProps) {
-    const [timeTotalByRoutineType, setTimeTotalByRoutineType] = useState<timeTotalByRoutineTypeProps[]>();
     const [weeksData, setWeeksData] = useState<dataProps[]>([]); // 每周数据
     const [rawRecords, setRawRecords] = useState<rawRecord[]>([]); // 每周数据
     const [metricData, setMetricData] = useState<Record<string, Metric[]>>(); // 每周数据
@@ -122,7 +121,6 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
                 if (cancelled) return;
 
                 setRawRecords(currentRawRecords)
-                setTimeTotalByRoutineType(currentTimeTotalByRoutineType);
                 setWeeksData(weekList);
                 setMetricData(metricData);
                 setDuration(gapTime)

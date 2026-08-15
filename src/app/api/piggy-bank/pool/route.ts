@@ -3,8 +3,6 @@ import { PiggyBankJarModal, PiggyBankPoolModal } from 'db'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 import { computeComputedPendingBalance, refreshComputedPendingRow } from '../pool-balance'
 
-type PoolRow = { id: number; amount: string | number }
-
 async function POST(request: NextRequest) {
 	try {
 		const userId = Number(getEffectiveUserIdFromRequest(request))

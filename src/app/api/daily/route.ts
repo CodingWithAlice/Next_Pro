@@ -17,7 +17,9 @@ async function POST(request: NextRequest) {
 		// 去掉 UI 字段 type / id：保存时 daySort 会重排，带 id 的 bulkCreate 会触发主键
 		// ON DUPLICATE KEY UPDATE，覆盖掉同批次里无 id 新记录的写入（例如新增西班牙语）。
 		const rows = body.data.map((row: Record<string, unknown>) => {
-			const { id: _id, type: _type, ...rest } = row
+			const rest = { ...row }
+			delete rest.id
+			delete rest.type
 			return { ...rest, userId }
 		})
 

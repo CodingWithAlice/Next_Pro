@@ -39,11 +39,11 @@ export default function BookImageInput({ value, onChange, title, onUploadingChan
 				});
 				return false;
 			}
-		} catch (error: any) {
+		} catch (error) {
 			setUploadModal({
 				open: true,
 				type: 'error',
-				message: error.message || '上传失败，请重试',
+				message: (error as Error).message || '上传失败，请重试',
 			});
 			return false;
 		} finally {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PiggyBankJarModal, PiggyBankPoolModal } from 'db'
+import { PiggyBankJarModal } from 'db'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 import { refreshComputedPendingRow } from '../../pool-balance'
 
@@ -38,7 +38,6 @@ async function PUT(
 			}
 			const currentTarget = jar.get('targetAmount') != null ? parseFloat(String(jar.get('targetAmount'))) : 0
 			const balance = parseFloat(String(jar.get('balance')))
-			const status = jar.get('status')
 
 			updateData.targetAmount = real
 			// 实际消费大于原目标：提高目标并重新开启罐子以便继续还款

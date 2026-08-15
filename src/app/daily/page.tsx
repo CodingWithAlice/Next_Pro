@@ -124,7 +124,7 @@ export default function Daily() {
             setRoutineType(routine);
 
             // 处理所有事项（包括工作类型）
-            const initIssues: any[] = [];
+            const initIssues: Issue[] = [];
             let idx = 0; // 独立的计数器，每添加一项就递增
             dailyData
                 .filter((it: DailyDataProps) => routineIds.includes(it.routineTypeId))
@@ -142,22 +142,18 @@ export default function Daily() {
                         // 如果小时和分钟都相同，保持为一条记录
                         if (startHour === endHour && startMinute === endMinute) {
                             initIssues.push({
-                                ...data,
                                 startTime: startTime,
                                 endTime: startTime, // 确保 endTime 和 startTime 相同
-                                type: data.routineTypeId,
+                                type: String(data.routineTypeId),
                                 daySort: idx++,
                                 interval: data.interval || 0,
-                                routineTypeId: data.routineTypeId,
                                 duration: 0
                             });
                         } else {
                             // 如果小时或分钟不同，拆分成两条记录：一条是开始时间，一条是结束时间
                             const baseIssue = {
-                                ...data,
-                                type: data.routineTypeId,
+                                type: String(data.routineTypeId),
                                 interval: 0,
-                                routineTypeId: data.routineTypeId,
                                 duration: 0
                             };
                             
@@ -180,19 +176,18 @@ export default function Daily() {
                     } else {
                         // 非工作类型，正常处理
                         initIssues.push({
-                            ...data,
                             startTime: startTime,
                             endTime: endTime,
-                            type: data.routineTypeId,
+                            type: String(data.routineTypeId),
                             daySort: idx++,
                             interval: data.interval || 0,
-                            routineTypeId: data.routineTypeId
+                            duration: data.duration || 0
                         });
                     }
                 });
 
             // 按开始时间排序，但睡眠始终排在最后
-            const sortedIssues = sortIssuesWithSleepLast(initIssues).map((it: any, index: number) => ({
+            const sortedIssues = sortIssuesWithSleepLast(initIssues).map((it: Issue, index: number) => ({
                 ...it,
                 daySort: index
             }));
