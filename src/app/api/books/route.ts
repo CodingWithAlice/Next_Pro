@@ -5,9 +5,37 @@ import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 async function GET(request: NextRequest) {
 	try {
 		const userId = Number(getEffectiveUserIdFromRequest(request))
-		const booksData = await BooksRecordModal.findAll({ where: { userId } })
+		const { searchParams } = request.nextUrl
+		const pageParam = searchParams.get('page')
+		const pageSizeParam = searchParams.get('pageSize')
+		const where = { userId }
+		const order: [string, string][] = [['recent', 'DESC']]
+
+		// 传 page 时分页；不传则返回全量（兼容年度分享等场景）
+		if (pageParam != null) {
+			const page = Math.max(1, Number(pageParam) || 1)
+			const pageSize = Math.min(50, Math.max(1, Number(pageSizeParam) || 20))
+			const { rows, count } = await BooksRecordModal.findAndCountAll({
+				where,
+				order,
+				limit: pageSize,
+				offset: (page - 1) * pageSize,
+			})
+			return NextResponse.json({
+				booksData: rows,
+				total: count,
+				page,
+				pageSize,
+				hasMore: page * pageSize < count,
+				success: true,
+				message: '操作成功',
+			})
+		}
+
+		const booksData = await BooksRecordModal.findAll({ where, order })
 		return NextResponse.json({
 			booksData,
+			total: booksData.length,
 			success: true,
 			message: '操作成功',
 		})

@@ -142,8 +142,8 @@
 
     /* week */
     .serial-week {
-        width: 9rem;
-        min-width: 8rem;
+        width: 12.5rem;
+        min-width: 11.5rem;
     }
 
     .stage-periods-summary {

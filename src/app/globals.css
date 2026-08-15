@@ -328,10 +328,18 @@ h1 {
     width: 100%;
 }
 
-/* week */
+/* week：需容纳 NO.12[6.6-6.24] 19天 + 下拉箭头 */
 .serial-week {
-    width: 11rem;
-    min-width: 10rem;
+    width: 14rem;
+    min-width: 13rem;
+}
+
+.serial-week .ant-select-selector {
+    padding-inline-end: 28px !important;
+}
+
+.serial-week .ant-select-selection-item {
+    padding-inline-end: 4px !important;
 }
 
 .serial-week-br {

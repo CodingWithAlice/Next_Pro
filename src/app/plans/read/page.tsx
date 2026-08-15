@@ -1,6 +1,6 @@
 'use client';
 import './app.css';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Api from '@/service/api';
 import type { CollapseProps } from 'antd';
 import { Collapse, Tag, Typography, Spin, Button, Modal, FloatButton, Switch, Image } from 'antd';
@@ -15,6 +15,8 @@ import RecordItemContent from '@/components/record-item-content';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
+
+const PAGE_SIZE = 20;
 
 interface BooksDTO {
     id: number;
@@ -50,7 +52,10 @@ const categoryColorSchemes: Record<string, string[]> = {
 
 export default function ReadPage() {
     const [loading, setLoading] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
     const [booksList, setBooksList] = useState<BooksDTO[]>([]);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
     const [yearShareModalOpen, setYearShareModalOpen] = useState(false);
     const [selectedYear, setSelectedYear] = useState<number>(dayjs().year());
     const [showAllData, setShowAllData] = useState(false);
@@ -59,6 +64,22 @@ export default function ReadPage() {
     // 编辑模态框状态
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [editingRecord, setEditingRecord] = useState<BooksDTO | null>(null);
+    // 年度分享用全量数据（按需加载，不阻塞主列表）
+    const [shareBooksList, setShareBooksList] = useState<BooksDTO[]>([]);
+    const [shareLoading, setShareLoading] = useState(false);
+
+    const sentinelRef = useRef<HTMLDivElement | null>(null);
+    const loadingMoreRef = useRef(false);
+    const hasMoreRef = useRef(true);
+    const pageRef = useRef(1);
+
+    useEffect(() => {
+        hasMoreRef.current = hasMore;
+    }, [hasMore]);
+
+    useEffect(() => {
+        pageRef.current = page;
+    }, [page]);
 
     // 处理编辑
     const handleEdit = (record: BooksDTO, e: React.MouseEvent) => {
@@ -90,6 +111,7 @@ export default function ReadPage() {
                     height={60}
                     className="collapse-label-image"
                     preview={false}
+                    loading="lazy"
                 />
             )}
             <div className="collapse-label-content">
@@ -128,34 +150,90 @@ export default function ReadPage() {
         return items
     }
 
-    // 获取并更新数据
-    const fetchAndUpdateData = () => {
-        return Api.getReadApi().then(({ booksData }) => {
-            const sortedData = booksData;
-            sortedData.sort((a: BooksDTO, b: BooksDTO) => {
-                const isBefore = dayjs(a.recent).isBefore(b.recent)
-                return isBefore ? 1 : -1
-            });            
-            setBooksList(sortedData || []);
-        });
-    }
+    const fetchPage = useCallback(async (pageNum: number, replace: boolean) => {
+        const res = await Api.getReadApi({ page: pageNum, pageSize: PAGE_SIZE });
+        const nextList: BooksDTO[] = res.booksData || [];
+        setBooksList((prev) => (replace ? nextList : [...prev, ...nextList]));
+        setPage(pageNum);
+        setHasMore(Boolean(res.hasMore));
+        return res;
+    }, []);
 
     // 初始化查询接口（带loading）
-    const init = () => {
+    const init = useCallback(() => {
         setLoading(true);
-        fetchAndUpdateData().finally(() => {
-            setLoading(false);
-        });
-    }
+        setHasMore(true);
+        loadingMoreRef.current = false;
+        fetchPage(1, true)
+            .catch(() => {
+                setBooksList([]);
+                setHasMore(false);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    }, [fetchPage]);
 
-    // 静默刷新数据（不带loading）
-    const refreshData = () => {
-        fetchAndUpdateData();
-    }
+    // 静默刷新数据（不带loading）：重置到第一页
+    const refreshData = useCallback(() => {
+        setHasMore(true);
+        loadingMoreRef.current = false;
+        fetchPage(1, true).catch(() => {
+            setBooksList([]);
+            setHasMore(false);
+        });
+    }, [fetchPage]);
+
+    const loadMore = useCallback(async () => {
+        if (loadingMoreRef.current || !hasMoreRef.current) return;
+        loadingMoreRef.current = true;
+        setLoadingMore(true);
+        try {
+            await fetchPage(pageRef.current + 1, false);
+        } catch {
+            // 保持当前列表，允许再次触发加载
+        } finally {
+            loadingMoreRef.current = false;
+            setLoadingMore(false);
+        }
+    }, [fetchPage]);
 
     useEffect(() => {
         init();
-    }, [])
+    }, [init]);
+
+    // 滚动触底加载下一页
+    useEffect(() => {
+        const node = sentinelRef.current;
+        if (!node || loading) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0]?.isIntersecting) {
+                    loadMore();
+                }
+            },
+            { root: null, rootMargin: '200px', threshold: 0 }
+        );
+        observer.observe(node);
+        return () => observer.disconnect();
+    }, [loading, loadMore]);
+
+    // 打开年度分享时再拉全量（主列表保持分页）
+    const openYearShareModal = async () => {
+        setYearShareModalOpen(true);
+        setShareLoading(true);
+        try {
+            const { booksData } = await Api.getReadApi();
+            const sortedData: BooksDTO[] = [...(booksData || [])];
+            sortedData.sort((a, b) => (dayjs(a.recent).isBefore(b.recent) ? 1 : -1));
+            setShareBooksList(sortedData);
+        } catch {
+            setShareBooksList([]);
+        } finally {
+            setShareLoading(false);
+        }
+    };
 
     // 计算统计数据（支持年份模式和全部数据模式）
     const getYearStatistics = () => {
@@ -169,7 +247,7 @@ export default function ReadPage() {
             // '综艺': { count: 0, items: [] },
         };
 
-        booksList.forEach(book => {
+        shareBooksList.forEach(book => {
             const recentDate = book.recent;
             let shouldInclude = false;
             
@@ -249,6 +327,11 @@ export default function ReadPage() {
                 ].filter(Boolean)}
                 width={600}
             >
+                {shareLoading ? (
+                    <div className="share-loading-container">
+                        <Spin />
+                    </div>
+                ) : (
                 <div className="year-record-share-container">
                     <div className="year-record-title">
                         {titleText}
@@ -303,6 +386,7 @@ export default function ReadPage() {
                                                         height={24}
                                                         className="year-record-item-image"
                                                         preview={false}
+                                                        loading="lazy"
                                                     />
                                                 )}
                                                 <Tag
@@ -324,6 +408,7 @@ export default function ReadPage() {
                         })}
                     </div>
                 </div>
+                )}
             </Modal>
         );
     };
@@ -342,12 +427,19 @@ export default function ReadPage() {
             className='item'
             key={it.id}
             items={getItems(it)}
+            destroyInactivePanel
         />))}
+        <div ref={sentinelRef} className="list-sentinel">
+            {loadingMore && <Spin size="small" />}
+            {!hasMore && booksList.length > 0 && (
+                <span className="list-end-tip">已经到底啦</span>
+            )}
+        </div>
         <FloatButton
             icon={<ShareAltOutlined />}
             type="primary"
             tooltip="年度记录"
-            onClick={() => setYearShareModalOpen(true)}
+            onClick={openYearShareModal}
         />
         {renderYearShareModal()}
         <BookEditModal

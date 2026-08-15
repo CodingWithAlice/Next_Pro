@@ -112,8 +112,8 @@ const Api = {
 		return request.get('week/period', { serialNumber })
 	},
 
-	getReadApi() {
-		return request.get('books')
+	getReadApi(params?: { page?: number; pageSize?: number }) {
+		return request.get('books', params)
 	},
 	postReadApi(readData: { [key: string]: string | number }) {
 		return request.post('books', { readData })
