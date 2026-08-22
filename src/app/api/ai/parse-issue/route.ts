@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { AIPOST, type MessageProp } from '../../../../../lib/request'
+import { AIPOST, type MessageProp } from '@lib/deepseek'
 import dayjs from 'dayjs'
 
 type ParseIssueRequest = {

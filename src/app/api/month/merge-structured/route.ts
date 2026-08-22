@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
-import { AIPOST, MessageProp } from '@lib/request'
+import { AIPOST, MessageProp } from '@lib/deepseek'
 import {
 	buildPerSerialMetrics,
 	getSortedSerials,
