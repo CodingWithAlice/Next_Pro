@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { IssueAttributes } from 'db'
 import { GetWeekData } from 'utils'
 import { DailyDataProps } from '@/daily/page'
-import { AIPOST, MessageProp } from '../../../../lib/request'
+import { AIPOST, MessageProp } from '@lib/deepseek'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 
 type Primitive = string | number | boolean | null | undefined

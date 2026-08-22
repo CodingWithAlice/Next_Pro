@@ -2,7 +2,12 @@ import type { ReactNode } from 'react'
 import { Table } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { PerSerialMetricRow } from '@lib/month-per-serial-metrics'
-import { formatMinToHM, formatSerialNumber } from './tool'
+import {
+	buildSerialDisplayCatalog,
+	formatSerialCompact,
+	type SerialTimeRange,
+} from '@lib/serial-display'
+import { formatMinToHM } from './tool'
 
 export type { PerSerialMetricRow }
 
@@ -108,12 +113,24 @@ function CellTime({
 
 export default function CycleCompareTable({
 	data,
+	serialCatalog,
 }: {
 	data: PerSerialMetricRow[]
+	/** 全量周期，用于年内序号；缺省时仅用当前对比集推算 */
+	serialCatalog?: SerialTimeRange[]
 }) {
 	if (!data?.length) return null
 
 	const sorted = [...data].sort((a, b) => a.serialNumber - b.serialNumber)
+	const catalog = buildSerialDisplayCatalog(
+		serialCatalog?.length
+			? serialCatalog
+			: sorted.map((m) => ({
+					serialNumber: m.serialNumber,
+					startTime: m.startTime,
+					endTime: m.endTime,
+				}))
+	)
 
 	const tableRows = METRICS.map((def) => {
 		const record: Record<string, unknown> = {
@@ -165,19 +182,23 @@ export default function CycleCompareTable({
 			fixed: 'left',
 			width: 160,
 		},
-		...sorted.map((m) => ({
-			title: (
-				<span style={{ whiteSpace: 'pre-line' }}>
-					LTN {formatSerialNumber(m.serialNumber)}
-					{'\n'}
-					{String(m.startTime).slice(5, 10)}～{String(m.endTime).slice(5, 10)}
-				</span>
-			),
-			dataIndex: `s${m.serialNumber}`,
-			key: `s${m.serialNumber}`,
-			width: 130,
-			render: (node: ReactNode) => node,
-		})),
+		...sorted.map((m) => {
+			const meta = catalog.get(m.serialNumber)
+			const titleText = meta
+				? formatSerialCompact(meta)
+				: `${String(m.startTime).slice(5, 10)}～${String(m.endTime).slice(5, 10)}`
+			return {
+				title: (
+					<span style={{ whiteSpace: 'pre-line' }} title={`全局#${m.serialNumber}`}>
+						{titleText}
+					</span>
+				),
+				dataIndex: `s${m.serialNumber}`,
+				key: `s${m.serialNumber}`,
+				width: 130,
+				render: (node: ReactNode) => node,
+			}
+		}),
 	]
 
 	return (

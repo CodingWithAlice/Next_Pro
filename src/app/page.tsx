@@ -1,6 +1,5 @@
 'use client';
 import Link from "next/link";
-import config from "config";
 import withTypeStorage from "@/components/with-type-storage";
 import { useEffect } from "react";
 

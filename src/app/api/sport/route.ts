@@ -21,12 +21,14 @@ const createEmptySummary = (): Record<SummaryKeys, number> => {
 }
 
 // 通用汇总计算函数
-const calculateSummary = (records: any[]): Record<SummaryKeys, number> => {
+const calculateSummary = (
+	records: { get: (key: string) => unknown }[]
+): Record<SummaryKeys, number> => {
 	const summary = createEmptySummary()
 	
-	records.forEach((record: any) => {
+	records.forEach((record) => {
 		const recordType = record.get('type') as SportType
-		const value = parseFloat(record.get('value')) || 0
+		const value = parseFloat(String(record.get('value'))) || 0
 		
 		if (SPORT_TYPES.includes(recordType)) {
 			summary[recordType] += value
@@ -55,7 +57,7 @@ async function GET(request: NextRequest) {
 		
 		// 计算今日汇总（从全量数据中过滤）
 		const today = new Date().toISOString().split('T')[0]
-		const todayRecords = allRecords.filter((record: any) => {
+		const todayRecords = allRecords.filter((record) => {
 			const recordDate = record.get('date')
 			return recordDate === today
 		})
@@ -65,11 +67,11 @@ async function GET(request: NextRequest) {
 		const totalSummary = calculateSummary(allRecords)
 		
 		return NextResponse.json({
-			records: records.map((record: any) => ({
+			records: records.map((record) => ({
 				id: record.get('id'),
 				type: record.get('type'),
 				date: record.get('date'),
-				value: parseFloat(record.get('value')) || 0,
+				value: parseFloat(String(record.get('value'))) || 0,
 				category: record.get('category'),
 				subInfo: record.get('subInfo'),
 				duration: record.get('duration'),

@@ -1,6 +1,13 @@
-import Api from "@/service/api";
 import { Select } from "antd";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+    buildSerialDisplayCatalog,
+    formatSerialPickerLabel,
+    groupSerialsByBelongYear,
+    type SerialDisplayMeta,
+} from "@lib/serial-display";
+
+const PLANNED_CYCLE_DAYS = 14;
 
 interface SerialsPickerProps {
     onValueChange: (v: number | number[]) => void;
@@ -11,8 +18,32 @@ interface SerialsPickerProps {
     serials: { serialNumber: number, startTime: string, endTime: string }[];
     disabled?: boolean;
 }
+
+function SerialOptionLabel({ meta }: { meta: SerialDisplayMeta }): ReactNode {
+    const text = formatSerialPickerLabel(meta);
+    if (meta.days === PLANNED_CYCLE_DAYS) {
+        return text;
+    }
+    return (
+        <span className="serial-option-label">
+            <span>{text}</span>
+            <span className="serial-option-days">{meta.days}天</span>
+        </span>
+    );
+}
+
 export function SerialsPicker({ value, onValueChange, mode, className, duration, serials, disabled }: SerialsPickerProps) {
     const [periodsDate, setPeriodsDate] = useState<string>('');
+
+    const displayCatalog = useMemo(
+        () => buildSerialDisplayCatalog(serials),
+        [serials]
+    );
+
+    const yearGroups = useMemo(
+        () => groupSerialsByBelongYear(serials, displayCatalog),
+        [serials, displayCatalog]
+    );
 
     const calcPeriods = useCallback((v: number[]) => {
         if (Array.isArray(v)) {
@@ -37,6 +68,31 @@ export function SerialsPicker({ value, onValueChange, mode, className, duration,
         calcPeriods(v as number[]);
     }
 
+    const nextSerialHint = serials.length
+        ? Math.max(...serials.map((s) => +s.serialNumber)) + 1
+        : 1;
+
+    const options = useMemo(() => [
+        {
+            label: `新周期 #${nextSerialHint}`,
+            value: 0,
+        },
+        ...yearGroups.map((g) => ({
+            label: (
+                <span className="serial-year-group">{g.year}</span>
+            ),
+            title: String(g.year),
+            options: g.items.map((meta) => ({
+                value: meta.serialNumber,
+                label: <SerialOptionLabel meta={meta} />,
+                title:
+                    meta.days === PLANNED_CYCLE_DAYS
+                        ? `全局#${meta.serialNumber}`
+                        : `全局#${meta.serialNumber} · ${meta.days}天`,
+            })),
+        })),
+    ], [yearGroups, nextSerialHint])
+
     return <>
         {!!serials.length && <Select
             className={className}
@@ -44,15 +100,8 @@ export function SerialsPicker({ value, onValueChange, mode, className, duration,
             value={value}
             mode={mode}
             disabled={disabled}
-            options={[
-                {
-                    label: '新-LTN' + (serials.length + 1),
-                    value: 0
-                },
-                ...serials.map((it: { serialNumber: number }) => ({
-                    value: +it?.serialNumber,
-                    label: `周期${it.serialNumber}`
-                }))]}
+            popupMatchSelectWidth={false}
+            options={options}
         />}
         <div className={`${className}-br`}></div>
         {!!mode && periodsDate}

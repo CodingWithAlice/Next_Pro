@@ -1,6 +1,5 @@
 "use client"
 import { useEffect, useState } from 'react';
-import dayjs from 'dayjs';
 import Api from '@/service/api';
 import './life-footprint.css';
 
@@ -34,7 +33,6 @@ export default function LifeFootprint({ currentDate, className }: LifeFootprintP
 
     useEffect(() => {
         fetchTotalDays();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentDate]); // 当日期改变时重新计算（用户保存数据后）
 
     return (

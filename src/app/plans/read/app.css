@@ -194,6 +194,27 @@
     min-height: 400px;
 }
 
+.share-loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+
+.list-sentinel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 88%;
+    min-height: 48px;
+    padding: 12px 0 24px;
+}
+
+.list-end-tip {
+    font-size: 13px;
+    color: #999;
+}
+
 /* Modal 相关样式 */
 .modal-title-wrapper {
     display: flex;

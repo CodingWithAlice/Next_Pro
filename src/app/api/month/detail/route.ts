@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { MonthModal, SerialModal } from 'db'
+import { MonthModal } from 'db'
 import { Op } from 'sequelize'
-import dayjs from 'dayjs'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 import {
 	buildPerSerialMetrics,

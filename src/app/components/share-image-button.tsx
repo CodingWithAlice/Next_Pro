@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { Button, message } from 'antd';
 import { ShareAltOutlined, DownloadOutlined } from '@ant-design/icons';
-// @ts-ignore - html-to-image 可能没有类型定义
 import { toPng } from 'html-to-image';
 
 interface ShareImageButtonProps {

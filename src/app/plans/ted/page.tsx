@@ -3,8 +3,8 @@ import './app.css';
 import { useEffect, useState } from 'react';
 import Api, { TedRecordDTO } from '@/service/api';
 import type { CollapseProps } from 'antd';
-import { Collapse, message, Tag, Spin } from 'antd';
-import { CheckSquareTwoTone, CopyOutlined } from '@ant-design/icons';
+import { Collapse, message, Tag, Spin, FloatButton, Modal, Form, Input } from 'antd';
+import { CheckSquareTwoTone, CopyOutlined, PlusOutlined } from '@ant-design/icons';
 import TedNewRecord from '@/components/ted-new-record';
 import dayjs from 'dayjs';
 import * as clipboard from "clipboard-polyfill";
@@ -23,6 +23,9 @@ export default function TedPage() {
     const [loading, setLoading] = useState(true);
     const [tedList, setTedList] = useState<TedDTO[]>([]);
     const [lastTedId, setLastTedId] = useState();
+    const [addModalOpen, setAddModalOpen] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [form] = Form.useForm();
 
     // 复制功能
     const copy = async (text: string) => {
@@ -58,6 +61,33 @@ export default function TedPage() {
     // 静默刷新数据（不带loading）
     const refreshData = () => {
         fetchAndUpdateData();
+    }
+
+    const openAddModal = () => {
+        form.resetFields();
+        setAddModalOpen(true);
+    }
+
+    const handleAddCancel = () => {
+        form.resetFields();
+        setAddModalOpen(false);
+    }
+
+    const handleAddOk = async () => {
+        try {
+            const values = await form.validateFields();
+            setSubmitting(true);
+            const res = await Api.postTedApi({ title: values.title.trim() });
+            messageApi.success(res?.message || '添加成功');
+            form.resetFields();
+            setAddModalOpen(false);
+            refreshData();
+        } catch (error) {
+            if (error && typeof error === 'object' && 'errorFields' in error) return;
+            messageApi.error((error as Error)?.message || '添加失败');
+        } finally {
+            setSubmitting(false);
+        }
     }
 
     // 展示历史感想和输入框
@@ -111,5 +141,31 @@ export default function TedPage() {
             key={it.id}
             items={getItems(it)}
         />))}
+        <FloatButton
+            icon={<PlusOutlined />}
+            type="primary"
+            tooltip="添加 TED"
+            onClick={openAddModal}
+        />
+        <Modal
+            title="添加 TED"
+            open={addModalOpen}
+            onOk={handleAddOk}
+            onCancel={handleAddCancel}
+            confirmLoading={submitting}
+            destroyOnClose
+            okText="添加"
+            cancelText="取消"
+        >
+            <Form form={form} layout="vertical" preserve={false}>
+                <Form.Item
+                    name="title"
+                    label="标题"
+                    rules={[{ required: true, whitespace: true, message: '请输入 TED 标题' }]}
+                >
+                    <Input placeholder="输入 TED 标题" maxLength={200} allowClear />
+                </Form.Item>
+            </Form>
+        </Modal>
     </div>
 }

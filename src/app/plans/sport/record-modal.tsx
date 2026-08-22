@@ -6,12 +6,22 @@ import dayjs, { Dayjs } from 'dayjs';
 // 运动类型
 type SportType = 'running' | 'resistance' | 'hiking' | 'class';
 
+export interface SportRecordFormValues {
+    type: SportType;
+    date: string;
+    value: number;
+    category: string;
+    subInfo?: string | null;
+    duration?: number | null;
+    notes?: string | null;
+}
+
 interface RecordModalProps {
     open: boolean;
     type: SportType;
     date?: Dayjs;
     onCancel: () => void;
-    onSave: (values: any) => void;
+    onSave: (values: SportRecordFormValues) => void;
 }
 
 // 表单字段类型
@@ -96,18 +106,16 @@ const SPORT_TYPE_CONFIG: Record<SportType, {
 export default function RecordModal({ open, type, date, onCancel, onSave }: RecordModalProps) {
     const [form] = Form.useForm();
     const [sportCategories, setSportCategories] = useState<{ value: string; label: string }[]>([]);
-    const [loading, setLoading] = useState(false);
     const config = SPORT_TYPE_CONFIG[type];
 
     // 加载运动课程类型
     useEffect(() => {
         if (type === 'class') {
-            setLoading(true);
             fetch('/api/routine-types?sport=true')
                 .then(res => res.json())
                 .then(data => {
                     if (data.success && data.data) {
-                        const options = data.data.map((item: any) => ({
+                        const options = (data.data as { type: string }[]).map((item) => ({
                             value: item.type,
                             label: item.type,
                         }));
@@ -117,9 +125,6 @@ export default function RecordModal({ open, type, date, onCancel, onSave }: Reco
                 .catch(error => {
                     console.error('加载运动类型失败:', error);
                     message.error('加载运动类型失败');
-                })
-                .finally(() => {
-                    setLoading(false);
                 });
         }
     }, [type]);
@@ -127,7 +132,7 @@ export default function RecordModal({ open, type, date, onCancel, onSave }: Reco
     // 当弹窗打开时，设置表单初始值（包括日期和默认分类）
     useEffect(() => {
         if (open) {
-            const initialValues: any = {
+            const initialValues: { date: Dayjs; category?: string } = {
                 date: date || dayjs(),
             };
             // 如果是跑步类型，设置默认的跑步类型

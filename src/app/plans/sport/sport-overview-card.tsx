@@ -2,7 +2,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Card, Calendar, Button, Tag } from 'antd';
 import { DownOutlined, UpOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
-import type { CalendarProps } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import ShareImageButton from '@/components/share-image-button';
 import './app.css';

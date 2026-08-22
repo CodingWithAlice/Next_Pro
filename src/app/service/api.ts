@@ -40,6 +40,10 @@ const Api = {
 		return request.get('ted')
 	},
 
+	postTedApi(data: { title: string; times?: string | number }) {
+		return request.post('ted', data)
+	},
+
 	postTedRecord(data: TedRecordDTO) {
 		return request.post('ted/record', data)
 	},
@@ -112,8 +116,8 @@ const Api = {
 		return request.get('week/period', { serialNumber })
 	},
 
-	getReadApi() {
-		return request.get('books')
+	getReadApi(params?: { page?: number; pageSize?: number }) {
+		return request.get('books', params)
 	},
 	postReadApi(readData: { [key: string]: string | number }) {
 		return request.post('books', { readData })

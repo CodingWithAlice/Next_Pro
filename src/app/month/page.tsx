@@ -46,8 +46,8 @@ export default function Month() {
             } else {
                 messageApi.warning('已经是第一阶段了');
             }
-        } catch (e: any) {
-            messageApi.error(e.message || '加载失败');
+        } catch (e) {
+            messageApi.error((e as Error).message || '加载失败');
         } finally {
             setLoading(false);
         }
@@ -66,8 +66,8 @@ export default function Month() {
             } else {
                 messageApi.warning('已经是最新阶段了');
             }
-        } catch (e: any) {
-            messageApi.error(e.message || '加载失败');
+        } catch (e) {
+            messageApi.error((e as Error).message || '加载失败');
         } finally {
             setLoading(false);
         }
@@ -81,32 +81,13 @@ export default function Month() {
     }
 
     // 处理月份数据的公共逻辑
-    const processMonthData = (monthData: any) => {
-        if (monthData?.periods) {
-            let editMonth = monthData?.frontMonthDesc ? monthData :  {...monthData, frontMonthDesc: MONTH_NON_SHORT_DECISION_PLACEHOLDER}
-            editMonth = monthData?.otherMonthDesc ? monthData :  {...editMonth, otherMonthDesc: MONTH_NON_SHORT_DECISION_PLACEHOLDER}
+    const processMonthData = (data: Record<string, string>) => {
+        if (data?.periods) {
+            let editMonth = data?.frontMonthDesc ? data :  {...data, frontMonthDesc: MONTH_NON_SHORT_DECISION_PLACEHOLDER}
+            editMonth = data?.otherMonthDesc ? data :  {...editMonth, otherMonthDesc: MONTH_NON_SHORT_DECISION_PLACEHOLDER}
             setMonthData(editMonth);
-            setPeriods(monthData.periods.split(',').map((it: string) => +it));
+            setPeriods(data.periods.split(',').map((it: string) => +it));
         }
-    }
-
-    // 加载月份数据
-    const loadMonthData = (id: number) => {
-        setLoading(true);
-        return Api.getMonthApi(id).then(({ monthData, currentId }) => {
-            // 如果有 currentId，更新 monthId（主要用于初始加载）
-            if (currentId && currentId !== monthId) {
-                setMonthId(currentId);
-            }
-            
-            // 处理数据
-            processMonthData(monthData);
-        }).catch((e) => {
-            messageApi.error(e.message || '加载数据失败');
-            throw e;
-        }).finally(() => {
-            setLoading(false);
-        })
     }
 
     // 初始化：从 URL 读取 monthId 或加载最新阶段（只执行一次）
@@ -150,7 +131,7 @@ export default function Month() {
                 上一阶段
             </Button>
             <h1 className="month-title">
-                <Link href="/" className="home-link-title">{monthId} 阶段报</Link>
+                <Link href="/" className="home-link-title">阶段 {monthId}</Link>
             </h1>
             <Button
                 icon={<RightOutlined />}

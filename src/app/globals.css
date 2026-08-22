@@ -17,6 +17,48 @@ body {
     touch-action: manipulation;
 }
 
+/* 全局登录状态：桌面端右上角固定，不占文档流 */
+.header-auth {
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    z-index: 1000;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.header-auth-inner,
+.header-auth-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.header-auth-label {
+    opacity: 0.8;
+    margin-right: 4px;
+}
+
+.header-auth-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+    opacity: 0.9;
+    padding: 0;
+    font: inherit;
+}
+
+.header-auth-link {
+    opacity: 0.9;
+    color: inherit;
+    text-decoration: none;
+}
+
 /* 防止移动端双击放大 - 为所有输入框和选择框设置最小字体大小 */
 input[type="text"],
 input[type="number"],
@@ -286,9 +328,18 @@ h1 {
     width: 100%;
 }
 
-/* week */
+/* week：需容纳 NO.12[6.6-6.24] 19天 + 下拉箭头 */
 .serial-week {
-    width: 8rem;
+    width: 14rem;
+    min-width: 13rem;
+}
+
+.serial-week .ant-select-selector {
+    padding-inline-end: 28px !important;
+}
+
+.serial-week .ant-select-selection-item {
+    padding-inline-end: 4px !important;
 }
 
 .serial-week-br {
@@ -296,11 +347,50 @@ h1 {
 }
 
 .serial-month {
-    min-width: 108px;
+    min-width: 10rem;
 }
 
 .serial-month-br {
     display: none;
+}
+
+.serial-year-group {
+    color: #999;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+.serial-option-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    vertical-align: middle;
+}
+
+.serial-option-days {
+    font-size: 11px;
+    line-height: 1;
+    color: rgb(38, 157, 128);
+    font-weight: 500;
+}
+
+/* Ant Design 分组标题：灰色小号年份 */
+.ant-select-item-group {
+    color: #999 !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    min-height: 24px !important;
+    line-height: 24px !important;
+    padding-top: 4px !important;
+    padding-bottom: 0 !important;
+}
+
+.stage-periods-summary {
+    margin-left: 12px;
+    color: #666;
+    font-size: 13px;
+    white-space: nowrap;
 }
 
 .week-period-time {

@@ -23,33 +23,20 @@ export default function HeaderAuth() {
 	};
 
 	return (
-		<div style={{
-			position: 'fixed',
-			top: 12,
-			right: 16,
-			zIndex: 1000,
-			fontSize: 14,
-		}}>
+		<div className="header-auth">
 			{hasToken ? (
-				<span>
-					<span style={{ opacity: 0.8, marginRight: 8 }}>已登录</span>
+				<span className="header-auth-inner">
+					<span className="header-auth-label">已登录</span>
 					<button
 						type="button"
 						onClick={handleLogout}
-						style={{
-							background: 'none',
-							border: 'none',
-							color: 'inherit',
-							textDecoration: 'underline',
-							cursor: 'pointer',
-							opacity: 0.9,
-						}}
+						className="header-auth-btn"
 					>
 						登出
 					</button>
 				</span>
 			) : (
-				<Link href="/login" style={{ opacity: 0.9 }}>
+				<Link href="/login" className="header-auth-link">
 					登录
 				</Link>
 			)}

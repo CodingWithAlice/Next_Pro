@@ -1,4 +1,8 @@
-import dayjs from 'dayjs'
+import {
+	formatSerialCaption,
+	resolveSerialMeta,
+	type SerialTimeRange,
+} from '@lib/serial-display'
 
 /** 与月报 weekList 一致；供 API / 组件共用，不依赖 React */
 export type MonthTableWeekRow = {
@@ -15,26 +19,6 @@ export type MonthTableWeekRow = {
 	id: number
 }
 
-function formatSerialNumber(num: number): string {
-	const str = num + ''
-	const source = ['〇', '①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨']
-	let res = ''
-	Array(str.length)
-		.fill(1)
-		.forEach((_it, index) => {
-			res += source[+str[index]]
-		})
-	return res
-}
-
-function getGapTime(
-	startTime: string | dayjs.Dayjs,
-	endTime: string | dayjs.Dayjs,
-	type: 'hour' | 'minute' | 'day' = 'day'
-) {
-	return dayjs(endTime).diff(dayjs(startTime), type)
-}
-
 function formatMinToHM(minutes: number): string {
 	if (!minutes) return '0m'
 	const h = Math.floor(minutes / 60)
@@ -48,12 +32,12 @@ function sortWeeks(weeks: MonthTableWeekRow[]) {
 	return [...weeks].sort((a, b) => a.serialNumber - b.serialNumber)
 }
 
-export function periodCaption(it: MonthTableWeekRow): string {
-	const sn = `LTN ${formatSerialNumber(it.serialNumber)}`
-	const st = it.startTime.slice(5, 10)
-	const en = it.endTime.slice(5, 10)
-	const days = getGapTime(it.startTime, it.endTime)
-	return `【${sn} · ${st}～${en} · ${days}天】`
+/** catalog 为全量周期时，年内序号才准确（跨年按天数多的年归属） */
+export function periodCaption(
+	it: Pick<MonthTableWeekRow, 'serialNumber' | 'startTime' | 'endTime'>,
+	catalog?: SerialTimeRange[]
+): string {
+	return formatSerialCaption(resolveSerialMeta(it, catalog))
 }
 
 /** 学习任务列顶部展示的 LTN 汇总（不含 DB 依赖） */
@@ -66,15 +50,21 @@ export type LtnMetricSummary = {
 }
 
 /** 各周期 LTN 时长与题目数概览，用于学习任务列顶部 */
-export function formatLtnMetricsBlock(metrics: LtnMetricSummary[]): string {
+export function formatLtnMetricsBlock(
+	metrics: LtnMetricSummary[],
+	catalog?: SerialTimeRange[]
+): string {
 	if (!metrics?.length) return ''
 	const sorted = [...metrics].sort((a, b) => a.serialNumber - b.serialNumber)
 	const blocks = sorted.map((m) => {
-		const cap = periodCaption({
-			serialNumber: m.serialNumber,
-			startTime: m.startTime,
-			endTime: m.endTime,
-		} as MonthTableWeekRow)
+		const cap = periodCaption(
+			{
+				serialNumber: m.serialNumber,
+				startTime: m.startTime,
+				endTime: m.endTime,
+			},
+			catalog
+		)
 		return `${cap}\n时长 ${formatMinToHM(m.ltnMinutes)} · ${m.ltnTopicCount} 题`
 	})
 	return `【LTN 概况】\n${'—'.repeat(32)}\n\n${blocks.join('\n\n')}`
@@ -82,14 +72,15 @@ export function formatLtnMetricsBlock(metrics: LtnMetricSummary[]): string {
 
 /** 复盘与改进：各周期内容大多相同，仅保留最后一周期 */
 export function aggregateImproveMethodsLastOnly(
-	weeks: MonthTableWeekRow[]
+	weeks: MonthTableWeekRow[],
+	catalog?: SerialTimeRange[]
 ): string {
 	const sorted = sortWeeks(weeks)
 	const last = sorted[sorted.length - 1]
 	if (!last) return '（暂无复盘记录）'
 	const body = (last.improveMethods || '').trim()
 	if (!body) return '（暂无复盘记录）'
-	return `学习/工作方法复盘和改进（最后一周期）\n${'—'.repeat(28)}\n\n${periodCaption(last)}\n${body}`
+	return `学习/工作方法复盘和改进（最后一周期）\n${'—'.repeat(28)}\n\n${periodCaption(last, catalog)}\n${body}`
 }
 
 /** 工作段落起点：常见「二、工作体验」或「一、工作体验 技术方向」（与「一、学习体验」区分） */
@@ -245,7 +236,8 @@ function stripDuplicateSectionHeading(
  */
 export function aggregateLearningTasks(
 	weeks: MonthTableWeekRow[],
-	ltnMetrics?: LtnMetricSummary[]
+	ltnMetrics?: LtnMetricSummary[],
+	catalog?: SerialTimeRange[]
 ): string {
 	const sorted = sortWeeks(weeks)
 	const studyBlocks: string[] = []
@@ -254,7 +246,7 @@ export function aggregateLearningTasks(
 
 	for (const w of sorted) {
 		const raw = splitLearningTask(w.frontOverview || '')
-		const cap = periodCaption(w)
+		const cap = periodCaption(w, catalog)
 		const study = stripDuplicateSectionHeading(raw.study, 'study')
 		const tech = stripDuplicateSectionHeading(raw.tech, 'tech')
 		const nonTech = stripDuplicateSectionHeading(raw.nonTech, 'nonTech')
@@ -266,7 +258,9 @@ export function aggregateLearningTasks(
 	const line = '—'.repeat(32)
 	const parts: string[] = []
 
-	const ltnBlock = ltnMetrics?.length ? formatLtnMetricsBlock(ltnMetrics) : ''
+	const ltnBlock = ltnMetrics?.length
+		? formatLtnMetricsBlock(ltnMetrics, catalog)
+		: ''
 	if (ltnBlock) parts.push(ltnBlock)
 
 	if (studyBlocks.length) {

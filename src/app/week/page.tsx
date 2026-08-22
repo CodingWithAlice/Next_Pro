@@ -35,6 +35,14 @@ export default function Week() {
     }
 
     const handleTargetSerial = (target: number) => {
+        if (target === curSerial) {
+            // 同一周期更新起止后需主动刷新列表与展示
+            setLoading(true);
+            Promise.all([initData(curSerial), handleSerialRange()]).finally(() => {
+                setLoading(false);
+            });
+            return;
+        }
         setCurSerial(target);
     }
 
@@ -103,7 +111,7 @@ export default function Week() {
             setSerialsLength(serialData.length)
             // 获取周期时间范围返回
             const rangeMap: Record<number, { startTime: string; endTime: string }> = {}
-            serialData.forEach((it: any) => {
+            serialData.forEach((it: { serialNumber: number; startTime: string; endTime: string }) => {
                 rangeMap[it.serialNumber] = {
                     startTime: it?.startTime,
                     endTime: it?.endTime

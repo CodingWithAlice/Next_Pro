@@ -141,7 +141,6 @@ export default function IssueRecord({ study, issueData, setIssueData, currentDat
         };
 
         const buildFrontMerged = (prev: string, next: string) => {
-            const keys = ['LTN', 'BOX1', '在线工具'] as const;
             const prevParts = {
                 LTN: extractNumberedSection(prev, 'LTN'),
                 BOX1: extractNumberedSection(prev, 'BOX1'),

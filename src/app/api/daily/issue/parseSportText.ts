@@ -34,7 +34,7 @@ async function getSportCategories(userId?: number): Promise<string[]> {
 		const data = await response.json();
 		
 		if (data.success && data.data) {
-			return data.data.map((item: any) => item.type);
+			return (data.data as { type: string }[]).map((item) => item.type);
 		}
 	} catch (error) {
 		console.error('获取运动类型失败，使用默认列表:', error);

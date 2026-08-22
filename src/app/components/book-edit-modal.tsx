@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Modal, Form, Input, DatePicker, Select, Button, message } from 'antd';
-import dayjs, { Dayjs } from 'dayjs';
+import { Modal, Form, Input, DatePicker, Select, message } from 'antd';
+import dayjs from 'dayjs';
 import Api from '@/service/api';
 import BookImageInput from './book-image-input';
 
@@ -77,12 +77,12 @@ export default function BookEditModal({ open, record, onCancel, onSuccess }: Boo
             messageApi.success('更新成功');
             form.resetFields();
             onSuccess();
-        } catch (error: any) {
-            if (error.errorFields) {
+        } catch (error) {
+            if (error && typeof error === 'object' && 'errorFields' in error) {
                 // 表单验证错误
                 return;
             }
-            messageApi.error(error.message || '更新失败');
+            messageApi.error((error as Error).message || '更新失败');
         } finally {
             setLoading(false);
         }
