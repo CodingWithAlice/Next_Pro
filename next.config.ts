@@ -30,8 +30,7 @@ const nextConfig: NextConfig = {
 		return config
 	},
 	env: {
-		// 勿在此暴露 DEEPSEEK_API_KEY：next.config env 会打进前端包
-		CHECK_AUTH: process.env.CHECK_AUTH,
+		// 勿在此暴露 DEEPSEEK_API_KEY / CHECK_AUTH：next.config env 会打进前端包
 		NEXT_PUBLIC_PIGGY_BANK_ALLOCATE_MAX_RATIO: process.env.NEXT_PUBLIC_PIGGY_BANK_ALLOCATE_MAX_RATIO,
 	},
 }
