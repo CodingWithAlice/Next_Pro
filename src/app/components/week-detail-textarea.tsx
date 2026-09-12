@@ -21,7 +21,7 @@ export function WeekDetailTextarea({ weekData, setWeekData, curSerial }: WeekDet
 
     return <section className='wrap'>
         <div className='deep-seek'>
-            <DeepSeek type='week' handleChange={handleDeepSeek} periods={[curSerial]} />
+            <DeepSeek handleChange={handleDeepSeek} periods={[curSerial]} />
             {handleTrans({ key: 'time', desc: '周期' }, weekData)}
         </div>
         {transTitle('【学习内容前端】')}

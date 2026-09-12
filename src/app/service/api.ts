@@ -1,6 +1,5 @@
 import { Dayjs } from 'dayjs'
 import request from '../../../lib/request'
-import { SearchType } from '@/components/tool'
 import type { MonthStructuredMerge } from '@/components/month-structured-merge'
 
 export interface TedRecordDTO {
@@ -57,8 +56,8 @@ const Api = {
 	getMonthDetailApi(serialNumber: string) {
 		return request.get('month/detail', { serialNumber })
 	},
-	getDeepSeekApi(serialNumber: string, searchType: SearchType) {
-		return request.get('deepseek', { serialNumber, type: searchType, timeout: 300000 }) // 300秒
+	getDeepSeekApi(serialNumber: string) {
+		return request.get('deepseek', { serialNumber }, 300000) // 300秒
 	},
 	postAiParseTimeApi(
 		text: string,

@@ -45,12 +45,14 @@ function handleAxiosError(error: unknown): { status: number; message: string } {
 
 async function get(
 	api: string,
-	params?: { [key: string]: string | number | boolean }
+	params?: { [key: string]: string | number | boolean },
+	timeoutMs?: number
 ) {
 	try {
 		const response: AxiosResponse = await axios.get(`${url}/${api}`, {
 			params,
 			...getConfig(),
+			...(timeoutMs != null ? { timeout: timeoutMs } : {}),
 		})
 		return response.data
 	} catch (error) {

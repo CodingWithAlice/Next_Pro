@@ -157,9 +157,6 @@ interface IssueRecordProps {
     date?: string
 }
 
-// deepSeek 类别，读取不同的提示词
-type SearchType = 'month' | 'week';
-
 // 分类共三类：Learning、Life、Health
 const Category = {
     learning: 'Learning',
@@ -258,6 +255,5 @@ export {
     alignTimeToDate,
     transTitle,
     sortIssuesWithSleepLast,
-    type IssueRecordProps,
-    type SearchType
+    type IssueRecordProps
 };

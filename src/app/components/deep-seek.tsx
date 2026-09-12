@@ -2,12 +2,10 @@ import Api from "@/service/api";
 import { LoadingOutlined, OpenAIOutlined } from "@ant-design/icons";
 import { Button, message } from "antd";
 import { useState } from "react";
-import { SearchType } from "./tool";
 
-export default function DeepSeek({ periods, handleChange, type }: {
+export default function DeepSeek({ periods, handleChange }: {
     periods: number[],
     handleChange: (v: string) => void,
-    type: SearchType
 }) {
     const [deepseekLoading, setDeepseekLoading] = useState(false);
     const [messageApi, contextHolder] = message.useMessage();
@@ -16,7 +14,7 @@ export default function DeepSeek({ periods, handleChange, type }: {
     const handleDeepSeek = () => {
         if (deepseekLoading) return;
         setDeepseekLoading(true);
-        Api.getDeepSeekApi(periods.join(','), type).then(({ data }) => {
+        Api.getDeepSeekApi(periods.join(',')).then(({ data }) => {
             setDeepseekLoading(false)
             handleChange(data);
         }).catch(e => {
