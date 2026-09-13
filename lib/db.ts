@@ -1,11 +1,17 @@
 import { Sequelize, DataTypes, ModelDefined, Optional } from 'sequelize'
 import mysql2 from 'mysql2'
+import dotenv from 'dotenv'
+import path from 'path'
 
-// 获取环境变量
-const dbHost = process.env.NEXT_PUBLIC_DB_HOST
-const dbUser = process.env.NEXT_PUBLIC_DB_USER
-const dbPassword = process.env.NEXT_PUBLIC_DB_PASSWORD
-const dbDatabase = process.env.NEXT_PUBLIC_DB_DATABASE
+// 与 J-Table 共用仓库上一级 config.env；Docker 挂载为 /app/config.env
+dotenv.config({ path: '/app/config.env' })
+dotenv.config({ path: path.resolve(process.cwd(), 'config.env') })
+dotenv.config({ path: path.resolve(process.cwd(), '../config.env') })
+
+const dbHost = process.env['DB_HOST']
+const dbUser = process.env['DB_USER']
+const dbPassword = process.env['DB_PASSWORD']
+const dbDatabase = process.env['DB_DATABASE']
 
 export const sequelize = new Sequelize(
 	dbDatabase ?? 'Daily',

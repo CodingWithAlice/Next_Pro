@@ -3,9 +3,9 @@ import * as fs from 'fs'
 import * as path from 'path'
 import dotenv from 'dotenv'
 
-// 构建正确的配置文件路径
-const configPath = path.resolve(__dirname, './config.env')
-dotenv.config({ path: configPath })
+// Docker 挂载 /app/config.env；本地读仓库上一级共享 config.env
+dotenv.config({ path: path.resolve(__dirname, './config.env') })
+dotenv.config({ path: path.resolve(__dirname, '../config.env') })
 
 const tsconfigPath = path.resolve(__dirname, 'tsconfig.json')
 const tsconfigRaw = fs.readFileSync(tsconfigPath, 'utf-8')
@@ -30,7 +30,7 @@ const nextConfig: NextConfig = {
 		return config
 	},
 	env: {
-		// 勿在此暴露 DEEPSEEK_API_KEY / CHECK_AUTH：next.config env 会打进前端包
+		// 勿在此暴露 DEEPSEEK_API_KEY / CHECK_AUTH / DB_*：next.config env 会打进前端包
 		NEXT_PUBLIC_PIGGY_BANK_ALLOCATE_MAX_RATIO: process.env.NEXT_PUBLIC_PIGGY_BANK_ALLOCATE_MAX_RATIO,
 	},
 }

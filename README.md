@@ -73,7 +73,7 @@ mkdir -p /data/mysql
 ```js
 sudo docker run -d \
   --name next_pro \
-  -e MYSQL_ROOT_PASSWORD=next_pro_alice \
+  -e MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD" \
   -p 3306:3306 \
   -v /data/mysql:/var/lib/mysql \
   mysql:8.0
@@ -95,7 +95,7 @@ exit
 ```js
 docker exec -it next_pro bash
 mysql -u root -p
-ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY 'next_pro_alice';
+ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '<config.env 中的 DB_PASSWORD>';
 FLUSH PRIVILEGES;
 ```
 
@@ -116,8 +116,7 @@ sudo /usr/local/bin/docker-compose logs daily-app
 - 方便国内 git pull 拉取 
 
 <!-- 清理 docker镜像 -->
-```js
-sudo docker image ls 
+```jssudo docker image ls 
 // 清理所有悬空（dangling）镜像，悬空镜像指的是没有被任何标签引用的镜像
 sudo docker image prune
 sudo docker system prune
