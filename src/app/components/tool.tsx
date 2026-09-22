@@ -36,12 +36,35 @@ function getYesterdayDate(handle: number = config.current, urlDate?: string) {
     return { weekday, date: current.format('YYYY-MM-DD') }
 }
 
+/** 每日记录周期进度的默认分母，用来提醒双周报 */
+const DEFAULT_SERIAL_CYCLE_DAYS = 14;
+
+/**
+ * 每日记录的周期进度。
+ * 最近一个周期结束后，从结束次日自动起算，不必先新建周期。
+ * 分母默认 14 天；已过天数超过 14 时，分母改为当前时长。
+ */
+function resolveDailySerialProgress(startTime: string, endTime: string) {
+    const today = getCurrentBySub().startOf('day');
+    const recordedStart = dayjs(startTime).startOf('day');
+    const recordedEnd = endTime ? dayjs(endTime).startOf('day') : null;
+    const periodStart = recordedEnd && today.isAfter(recordedEnd, 'day')
+        ? recordedEnd.add(1, 'day')
+        : recordedStart;
+    const elapsed = Math.max(0, getGapTime(periodStart, today));
+
+    return {
+        startTime: periodStart.format('YYYY-MM-DD'),
+        cycle: Math.max(DEFAULT_SERIAL_CYCLE_DAYS, elapsed),
+    };
+}
+
 // 计算当前计划周期流逝速度
 function getPassedPercent(startTime: string, cycle: number) {
     const current = getCurrentBySub();
     return {
         steps: cycle,
-        percent: getGapTime(startTime, current) / cycle * 100,
+        percent: cycle > 0 ? getGapTime(startTime, current) / cycle * 100 : 0,
     }
 }
 
@@ -76,6 +99,12 @@ function formatMinToHM(min?: number) {
     min = formatTime(min)
     const hour = Math.floor(min / 60);
     return hour ? `${hour}h${!!(min % 60) ? (min % 60) + 'm' : ''} ` : `${min}m `
+}
+
+/** 分钟转为小时，保留 1 位小数，如 7.3h */
+function formatMinToHours(min?: number) {
+    const minutes = formatTime(min)
+    return `${(minutes / 60).toFixed(1)}h`
 }
 
 // 处理周期展示
@@ -240,12 +269,14 @@ function FormatDateToMonthDayWeek({
 export {
     FormatDateToMonthDayWeek,
     formatMinToHM,
+    formatMinToHours,
     formatTime,
     getGapTime,
     transTimeStringToType,
     transTextArea,
     formatSerialNumber,
     getPassedPercent,
+    resolveDailySerialProgress,
     getYesterdayDate,
     useStyle,
     getWeek,
