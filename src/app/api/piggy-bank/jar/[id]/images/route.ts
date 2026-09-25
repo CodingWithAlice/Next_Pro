@@ -4,6 +4,7 @@ import { existsSync } from 'fs'
 import path from 'path'
 import { PiggyBankJarModal } from 'db'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
+import { denyIfCapabilityOff } from '@lib/capabilities'
 
 function buildStorageBaseDir(): { baseUploadDir: string; isExternalDir: boolean } {
 	let baseUploadDir: string
@@ -30,6 +31,8 @@ export async function POST(
 	{ params }: { params: Promise<{ id: string }> }
 ) {
 	try {
+		const denied = await denyIfCapabilityOff(request)
+		if (denied) return denied
 		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const { id } = await params
 		const jarId = parseInt(id, 10)
@@ -137,6 +140,8 @@ export async function DELETE(
 	{ params }: { params: Promise<{ id: string }> }
 ) {
 	try {
+		const denied = await denyIfCapabilityOff(request)
+		if (denied) return denied
 		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const { id } = await params
 		const jarId = parseInt(id, 10)

@@ -10,6 +10,7 @@ import { WeekPeriodModal } from '@/components/week-period-modal';
 import { getGapTime } from '@/components/tool';
 import SerialsRangeEditModal from '@/components/serials-range-edit-modal';
 import Link from 'next/link';
+import { useCanEdit, ViewOnlyTooltip } from '@/components/capability-context';
 
 export default function Week() {
     const [weekData, setWeekData] = useState<{ [key: string]: string }>({});
@@ -18,6 +19,7 @@ export default function Week() {
     const [loading, setLoading] = useState<boolean>(false);
     const [messageApi, contextHolder] = message.useMessage();
     const [serials, setSerials] = useState<{ serialNumber: number, startTime: string, endTime: string }[]>([]);
+    const canEdit = useCanEdit('week');
 
     const handleSingleChange = (value: number | number[]) => {
         if (typeof value === 'number') {
@@ -186,14 +188,17 @@ export default function Week() {
         <WeekDetailTextarea weekData={weekData} setWeekData={setWeekData} curSerial={curSerial} />
         <SerialsRangeEditModal curSerial={curSerial} serials={serials} onFresh={handleTargetSerial} />
         <div className="floating-save-wrap">
-            <Button
-                type="primary"
-                className="floating-save-btn"
-                onClick={handleSave}
-                loading={loading}
-            >
-                保存
-            </Button>
+            <ViewOnlyTooltip viewOnly={!canEdit}>
+                <Button
+                    type="primary"
+                    className="floating-save-btn"
+                    onClick={handleSave}
+                    loading={loading}
+                    disabled={!canEdit}
+                >
+                    保存
+                </Button>
+            </ViewOnlyTooltip>
         </div>
         {curSerial !== 0 && <WeekPeriodModal curSerial={curSerial} />}
     </div>

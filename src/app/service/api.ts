@@ -1,5 +1,5 @@
 import { Dayjs } from 'dayjs'
-import request from '../../../lib/request'
+import request, { apiBase } from '../../../lib/request'
 import type { MonthStructuredMerge } from '@/components/month-structured-merge'
 
 export interface TedRecordDTO {
@@ -130,13 +130,12 @@ const Api = {
 		if (title) {
 			formData.append('title', title)
 		}
-		const url = process.env.NEXT_PUBLIC_API_HOST
 		const token = typeof localStorage !== 'undefined'
 			? (localStorage.getItem('j-user-id') || localStorage.getItem('type'))
 			: null
 		const headers: Record<string, string> = {}
 		if (token) headers['j-user-id'] = token
-		return fetch(`${url}/books/upload`, {
+		return fetch(`${apiBase()}/books/upload`, {
 			method: 'POST',
 			headers,
 			body: formData
@@ -147,13 +146,12 @@ const Api = {
 		const formData = new FormData()
 		formData.append('file', file)
 		if (name) formData.append('name', name)
-		const url = process.env.NEXT_PUBLIC_API_HOST
 		const token = typeof localStorage !== 'undefined'
 			? (localStorage.getItem('j-user-id') || localStorage.getItem('type'))
 			: null
 		const headers: Record<string, string> = {}
 		if (token) headers['j-user-id'] = token
-		return fetch(`${url}/piggy-bank/jar/${jarId}/images`, {
+		return fetch(`${apiBase()}/piggy-bank/jar/${jarId}/images`, {
 			method: 'POST',
 			headers,
 			body: formData
@@ -161,7 +159,7 @@ const Api = {
 	},
 
 	removePiggyJarImage(jarId: number) {
-		return fetch(`${process.env.NEXT_PUBLIC_API_HOST}/piggy-bank/jar/${jarId}/images`, {
+		return fetch(`${apiBase()}/piggy-bank/jar/${jarId}/images`, {
 			method: 'DELETE',
 			headers: (() => {
 				const token = typeof localStorage !== 'undefined'
@@ -227,6 +225,18 @@ const Api = {
 	},
 	allocateFromPoolApi(allocations: { jarId: number; amount: number }[]) {
 		return request.post('piggy-bank/pool', { allocations })
+	},
+	getCapabilities() {
+		return request.get('capabilities') as Promise<{
+			enabled: import('@lib/capability-keys').CapabilityKey[]
+			source: 'user' | 'default'
+		}>
+	},
+	putCapabilities(enabled: import('@lib/capability-keys').CapabilityKey[]) {
+		return request.put('capabilities', { enabled }) as Promise<{
+			enabled: import('@lib/capability-keys').CapabilityKey[]
+			source: 'user'
+		}>
 	},
 }
 

@@ -31,7 +31,9 @@ const nextConfig: NextConfig = {
 	},
 	env: {
 		// 勿在此暴露 DEEPSEEK_API_KEY / CHECK_AUTH / DB_*：next.config env 会打进前端包
+		// NEXT_PUBLIC_* 只有写进这里，dotenv 从上级 config.env 读到的值才会进浏览器包
 		NEXT_PUBLIC_PIGGY_BANK_ALLOCATE_MAX_RATIO: process.env.NEXT_PUBLIC_PIGGY_BANK_ALLOCATE_MAX_RATIO,
+		NEXT_PUBLIC_API_HOST: process.env.NEXT_PUBLIC_API_HOST,
 	},
 }
 

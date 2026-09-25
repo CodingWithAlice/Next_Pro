@@ -23,11 +23,13 @@ export default function VoiceTimeAssistant({
 	issues,
 	routineTypes,
 	onApply,
+	disabled,
 }: {
 	currentDate: string
 	issues: Issue[]
 	routineTypes: routineType[]
 	onApply: (issue: Issue) => void
+	disabled?: boolean
 }) {
 	const [open, setOpen] = useState(false)
 	const [loading, setLoading] = useState(false)
@@ -100,7 +102,7 @@ export default function VoiceTimeAssistant({
 	return (
 		<>
 			{contextHolder}
-			<Button onClick={() => setOpen(true)} icon={<AudioOutlined />}>
+			<Button onClick={() => setOpen(true)} icon={<AudioOutlined />} disabled={disabled}>
 				AI 填时间
 			</Button>
 			<Modal

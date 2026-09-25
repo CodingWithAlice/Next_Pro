@@ -1,6 +1,7 @@
 import { getYesterdayDate, formatTime, getCurrentBySub, sortIssuesWithSleepLast, alignTimeToDate } from '@/components/tool';
 import { Button, Space, message } from 'antd';
 import config from 'config';
+import { useCanEdit, ViewOnlyTooltip } from '@/components/capability-context';
 import { useSearchParams } from 'next/navigation';
 import CustomTimePickerList from './custom-time-picker-list';
 import Api from '@/service/api';
@@ -21,6 +22,7 @@ interface TimeRecordPickerProps {
 }
 
 export default function TimeRecordDayPicker({ issues, setIssues, routineType, total, study, ltnTotal, onChange }: TimeRecordPickerProps) {
+    const canEdit = useCanEdit('daily');
     const [messageApi, contextHolder] = message.useMessage();
     const urlParams = useSearchParams();
     const urlDate = urlParams?.get('date');
@@ -129,6 +131,7 @@ export default function TimeRecordDayPicker({ issues, setIssues, routineType, to
     }
 
     return <>
+    <fieldset disabled={!canEdit} className="capability-fieldset">
         {contextHolder}
         {!!issues.length && <CustomTimePickerList
             key={issues[issues.length - 1].daySort}
@@ -138,22 +141,30 @@ export default function TimeRecordDayPicker({ issues, setIssues, routineType, to
             freshTime={onChange}
             baseDate={currentDate}
         />}
+    </fieldset>
         <Space className='btn-group'>
-            <Button disabled={!routineType.length} onClick={handleAddIssue}>添加一项</Button>
-            <VoiceTimeAssistant
-                currentDate={currentDate}
-                issues={issues}
-                routineTypes={routineType}
-                onApply={(issue) => {
-                    const merged = [...issues, issue].map((it, i) => ({ ...it, daySort: i }));
-                    setIssues(merged);
-                    onChange(merged);
-                    messageApi.success('已添加到列表，记得点保存');
-                }}
-            />
-            <Button disabled={!routineType.length} onClick={handleSave} icon={<AntDesignOutlined />}>
-                保存
-            </Button>
+            <ViewOnlyTooltip viewOnly={!canEdit}>
+                <Button disabled={!canEdit || !routineType.length} onClick={handleAddIssue}>添加一项</Button>
+            </ViewOnlyTooltip>
+            <ViewOnlyTooltip viewOnly={!canEdit}>
+                <VoiceTimeAssistant
+                    disabled={!canEdit}
+                    currentDate={currentDate}
+                    issues={issues}
+                    routineTypes={routineType}
+                    onApply={(issue) => {
+                        const merged = [...issues, issue].map((it, i) => ({ ...it, daySort: i }));
+                        setIssues(merged);
+                        onChange(merged);
+                        messageApi.success('已添加到列表，记得点保存');
+                    }}
+                />
+            </ViewOnlyTooltip>
+            <ViewOnlyTooltip viewOnly={!canEdit}>
+                <Button disabled={!canEdit || !routineType.length} onClick={handleSave} icon={<AntDesignOutlined />}>
+                    保存
+                </Button>
+            </ViewOnlyTooltip>
         </Space>
     </>
 }

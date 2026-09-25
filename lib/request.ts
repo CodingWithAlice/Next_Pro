@@ -1,7 +1,13 @@
-import axios, { AxiosResponse, AxiosRequestConfig, AxiosError } from 'axios'
+import axios, { AxiosResponse, AxiosRequestConfig } from 'axios'
 
-const url = process.env.NEXT_PUBLIC_API_HOST
 const TOKEN_KEY = 'j-user-id'
+
+/** 本地 next dev 不读 .env.production；未配置时走当前站点的 /api，避免拼出 /undefined/... */
+export function apiBase(): string {
+	const host = process.env.NEXT_PUBLIC_API_HOST
+	if (typeof host === 'string' && host.trim() !== '') return host.replace(/\/$/, '')
+	return '/api'
+}
 
 function getToken(): string | null {
 	if (typeof localStorage === 'undefined') return null
@@ -29,18 +35,17 @@ if (typeof window !== 'undefined') {
 }
 
 function handleAxiosError(error: unknown): { status: number; message: string } {
-	if (axios.isAxiosError(error)) {
-		const axiosError = error as AxiosError
-		const status = axiosError.response?.status || 500
-		const data = axiosError.response?.data as
-			| { message?: string; error?: string }
-			| undefined
-		const message =
-			data?.message || data?.error || axiosError.message
-		return { status, message }
+	const err = error as {
+		response?: { status?: number; data?: { message?: string; error?: string } | string }
+		message?: string
 	}
-	// 非 Axios 错误
-	return { status: 500, message: '未知错误' }
+	const data = err?.response?.data
+	const fromBody =
+		typeof data === 'string'
+			? data
+			: data?.message || data?.error
+	const message = fromBody || err?.message || '未知错误'
+	return { status: err?.response?.status || 500, message }
 }
 
 async function get(
@@ -49,7 +54,7 @@ async function get(
 	timeoutMs?: number
 ) {
 	try {
-		const response: AxiosResponse = await axios.get(`${url}/${api}`, {
+		const response: AxiosResponse = await axios.get(`${apiBase()}/${api}`, {
 			params,
 			...getConfig(),
 			...(timeoutMs != null ? { timeout: timeoutMs } : {}),
@@ -63,7 +68,7 @@ async function get(
 
 async function post<T>(api: string, data: T, timeoutMs?: number) {
 	try {
-		const response = await axios.post(`${url}/${api}`, { data }, {
+		const response = await axios.post(`${apiBase()}/${api}`, { data }, {
 			...getConfig(),
 			...(timeoutMs != null ? { timeout: timeoutMs } : {}),
 		})
@@ -76,7 +81,7 @@ async function post<T>(api: string, data: T, timeoutMs?: number) {
 
 async function put<T>(api: string, data: T) {
 	try {
-		const response = await axios.put(`${url}/${api}`, { data }, getConfig())
+		const response = await axios.put(`${apiBase()}/${api}`, { data }, getConfig())
 		return response.data
 	} catch (error) {
 		const errorObj = handleAxiosError(error)
@@ -89,7 +94,7 @@ async function del(
 	params?: { [key: string]: string | number | boolean }
 ) {
 	try {
-		const response = await axios.delete(`${url}/${api}`, {
+		const response = await axios.delete(`${apiBase()}/${api}`, {
 			params,
 			...getConfig(),
 		})

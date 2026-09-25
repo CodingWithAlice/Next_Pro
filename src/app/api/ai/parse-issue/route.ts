@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { denyIfCapabilityOff } from '@lib/capabilities'
 import { AIPOST, type MessageProp } from '@lib/deepseek'
 import dayjs from 'dayjs'
 
@@ -26,6 +27,8 @@ function normalizeString(input: unknown): string {
 
 export async function POST(request: NextRequest) {
 	try {
+		const denied = await denyIfCapabilityOff(request)
+		if (denied) return denied
 		const body = (await request.json()) as { data?: ParseIssueRequest } | ParseIssueRequest
 		const payload = ('data' in body ? body.data : body) as ParseIssueRequest | undefined
 		const text = payload?.text?.trim() || ''

@@ -127,13 +127,14 @@ function transTitle(title: string) {
     </span>
 }
 
-const transTextArea = ({ key, desc, tip, source, onChange, cols }: {
+const transTextArea = ({ key, desc, tip, source, onChange, cols, readOnly }: {
     key: string,
     desc?: string,
     tip?: string,
     source: { [key: string]: string | number },
     onChange: (v: { [key: string]: string; }) => void,
-    cols?: number
+    cols?: number,
+    readOnly?: boolean,
 }) => {
     return <UniformTextAreaWithStyle
         key={key}
@@ -143,6 +144,7 @@ const transTextArea = ({ key, desc, tip, source, onChange, cols }: {
         cols={cols}
         init={source?.[key] || ''}
         onChange={onChange}
+        readOnly={readOnly}
     />
 };
 

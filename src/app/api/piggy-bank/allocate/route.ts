@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PiggyBankJarModal, PiggyBankPoolModal } from 'db'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
+import { denyIfCapabilityOff } from '@lib/capabilities'
 import { refreshComputedPendingRow } from '../pool-balance'
 
 type JarRow = { id: number; name: string; balance: string | number; monthlyRepayment?: string | number | null; targetAmount?: string | number | null; status: string; sortOrder: number }
 
 async function POST(request: NextRequest) {
 	try {
+		const denied = await denyIfCapabilityOff(request)
+		if (denied) return denied
 		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const body = await request.json()
 		const data = body.data ?? body

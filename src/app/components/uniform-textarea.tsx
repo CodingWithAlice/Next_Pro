@@ -9,11 +9,12 @@ interface UniformTextAreaWithStyleProps {
     tip?: string,
     init: string | number,
     onChange: (data: { [key: string]: string }) => void,
-    cols?: number
+    cols?: number,
+    readOnly?: boolean,
 }
 
 // 统一 textarea 样式
-export function UniformTextAreaWithStyle({ type, desc, tip, init, onChange, cols }: UniformTextAreaWithStyleProps) {
+export function UniformTextAreaWithStyle({ type, desc, tip, init, onChange, cols, readOnly }: UniformTextAreaWithStyleProps) {
     const handleText = (type: string, value: string) => {
         onChange({ [type]: value });
     }
@@ -31,7 +32,7 @@ export function UniformTextAreaWithStyle({ type, desc, tip, init, onChange, cols
             onChange={(e) => handleText(type, e.target.value)}
             value={init}
             cols={cols}
-            disabled={type === 'time'}
+            disabled={type === 'time' || readOnly}
             autoSize={{ minRows: 1, maxRows: 20 }} />
     </div>
 }

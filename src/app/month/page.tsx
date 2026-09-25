@@ -8,6 +8,7 @@ import { MonthDetailTextarea } from "@/components/month-detail-textarea";
 import Api from "@/service/api";
 import Link from 'next/link';
 import { MONTH_NON_SHORT_DECISION_PLACEHOLDER } from '@lib/month-non-short-decision';
+import { useCanEdit, ViewOnlyTooltip } from '@/components/capability-context';
 
 export default function Month() {
     const searchParams = useSearchParams();
@@ -18,6 +19,7 @@ export default function Month() {
     const [loading, setLoading] = useState<boolean>(false);
     const [messageApi, contextHolder] = message.useMessage();
     const isInitialized = useRef(false);
+    const canEdit = useCanEdit('month');
 
     const handleSave = () => {
         Api.postMonthApi({
@@ -146,14 +148,17 @@ export default function Month() {
         </div>
          <MonthDetailTextarea monthData={monthData} setMonthData={setMonthData} periods={periods} setPeriods={setPeriods} />
         <div className="floating-save-wrap">
-            <Button
-                type="primary"
-                className="floating-save-btn"
-                onClick={handleSave}
-                loading={loading}
-            >
-                保存
-            </Button>
+            <ViewOnlyTooltip viewOnly={!canEdit}>
+                <Button
+                    type="primary"
+                    className="floating-save-btn"
+                    onClick={handleSave}
+                    loading={loading}
+                    disabled={!canEdit}
+                >
+                    保存
+                </Button>
+            </ViewOnlyTooltip>
         </div>
     </div>
 }

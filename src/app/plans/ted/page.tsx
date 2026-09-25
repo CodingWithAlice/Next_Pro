@@ -8,6 +8,7 @@ import { CheckSquareTwoTone, CopyOutlined, PlusOutlined } from '@ant-design/icon
 import TedNewRecord from '@/components/ted-new-record';
 import dayjs from 'dayjs';
 import * as clipboard from "clipboard-polyfill";
+import { useCanEdit } from '@/components/capability-context';
 
 const colors = ["magenta", "red", "volcano", "orange", "gold", "lime", "green", "cyan", "blue", "purple"];
 
@@ -26,6 +27,7 @@ export default function TedPage() {
     const [addModalOpen, setAddModalOpen] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [form] = Form.useForm();
+    const canEdit = useCanEdit('ted');
 
     // 复制功能
     const copy = async (text: string) => {
@@ -141,12 +143,12 @@ export default function TedPage() {
             key={it.id}
             items={getItems(it)}
         />))}
-        <FloatButton
+        {canEdit && <FloatButton
             icon={<PlusOutlined />}
             type="primary"
             tooltip="添加 TED"
             onClick={openAddModal}
-        />
+        />}
         <Modal
             title="添加 TED"
             open={addModalOpen}

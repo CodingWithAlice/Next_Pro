@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import { Button, Card, message, Spin } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import RecordModal from './record-modal';
+import { useCanEdit, ViewOnlyTooltip } from '@/components/capability-context';
 import RunningPlansCard, { type RunningPlan } from './running-plans-card';
 import SportOverviewCard, { type SportRecord, type SportSummary } from './sport-overview-card';
 import RecentRecordsCard from './recent-records-card';
@@ -34,6 +35,7 @@ export default function SportPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalType, setModalType] = useState<SportType>('running');
     const [runningPlans, setRunningPlans] = useState<RunningPlan[]>([]);
+    const canEdit = useCanEdit('sport');
 
     // 加载数据
     const loadData = async () => {
@@ -121,18 +123,19 @@ export default function SportPage() {
     return (
         <div className="sport-page">
             {contextHolder}
-
             {/* 第一层：快捷记录 */}
             <Card className="sport-card" title="快捷记录">
                 <div className="quick-actions">
                     {SPORT_TYPES_CONFIG.map((config) => (
-                        <Button 
-                            key={config.type}
-                            type="primary" 
-                            onClick={() => openRecordModal(config.type)}
-                        >
-                            <PlusOutlined /> {config.label}
-                        </Button>
+                        <ViewOnlyTooltip key={config.type} viewOnly={!canEdit}>
+                            <Button
+                                type="primary"
+                                disabled={!canEdit}
+                                onClick={() => openRecordModal(config.type)}
+                            >
+                                <PlusOutlined /> {config.label}
+                            </Button>
+                        </ViewOnlyTooltip>
                     ))}
                 </div>
             </Card>

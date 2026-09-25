@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PiggyBankJarModal } from 'db'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
+import { denyIfCapabilityOff } from '@lib/capabilities'
 import { refreshComputedPendingRow } from '../../pool-balance'
 
 async function PUT(
@@ -8,6 +9,8 @@ async function PUT(
 	{ params }: { params: Promise<{ id: string }> }
 ) {
 	try {
+		const denied = await denyIfCapabilityOff(request)
+		if (denied) return denied
 		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const { id } = await params
 		const body = await request.json()
@@ -80,6 +83,8 @@ async function POST(
 	{ params }: { params: Promise<{ id: string }> }
 ) {
 	try {
+		const denied = await denyIfCapabilityOff(request)
+		if (denied) return denied
 		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const { id } = await params
 		const body = await request.json()

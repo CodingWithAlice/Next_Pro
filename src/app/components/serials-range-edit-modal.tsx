@@ -4,6 +4,7 @@ import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
 import Api from "@/service/api";
 import { SerialsPicker } from "./serials-picker";
+import { useCanEdit } from "./capability-context";
 
 type SerialRangeItem = { serialNumber: number; startTime: string; endTime: string };
 
@@ -29,6 +30,7 @@ export default function SerialsRangeEditModal({
     const [end, setEnd] = useState<string>(toDateInputValue());
     const [saving, setSaving] = useState(false);
     const [messageApi, contextHolder] = message.useMessage();
+    const canEdit = useCanEdit('week');
 
     const recentSerialNumbers = useMemo(() => {
         const nums = serials
@@ -99,6 +101,8 @@ export default function SerialsRangeEditModal({
         setStart(toDateInputValue(target?.startTime));
         setEnd(toDateInputValue(target?.endTime));
     }, [currentSerial, serials, modalShow]);
+
+    if (!canEdit) return null;
 
     return (
         <>

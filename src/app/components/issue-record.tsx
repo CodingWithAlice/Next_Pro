@@ -6,6 +6,7 @@ import Api from "@/service/api";
 import dayjs from "dayjs";
 import config from "config";
 import { useState } from "react";
+import { useCanEdit, ViewOnlyTooltip } from "@/components/capability-context";
 const { TextArea } = Input;
 
 const ISSUE_FIELD_TEMPLATES: Partial<Record<keyof IssueRecordProps, string>> = {
@@ -49,7 +50,8 @@ function UniformTextAreaWithStyle({
     className,
     minRows = 1,
     maxRows = 12,
-}: UniformTextAreaWithStyleProps) {
+    disabled,
+}: UniformTextAreaWithStyleProps & { disabled?: boolean }) {
     const value = String(source[type] ?? '');
     const compact = isCompactIssueField(type, value);
     return <TextArea
@@ -61,6 +63,7 @@ function UniformTextAreaWithStyle({
         value={value}
         onChange={(e) => emit(type, (e.target as HTMLTextAreaElement).value)}
         placeholder={placeholder}
+        disabled={disabled}
         style={{
             resize: 'vertical',
         }}
@@ -70,6 +73,7 @@ function UniformTextAreaWithStyle({
 
 export default function IssueRecord({ study, issueData, setIssueData, currentDate }: IssueRecordFuncProps) {
     const [messageApi, contextHolder] = message.useMessage();
+    const canEdit = useCanEdit('daily');
     // const { styles } = useStyle();
     const successDiaryTip =
         '记录克服困境后仍做对的那一步';
@@ -242,6 +246,7 @@ export default function IssueRecord({ study, issueData, setIssueData, currentDat
             className={opts?.className}
             minRows={opts?.minRows}
             maxRows={opts?.maxRows}
+            disabled={!canEdit}
         />
     )
 
@@ -337,12 +342,16 @@ export default function IssueRecord({ study, issueData, setIssueData, currentDat
                 </div>
             </div>
             <div className='btn-group'>
-                <Button onClick={handleSave} icon={<ExperimentFilled />}>
-                    保存☞☞☞观察自己数据库
-                </Button>
-                <Button onClick={() => setAiOpen(true)}>
-                    AI 解析事项（语音）
-                </Button>
+                <ViewOnlyTooltip viewOnly={!canEdit}>
+                    <Button onClick={handleSave} icon={<ExperimentFilled />} disabled={!canEdit}>
+                        保存☞☞☞观察自己数据库
+                    </Button>
+                </ViewOnlyTooltip>
+                <ViewOnlyTooltip viewOnly={!canEdit}>
+                    <Button onClick={() => setAiOpen(true)} disabled={!canEdit}>
+                        AI 解析事项（语音）
+                    </Button>
+                </ViewOnlyTooltip>
             </div>
         </section>
         <Modal

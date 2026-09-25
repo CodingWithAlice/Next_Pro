@@ -12,6 +12,7 @@ import BooksAdd from '@/components/books-add';
 import ShareImageButton from '@/components/share-image-button';
 import BookEditModal from '@/components/book-edit-modal';
 import RecordItemContent from '@/components/record-item-content';
+import { useCanEdit, ViewOnlyTooltip } from '@/components/capability-context';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -64,6 +65,7 @@ export default function ReadPage() {
     // 编辑模态框状态
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [editingRecord, setEditingRecord] = useState<BooksDTO | null>(null);
+    const canEdit = useCanEdit('media');
     // 年度分享用全量数据（按需加载，不阻塞主列表）
     const [shareBooksList, setShareBooksList] = useState<BooksDTO[]>([]);
     const [shareLoading, setShareLoading] = useState(false);
@@ -126,10 +128,13 @@ export default function ReadPage() {
         </div>;
         
         const extra = (
-            <EditOutlined 
-                onClick={(e) => handleEdit(it, e)} 
-                className="collapse-extra-icon"
-            />
+            <ViewOnlyTooltip viewOnly={!canEdit}>
+                <EditOutlined
+                    onClick={(e) => { if (canEdit) handleEdit(it, e) }}
+                    className="collapse-extra-icon"
+                    style={canEdit ? undefined : { opacity: 0.35, cursor: 'not-allowed' }}
+                />
+            </ViewOnlyTooltip>
         );
 
         const items: CollapseProps['items'] = [

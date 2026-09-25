@@ -4,13 +4,16 @@ import Api from '@/service/api'
 import { Button, message } from 'antd'
 import { LoadingOutlined, OpenAIOutlined } from '@ant-design/icons'
 import { useState } from 'react'
+import { ViewOnlyTooltip } from './capability-context'
 
 export default function MonthAiSynthesize({
 	periods,
 	handleChange,
+	disabled,
 }: {
 	periods: number[]
 	handleChange: (data: string) => void
+	disabled?: boolean
 }) {
 	const [loading, setLoading] = useState(false)
 	const [messageApi, contextHolder] = message.useMessage()
@@ -40,16 +43,18 @@ export default function MonthAiSynthesize({
 	return (
 		<>
 			{contextHolder}
-			<Button
-				type="text"
-				color="purple"
-				variant="filled"
-				onClick={onClick}
-				disabled={loading}
-			>
-				<OpenAIOutlined />
-				生成阶段 AI 总结 {loading && <LoadingOutlined />}
-			</Button>
+			<ViewOnlyTooltip viewOnly={!!disabled}>
+				<Button
+					type="text"
+					color="purple"
+					variant="filled"
+					onClick={onClick}
+					disabled={disabled || loading}
+				>
+					<OpenAIOutlined />
+					生成阶段 AI 总结 {loading && <LoadingOutlined />}
+				</Button>
+			</ViewOnlyTooltip>
 		</>
 	)
 }
