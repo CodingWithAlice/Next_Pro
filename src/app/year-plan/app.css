@@ -86,10 +86,24 @@
 	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
-.year-plan-group h2 {
+.year-plan-group-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
 	margin: 0 0 8px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: rgb(6, 128, 67);
+	cursor: pointer;
+}
+
+.year-plan-group-head h2 {
+	margin: 0;
 	font-size: 16px;
 	font-weight: 650;
+	color: rgb(6, 128, 67);
 }
 
 .year-plan-group ul {
@@ -127,16 +141,40 @@
 	flex: 1 1 160px;
 }
 
-.year-plan-item-title strong {
+.year-plan-item-title strong,
+.year-plan-static strong {
 	font-size: 15px;
 }
 
-.year-plan-kind {
+.year-plan-static {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.year-plan-static.is-done strong {
+	color: rgba(0, 0, 0, 0.35);
+	font-weight: 500;
+}
+
+.year-plan-static-extra {
 	font-size: 12px;
-	color: rgb(38, 157, 128);
-	background: rgba(38, 157, 128, 0.1);
-	border-radius: 999px;
-	padding: 1px 8px;
+	line-height: 1.4;
+	font-weight: 400;
+	color: rgba(0, 0, 0, 0.38);
+}
+
+.year-plan-mark {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	flex: none;
+	border: 1.5px solid rgba(0, 0, 0, 0.35);
+	border-radius: 3px;
+	color: rgba(0, 0, 0, 0.45);
+	font-size: 11px;
 }
 
 .year-plan-progress {
@@ -148,6 +186,10 @@
 .year-plan-progress.is-done {
 	color: rgb(6, 128, 67);
 	font-weight: 600;
+}
+
+.year-plan-progress.is-pending {
+	color: rgba(0, 0, 0, 0.35);
 }
 
 .year-plan-stages {

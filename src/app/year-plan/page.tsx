@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { Button, Checkbox, Input, InputNumber, Modal, Select, message } from 'antd'
-import { ExpandOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
+import { CheckOutlined, DownOutlined, ExpandOutlined, LeftOutlined, RightOutlined, UpOutlined } from '@ant-design/icons'
 import Api from '@/service/api'
 import { useCanEdit, ViewOnlyTooltip } from '@/components/capability-context'
 import './app.css'
@@ -41,6 +41,7 @@ const KIND_LABEL: Record<Kind, string> = {
 }
 
 const STAT_KINDS = new Set<Kind>(['sport_days', 'movie_count', 'book_count', 'ted_round', 'ltn_coins'])
+const STATIC_HIDE = new Set(['', '状态待更新', '未关联', '还没有阶段'])
 
 type Draft = {
 	title: string
@@ -75,6 +76,7 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 	const [drafts, setDrafts] = useState<Record<number, Draft>>({})
 	const [savingId, setSavingId] = useState<number | null>(null)
 	const [addingKey, setAddingKey] = useState<string | null>(null)
+	const [folded, setFolded] = useState<Record<string, boolean>>({})
 	const addingRef = useRef<string | null>(null)
 	const [adds, setAdds] = useState<Record<string, { title: string; kind: Kind; target: number | null; refId: number | null }>>({})
 
@@ -283,8 +285,16 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 			) : null}
 			{plan?.groups.map((group) => (
 				<section key={group.key} className="year-plan-group">
-					<h2>{group.label}</h2>
-					<ul>
+					<button
+						type="button"
+						className="year-plan-group-head"
+						aria-expanded={!folded[group.key]}
+						onClick={() => setFolded((prev) => ({ ...prev, [group.key]: !prev[group.key] }))}
+					>
+						<h2>{group.label}</h2>
+						{folded[group.key] ? <DownOutlined /> : <UpOutlined />}
+					</button>
+					{folded[group.key] ? null : <ul>
 						{group.items.length === 0 && !showAdd ? <li className="year-plan-muted">这一组还没有条目</li> : null}
 						{group.items.map((item) => {
 							const draft = drafts[item.id]
@@ -298,7 +308,6 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 													value={draft.title}
 													onChange={(event) => patchDraft(item.id, { title: event.target.value })}
 												/>
-												<span className="year-plan-kind">{KIND_LABEL[item.kind]}</span>
 												{item.kind === 'jar' || item.kind === 'run' ? (
 													<Select
 														allowClear
@@ -316,7 +325,7 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 														onChange={(value) => patchDraft(item.id, { targetValue: value == null ? null : Number(value) })}
 													/>
 												) : null}
-												<span className={item.progressDone ? 'year-plan-progress is-done' : 'year-plan-progress'}>
+												<span className={item.progressDone ? 'year-plan-progress is-done' : item.progressText === '状态待更新' ? 'year-plan-progress is-pending' : 'year-plan-progress'}>
 													{item.progressText}
 												</span>
 												<Button size="small" type="primary" loading={savingId === item.id} onClick={() => saveItem(item)}>
@@ -325,17 +334,17 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 												<Button size="small" danger onClick={() => removeItem(item)}>拿掉</Button>
 											</div>
 										) : (
-											<>
-												<div className="year-plan-item-title">
-													<strong>{item.title}</strong>
-													<span className="year-plan-kind">{KIND_LABEL[item.kind]}</span>
-												</div>
-												<p className={item.progressDone ? 'year-plan-progress is-done' : 'year-plan-progress'}>
-													{item.progressText}
-												</p>
-											</>
+											<div className={item.progressDone ? 'year-plan-static is-done' : 'year-plan-static'}>
+												<span className={item.progressDone ? 'year-plan-mark is-done' : 'year-plan-mark'} aria-hidden>
+													{item.progressDone ? <CheckOutlined /> : null}
+												</span>
+												<strong>{item.title}</strong>
+												{STATIC_HIDE.has(item.progressText.trim()) ? null : (
+													<span className="year-plan-static-extra">{item.progressText}</span>
+												)}
+											</div>
 										)}
-										{item.kind === 'checklist' ? (
+										{editing && item.kind === 'checklist' ? (
 											<div className="year-plan-stages">
 												{stages.length === 0 ? <span className="year-plan-muted">还没有阶段</span> : null}
 												{stages.map((stage) => (
@@ -439,7 +448,7 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 								</div>
 							</li>
 						) : null}
-					</ul>
+					</ul>}
 				</section>
 			))}
 			{showAdd ? <p className="year-plan-muted">对象还没建出来也可以先保存标题。建出来之后再选罐子或跑步计划。</p> : null}

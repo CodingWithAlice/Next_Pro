@@ -272,8 +272,8 @@ function progressFor(row: {
 	if (row.kind === 'note') {
 		const text = (row.resultText ?? '').trim()
 		return text
-			? { progressText: text, progressDone: null }
-			: { progressText: '还没有结果句', progressDone: null }
+			? { progressText: text, progressDone: true }
+			: { progressText: '状态待更新', progressDone: false }
 	}
 	if (row.kind === 'checklist') {
 		const total = row.stages.length
