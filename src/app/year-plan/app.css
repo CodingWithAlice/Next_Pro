@@ -103,11 +103,6 @@
 	border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-.year-plan-group li.is-struck strong {
-	text-decoration: line-through;
-	opacity: 0.55;
-}
-
 .year-plan-item-title {
 	display: flex;
 	align-items: center;

@@ -234,18 +234,14 @@ const Api = {
 				label: string
 				items: {
 					id: number
-					code: string | null
 					groupKey: string
 					title: string
-					kind: 'jar' | 'plan_status' | 'aggregate' | 'note' | 'checklist'
+					kind: 'jar' | 'run' | 'sport_days' | 'movie_count' | 'book_count' | 'ted_round' | 'ltn_coins' | 'note' | 'checklist'
 					scene: string | null
 					refId: number | null
-					expectStatus: 'completed' | 'active' | null
-					metric: 'sport_days' | 'movie_count' | 'book_count' | 'ted_round' | 'ltn_coins' | null
 					targetValue: number | null
 					resultText: string
 					stages: { id: string; title: string; done: boolean }[]
-					struck: boolean
 					progressText: string
 					progressDone: boolean | null
 				}[]

@@ -46,14 +46,8 @@ async function POST(request: NextRequest) {
 		if (!isYearPlanKind(data.kind)) {
 			return NextResponse.json({ success: false, message: '类型不对' }, { status: 400 })
 		}
-		if (data.kind === 'aggregate' && data.metric == null) {
-			return NextResponse.json({ success: false, message: '要选统计口径' }, { status: 400 })
-		}
 		if (data.kind === 'jar' && (data.scene == null || data.scene === '')) data.scene = 'piggy'
-		if (data.kind === 'plan_status') {
-			data.scene = 'sport'
-			if (data.expectStatus == null) data.expectStatus = 'completed'
-		}
+		if (data.kind === 'run') data.scene = 'sport'
 		const groupKey = isYearPlanGroup(data.groupKey) ? data.groupKey : 'other'
 		const fields = writableFields({
 			title,
@@ -61,12 +55,9 @@ async function POST(request: NextRequest) {
 			kind: data.kind,
 			scene: data.scene,
 			refId: data.refId,
-			expectStatus: data.expectStatus,
-			metric: data.metric,
 			targetValue: data.targetValue,
 			resultText: data.resultText,
 			stages: data.stages,
-			struck: data.struck,
 		})
 		if (typeof fields === 'string') {
 			return NextResponse.json({ success: false, message: fields }, { status: 400 })

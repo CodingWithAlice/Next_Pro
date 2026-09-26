@@ -20,9 +20,16 @@ export const YEAR_PLAN_GROUPS = [
 ] as const
 
 export type YearPlanGroupKey = (typeof YEAR_PLAN_GROUPS)[number]['key']
-export type YearPlanKind = 'jar' | 'plan_status' | 'aggregate' | 'note' | 'checklist'
-export type YearPlanMetric = 'sport_days' | 'movie_count' | 'book_count' | 'ted_round' | 'ltn_coins'
-export type YearPlanExpect = 'completed' | 'active'
+export type YearPlanKind =
+	| 'jar'
+	| 'run'
+	| 'sport_days'
+	| 'movie_count'
+	| 'book_count'
+	| 'ted_round'
+	| 'ltn_coins'
+	| 'note'
+	| 'checklist'
 
 export type YearPlanStage = { id: string; title: string; done: boolean }
 
@@ -30,27 +37,33 @@ export type YearPlanOption = { id: number; name: string; status: string }
 
 export type YearPlanView = {
 	id: number
-	code: string | null
 	groupKey: string
 	title: string
 	kind: YearPlanKind
 	scene: string | null
 	refId: number | null
-	expectStatus: YearPlanExpect | null
-	metric: YearPlanMetric | null
 	targetValue: number | null
 	resultText: string
 	stages: YearPlanStage[]
-	struck: boolean
 	progressText: string
 	progressDone: boolean | null
 }
 
-const KINDS = new Set<YearPlanKind>(['jar', 'plan_status', 'aggregate', 'note', 'checklist'])
-const METRICS = new Set<YearPlanMetric>(['sport_days', 'movie_count', 'book_count', 'ted_round', 'ltn_coins'])
+const KINDS = new Set<YearPlanKind>([
+	'jar',
+	'run',
+	'sport_days',
+	'movie_count',
+	'book_count',
+	'ted_round',
+	'ltn_coins',
+	'note',
+	'checklist',
+])
+const STAT_KINDS = new Set<YearPlanKind>(['sport_days', 'movie_count', 'book_count', 'ted_round', 'ltn_coins'])
 const GROUP_KEYS = new Set<string>(YEAR_PLAN_GROUPS.map((group) => group.key))
 
-const METRIC_UNIT: Record<YearPlanMetric, string> = {
+const STAT_UNIT: Record<'sport_days' | 'movie_count' | 'book_count' | 'ted_round' | 'ltn_coins', string> = {
 	sport_days: '天',
 	movie_count: '部',
 	book_count: '本',
@@ -68,114 +81,6 @@ const PLAN_STATUS: Record<string, string> = {
 	active: '进行中',
 	completed: '已完成',
 	cancelled: '已取消',
-}
-
-type Seed = {
-	code: string
-	groupKey: YearPlanGroupKey
-	title: string
-	kind: YearPlanKind
-	scene?: string | null
-	expectStatus?: YearPlanExpect | null
-	metric?: YearPlanMetric | null
-	targetValue?: number | null
-	stages?: YearPlanStage[]
-	struck?: boolean
-}
-
-function stage(id: string, title: string): YearPlanStage {
-	return { id, title, done: false }
-}
-
-/** 只放已经对齐的条。待确认的不进今年清单。 */
-const SEED_2026: Seed[] = [
-	{ code: 'run-plan-3', groupKey: 'sport', title: '今年完成跑步计划 3', kind: 'plan_status', scene: 'sport', expectStatus: 'completed' },
-	{ code: 'run-plan-4', groupKey: 'sport', title: '今年开启跑步计划 4（心率 150 以下跑 10km，课表未定）', kind: 'plan_status', scene: 'sport', expectStatus: 'active' },
-	{ code: 'sport-days', groupKey: 'sport', title: '150 天运动打卡', kind: 'aggregate', scene: 'sport', metric: 'sport_days', targetValue: 150 },
-	{ code: 'weight', groupKey: 'sport', title: '体重 69kg 到 65kg', kind: 'note' },
-	{ code: 'body-fat', groupKey: 'sport', title: '体脂 29% 到 26%', kind: 'note' },
-	{ code: 'sleep', groupKey: 'sport', title: '多睡觉', kind: 'note' },
-	{ code: 'yor', groupKey: 'travel', title: '约尔太太 cos（4.18，已完成）', kind: 'jar', scene: 'piggy' },
-	{ code: 'kite', groupKey: 'travel', title: '4 月风筝节（已划掉）', kind: 'jar', scene: 'piggy', struck: true },
-	{ code: 'volcano', groupKey: 'travel', title: '5.1 火山徒步（已完成）', kind: 'jar', scene: 'piggy' },
-	{ code: 'cruise', groupKey: 'travel', title: '6.17 端午邮轮（已完成）', kind: 'jar', scene: 'piggy' },
-	{ code: 'fuji', groupKey: 'travel', title: '9 月富士山（已划掉，政治问题）', kind: 'jar', scene: 'piggy', struck: true },
-	{ code: 'huangshan', groupKey: 'travel', title: '黄山 / 其他山', kind: 'jar', scene: 'piggy' },
-	{ code: 'nose', groupKey: 'travel', title: '鼻子微创', kind: 'jar', scene: 'piggy' },
-	{ code: 'teeth', groupKey: 'travel', title: '8 月洗牙', kind: 'jar', scene: 'piggy' },
-	{ code: 'lashes', groupKey: 'travel', title: '种睫毛', kind: 'jar', scene: 'piggy' },
-	{ code: 'africa', groupKey: 'travel', title: '非洲大迁徙', kind: 'jar', scene: 'piggy' },
-	{ code: 'nadam', groupKey: 'travel', title: '内蒙古那达慕', kind: 'jar', scene: 'piggy' },
-	{ code: 'fish', groupKey: 'travel', title: '梁静茹演唱会', kind: 'jar', scene: 'piggy' },
-	{ code: 'livehouse', groupKey: 'travel', title: 'livehouse / 音乐节', kind: 'jar', scene: 'piggy' },
-	{ code: 'movies', groupKey: 'media', title: 'Friday movie night，一年 24 部', kind: 'aggregate', scene: 'media', metric: 'movie_count', targetValue: 24 },
-	{ code: 'books', groupKey: 'reading', title: '整体读书', kind: 'aggregate', scene: 'media', metric: 'book_count', targetValue: 20 },
-	{ code: 'ted-round', groupKey: 'ted', title: '进行到 Round 5（Round 3 于 4.15 结束）', kind: 'aggregate', scene: 'ted', metric: 'ted_round', targetValue: 5 },
-	{ code: 'bilibili', groupKey: 'work', title: 'B 站更新 4 条', kind: 'note' },
-	{ code: 'job', groupKey: 'work', title: '换一份工作，或赚更多钱', kind: 'checklist', stages: [] },
-	{ code: 'meetup', groupKey: 'work', title: '前端分享会 4 次以上', kind: 'checklist', stages: [] },
-	{
-		code: 'changelog',
-		groupKey: 'work',
-		title: '网站更新日志，以及移动端优化',
-		kind: 'checklist',
-		stages: [stage('changelog', '更新日志'), stage('mobile', '移动端优化')],
-	},
-	{ code: 'product', groupKey: 'work', title: '寻找产品设计的可能性', kind: 'checklist', stages: [] },
-	{
-		code: 'q3-product',
-		groupKey: 'work',
-		title: 'Q3 对话式配置、新手引导、模板市场、付费机制',
-		kind: 'checklist',
-		stages: [
-			stage('chat-config', '对话式配置'),
-			stage('onboarding', '新手引导'),
-			stage('templates', '模板市场'),
-			stage('pay', '付费机制'),
-		],
-	},
-	{
-		code: 'q3-users',
-		groupKey: 'work',
-		title: 'Q3 第一批外部用户邀请',
-		kind: 'checklist',
-		stages: [stage('invite', '第一批外部用户邀请')],
-	},
-	{ code: 'daily-review', groupKey: 'work', title: '继续每日复盘', kind: 'note' },
-	{ code: 'ltn', groupKey: 'work', title: 'LTN 累计金币', kind: 'aggregate', metric: 'ltn_coins', targetValue: 1500 },
-]
-
-let tableReady: Promise<void> | null = null
-
-export function ensureYearPlanTable(): Promise<void> {
-	if (!tableReady) {
-		tableReady = sequelize.query(
-			`CREATE TABLE IF NOT EXISTS year_plan_item (
-				id INT NOT NULL AUTO_INCREMENT,
-				user_id INT NOT NULL,
-				plan_year INT NOT NULL,
-				group_key VARCHAR(32) NOT NULL,
-				sort_order INT NOT NULL DEFAULT 0,
-				code VARCHAR(64) NULL,
-				title VARCHAR(200) NOT NULL,
-				kind VARCHAR(32) NOT NULL,
-				scene VARCHAR(32) NULL,
-				ref_id INT NULL,
-				expect_status VARCHAR(32) NULL,
-				metric VARCHAR(32) NULL,
-				target_value DECIMAL(12, 2) NULL,
-				result_text TEXT NULL,
-				stages_json TEXT NULL,
-				struck TINYINT(1) NOT NULL DEFAULT 0,
-				created_at DATETIME NOT NULL,
-				updated_at DATETIME NOT NULL,
-				PRIMARY KEY (id),
-				KEY idx_year_plan_user_year (user_id, plan_year)
-			)`,
-			{ type: QueryTypes.RAW }
-		).then(() => undefined)
-	}
-	return tableReady
 }
 
 export function parseStages(raw: unknown): YearPlanStage[] {
@@ -211,38 +116,12 @@ export function isYearPlanKind(value: unknown): value is YearPlanKind {
 	return typeof value === 'string' && KINDS.has(value as YearPlanKind)
 }
 
+export function isYearPlanStatKind(value: unknown): value is keyof typeof STAT_UNIT {
+	return typeof value === 'string' && STAT_KINDS.has(value as YearPlanKind)
+}
+
 export function isYearPlanGroup(value: unknown): value is YearPlanGroupKey {
 	return typeof value === 'string' && GROUP_KEYS.has(value)
-}
-
-export function isYearPlanMetric(value: unknown): value is YearPlanMetric {
-	return typeof value === 'string' && METRICS.has(value as YearPlanMetric)
-}
-
-async function seedYear(userId: number, year: number) {
-	if (year !== 2026) return
-	const count = await YearPlanItemModal.count({ where: { userId, planYear: year } })
-	if (count > 0) return
-	const now = new Date()
-	await YearPlanItemModal.bulkCreate(
-		SEED_2026.map((item, index) => ({
-			userId,
-			planYear: year,
-			groupKey: item.groupKey,
-			sortOrder: index,
-			code: item.code,
-			title: item.title,
-			kind: item.kind,
-			scene: item.scene ?? null,
-			expectStatus: item.expectStatus ?? null,
-			metric: item.metric ?? null,
-			targetValue: item.targetValue ?? null,
-			stagesJson: item.kind === 'checklist' ? JSON.stringify(item.stages ?? []) : null,
-			struck: item.struck === true,
-			createdAt: now,
-			updatedAt: now,
-		}))
-	)
 }
 
 type PlanGroup = {
@@ -385,16 +264,12 @@ function formatRatio(current: number | null, target: number | null, unit: string
 
 function progressFor(row: {
 	kind: string
-	code: string | null
 	refId: number | null
-	expectStatus: string | null
-	metric: string | null
 	targetValue: unknown
 	resultText: string | null
 	stages: YearPlanStage[]
 }, metrics: Metrics): { progressText: string; progressDone: boolean | null } {
 	if (row.kind === 'note') {
-		if (row.code === 'daily-review') return { progressText: '就是现在每天的日报', progressDone: null }
 		const text = (row.resultText ?? '').trim()
 		return text
 			? { progressText: text, progressDone: null }
@@ -406,9 +281,9 @@ function progressFor(row: {
 		if (total === 0) return { progressText: '还没有阶段', progressDone: null }
 		return { progressText: `${done} / ${total} 个阶段`, progressDone: done === total }
 	}
-	if (row.kind === 'aggregate' && isYearPlanMetric(row.metric)) {
+	if (isYearPlanStatKind(row.kind)) {
 		const target = numOrNull(row.targetValue)
-		if (row.metric === 'ted_round' && metrics.tedRound == null) {
+		if (row.kind === 'ted_round' && metrics.tedRound == null) {
 			return { progressText: '当前轮还没有写进配置，这行算不出来', progressDone: null }
 		}
 		const current = {
@@ -417,9 +292,9 @@ function progressFor(row: {
 			book_count: metrics.bookCount,
 			ted_round: metrics.tedRound,
 			ltn_coins: metrics.ltnCoins,
-		}[row.metric]
-		const ratio = formatRatio(current, target, METRIC_UNIT[row.metric])
-		if (row.metric === 'ted_round' && metrics.tedRound != null) {
+		}[row.kind]
+		const ratio = formatRatio(current, target, STAT_UNIT[row.kind])
+		if (row.kind === 'ted_round' && metrics.tedRound != null) {
 			const goal = target == null ? '' : ` / ${Number.isInteger(target) ? target : target}`
 			return {
 				progressText: `第 ${metrics.tedRound} 轮${goal}`,
@@ -438,23 +313,16 @@ function progressFor(row: {
 		const target = jar.target == null ? '未设目标金额' : String(jar.target)
 		return { progressText: `${jar.name}，${status} ${jar.balance} / ${target}`, progressDone: false }
 	}
-	if (row.kind === 'plan_status') {
+	if (row.kind === 'run') {
 		if (row.refId == null) return { progressText: '未关联', progressDone: null }
 		const group = metrics.plans.find((plan) => plan.memberIds.includes(row.refId as number))
 		if (!group) return { progressText: '关联的计划已经不在', progressDone: null }
 		const status = PLAN_STATUS[group.status] ?? group.status
 		const percent = `${Math.round(group.progress)}%`
-		if (row.expectStatus === 'completed') {
-			const done = group.status === 'completed'
-			return {
-				progressText: done ? `${group.name}，已完成` : `${group.name}，${status}，整体 ${percent}`,
-				progressDone: done,
-			}
-		}
-		const opened = group.status === 'active' || group.status === 'completed'
+		const done = group.status === 'completed'
 		return {
-			progressText: opened ? `${group.name}，已开启（${status}）` : `${group.name}，${status}`,
-			progressDone: opened,
+			progressText: done ? `${group.name}，已完成` : `${group.name}，${status}，整体 ${percent}`,
+			progressDone: done,
 		}
 	}
 	return { progressText: '', progressDone: null }
@@ -467,10 +335,7 @@ function toView(row: {
 	const stages = parseStages(row.get('stagesJson'))
 	const viewBase = {
 		kind,
-		code: (row.get('code') as string | null) ?? null,
 		refId: numOrNull(row.get('refId')),
-		expectStatus: (row.get('expectStatus') as string | null) ?? null,
-		metric: (row.get('metric') as string | null) ?? null,
 		targetValue: numOrNull(row.get('targetValue')),
 		resultText: (row.get('resultText') as string | null) ?? null,
 		stages,
@@ -478,26 +343,20 @@ function toView(row: {
 	const progress = progressFor(viewBase, metrics)
 	return {
 		id: Number(row.get('id')),
-		code: viewBase.code,
 		groupKey: String(row.get('groupKey')),
 		title: String(row.get('title') ?? ''),
 		kind,
 		scene: (row.get('scene') as string | null) ?? null,
 		refId: viewBase.refId == null ? null : Math.trunc(viewBase.refId),
-		expectStatus: viewBase.expectStatus === 'active' || viewBase.expectStatus === 'completed' ? viewBase.expectStatus : null,
-		metric: isYearPlanMetric(viewBase.metric) ? viewBase.metric : null,
 		targetValue: viewBase.targetValue,
 		resultText: viewBase.resultText ?? '',
 		stages,
-		struck: row.get('struck') === true || row.get('struck') === 1,
 		progressText: progress.progressText,
 		progressDone: progress.progressDone,
 	}
 }
 
 export async function loadYearPlan(userId: number, year: number) {
-	await ensureYearPlanTable()
-	await seedYear(userId, year)
 	const metrics = await loadMetrics(userId, year)
 	const rows = await YearPlanItemModal.findAll({
 		where: { userId, planYear: year },
@@ -532,12 +391,9 @@ export type YearPlanWrite = {
 	kind?: YearPlanKind
 	scene?: string | null
 	refId?: number | null
-	expectStatus?: YearPlanExpect | null
-	metric?: YearPlanMetric | null
 	targetValue?: number | null
 	resultText?: string | null
 	stages?: YearPlanStage[]
-	struck?: boolean
 }
 
 export function writableFields(input: YearPlanWrite): Record<string, unknown> | string {
@@ -568,16 +424,6 @@ export function writableFields(input: YearPlanWrite): Record<string, unknown> | 
 			fields.refId = id
 		}
 	}
-	if ('expectStatus' in input) {
-		if (input.expectStatus == null || input.expectStatus === ('' as unknown)) fields.expectStatus = null
-		else if (input.expectStatus !== 'active' && input.expectStatus !== 'completed') return '完成标准不对'
-		else fields.expectStatus = input.expectStatus
-	}
-	if ('metric' in input) {
-		if (input.metric == null || input.metric === ('' as unknown)) fields.metric = null
-		else if (!isYearPlanMetric(input.metric)) return '统计口径不对'
-		else fields.metric = input.metric
-	}
 	if ('targetValue' in input) {
 		if (input.targetValue == null || input.targetValue === ('' as unknown)) fields.targetValue = null
 		else {
@@ -592,6 +438,5 @@ export function writableFields(input: YearPlanWrite): Record<string, unknown> | 
 	if ('stages' in input) {
 		fields.stagesJson = JSON.stringify(parseStages(input.stages))
 	}
-	if ('struck' in input) fields.struck = input.struck === true
 	return fields
 }

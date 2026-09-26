@@ -8,25 +8,20 @@ import Api from '@/service/api'
 import { useCanEdit, ViewOnlyTooltip } from '@/components/capability-context'
 import './app.css'
 
-type Kind = 'jar' | 'plan_status' | 'aggregate' | 'note' | 'checklist'
-type Metric = 'sport_days' | 'movie_count' | 'book_count' | 'ted_round' | 'ltn_coins'
+type Kind = 'jar' | 'run' | 'sport_days' | 'movie_count' | 'book_count' | 'ted_round' | 'ltn_coins' | 'note' | 'checklist'
 type Stage = { id: string; title: string; done: boolean }
 type Option = { id: number; name: string; status: string }
 
 type Item = {
 	id: number
-	code: string | null
 	groupKey: string
 	title: string
 	kind: Kind
 	scene: string | null
 	refId: number | null
-	expectStatus: 'completed' | 'active' | null
-	metric: Metric | null
 	targetValue: number | null
 	resultText: string
 	stages: Stage[]
-	struck: boolean
 	progressText: string
 	progressDone: boolean | null
 }
@@ -34,20 +29,18 @@ type Item = {
 type Plan = Awaited<ReturnType<typeof Api.getYearPlanApi>>
 
 const KIND_LABEL: Record<Kind, string> = {
-	jar: '自带目标',
-	plan_status: '挂已有计划的状态',
-	aggregate: '只有现状',
+	jar: '零钱罐子',
+	run: '跑步计划',
+	sport_days: '运动天数',
+	movie_count: '电影部数',
+	book_count: '阅读本数',
+	ted_round: 'TED 当前轮',
+	ltn_coins: 'LTN 金币',
 	note: '无数据源',
 	checklist: '阶段勾选',
 }
 
-const METRIC_LABEL: Record<Metric, string> = {
-	sport_days: '今年运动天数',
-	movie_count: '今年电影部数',
-	book_count: '今年阅读本数',
-	ted_round: 'TED 当前轮',
-	ltn_coins: '今年 LTN 金币',
-}
+const STAT_KINDS = new Set<Kind>(['sport_days', 'movie_count', 'book_count', 'ted_round', 'ltn_coins'])
 
 const GROUP_OPTIONS = [
 	{ value: 'sport', label: '跑步 / 有氧 / 重量' },
@@ -62,7 +55,6 @@ const GROUP_OPTIONS = [
 type Draft = {
 	title: string
 	refId: number | null
-	expectStatus: 'completed' | 'active' | null
 	targetValue: number | null
 	resultText: string
 	stages: Stage[]
@@ -72,7 +64,6 @@ function toDraft(item: Item): Draft {
 	return {
 		title: item.title,
 		refId: item.refId,
-		expectStatus: item.expectStatus,
 		targetValue: item.targetValue,
 		resultText: item.resultText,
 		stages: item.stages.map((stage) => ({ ...stage })),
@@ -95,9 +86,7 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 	const [addTitle, setAddTitle] = useState('')
 	const [addKind, setAddKind] = useState<Kind>('note')
 	const [addGroup, setAddGroup] = useState('other')
-	const [addMetric, setAddMetric] = useState<Metric>('sport_days')
 	const [addTarget, setAddTarget] = useState<number | null>(null)
-	const [addExpect, setAddExpect] = useState<'completed' | 'active'>('completed')
 
 	const load = useCallback(async (nextYear: number) => {
 		setLoading(true)
@@ -143,9 +132,8 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 		try {
 			await Api.putYearPlanApi(item.id, {
 				title: draft.title,
-				refId: draft.refId,
-				expectStatus: item.kind === 'plan_status' ? draft.expectStatus : undefined,
-				targetValue: item.kind === 'aggregate' ? draft.targetValue : undefined,
+				refId: item.kind === 'jar' || item.kind === 'run' ? draft.refId : undefined,
+				targetValue: STAT_KINDS.has(item.kind) ? draft.targetValue : undefined,
 				resultText: item.kind === 'note' ? draft.resultText : undefined,
 				stages: item.kind === 'checklist' ? draft.stages : undefined,
 			})
@@ -206,10 +194,8 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 				title,
 				kind: addKind,
 				groupKey: addGroup,
-				metric: addKind === 'aggregate' ? addMetric : null,
-				targetValue: addKind === 'aggregate' ? addTarget : null,
-				expectStatus: addKind === 'plan_status' ? addExpect : null,
-				scene: addKind === 'jar' ? 'piggy' : addKind === 'plan_status' ? 'sport' : null,
+				targetValue: STAT_KINDS.has(addKind) ? addTarget : null,
+				scene: addKind === 'jar' ? 'piggy' : addKind === 'run' ? 'sport' : null,
 				stages: addKind === 'checklist' ? [] : undefined,
 			})
 			setAddTitle('')
@@ -231,7 +217,7 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 	const linkOptions = (item: Item): Option[] => {
 		if (!plan) return []
 		if (item.kind === 'jar') return plan.options.jars
-		if (item.kind === 'plan_status') return plan.options.plans
+		if (item.kind === 'run') return plan.options.plans
 		return []
 	}
 
@@ -271,7 +257,12 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 					</ViewOnlyTooltip>
 				) : null}
 			</div>
-			{loading && !plan ? <p className="year-plan-empty">正在读取今年的清单</p> : null}
+			{loading && !plan ? <p className="year-plan-empty">正在读取这一年的清单</p> : null}
+			{!loading && plan && plan.groups.length === 0 ? (
+				<p className="year-plan-empty">
+					{mode === 'modal' ? '这一年还没有条目。到整页里添加。' : '这一年还没有条目。点编辑后可以添加。'}
+				</p>
+			) : null}
 			{plan?.groups.map((group) => (
 				<section key={group.key} className="year-plan-group">
 					<h2>{group.label}</h2>
@@ -280,7 +271,7 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 							const draft = drafts[item.id]
 							const stages = editing && draft ? draft.stages : item.stages
 							return (
-								<li key={item.id} className={item.struck ? 'is-struck' : ''}>
+								<li key={item.id}>
 									<div className="year-plan-item-main">
 										<div className="year-plan-item-title">
 											{editing && draft ? (
@@ -342,7 +333,7 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 												) : null}
 											</div>
 										) : null}
-										{editing && draft && (item.kind === 'jar' || item.kind === 'plan_status') ? (
+										{editing && draft && (item.kind === 'jar' || item.kind === 'run') ? (
 											<div className="year-plan-edit-row">
 												<Select
 													allowClear
@@ -352,22 +343,11 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 													onChange={(value) => patchDraft(item.id, { refId: value ?? null })}
 													style={{ minWidth: 220 }}
 												/>
-												{item.kind === 'plan_status' ? (
-													<Select
-														value={draft.expectStatus ?? 'completed'}
-														options={[
-															{ value: 'completed', label: '计划变为 completed 即完成' },
-															{ value: 'active', label: '挂上且为 active 即开启' },
-														]}
-														onChange={(value) => patchDraft(item.id, { expectStatus: value })}
-														style={{ minWidth: 240 }}
-													/>
-												) : null}
 											</div>
 										) : null}
-										{editing && draft && item.kind === 'aggregate' ? (
+										{editing && draft && STAT_KINDS.has(item.kind) ? (
 											<div className="year-plan-edit-row">
-												<span>{item.metric ? METRIC_LABEL[item.metric] : '目标'}</span>
+												<span>{KIND_LABEL[item.kind]}目标</span>
 												<InputNumber
 													min={0}
 													value={draft.targetValue ?? undefined}
@@ -375,7 +355,7 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 												/>
 											</div>
 										) : null}
-										{editing && draft && item.kind === 'note' && item.code !== 'daily-review' ? (
+										{editing && draft && item.kind === 'note' ? (
 											<Input.TextArea
 												value={draft.resultText}
 												placeholder="结果句"
@@ -410,27 +390,8 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 							onChange={setAddKind}
 							style={{ minWidth: 180 }}
 						/>
-						{addKind === 'aggregate' ? (
-							<>
-								<Select
-									value={addMetric}
-									options={(Object.keys(METRIC_LABEL) as Metric[]).map((metric) => ({ value: metric, label: METRIC_LABEL[metric] }))}
-									onChange={setAddMetric}
-									style={{ minWidth: 180 }}
-								/>
-								<InputNumber min={0} placeholder="今年目标" value={addTarget ?? undefined} onChange={(value) => setAddTarget(value == null ? null : Number(value))} />
-							</>
-						) : null}
-						{addKind === 'plan_status' ? (
-							<Select
-								value={addExpect}
-								options={[
-									{ value: 'completed', label: '计划变为 completed 即完成' },
-									{ value: 'active', label: '挂上且为 active 即开启' },
-								]}
-								onChange={setAddExpect}
-								style={{ minWidth: 240 }}
-							/>
+						{STAT_KINDS.has(addKind) ? (
+							<InputNumber min={0} placeholder="今年目标" value={addTarget ?? undefined} onChange={(value) => setAddTarget(value == null ? null : Number(value))} />
 						) : null}
 						<Button type="primary" onClick={addItem}>添加</Button>
 					</div>

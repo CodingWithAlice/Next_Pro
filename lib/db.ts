@@ -602,10 +602,6 @@ export const YearPlanItemModal = sequelize.define(
 			defaultValue: 0,
 			field: 'sort_order',
 		},
-		code: {
-			type: DataTypes.STRING(64),
-			allowNull: true,
-		},
 		title: {
 			type: DataTypes.STRING(200),
 			allowNull: false,
@@ -623,15 +619,6 @@ export const YearPlanItemModal = sequelize.define(
 			allowNull: true,
 			field: 'ref_id',
 		},
-		expectStatus: {
-			type: DataTypes.STRING(32),
-			allowNull: true,
-			field: 'expect_status',
-		},
-		metric: {
-			type: DataTypes.STRING(32),
-			allowNull: true,
-		},
 		targetValue: {
 			type: DataTypes.DECIMAL(12, 2),
 			allowNull: true,
@@ -646,11 +633,6 @@ export const YearPlanItemModal = sequelize.define(
 			type: DataTypes.TEXT,
 			allowNull: true,
 			field: 'stages_json',
-		},
-		struck: {
-			type: DataTypes.BOOLEAN,
-			allowNull: false,
-			defaultValue: false,
 		},
 	},
 	{
