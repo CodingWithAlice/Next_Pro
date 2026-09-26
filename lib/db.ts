@@ -572,6 +572,94 @@ export const RunningPlanModal = sequelize.define(
 	}
 )
 
+export const YearPlanItemModal = sequelize.define(
+	'year_plan_item',
+	{
+		id: {
+			type: DataTypes.INTEGER,
+			primaryKey: true,
+			autoIncrement: true,
+		},
+		userId: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: defaultUserId,
+			field: 'user_id',
+		},
+		planYear: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			field: 'plan_year',
+		},
+		groupKey: {
+			type: DataTypes.STRING(32),
+			allowNull: false,
+			field: 'group_key',
+		},
+		sortOrder: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 0,
+			field: 'sort_order',
+		},
+		code: {
+			type: DataTypes.STRING(64),
+			allowNull: true,
+		},
+		title: {
+			type: DataTypes.STRING(200),
+			allowNull: false,
+		},
+		kind: {
+			type: DataTypes.STRING(32),
+			allowNull: false,
+		},
+		scene: {
+			type: DataTypes.STRING(32),
+			allowNull: true,
+		},
+		refId: {
+			type: DataTypes.INTEGER,
+			allowNull: true,
+			field: 'ref_id',
+		},
+		expectStatus: {
+			type: DataTypes.STRING(32),
+			allowNull: true,
+			field: 'expect_status',
+		},
+		metric: {
+			type: DataTypes.STRING(32),
+			allowNull: true,
+		},
+		targetValue: {
+			type: DataTypes.DECIMAL(12, 2),
+			allowNull: true,
+			field: 'target_value',
+		},
+		resultText: {
+			type: DataTypes.TEXT,
+			allowNull: true,
+			field: 'result_text',
+		},
+		stagesJson: {
+			type: DataTypes.TEXT,
+			allowNull: true,
+			field: 'stages_json',
+		},
+		struck: {
+			type: DataTypes.BOOLEAN,
+			allowNull: false,
+			defaultValue: false,
+		},
+	},
+	{
+		tableName: 'year_plan_item',
+		timestamps: true,
+		underscored: true,
+	}
+)
+
 // 关联关系1 每日 - 时间和事件 关联
 IssueModal.hasMany(TimeModal, {
 	foreignKey: 'date',

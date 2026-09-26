@@ -7,12 +7,15 @@ import dayjs from "dayjs";
 import config from "config";
 import { useState } from "react";
 import { useCanEdit, ViewOnlyTooltip } from "@/components/capability-context";
+import { tedRoundPrefix } from "@/components/ted-round";
 const { TextArea } = Input;
+
+const TED_PREFIX = tedRoundPrefix();
 
 const ISSUE_FIELD_TEMPLATES: Partial<Record<keyof IssueRecordProps, string>> = {
     front: '1、LTN：做？题 + 错题重做(时长) \n2、BOX1： \n3、在线工具：',
     work: '1、技术方向： \n2、业务方向：',
-    ted: 'Round4: ',
+    ted: TED_PREFIX,
 };
 
 function isCompactIssueField(
@@ -189,11 +192,13 @@ export default function IssueRecord({ study, issueData, setIssueData, currentDat
             if (!next) return prev;
 
             const prevTrim = prev.trim();
-            const isJustPrefix = /^Round4\s*:\s*$/.test(prevTrim);
-            if (isJustPrefix) return `Round4: ${next}`;
+            const prefix = TED_PREFIX.trim();
+            const round = prefix.match(/^Round(\d+):$/);
+            const isJustPrefix = round != null && new RegExp(`^Round${round[1]}\\s*:\\s*$`).test(prevTrim);
+            if (isJustPrefix) return `${prefix} ${next}`;
 
             if (!prevTrim) return next;
-            // 若已有 Round4 前缀但还有内容，则换行追加
+            // 若已有本轮前缀但还有内容，则换行追加
             return `${prevTrim}\n${next}`;
         };
 

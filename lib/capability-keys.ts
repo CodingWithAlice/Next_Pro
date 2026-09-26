@@ -29,6 +29,7 @@ const WRITE_PREFIXES: { prefix: string; key: CapabilityKey }[] = [
 	{ prefix: '/api/week', key: 'week' },
 	{ prefix: '/api/serial', key: 'week' },
 	{ prefix: '/api/month', key: 'month' },
+	{ prefix: '/api/year-plan', key: 'month' },
 	{ prefix: '/api/ted', key: 'ted' },
 	{ prefix: '/api/sport', key: 'sport' },
 	{ prefix: '/api/running-plans', key: 'sport' },

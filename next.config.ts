@@ -34,6 +34,8 @@ const nextConfig: NextConfig = {
 		// NEXT_PUBLIC_* 只有写进这里，dotenv 从上级 config.env 读到的值才会进浏览器包
 		NEXT_PUBLIC_PIGGY_BANK_ALLOCATE_MAX_RATIO: process.env.NEXT_PUBLIC_PIGGY_BANK_ALLOCATE_MAX_RATIO,
 		NEXT_PUBLIC_API_HOST: process.env.NEXT_PUBLIC_API_HOST,
+		// 日报 TED 前缀和年计划当前轮共用 config.env 的 TED_ROUND
+		NEXT_PUBLIC_TED_ROUND: process.env.TED_ROUND,
 	},
 }
 

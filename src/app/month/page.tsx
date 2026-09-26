@@ -1,7 +1,7 @@
 "use client";
 import "./app.css";
 import { Button, message } from "antd";
-import { LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { FlagOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { MonthDetailTextarea } from "@/components/month-detail-textarea";
@@ -134,6 +134,9 @@ export default function Month() {
             </Button>
             <h1 className="month-title">
                 <Link href="/" className="home-link-title">阶段 {monthId}</Link>
+                <Link href="/year-plan" className="month-year-plan" title="年计划" aria-label="年计划">
+                    <FlagOutlined />
+                </Link>
             </h1>
             <Button
                 icon={<RightOutlined />}

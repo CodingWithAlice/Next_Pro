@@ -226,6 +226,47 @@ const Api = {
 	allocateFromPoolApi(allocations: { jarId: number; amount: number }[]) {
 		return request.post('piggy-bank/pool', { allocations })
 	},
+	getYearPlanApi(year: number) {
+		return request.get('year-plan', { year }) as Promise<{
+			year: number
+			groups: {
+				key: string
+				label: string
+				items: {
+					id: number
+					code: string | null
+					groupKey: string
+					title: string
+					kind: 'jar' | 'plan_status' | 'aggregate' | 'note' | 'checklist'
+					scene: string | null
+					refId: number | null
+					expectStatus: 'completed' | 'active' | null
+					metric: 'sport_days' | 'movie_count' | 'book_count' | 'ted_round' | 'ltn_coins' | null
+					targetValue: number | null
+					resultText: string
+					stages: { id: string; title: string; done: boolean }[]
+					struck: boolean
+					progressText: string
+					progressDone: boolean | null
+				}[]
+			}[]
+			options: {
+				jars: { id: number; name: string; status: string }[]
+				plans: { id: number; name: string; status: string }[]
+			}
+			success: boolean
+		}>
+	},
+	postYearPlanApi(data: { [key: string]: unknown }) {
+		return request.post('year-plan', data)
+	},
+	putYearPlanApi(id: number, data: { [key: string]: unknown }) {
+		return request.put(`year-plan/${id}`, data)
+	},
+	deleteYearPlanApi(id: number) {
+		return request.delete(`year-plan/${id}`)
+	},
+
 	getCapabilities() {
 		return request.get('capabilities') as Promise<{
 			enabled: import('@lib/capability-keys').CapabilityKey[]

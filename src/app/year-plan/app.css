@@ -1,0 +1,140 @@
+.year-plan-outer {
+	align-items: stretch;
+	width: min(880px, 100%);
+	margin: 0 auto;
+	padding-bottom: 4rem;
+}
+
+.year-plan-header {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 16px;
+	width: 100%;
+}
+
+.year-plan-heading {
+	text-align: center;
+}
+
+.year-plan-heading h1 {
+	margin: 0;
+}
+
+.year-plan-heading .home-link-title {
+	color: inherit;
+	text-decoration: none;
+}
+
+.year-plan-heading .home-link-title:hover {
+	color: rgba(38, 157, 128, 0.8);
+}
+
+.year-plan-heading p,
+.year-plan-muted,
+.year-plan-empty {
+	margin: 0.25rem 0 0;
+	color: rgba(0, 0, 0, 0.45);
+	font-size: 14px;
+}
+
+.year-plan-toolbar {
+	display: flex;
+	justify-content: flex-end;
+	width: 100%;
+	margin: 0.5rem 0 1rem;
+}
+
+.year-plan-group {
+	width: 100%;
+	background: #fff;
+	border-radius: 12px;
+	padding: 16px 18px 8px;
+	margin-bottom: 16px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.year-plan-group h2 {
+	margin: 0 0 8px;
+	font-size: 16px;
+	font-weight: 650;
+}
+
+.year-plan-group ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.year-plan-group li {
+	padding: 12px 0;
+	border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.year-plan-group li.is-struck strong {
+	text-decoration: line-through;
+	opacity: 0.55;
+}
+
+.year-plan-item-title {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.year-plan-item-title strong {
+	font-size: 15px;
+}
+
+.year-plan-kind {
+	font-size: 12px;
+	color: rgb(38, 157, 128);
+	background: rgba(38, 157, 128, 0.1);
+	border-radius: 999px;
+	padding: 1px 8px;
+}
+
+.year-plan-progress {
+	margin: 6px 0 0;
+	font-size: 14px;
+	color: rgba(0, 0, 0, 0.72);
+}
+
+.year-plan-progress.is-done {
+	color: rgb(6, 128, 67);
+	font-weight: 600;
+}
+
+.year-plan-stages {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin-top: 8px;
+}
+
+.year-plan-stages label {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.year-plan-stages .is-done-stage {
+	text-decoration: line-through;
+	opacity: 0.65;
+}
+
+.year-plan-edit-row,
+.year-plan-add {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	margin-top: 8px;
+}
+
+.year-plan-edit-row .ant-input,
+.year-plan-add .ant-input,
+.year-plan-stages .ant-input {
+	max-width: 420px;
+}
