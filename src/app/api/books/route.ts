@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { BooksRecordModal } from 'db'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
+import { denyIfCapabilityOff } from '@lib/capabilities'
 
 async function GET(request: NextRequest) {
 	try {
@@ -54,6 +55,8 @@ async function GET(request: NextRequest) {
 
 async function POST(request: NextRequest) {
 	try {
+		const denied = await denyIfCapabilityOff(request)
+		if (denied) return denied
 		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const body = await request.json()
 		const data = body.data
@@ -79,6 +82,8 @@ async function POST(request: NextRequest) {
 
 async function PUT(request: NextRequest) {
 	try {
+		const denied = await denyIfCapabilityOff(request)
+		if (denied) return denied
 		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const body = await request.json()
 		const data = body.data

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { RoutineTypeModal } from 'db'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
+import { denyIfCapabilityOff } from '@lib/capabilities'
 
 async function GET(request: NextRequest) {
 	try {
@@ -26,6 +27,8 @@ async function GET(request: NextRequest) {
 
 async function POST(request: NextRequest) {
 	try {
+		const denied = await denyIfCapabilityOff(request)
+		if (denied) return denied
 		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const body = await request.json()
 		if (Array.isArray(body?.data)) {
@@ -48,6 +51,8 @@ async function POST(request: NextRequest) {
 
 async function PUT(request: NextRequest) {
 	try {
+		const denied = await denyIfCapabilityOff(request)
+		if (denied) return denied
 		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const body = await request.json()
 		const { id, type, des } = body

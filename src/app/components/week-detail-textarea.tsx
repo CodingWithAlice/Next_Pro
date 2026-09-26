@@ -1,5 +1,6 @@
 import DeepSeek from "./deep-seek";
 import { transTextArea, transTitle } from "./tool"
+import { useCanEdit } from "./capability-context";
 interface WeekDetailTextareaProps {
     weekData: { [key: string]: string },
     setWeekData: (data: { [key: string]: string }) => void,
@@ -7,8 +8,9 @@ interface WeekDetailTextareaProps {
 }
 
 export function WeekDetailTextarea({ weekData, setWeekData, curSerial }: WeekDetailTextareaProps) {
+    const canEdit = useCanEdit('week')
     const handleTrans = (it: { key: string, desc?: string }, source: { [key: string]: string }) => {
-        return transTextArea({ ...it, source, onChange: handleChange });
+        return transTextArea({ ...it, source, onChange: handleChange, readOnly: !canEdit });
     }
 
     const handleChange = (v: { [key: string]: string }) => {
@@ -21,7 +23,7 @@ export function WeekDetailTextarea({ weekData, setWeekData, curSerial }: WeekDet
 
     return <section className='wrap'>
         <div className='deep-seek'>
-            <DeepSeek type='week' handleChange={handleDeepSeek} periods={[curSerial]} />
+            <DeepSeek handleChange={handleDeepSeek} periods={[curSerial]} disabled={!canEdit} />
             {handleTrans({ key: 'time', desc: '周期' }, weekData)}
         </div>
         {transTitle('【学习内容前端】')}

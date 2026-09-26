@@ -1,0 +1,261 @@
+.year-plan-outer {
+	align-items: stretch;
+	width: min(880px, 100%);
+	margin: 0 auto;
+	padding-bottom: 4rem;
+}
+
+.year-plan-header {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 16px;
+	width: 100%;
+}
+
+.year-plan-heading {
+	text-align: center;
+}
+
+.year-plan-heading h1 {
+	margin: 0;
+}
+
+.year-plan-heading .home-link-title {
+	color: inherit;
+	text-decoration: none;
+}
+
+.year-plan-heading .home-link-title:hover {
+	color: rgba(38, 157, 128, 0.8);
+}
+
+.year-plan-heading p,
+.year-plan-muted,
+.year-plan-empty {
+	margin: 0.25rem 0 0;
+	color: rgba(0, 0, 0, 0.45);
+	font-size: 14px;
+}
+
+.year-plan-outer.is-modal {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 4px 20px 16px;
+}
+
+.year-plan-outer.is-modal .year-plan-heading h1 {
+	font-size: 1.35rem;
+}
+
+.year-plan-toolbar {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	gap: 12px;
+	width: 100%;
+	margin: 0.5rem 0 1rem;
+}
+
+.year-plan-open-page {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	color: rgb(38, 157, 128);
+	font-size: 14px;
+}
+
+.year-plan-dialog .ant-modal-content,
+.year-plan-dialog.ant-modal .ant-modal-content {
+	overflow: hidden;
+}
+
+.year-plan-dialog .ant-modal-body {
+	max-height: min(72vh, 760px);
+	overflow: auto;
+	background: rgba(6, 128, 67, 0.12);
+	padding: 12px 8px 8px;
+}
+
+.year-plan-group {
+	width: 100%;
+	background: #fff;
+	border-radius: 12px;
+	padding: 16px 18px 8px;
+	margin-bottom: 16px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.year-plan-group-head {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	margin: 0 0 8px;
+}
+
+.year-plan-group-toggle {
+	flex: 1;
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	text-align: left;
+	cursor: pointer;
+}
+
+.year-plan-group-fold {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	margin-left: auto;
+	padding: 4px;
+	border: 0;
+	background: transparent;
+	color: rgb(6, 128, 67);
+	cursor: pointer;
+}
+
+.year-plan-group-head h2 {
+	margin: 0;
+	font-size: 16px;
+	font-weight: 650;
+	color: rgb(6, 128, 67);
+}
+
+.year-plan-group ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.year-plan-group li {
+	padding: 12px 0;
+	border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.year-plan-item-title,
+.year-plan-item-edit {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.year-plan-item-edit > .ant-input {
+	flex: 1 1 160px;
+	width: auto;
+	min-width: 140px;
+	max-width: 280px;
+}
+
+.year-plan-item-edit .ant-select {
+	width: 180px;
+}
+
+.year-plan-item-edit .year-plan-progress {
+	margin: 0;
+	flex: 1 1 160px;
+}
+
+.year-plan-item-title strong,
+.year-plan-static strong {
+	font-size: 15px;
+	color: rgba(0, 0, 0, 0.75);
+}
+
+.year-plan-static {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.year-plan-static.is-done strong {
+	color: rgba(0, 0, 0, 0.35);
+	font-weight: 500;
+}
+
+.year-plan-static-extra {
+	font-size: 12px;
+	line-height: 1.4;
+	font-weight: 400;
+	color: rgba(0, 0, 0, 0.38);
+}
+
+.year-plan-mark {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	flex: none;
+	border: 1.5px solid rgba(0, 0, 0, 0.35);
+	border-radius: 3px;
+	color: rgba(0, 0, 0, 0.45);
+	font-size: 11px;
+}
+
+.year-plan-progress {
+	margin: 6px 0 0;
+	font-size: 14px;
+	color: rgba(0, 0, 0, 0.72);
+}
+
+.year-plan-progress.is-done {
+	color: rgb(6, 128, 67);
+	font-weight: 600;
+}
+
+.year-plan-progress.is-pending {
+	color: rgba(0, 0, 0, 0.35);
+}
+
+.year-plan-group ul.year-plan-stage-list {
+	list-style: none;
+	margin: 6px 0 0;
+	padding: 0 0 0 26px;
+}
+
+.year-plan-group .year-plan-stage-list li {
+	padding: 4px 0;
+	border-top: 0;
+}
+
+.year-plan-stage-list .year-plan-static strong {
+	font-size: 14px;
+	font-weight: 500;
+}
+
+.year-plan-stages {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin-top: 8px;
+}
+
+.year-plan-stages label {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.year-plan-stages .is-done-stage {
+	text-decoration: line-through;
+	opacity: 0.65;
+}
+
+.year-plan-edit-row,
+.year-plan-add {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	margin-top: 8px;
+}
+
+.year-plan-edit-row .ant-input,
+.year-plan-add .ant-input,
+.year-plan-stages .ant-input {
+	max-width: 420px;
+}

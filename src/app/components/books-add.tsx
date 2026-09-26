@@ -6,6 +6,7 @@ const { Option } = Select;
 import Api from '@/service/api';
 import dayjs from 'dayjs';
 import BookImageInput from './book-image-input';
+import { useCanEdit, ViewOnlyTooltip } from './capability-context';
 
 const colorMap = {
     '电影': 'cyan',
@@ -28,6 +29,7 @@ export default function BooksAdd({ fresh }: { fresh: () => void }) {
     const [form] = Form.useForm();
     const [expanded, setExpanded] = useState(false);
     const [editing, setEditing] = useState(false);
+    const canEdit = useCanEdit('media');
     const [booksData, setBooksData] = useState<BooksDTO>({
         tag: '电影',
         title: '',
@@ -85,11 +87,14 @@ export default function BooksAdd({ fresh }: { fresh: () => void }) {
             extra={
                 <Space>
                     {!editing && (
-                        <Button
-                            icon={<EditOutlined />}
-                            size="small"
-                            onClick={() => setEditing(true)}
-                        />
+                        <ViewOnlyTooltip viewOnly={!canEdit}>
+                            <Button
+                                icon={<EditOutlined />}
+                                size="small"
+                                disabled={!canEdit}
+                                onClick={() => setEditing(true)}
+                            />
+                        </ViewOnlyTooltip>
                     )}
                     {editing && (
                         <>

@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PiggyBankJarModal, PiggyBankPoolModal } from 'db'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
+import { denyIfCapabilityOff } from '@lib/capabilities'
 import { computeComputedPendingBalance, refreshComputedPendingRow } from '../pool-balance'
 
 async function POST(request: NextRequest) {
 	try {
+		const denied = await denyIfCapabilityOff(request)
+		if (denied) return denied
 		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const body = await request.json()
 		const data = body.data ?? body

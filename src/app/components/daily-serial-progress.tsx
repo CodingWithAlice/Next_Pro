@@ -1,12 +1,12 @@
 'use client';
 
 import ProcessCircle from '@/components/process-circle';
-import { getGapTime } from '@/components/tool';
+import { resolveDailySerialProgress } from '@/components/tool';
 import Api from '@/service/api';
 import { Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 
-const SERIAL_PROGRESS_TIP = '周期进度';
+const SERIAL_PROGRESS_TIP = '周期进度，默认 14 天；超过 14 天按实际天数';
 
 interface SerialDataProps {
     serialNumber: number;
@@ -33,8 +33,14 @@ export default function DailySerialProgress({
             const sortedSerials = serialData.sort((a, b) => b.serialNumber - a.serialNumber);
             const startTime = sortedSerials[0]?.startTime ?? '';
             const endTime = sortedSerials[0]?.endTime ?? '';
-            setSerialStartTime(startTime);
-            setSerialCycle(getGapTime(startTime, endTime));
+            if (!startTime) {
+                setSerialStartTime('');
+                setSerialCycle(0);
+                return;
+            }
+            const progress = resolveDailySerialProgress(startTime, endTime);
+            setSerialStartTime(progress.startTime);
+            setSerialCycle(progress.cycle);
         });
     }, []);
 

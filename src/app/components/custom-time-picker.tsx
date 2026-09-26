@@ -1,6 +1,6 @@
 import { Select, TimePicker } from "antd";
 import dayjs from "dayjs";
-import { alignTimeToDate, formatMinToHM, getGapTime } from "./tool";
+import { alignTimeToDate, formatMinToHM, formatMinToHours, getGapTime } from "./tool";
 import classNames from "classnames";
 import { routineType } from '@/daily/page';
 import config from "config";
@@ -124,7 +124,7 @@ function CustomTimePicker({ init, onIssue, routineTypes, baseDate }: CustomTimeP
                     size='middle'
                     className="routine-select" />
                 <span className={`${intervalClass} interval phone-hidden`}>
-                    {!!init.interval && formatMinToHM(init.interval)}
+                    {!!init.interval && formatMinToHours(init.interval)}
                 </span>
             </div>
         </div>

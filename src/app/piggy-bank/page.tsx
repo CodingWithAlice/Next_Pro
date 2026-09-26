@@ -8,6 +8,7 @@ import dayjs from 'dayjs';
 import Api from '@/service/api';
 import PiggyJarImageInline from '@/components/piggy-jar-image-inline';
 import './app.css';
+import { useCanEdit, ViewOnlyTooltip } from '@/components/capability-context';
 
 interface Jar {
   id: number;
@@ -37,6 +38,7 @@ function formatAllocatePctDisplay(value: number): string {
 }
 
 export default function PiggyBankPage() {
+  const canEdit = useCanEdit('piggy');
   const [jars, setJars] = useState<Jar[]>([]);
   const [poolBalance, setPoolBalance] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -269,17 +271,19 @@ export default function PiggyBankPage() {
             <h2>待分配池</h2>
             <div className="pool-balance">¥{poolBalance.toFixed(2)}</div>
             <div className="salary-actions">
-              <Button
-                type="default"
-                size="small"
-                onClick={() => {
-                  poolAllocateForm.resetFields();
-                  setPoolAllocateModalOpen(true);
-                }}
-                disabled={poolBalance <= 0 || activeJars.length === 0}
-              >
-                从池中分配
-              </Button>
+              <ViewOnlyTooltip viewOnly={!canEdit}>
+                <Button
+                  type="default"
+                  size="small"
+                  onClick={() => {
+                    poolAllocateForm.resetFields();
+                    setPoolAllocateModalOpen(true);
+                  }}
+                  disabled={!canEdit || poolBalance <= 0 || activeJars.length === 0}
+                >
+                  从池中分配
+                </Button>
+              </ViewOnlyTooltip>
               <Button
                 type="default"
                 size="small"
@@ -299,7 +303,7 @@ export default function PiggyBankPage() {
           </section>
           <section className="piggy-top-item">
             <h2>工资 / 金额输入</h2>
-            <Form form={allocateForm} layout="vertical" className="salary-form">
+            <Form form={allocateForm} layout="vertical" className="salary-form" disabled={!canEdit}>
               <Form.Item name="amount" rules={[{ required: true, message: '请输入金额' }]}>
                 <InputNumber placeholder="金额" min={0.01} step={1} precision={2} style={{ width: '100%' }} />
               </Form.Item>
@@ -307,12 +311,16 @@ export default function PiggyBankPage() {
                 <Input placeholder="如：2月工资、年终奖" maxLength={200} showCount />
               </Form.Item>
               <div className="salary-actions">
-                <Button type="primary" size="small" onClick={onGetSuggestion} loading={suggestionLoading}>
-                  生成分配建议
-                </Button>
-                <Button size="small" onClick={onToPool}>
-                  先放入待分配池
-                </Button>
+                <ViewOnlyTooltip viewOnly={!canEdit}>
+                  <Button type="primary" size="small" onClick={onGetSuggestion} loading={suggestionLoading} disabled={!canEdit}>
+                    生成分配建议
+                  </Button>
+                </ViewOnlyTooltip>
+                <ViewOnlyTooltip viewOnly={!canEdit}>
+                  <Button size="small" onClick={onToPool} disabled={!canEdit}>
+                    先放入待分配池
+                  </Button>
+                </ViewOnlyTooltip>
               </div>
             </Form>
           </section>
@@ -321,9 +329,11 @@ export default function PiggyBankPage() {
         <section className="piggy-bottom">
           <div className="piggy-bottom-header">
             <h2>梦想罐子</h2>
-            <Button type="primary" size="small" onClick={() => setJarModalOpen(true)}>
-              添加梦想
-            </Button>
+            <ViewOnlyTooltip viewOnly={!canEdit}>
+              <Button type="primary" size="small" onClick={() => setJarModalOpen(true)} disabled={!canEdit}>
+                添加梦想
+              </Button>
+            </ViewOnlyTooltip>
           </div>
           <div className="jar-list">
             {loading ? (
@@ -343,7 +353,7 @@ export default function PiggyBankPage() {
                     </div>
                     <div
                       className="jar-body jar-body-clickable"
-                      onClick={() => onOpenActualConsumption(j)}
+                      onClick={() => { if (canEdit) onOpenActualConsumption(j) }}
                       title={`${balance.toFixed(0)} / ${target > 0 ? target.toFixed(0) : '-'}，点击按真实消费调整`}
                     >
                       <div
@@ -357,7 +367,7 @@ export default function PiggyBankPage() {
                           jarId={j.id}
                           jarName={j.name}
                           value={j.imageUrl ?? null}
-                          disabled={j.status === 'completed'}
+                          disabled={!canEdit || j.status === 'completed'}
                           onChange={(next) => onJarImageChange(j.id, next)}
                         />
                       </div>
@@ -369,7 +379,9 @@ export default function PiggyBankPage() {
                         {j.monthlyRepayment != null && parseFloat(String(j.monthlyRepayment)) > 0 && (
                           <span className="jar-monthly">月还 ¥{parseFloat(String(j.monthlyRepayment)).toFixed(0)}</span>
                         )}
-                        <Button type="text" size="small" onClick={() => onAbandon(j.id)} className="jar-abandon-btn" icon={<CloseCircleOutlined />} title="放弃罐子" />
+                        <ViewOnlyTooltip viewOnly={!canEdit}>
+                          <Button type="text" size="small" onClick={() => onAbandon(j.id)} disabled={!canEdit} className="jar-abandon-btn" icon={<CloseCircleOutlined />} title={canEdit ? '放弃罐子' : undefined} />
+                        </ViewOnlyTooltip>
                       </div>
                     </div>
                   </div>

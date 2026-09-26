@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { denyIfCapabilityOff } from '@lib/capabilities'
 import { AIPOST, type MessageProp } from '@lib/deepseek'
 import dayjs from 'dayjs'
 
@@ -37,6 +38,8 @@ function calcIsCrossDay(date: string, start: string | null, end: string | null) 
 
 export async function POST(request: NextRequest) {
 	try {
+		const denied = await denyIfCapabilityOff(request)
+		if (denied) return denied
 		const body = (await request.json()) as { data?: ParseTimeRequest } | ParseTimeRequest
 		const payload = ('data' in body ? body.data : body) as ParseTimeRequest | undefined
 		const text = payload?.text?.trim() || ''

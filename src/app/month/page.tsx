@@ -1,13 +1,16 @@
 "use client";
 import "./app.css";
-import { Button, message } from "antd";
-import { LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { Button, Modal, message } from "antd";
+import { FlagOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { MonthDetailTextarea } from "@/components/month-detail-textarea";
 import Api from "@/service/api";
 import Link from 'next/link';
 import { MONTH_NON_SHORT_DECISION_PLACEHOLDER } from '@lib/month-non-short-decision';
+import { useCanEdit, ViewOnlyTooltip } from '@/components/capability-context';
+import YearPlanPage from '@/year-plan/page';
+import '@/year-plan/app.css';
 
 export default function Month() {
     const searchParams = useSearchParams();
@@ -18,6 +21,8 @@ export default function Month() {
     const [loading, setLoading] = useState<boolean>(false);
     const [messageApi, contextHolder] = message.useMessage();
     const isInitialized = useRef(false);
+    const canEdit = useCanEdit('month');
+    const [yearPlanOpen, setYearPlanOpen] = useState(false);
 
     const handleSave = () => {
         Api.postMonthApi({
@@ -132,6 +137,15 @@ export default function Month() {
             </Button>
             <h1 className="month-title">
                 <Link href="/" className="home-link-title">阶段 {monthId}</Link>
+                <button
+                    type="button"
+                    className="month-year-plan"
+                    title="年计划"
+                    aria-label="年计划"
+                    onClick={() => setYearPlanOpen(true)}
+                >
+                    <FlagOutlined />
+                </button>
             </h1>
             <Button
                 icon={<RightOutlined />}
@@ -145,15 +159,37 @@ export default function Month() {
             </Button>
         </div>
          <MonthDetailTextarea monthData={monthData} setMonthData={setMonthData} periods={periods} setPeriods={setPeriods} />
+        <Modal
+            open={yearPlanOpen}
+            onCancel={() => setYearPlanOpen(false)}
+            footer={null}
+            width={920}
+            title={null}
+            destroyOnClose
+            className="year-plan-dialog"
+            styles={{
+                body: {
+                    padding: '12px 8px 8px',
+                    maxHeight: 'min(72vh, 760px)',
+                    overflow: 'auto',
+                    background: 'rgba(6, 128, 67, 0.12)',
+                },
+            }}
+        >
+            {yearPlanOpen ? <YearPlanPage mode="modal" /> : null}
+        </Modal>
         <div className="floating-save-wrap">
-            <Button
-                type="primary"
-                className="floating-save-btn"
-                onClick={handleSave}
-                loading={loading}
-            >
-                保存
-            </Button>
+            <ViewOnlyTooltip viewOnly={!canEdit}>
+                <Button
+                    type="primary"
+                    className="floating-save-btn"
+                    onClick={handleSave}
+                    loading={loading}
+                    disabled={!canEdit}
+                >
+                    保存
+                </Button>
+            </ViewOnlyTooltip>
         </div>
     </div>
 }

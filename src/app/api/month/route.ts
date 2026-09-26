@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { MonthModal } from 'db'
 import { Op } from 'sequelize'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
+import { denyIfCapabilityOff } from '@lib/capabilities'
 
 async function GET(request: NextRequest) {
 	try {
@@ -82,6 +83,8 @@ async function GET(request: NextRequest) {
 
 async function POST(request: NextRequest) {
 	try {
+		const denied = await denyIfCapabilityOff(request)
+		if (denied) return denied
 		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const body = await request.json()
 		const data = body.data

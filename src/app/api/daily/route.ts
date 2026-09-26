@@ -2,9 +2,12 @@ import { TimeModal, IssueModal, RoutineTypeModal, sequelize } from 'db'
 import { NextRequest, NextResponse } from 'next/server'
 import { transOneDateToWhereOptions } from 'utils'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
+import { denyIfCapabilityOff } from '@lib/capabilities'
 
 async function POST(request: NextRequest) {
 	try {
+		const denied = await denyIfCapabilityOff(request)
+		if (denied) return denied
 		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const body = await request.json()
 		if (!Array.isArray(body?.data)) {

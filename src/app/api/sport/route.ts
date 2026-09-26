@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { SportRecordModal } from 'db'
 import { incrementRunningPlanProgress } from 'utils'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
+import { denyIfCapabilityOff } from '@lib/capabilities'
 
 // 运动类型配置
 const SPORT_TYPES = ['running', 'resistance', 'hiking', 'class'] as const
@@ -99,6 +100,8 @@ async function GET(request: NextRequest) {
 
 async function POST(request: NextRequest) {
 	try {
+		const denied = await denyIfCapabilityOff(request)
+		if (denied) return denied
 		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const body = await request.json()
 		const data = body.data

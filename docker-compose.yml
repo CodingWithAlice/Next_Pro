@@ -38,12 +38,7 @@ services:
     image: mysql:8.0
     container_name: next_pro  # 保持与你原来命令相同的容器名
     restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: next_pro_alice
-      # 可选：添加更多环境变量
-      # MYSQL_DATABASE: your_database_name
-      # MYSQL_USER: your_username
-      # MYSQL_PASSWORD: your_password
+    # 已有 /data/mysql 时不必再传密码。全新初始化才需要 MYSQL_ROOT_PASSWORD（与 config.env 的 DB_PASSWORD 相同）
     ports:
       - "3306:3306"  # MySQL 默认端口
     volumes:

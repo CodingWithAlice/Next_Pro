@@ -19,6 +19,29 @@
     flex: 0 0 auto;
     white-space: nowrap;
     margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.month-year-plan {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.42em;
+    color: rgb(38, 157, 128);
+    opacity: 0.6;
+    line-height: 1;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+}
+
+.month-year-plan:hover {
+    opacity: 0.9;
+    color: rgb(38, 157, 128);
 }
 
 .home-link-title {

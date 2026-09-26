@@ -12,6 +12,7 @@ import CycleCompareTable, { type PerSerialMetricRow } from "./cycle-compare-tabl
 import FocusHeatmap from "./focus-heatmap";
 import CoreMetricsTable from "./core-metric-table";
 import { formatStagePeriodsSummary } from "@lib/serial-display";
+import { useCanEdit } from "./capability-context";
 // import MonthTotalTime from "./month-total-time";
 
 export interface dataProps {
@@ -64,11 +65,11 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
     const [structuredMerge, setStructuredMerge] = useState<MonthStructuredMerge | null>(null);
     const [aiMergeLoading, setAiMergeLoading] = useState(false);
     const [serials, setSerials] = useState<{ serialNumber: number, startTime: string, endTime: string }[]>([]);
- 
+    const canEdit = useCanEdit('month');
 
     const handleTrans = (it: { key: string, desc?: string, tip?: string }, source?: { [key: string]: string }) => {
         if (!source) return;
-        return transTextArea({ ...it, source, onChange: handleChange });
+        return transTextArea({ ...it, source, onChange: handleChange, readOnly: !canEdit });
     }
 
     const handleChange = (v: { [key: string]: string }) => {
@@ -141,6 +142,9 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
                     return Promise.resolve(null);
                 }
 
+                if (!canEdit) {
+                    return Promise.resolve(null);
+                }
                 setAiMergeLoading(true);
                 return Api.postMonthMergeStructuredApi(periods.join(','))
             })
@@ -164,7 +168,7 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
         return () => {
             cancelled = true;
         };
-    }, [periods, monthData.frontMonthDesc, monthData.otherMonthDesc])
+    }, [periods, monthData.frontMonthDesc, monthData.otherMonthDesc, canEdit])
     
     // 初始化周期数据
     useEffect(() => {
@@ -185,6 +189,7 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
                 className="serial-month"
                 duration={duration}
                 serials={serials}
+                disabled={!canEdit}
             />
             {stagePeriodsSummary && (
                 <span className="stage-periods-summary" title="按归属年展示（跨年周期归天数更多的一年）">
@@ -212,7 +217,7 @@ export function MonthDetailTextarea({ monthData, setMonthData, periods, setPerio
             <div className="month-review">
                 {!!weeksData.length && transTitle('【决策】')}
                 {!!weeksData.length && (
-                    <MonthAiSynthesize periods={periods} handleChange={handleDeepSeek} />
+                    <MonthAiSynthesize periods={periods} handleChange={handleDeepSeek} disabled={!canEdit} />
                 )}
             </div>
             {[

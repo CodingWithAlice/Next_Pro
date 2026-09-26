@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { denyIfCapabilityOff } from '@lib/capabilities'
 import { AIPOST, type MessageProp } from '@lib/deepseek'
 import dayjs from 'dayjs'
 
@@ -26,6 +27,8 @@ function normalizeString(input: unknown): string {
 
 export async function POST(request: NextRequest) {
 	try {
+		const denied = await denyIfCapabilityOff(request)
+		if (denied) return denied
 		const body = (await request.json()) as { data?: ParseIssueRequest } | ParseIssueRequest
 		const payload = ('data' in body ? body.data : body) as ParseIssueRequest | undefined
 		const text = payload?.text?.trim() || ''
@@ -51,7 +54,7 @@ export async function POST(request: NextRequest) {
 					'2) work（工作）必须区分并按模板输出：\n' +
 					'   1、技术方向：<内容或空>\n' +
 					'   2、业务方向：<内容或空>\n' +
-					'3) ted 字段只需要输出内容本身，不要添加任何前缀（例如不要写 "Round4:"），不确定就留空字符串。\n' +
+					'3) ted 字段只需要输出内容本身，不要添加任何前缀（例如不要写 "Round4:" 这类轮次前缀），不确定就留空字符串。\n' +
 					'4) good（成功日记/微光存档）：克服困境后做对的那一步、闪光瞬间，不是成就流水账。\n' +
 					'5) better（柔光接线/光亮条件）：微光背后的帮忙条件（睡眠/时段等）与明天的一个外部旋钮/最小重启，不是缺点清单。\n' +
 					'6) 其它字段（sport/video/reading）尽量提取要点，允许多行；不确定就留空字符串。\n' +

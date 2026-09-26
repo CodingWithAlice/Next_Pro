@@ -4,6 +4,7 @@ import { transOneDateToWhereOptions, incrementRunningPlanProgress } from 'utils'
 import { Op } from 'sequelize'
 import { parseSportText } from './parseSportText'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
+import { denyIfCapabilityOff } from '@lib/capabilities'
 
 /**
  * 查询指定日期的运动时长（按 user_id 隔离）
@@ -40,6 +41,8 @@ async function getSportDuration(date: string, userId: number): Promise<number | 
 
 async function POST(request: NextRequest) {
 	try {
+		const denied = await denyIfCapabilityOff(request)
+		if (denied) return denied
 		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const body = await request.json()
 		const data = body.data

@@ -59,6 +59,23 @@ body {
     text-decoration: none;
 }
 
+.capability-view-only-wrap {
+    display: inline-block;
+    cursor: not-allowed;
+}
+
+.capability-view-only-wrap > .ant-btn,
+.capability-view-only-wrap > .ant-btn[disabled] {
+    pointer-events: none;
+}
+
+.capability-fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+}
+
 /* 防止移动端双击放大 - 为所有输入框和选择框设置最小字体大小 */
 input[type="text"],
 input[type="number"],

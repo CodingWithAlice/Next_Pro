@@ -1,6 +1,5 @@
 import { Dayjs } from 'dayjs'
-import request from '../../../lib/request'
-import { SearchType } from '@/components/tool'
+import request, { apiBase } from '../../../lib/request'
 import type { MonthStructuredMerge } from '@/components/month-structured-merge'
 
 export interface TedRecordDTO {
@@ -57,8 +56,8 @@ const Api = {
 	getMonthDetailApi(serialNumber: string) {
 		return request.get('month/detail', { serialNumber })
 	},
-	getDeepSeekApi(serialNumber: string, searchType: SearchType) {
-		return request.get('deepseek', { serialNumber, type: searchType, timeout: 300000 }) // 300秒
+	getDeepSeekApi(serialNumber: string) {
+		return request.get('deepseek', { serialNumber }, 300000) // 300秒
 	},
 	postAiParseTimeApi(
 		text: string,
@@ -131,13 +130,12 @@ const Api = {
 		if (title) {
 			formData.append('title', title)
 		}
-		const url = process.env.NEXT_PUBLIC_API_HOST
 		const token = typeof localStorage !== 'undefined'
 			? (localStorage.getItem('j-user-id') || localStorage.getItem('type'))
 			: null
 		const headers: Record<string, string> = {}
 		if (token) headers['j-user-id'] = token
-		return fetch(`${url}/books/upload`, {
+		return fetch(`${apiBase()}/books/upload`, {
 			method: 'POST',
 			headers,
 			body: formData
@@ -148,13 +146,12 @@ const Api = {
 		const formData = new FormData()
 		formData.append('file', file)
 		if (name) formData.append('name', name)
-		const url = process.env.NEXT_PUBLIC_API_HOST
 		const token = typeof localStorage !== 'undefined'
 			? (localStorage.getItem('j-user-id') || localStorage.getItem('type'))
 			: null
 		const headers: Record<string, string> = {}
 		if (token) headers['j-user-id'] = token
-		return fetch(`${url}/piggy-bank/jar/${jarId}/images`, {
+		return fetch(`${apiBase()}/piggy-bank/jar/${jarId}/images`, {
 			method: 'POST',
 			headers,
 			body: formData
@@ -162,7 +159,7 @@ const Api = {
 	},
 
 	removePiggyJarImage(jarId: number) {
-		return fetch(`${process.env.NEXT_PUBLIC_API_HOST}/piggy-bank/jar/${jarId}/images`, {
+		return fetch(`${apiBase()}/piggy-bank/jar/${jarId}/images`, {
 			method: 'DELETE',
 			headers: (() => {
 				const token = typeof localStorage !== 'undefined'
@@ -228,6 +225,55 @@ const Api = {
 	},
 	allocateFromPoolApi(allocations: { jarId: number; amount: number }[]) {
 		return request.post('piggy-bank/pool', { allocations })
+	},
+	getYearPlanApi(year: number) {
+		return request.get('year-plan', { year }) as Promise<{
+			year: number
+			groups: {
+				key: string
+				label: string
+				items: {
+					id: number
+					groupKey: string
+					title: string
+					kind: 'jar' | 'run' | 'sport_days' | 'movie_count' | 'book_count' | 'ted_round' | 'ltn_coins' | 'note' | 'checklist'
+					scene: string | null
+					refId: number | null
+					targetValue: number | null
+					resultText: string
+					stages: { id: string; title: string; done: boolean }[]
+					progressText: string
+					progressDone: boolean | null
+				}[]
+			}[]
+			options: {
+				jars: { id: number; name: string; status: string }[]
+				plans: { id: number; name: string; status: string }[]
+			}
+			success: boolean
+		}>
+	},
+	postYearPlanApi(data: { [key: string]: unknown }) {
+		return request.post('year-plan', data)
+	},
+	putYearPlanApi(id: number, data: { [key: string]: unknown }) {
+		return request.put(`year-plan/${id}`, data)
+	},
+	deleteYearPlanApi(id: number) {
+		return request.delete(`year-plan/${id}`)
+	},
+
+	getCapabilities() {
+		return request.get('capabilities') as Promise<{
+			enabled: import('@lib/capability-keys').CapabilityKey[]
+			source: 'user' | 'default'
+		}>
+	},
+	putCapabilities(enabled: import('@lib/capability-keys').CapabilityKey[]) {
+		return request.put('capabilities', { enabled }) as Promise<{
+			enabled: import('@lib/capability-keys').CapabilityKey[]
+			source: 'user'
+		}>
 	},
 }
 

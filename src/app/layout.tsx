@@ -3,6 +3,7 @@ import "./globals.css";
 import "./responsive.css";
 import { Suspense } from "react";
 import HeaderAuth from "./components/header-auth";
+import { CapabilityProvider } from "./components/capability-context";
 
 // const geistSans = Geist({
 //     variable: "--font-geist-sans",
@@ -34,10 +35,12 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className="antialiased">
-                <HeaderAuth />
-                <Suspense fallback={<div>Loading...</div>}>
-                    {children}
-                </Suspense>
+                <CapabilityProvider>
+                    <HeaderAuth />
+                    <Suspense fallback={<div>Loading...</div>}>
+                        {children}
+                    </Suspense>
+                </CapabilityProvider>
             </body>
         </html>
     );

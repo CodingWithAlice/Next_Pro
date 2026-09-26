@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
+import { denyIfCapabilityOff } from '@lib/capabilities'
 import { AIPOST, MessageProp } from '@lib/deepseek'
 import {
 	buildPerSerialMetrics,
@@ -55,6 +56,8 @@ async function loadSerialCatalog(userId: number): Promise<SerialTimeRange[]> {
 
 async function POST(request: NextRequest) {
 	try {
+		const denied = await denyIfCapabilityOff(request)
+		if (denied) return denied
 		const userId = Number(getEffectiveUserIdFromRequest(request))
 		const body = await request.json()
 		const serialNumber = (body?.data?.serialNumber ?? body?.serialNumber) as string

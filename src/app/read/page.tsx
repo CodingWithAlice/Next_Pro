@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { Button, message, Space } from 'antd';
 import { AntDesignOutlined } from '@ant-design/icons';
 import Api from '@/service/api';
+import { useCanEdit, ViewOnlyTooltip } from '@/components/capability-context';
 
 interface ChapterProps {
     sort: number;
@@ -17,6 +18,7 @@ export default function ReadPage() {
     const [readData, setReadData] = useState<{ [key: string]: string | number }>({});
     const [chapterData, setChapterData] = useState<{ [key: string]: string | number }[]>([]);
     const [messageApi, contextHolder] = message.useMessage();
+    const canEdit = useCanEdit('media');
 
     const handleChange = (v: { [key: string]: string }, options?: { type: 'chapterData', sort: number | string }) => {
         if (!options) {
@@ -34,7 +36,7 @@ export default function ReadPage() {
 
     const handleTrans = (it: { key: string, desc?: string }, source?: { [key: string]: string | number }, options?: { type: 'chapterData', sort: string | number }) => {
         if (!source) return;
-        return transTextArea({ ...it, source, onChange: (v) => handleChange(v, options), cols: 56 });
+        return transTextArea({ ...it, source, onChange: (v) => handleChange(v, options), cols: 56, readOnly: !canEdit });
     }
 
     const handleAddTopic = () => {
@@ -87,10 +89,14 @@ export default function ReadPage() {
                     </div>
                 })}
                 <Space className='btn-group'>
-                    <Button onClick={handleAddTopic}>添加一项</Button>
-                    <Button onClick={handleSave} type='primary' icon={<AntDesignOutlined />}>
-                        保存
-                    </Button>
+                    <ViewOnlyTooltip viewOnly={!canEdit}>
+                        <Button onClick={handleAddTopic} disabled={!canEdit}>添加一项</Button>
+                    </ViewOnlyTooltip>
+                    <ViewOnlyTooltip viewOnly={!canEdit}>
+                        <Button onClick={handleSave} type='primary' icon={<AntDesignOutlined />} disabled={!canEdit}>
+                            保存
+                        </Button>
+                    </ViewOnlyTooltip>
                 </Space>
             </ul>
         </nav>

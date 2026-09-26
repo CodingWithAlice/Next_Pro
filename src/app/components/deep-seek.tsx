@@ -2,12 +2,12 @@ import Api from "@/service/api";
 import { LoadingOutlined, OpenAIOutlined } from "@ant-design/icons";
 import { Button, message } from "antd";
 import { useState } from "react";
-import { SearchType } from "./tool";
+import { ViewOnlyTooltip } from "./capability-context";
 
-export default function DeepSeek({ periods, handleChange, type }: {
+export default function DeepSeek({ periods, handleChange, disabled }: {
     periods: number[],
     handleChange: (v: string) => void,
-    type: SearchType
+    disabled?: boolean,
 }) {
     const [deepseekLoading, setDeepseekLoading] = useState(false);
     const [messageApi, contextHolder] = message.useMessage();
@@ -16,7 +16,7 @@ export default function DeepSeek({ periods, handleChange, type }: {
     const handleDeepSeek = () => {
         if (deepseekLoading) return;
         setDeepseekLoading(true);
-        Api.getDeepSeekApi(periods.join(','), type).then(({ data }) => {
+        Api.getDeepSeekApi(periods.join(',')).then(({ data }) => {
             setDeepseekLoading(false)
             handleChange(data);
         }).catch(e => {
@@ -26,9 +26,11 @@ export default function DeepSeek({ periods, handleChange, type }: {
     }
     return <>
         {contextHolder}
-        <Button type="text" color="purple" variant="filled" onClick={handleDeepSeek}>
-            <OpenAIOutlined />
-            获取 deepseek 推荐 {deepseekLoading && <LoadingOutlined />}
-        </Button>
+        <ViewOnlyTooltip viewOnly={!!disabled}>
+            <Button type="text" color="purple" variant="filled" onClick={handleDeepSeek} disabled={disabled || deepseekLoading}>
+                <OpenAIOutlined />
+                获取 deepseek 推荐 {deepseekLoading && <LoadingOutlined />}
+            </Button>
+        </ViewOnlyTooltip>
     </>
 }
