@@ -103,11 +103,28 @@
 	border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-.year-plan-item-title {
+.year-plan-item-title,
+.year-plan-item-edit {
 	display: flex;
 	align-items: center;
 	gap: 8px;
 	flex-wrap: wrap;
+}
+
+.year-plan-item-edit > .ant-input {
+	flex: 1 1 160px;
+	width: auto;
+	min-width: 140px;
+	max-width: 280px;
+}
+
+.year-plan-item-edit .ant-select {
+	width: 180px;
+}
+
+.year-plan-item-edit .year-plan-progress {
+	margin: 0;
+	flex: 1 1 160px;
 }
 
 .year-plan-item-title strong {

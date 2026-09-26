@@ -367,7 +367,7 @@ export async function loadYearPlan(userId: number, year: number) {
 		key: group.key,
 		label: group.label,
 		items: items.filter((item) => item.groupKey === group.key),
-	})).filter((group) => group.items.length > 0)
+	}))
 
 	const jars: YearPlanOption[] = [...metrics.jars.entries()].map(([id, jar]) => ({
 		id,

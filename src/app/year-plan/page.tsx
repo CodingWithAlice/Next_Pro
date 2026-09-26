@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { Button, Checkbox, Input, InputNumber, Modal, Select, message } from 'antd'
 import { ExpandOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
@@ -42,16 +42,6 @@ const KIND_LABEL: Record<Kind, string> = {
 
 const STAT_KINDS = new Set<Kind>(['sport_days', 'movie_count', 'book_count', 'ted_round', 'ltn_coins'])
 
-const GROUP_OPTIONS = [
-	{ value: 'sport', label: '跑步 / 有氧 / 重量' },
-	{ value: 'travel', label: '体验 / 出行 / 健康花费' },
-	{ value: 'media', label: '影像' },
-	{ value: 'reading', label: '阅读' },
-	{ value: 'ted', label: 'TED / 播客' },
-	{ value: 'work', label: '前端 / 工作 / 学习 / B 站' },
-	{ value: 'other', label: '其他' },
-]
-
 type Draft = {
 	title: string
 	refId: number | null
@@ -77,16 +67,16 @@ function newStageId() {
 export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal' }) {
 	const canEdit = useCanEdit('month')
 	const [messageApi, contextHolder] = message.useMessage()
+	const [modal, modalHolder] = Modal.useModal()
 	const [year, setYear] = useState(() => new Date().getFullYear())
 	const [plan, setPlan] = useState<Plan | null>(null)
 	const [loading, setLoading] = useState(true)
 	const [editing, setEditing] = useState(false)
 	const [drafts, setDrafts] = useState<Record<number, Draft>>({})
 	const [savingId, setSavingId] = useState<number | null>(null)
-	const [addTitle, setAddTitle] = useState('')
-	const [addKind, setAddKind] = useState<Kind>('note')
-	const [addGroup, setAddGroup] = useState('other')
-	const [addTarget, setAddTarget] = useState<number | null>(null)
+	const [addingKey, setAddingKey] = useState<string | null>(null)
+	const addingRef = useRef<string | null>(null)
+	const [adds, setAdds] = useState<Record<string, { title: string; kind: Kind; target: number | null; refId: number | null }>>({})
 
 	const load = useCallback(async (nextYear: number) => {
 		setLoading(true)
@@ -115,6 +105,7 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 	}, [])
 
 	const items = useMemo(() => plan?.groups.flatMap((group) => group.items) ?? [], [plan])
+	const showAdd = mode === 'page' && canEdit && editing
 
 	const startEdit = () => {
 		setDrafts(Object.fromEntries(items.map((item) => [item.id, toDraft(item)])))
@@ -169,36 +160,61 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 	}
 
 	const removeItem = (item: Item) => {
-		Modal.confirm({
+		modal.confirm({
+			zIndex: 2000,
 			title: '从今年清单拿掉这条？',
 			content: item.title,
 			okText: '拿掉',
+			okButtonProps: { danger: true },
 			cancelText: '留下',
 			onOk: async () => {
-				await Api.deleteYearPlanApi(item.id)
-				messageApi.success('已拿掉')
-				await load(year)
+				try {
+					await Api.deleteYearPlanApi(item.id)
+					messageApi.success('已拿掉')
+					await load(year)
+				} catch (error) {
+					messageApi.error((error as { message?: string }).message || '拿掉失败')
+					throw error
+				}
 			},
 		})
 	}
 
-	const addItem = async () => {
-		const title = addTitle.trim()
+	const addDraft = (groupKey: string) => adds[groupKey] ?? { title: '', kind: 'note' as Kind, target: null, refId: null }
+
+	const patchAdd = (groupKey: string, patch: Partial<{ title: string; kind: Kind; target: number | null; refId: number | null }>) => {
+		setAdds((prev) => ({ ...prev, [groupKey]: { ...addDraft(groupKey), ...prev[groupKey], ...patch } }))
+	}
+
+	const optionsForKind = (kind: Kind): Option[] => {
+		if (!plan) return []
+		if (kind === 'jar') return plan.options.jars
+		if (kind === 'run') return plan.options.plans
+		return []
+	}
+
+	const addItem = async (groupKey: string) => {
+		if (addingRef.current) return
+		const draft = addDraft(groupKey)
+		const title = draft.title.trim()
 		if (!title) {
 			messageApi.warning('先写标题')
 			return
 		}
+		addingRef.current = groupKey
+		setAddingKey(groupKey)
 		try {
 			await Api.postYearPlanApi({
 				year,
 				title,
-				kind: addKind,
-				groupKey: addGroup,
-				targetValue: STAT_KINDS.has(addKind) ? addTarget : null,
-				scene: addKind === 'jar' ? 'piggy' : addKind === 'run' ? 'sport' : null,
-				stages: addKind === 'checklist' ? [] : undefined,
+				kind: draft.kind,
+				groupKey,
+				refId: draft.kind === 'jar' || draft.kind === 'run' ? draft.refId : null,
+				targetValue: STAT_KINDS.has(draft.kind) ? draft.target : null,
+				scene: draft.kind === 'jar' ? 'piggy' : draft.kind === 'run' ? 'sport' : null,
+				stages: draft.kind === 'checklist' ? [] : undefined,
 			})
-			setAddTitle('')
+			setAdds((prev) => ({ ...prev, [groupKey]: { title: '', kind: 'note', target: null, refId: null } }))
 			messageApi.success('已添加')
 			const data = await load(year)
 			if (!data) return
@@ -211,6 +227,9 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 			})
 		} catch (error) {
 			messageApi.error((error as { message?: string }).message || '添加失败')
+		} finally {
+			addingRef.current = null
+			setAddingKey(null)
 		}
 	}
 
@@ -224,6 +243,7 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 	return (
 		<div className={mode === 'modal' ? 'year-plan-outer is-modal' : 'outer year-plan-outer'}>
 			{contextHolder}
+			{modalHolder}
 			<header className="year-plan-header">
 				<Button icon={<LeftOutlined />} size="small" onClick={() => changeYear(year - 1)}>
 					上一年
@@ -258,35 +278,63 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 				) : null}
 			</div>
 			{loading && !plan ? <p className="year-plan-empty">正在读取这一年的清单</p> : null}
-			{!loading && plan && plan.groups.length === 0 ? (
-				<p className="year-plan-empty">
-					{mode === 'modal' ? '这一年还没有条目。到整页里添加。' : '这一年还没有条目。点编辑后可以添加。'}
-				</p>
+			{!loading && plan && items.length === 0 && mode === 'modal' ? (
+				<p className="year-plan-empty">这一年还没有条目。到整页里添加。</p>
 			) : null}
 			{plan?.groups.map((group) => (
 				<section key={group.key} className="year-plan-group">
 					<h2>{group.label}</h2>
 					<ul>
+						{group.items.length === 0 && !showAdd ? <li className="year-plan-muted">这一组还没有条目</li> : null}
 						{group.items.map((item) => {
 							const draft = drafts[item.id]
 							const stages = editing && draft ? draft.stages : item.stages
 							return (
 								<li key={item.id}>
 									<div className="year-plan-item-main">
-										<div className="year-plan-item-title">
-											{editing && draft ? (
+										{editing && draft ? (
+											<div className="year-plan-item-edit">
 												<Input
 													value={draft.title}
 													onChange={(event) => patchDraft(item.id, { title: event.target.value })}
 												/>
-											) : (
-												<strong>{item.title}</strong>
-											)}
-											<span className="year-plan-kind">{KIND_LABEL[item.kind]}</span>
-										</div>
-										<p className={item.progressDone ? 'year-plan-progress is-done' : 'year-plan-progress'}>
-											{item.progressText}
-										</p>
+												<span className="year-plan-kind">{KIND_LABEL[item.kind]}</span>
+												{item.kind === 'jar' || item.kind === 'run' ? (
+													<Select
+														allowClear
+														placeholder={item.kind === 'jar' ? '选择罐子' : '选择跑步计划'}
+														value={draft.refId ?? undefined}
+														options={linkOptions(item).map((option) => ({ value: option.id, label: option.name }))}
+														onChange={(value) => patchDraft(item.id, { refId: value ?? null })}
+													/>
+												) : null}
+												{STAT_KINDS.has(item.kind) ? (
+													<InputNumber
+														min={0}
+														placeholder="今年目标"
+														value={draft.targetValue ?? undefined}
+														onChange={(value) => patchDraft(item.id, { targetValue: value == null ? null : Number(value) })}
+													/>
+												) : null}
+												<span className={item.progressDone ? 'year-plan-progress is-done' : 'year-plan-progress'}>
+													{item.progressText}
+												</span>
+												<Button size="small" type="primary" loading={savingId === item.id} onClick={() => saveItem(item)}>
+													保存
+												</Button>
+												<Button size="small" danger onClick={() => removeItem(item)}>拿掉</Button>
+											</div>
+										) : (
+											<>
+												<div className="year-plan-item-title">
+													<strong>{item.title}</strong>
+													<span className="year-plan-kind">{KIND_LABEL[item.kind]}</span>
+												</div>
+												<p className={item.progressDone ? 'year-plan-progress is-done' : 'year-plan-progress'}>
+													{item.progressText}
+												</p>
+											</>
+										)}
 										{item.kind === 'checklist' ? (
 											<div className="year-plan-stages">
 												{stages.length === 0 ? <span className="year-plan-muted">还没有阶段</span> : null}
@@ -294,7 +342,7 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 													<label key={stage.id}>
 														<Checkbox
 															checked={stage.done}
-															disabled={mode === 'modal' || !canEdit}
+															disabled={!editing}
 															onChange={(event) => toggleStage(item, stage.id, event.target.checked)}
 														/>
 														{editing && draft ? (
@@ -333,28 +381,6 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 												) : null}
 											</div>
 										) : null}
-										{editing && draft && (item.kind === 'jar' || item.kind === 'run') ? (
-											<div className="year-plan-edit-row">
-												<Select
-													allowClear
-													placeholder={item.kind === 'jar' ? '选择罐子' : '选择跑步计划'}
-													value={draft.refId ?? undefined}
-													options={linkOptions(item).map((option) => ({ value: option.id, label: option.name }))}
-													onChange={(value) => patchDraft(item.id, { refId: value ?? null })}
-													style={{ minWidth: 220 }}
-												/>
-											</div>
-										) : null}
-										{editing && draft && STAT_KINDS.has(item.kind) ? (
-											<div className="year-plan-edit-row">
-												<span>{KIND_LABEL[item.kind]}目标</span>
-												<InputNumber
-													min={0}
-													value={draft.targetValue ?? undefined}
-													onChange={(value) => patchDraft(item.id, { targetValue: value == null ? null : Number(value) })}
-												/>
-											</div>
-										) : null}
 										{editing && draft && item.kind === 'note' ? (
 											<Input.TextArea
 												value={draft.resultText}
@@ -363,41 +389,60 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 												onChange={(event) => patchDraft(item.id, { resultText: event.target.value })}
 											/>
 										) : null}
-										{editing ? (
-											<div className="year-plan-edit-row">
-												<Button size="small" type="primary" loading={savingId === item.id} onClick={() => saveItem(item)}>
-													保存这条
-												</Button>
-												<Button size="small" danger onClick={() => removeItem(item)}>拿掉</Button>
-											</div>
-										) : null}
 									</div>
 								</li>
 							)
 						})}
+						{showAdd ? (
+							<li>
+								<div className="year-plan-add">
+									<Input
+										placeholder="计划名称"
+										value={addDraft(group.key).title}
+										onChange={(event) => patchAdd(group.key, { title: event.target.value })}
+									/>
+									<Select
+										value={addDraft(group.key).kind}
+										options={(Object.keys(KIND_LABEL) as Kind[]).map((kind) => ({ value: kind, label: KIND_LABEL[kind] }))}
+										onChange={(kind) => patchAdd(group.key, {
+											kind,
+											refId: kind === 'jar' || kind === 'run' ? addDraft(group.key).refId : null,
+										})}
+										style={{ minWidth: 140 }}
+									/>
+									{addDraft(group.key).kind === 'jar' || addDraft(group.key).kind === 'run' ? (
+										<Select
+											allowClear
+											placeholder={addDraft(group.key).kind === 'jar' ? '选择罐子' : '选择跑步计划'}
+											value={addDraft(group.key).refId ?? undefined}
+											options={optionsForKind(addDraft(group.key).kind).map((option) => ({ value: option.id, label: option.name }))}
+											onChange={(value) => patchAdd(group.key, { refId: value ?? null })}
+											style={{ minWidth: 180 }}
+										/>
+									) : null}
+									{STAT_KINDS.has(addDraft(group.key).kind) ? (
+										<InputNumber
+											min={0}
+											placeholder="今年目标"
+											value={addDraft(group.key).target ?? undefined}
+											onChange={(value) => patchAdd(group.key, { target: value == null ? null : Number(value) })}
+										/>
+									) : null}
+									<Button
+										type="primary"
+										loading={addingKey === group.key}
+										disabled={addingKey != null && addingKey !== group.key}
+										onClick={() => addItem(group.key)}
+									>
+										添加
+									</Button>
+								</div>
+							</li>
+						) : null}
 					</ul>
 				</section>
 			))}
-			{editing ? (
-				<section className="year-plan-group">
-					<h2>新增一条</h2>
-					<div className="year-plan-add">
-						<Input placeholder="计划名称" value={addTitle} onChange={(event) => setAddTitle(event.target.value)} />
-						<Select value={addGroup} options={GROUP_OPTIONS} onChange={setAddGroup} style={{ minWidth: 180 }} />
-						<Select
-							value={addKind}
-							options={(Object.keys(KIND_LABEL) as Kind[]).map((kind) => ({ value: kind, label: KIND_LABEL[kind] }))}
-							onChange={setAddKind}
-							style={{ minWidth: 180 }}
-						/>
-						{STAT_KINDS.has(addKind) ? (
-							<InputNumber min={0} placeholder="今年目标" value={addTarget ?? undefined} onChange={(value) => setAddTarget(value == null ? null : Number(value))} />
-						) : null}
-						<Button type="primary" onClick={addItem}>添加</Button>
-					</div>
-					<p className="year-plan-muted">对象还没建出来也可以先保存标题。建出来之后再选罐子或跑步计划。</p>
-				</section>
-			) : null}
+			{showAdd ? <p className="year-plan-muted">对象还没建出来也可以先保存标题。建出来之后再选罐子或跑步计划。</p> : null}
 		</div>
 	)
 }
