@@ -89,10 +89,28 @@
 .year-plan-group-head {
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
+	gap: 8px;
 	width: 100%;
 	margin: 0 0 8px;
+}
+
+.year-plan-group-toggle {
+	flex: 1;
+	min-width: 0;
+	margin: 0;
 	padding: 0;
+	border: 0;
+	background: transparent;
+	text-align: left;
+	cursor: pointer;
+}
+
+.year-plan-group-fold {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	margin-left: auto;
+	padding: 4px;
 	border: 0;
 	background: transparent;
 	color: rgb(6, 128, 67);
@@ -144,6 +162,7 @@
 .year-plan-item-title strong,
 .year-plan-static strong {
 	font-size: 15px;
+	color: rgba(0, 0, 0, 0.75);
 }
 
 .year-plan-static {
@@ -190,6 +209,22 @@
 
 .year-plan-progress.is-pending {
 	color: rgba(0, 0, 0, 0.35);
+}
+
+.year-plan-group ul.year-plan-stage-list {
+	list-style: none;
+	margin: 6px 0 0;
+	padding: 0 0 0 26px;
+}
+
+.year-plan-group .year-plan-stage-list li {
+	padding: 4px 0;
+	border-top: 0;
+}
+
+.year-plan-stage-list .year-plan-static strong {
+	font-size: 14px;
+	font-weight: 500;
 }
 
 .year-plan-stages {

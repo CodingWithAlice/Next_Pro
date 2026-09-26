@@ -72,7 +72,7 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 	const [year, setYear] = useState(() => new Date().getFullYear())
 	const [plan, setPlan] = useState<Plan | null>(null)
 	const [loading, setLoading] = useState(true)
-	const [editing, setEditing] = useState(false)
+	const [editingGroup, setEditingGroup] = useState<string | null>(null)
 	const [drafts, setDrafts] = useState<Record<number, Draft>>({})
 	const [savingId, setSavingId] = useState<number | null>(null)
 	const [addingKey, setAddingKey] = useState<string | null>(null)
@@ -96,7 +96,8 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 	}, [messageApi])
 
 	const changeYear = (nextYear: number) => {
-		setEditing(false)
+		setEditingGroup(null)
+		setDrafts({})
 		load(nextYear)
 	}
 
@@ -107,11 +108,21 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 	}, [])
 
 	const items = useMemo(() => plan?.groups.flatMap((group) => group.items) ?? [], [plan])
-	const showAdd = mode === 'page' && canEdit && editing
 
-	const startEdit = () => {
-		setDrafts(Object.fromEntries(items.map((item) => [item.id, toDraft(item)])))
-		setEditing(true)
+	const leaveEdit = () => {
+		setEditingGroup(null)
+		setDrafts({})
+	}
+
+	const openGroupEdit = (groupKey: string) => {
+		if (editingGroup === groupKey) {
+			leaveEdit()
+			return
+		}
+		const rows = plan?.groups.find((group) => group.key === groupKey)?.items ?? []
+		setDrafts(Object.fromEntries(rows.map((item) => [item.id, toDraft(item)])))
+		setEditingGroup(groupKey)
+		setFolded((prev) => ({ ...prev, [groupKey]: false }))
 	}
 
 	const patchDraft = (id: number, patch: Partial<Draft>) => {
@@ -131,9 +142,8 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 				stages: item.kind === 'checklist' ? draft.stages : undefined,
 			})
 			messageApi.success('已保存')
-			const data = await load(year)
-			const fresh = data?.groups.flatMap((group) => group.items).find((row) => row.id === item.id)
-			if (fresh) setDrafts((prev) => ({ ...prev, [item.id]: toDraft(fresh) }))
+			await load(year)
+			leaveEdit()
 		} catch (error) {
 			messageApi.error((error as { message?: string }).message || '保存失败')
 		} finally {
@@ -143,7 +153,7 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 
 	const toggleStage = async (item: Item, stageId: string, done: boolean) => {
 		if (!canEdit) return
-		if (editing) {
+		if (editingGroup === item.groupKey) {
 			const draft = drafts[item.id]
 			if (!draft) return
 			patchDraft(item.id, {
@@ -174,6 +184,7 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 					await Api.deleteYearPlanApi(item.id)
 					messageApi.success('已拿掉')
 					await load(year)
+					leaveEdit()
 				} catch (error) {
 					messageApi.error((error as { message?: string }).message || '拿掉失败')
 					throw error
@@ -220,13 +231,8 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 			messageApi.success('已添加')
 			const data = await load(year)
 			if (!data) return
-			setDrafts((prev) => {
-				const next = { ...prev }
-				for (const row of data.groups.flatMap((group) => group.items)) {
-					if (!next[row.id]) next[row.id] = toDraft(row)
-				}
-				return next
-			})
+			const rows = data.groups.find((group) => group.key === groupKey)?.items ?? []
+			setDrafts(Object.fromEntries(rows.map((row) => [row.id, toDraft(row)])))
 		} catch (error) {
 			messageApi.error((error as { message?: string }).message || '添加失败')
 		} finally {
@@ -264,45 +270,60 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 					下一年
 				</Button>
 			</header>
-			<div className="year-plan-toolbar">
-				{mode === 'modal' ? (
+			{mode === 'modal' ? (
+				<div className="year-plan-toolbar">
 					<Link href="/year-plan" className="year-plan-open-page">
 						<ExpandOutlined />
 						整页打开
 					</Link>
-				) : null}
-				{mode === 'page' ? (
-					<ViewOnlyTooltip viewOnly={!canEdit}>
-						<Button disabled={!canEdit || !plan} onClick={() => (editing ? setEditing(false) : startEdit())}>
-							{editing ? '完成编辑' : '编辑'}
-						</Button>
-					</ViewOnlyTooltip>
-				) : null}
-			</div>
+				</div>
+			) : null}
 			{loading && !plan ? <p className="year-plan-empty">正在读取这一年的清单</p> : null}
 			{!loading && plan && items.length === 0 && mode === 'modal' ? (
 				<p className="year-plan-empty">这一年还没有条目。到整页里添加。</p>
 			) : null}
 			{plan?.groups.map((group) => (
 				<section key={group.key} className="year-plan-group">
-					<button
-						type="button"
-						className="year-plan-group-head"
-						aria-expanded={!folded[group.key]}
-						onClick={() => setFolded((prev) => ({ ...prev, [group.key]: !prev[group.key] }))}
-					>
-						<h2>{group.label}</h2>
-						{folded[group.key] ? <DownOutlined /> : <UpOutlined />}
-					</button>
+					<div className="year-plan-group-head">
+						<button
+							type="button"
+							className="year-plan-group-toggle"
+							onClick={() => setFolded((prev) => ({ ...prev, [group.key]: !prev[group.key] }))}
+						>
+							<h2>{group.label}</h2>
+						</button>
+						{mode === 'page' ? (
+							<ViewOnlyTooltip viewOnly={!canEdit}>
+								<Button
+									size="small"
+									type={editingGroup === group.key ? 'primary' : 'default'}
+									disabled={!canEdit || !plan || (editingGroup != null && editingGroup !== group.key)}
+									onClick={() => openGroupEdit(group.key)}
+								>
+									{editingGroup === group.key ? '退出编辑' : '编辑'}
+								</Button>
+							</ViewOnlyTooltip>
+						) : null}
+						<button
+							type="button"
+							className="year-plan-group-fold"
+							aria-expanded={!folded[group.key]}
+							aria-label={folded[group.key] ? '展开' : '收起'}
+							onClick={() => setFolded((prev) => ({ ...prev, [group.key]: !prev[group.key] }))}
+						>
+							{folded[group.key] ? <DownOutlined /> : <UpOutlined />}
+						</button>
+					</div>
 					{folded[group.key] ? null : <ul>
-						{group.items.length === 0 && !showAdd ? <li className="year-plan-muted">这一组还没有条目</li> : null}
+						{group.items.length === 0 && editingGroup !== group.key ? <li className="year-plan-muted">这一组还没有条目</li> : null}
 						{group.items.map((item) => {
 							const draft = drafts[item.id]
-							const stages = editing && draft ? draft.stages : item.stages
+							const groupEditing = editingGroup === group.key
+							const stages = groupEditing && draft ? draft.stages : item.stages
 							return (
 								<li key={item.id}>
 									<div className="year-plan-item-main">
-										{editing && draft ? (
+										{groupEditing && draft ? (
 											<div className="year-plan-item-edit">
 												<Input
 													value={draft.title}
@@ -339,22 +360,34 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 													{item.progressDone ? <CheckOutlined /> : null}
 												</span>
 												<strong>{item.title}</strong>
-												{STATIC_HIDE.has(item.progressText.trim()) ? null : (
+												{item.kind === 'checklist' || STATIC_HIDE.has(item.progressText.trim()) ? null : (
 													<span className="year-plan-static-extra">{item.progressText}</span>
 												)}
 											</div>
 										)}
-										{editing && item.kind === 'checklist' ? (
+										{!groupEditing && item.kind === 'checklist' && item.stages.length > 0 ? (
+											<ul className="year-plan-stage-list">
+												{item.stages.map((stage) => (
+													<li key={stage.id} className={stage.done ? 'year-plan-static is-done' : 'year-plan-static'}>
+														<span className={stage.done ? 'year-plan-mark is-done' : 'year-plan-mark'} aria-hidden>
+															{stage.done ? <CheckOutlined /> : null}
+														</span>
+														<strong>{stage.title}</strong>
+													</li>
+												))}
+											</ul>
+										) : null}
+										{groupEditing && item.kind === 'checklist' ? (
 											<div className="year-plan-stages">
 												{stages.length === 0 ? <span className="year-plan-muted">还没有阶段</span> : null}
 												{stages.map((stage) => (
 													<label key={stage.id}>
 														<Checkbox
 															checked={stage.done}
-															disabled={!editing}
+															disabled={!groupEditing}
 															onChange={(event) => toggleStage(item, stage.id, event.target.checked)}
 														/>
-														{editing && draft ? (
+														{groupEditing && draft ? (
 															<>
 																<Input
 																	value={stage.title}
@@ -377,7 +410,7 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 														)}
 													</label>
 												))}
-												{editing && draft ? (
+												{groupEditing && draft ? (
 													<Button
 														size="small"
 														type="link"
@@ -390,7 +423,7 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 												) : null}
 											</div>
 										) : null}
-										{editing && draft && item.kind === 'note' ? (
+										{groupEditing && draft && item.kind === 'note' ? (
 											<Input.TextArea
 												value={draft.resultText}
 												placeholder="结果句"
@@ -402,7 +435,7 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 								</li>
 							)
 						})}
-						{showAdd ? (
+						{mode === 'page' && canEdit && editingGroup === group.key ? (
 							<li>
 								<div className="year-plan-add">
 									<Input
@@ -451,7 +484,7 @@ export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal
 					</ul>}
 				</section>
 			))}
-			{showAdd ? <p className="year-plan-muted">对象还没建出来也可以先保存标题。建出来之后再选罐子或跑步计划。</p> : null}
+			{mode === 'page' && editingGroup ? <p className="year-plan-muted">对象还没建出来也可以先保存标题。建出来之后再选罐子或跑步计划。</p> : null}
 		</div>
 	)
 }
