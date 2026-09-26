@@ -9,7 +9,7 @@ import Api from "@/service/api";
 import Link from 'next/link';
 import { MONTH_NON_SHORT_DECISION_PLACEHOLDER } from '@lib/month-non-short-decision';
 import { useCanEdit, ViewOnlyTooltip } from '@/components/capability-context';
-import YearPlanPage from '@/year-plan/page';
+import { YearPlanPage } from '@/year-plan/view';
 import '@/year-plan/app.css';
 
 export default function Month() {
