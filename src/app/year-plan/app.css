@@ -38,11 +38,43 @@
 	font-size: 14px;
 }
 
+.year-plan-outer.is-modal {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 4px 20px 16px;
+}
+
+.year-plan-outer.is-modal .year-plan-heading h1 {
+	font-size: 1.35rem;
+}
+
 .year-plan-toolbar {
 	display: flex;
 	justify-content: flex-end;
+	align-items: center;
+	gap: 12px;
 	width: 100%;
 	margin: 0.5rem 0 1rem;
+}
+
+.year-plan-open-page {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	color: rgb(38, 157, 128);
+	font-size: 14px;
+}
+
+.year-plan-dialog .ant-modal-content,
+.year-plan-dialog.ant-modal .ant-modal-content {
+	overflow: hidden;
+}
+
+.year-plan-dialog .ant-modal-body {
+	max-height: min(72vh, 760px);
+	overflow: auto;
+	background: rgba(6, 128, 67, 0.12);
+	padding: 12px 8px 8px;
 }
 
 .year-plan-group {

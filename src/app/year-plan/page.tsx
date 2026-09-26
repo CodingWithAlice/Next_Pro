@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Button, Checkbox, Input, InputNumber, Modal, Select, message } from 'antd'
-import { LeftOutlined, RightOutlined } from '@ant-design/icons'
+import { ExpandOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import Api from '@/service/api'
 import { useCanEdit, ViewOnlyTooltip } from '@/components/capability-context'
 import './app.css'
@@ -83,7 +83,7 @@ function newStageId() {
 	return `s-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`
 }
 
-export default function YearPlanPage() {
+export default function YearPlanPage({ mode = 'page' }: { mode?: 'page' | 'modal' }) {
 	const canEdit = useCanEdit('month')
 	const [messageApi, contextHolder] = message.useMessage()
 	const [year, setYear] = useState(() => new Date().getFullYear())
@@ -236,7 +236,7 @@ export default function YearPlanPage() {
 	}
 
 	return (
-		<div className="outer year-plan-outer">
+		<div className={mode === 'modal' ? 'year-plan-outer is-modal' : 'outer year-plan-outer'}>
 			{contextHolder}
 			<header className="year-plan-header">
 				<Button icon={<LeftOutlined />} size="small" onClick={() => changeYear(year - 1)}>
@@ -244,20 +244,32 @@ export default function YearPlanPage() {
 				</Button>
 				<div className="year-plan-heading">
 					<h1>
-						<Link href="/month" className="home-link-title">{year} 年计划</Link>
+						{mode === 'page' ? (
+							<Link href="/month" className="home-link-title">{year} 年计划</Link>
+						) : (
+							<span>{year} 年计划</span>
+						)}
 					</h1>
-					<p>点开是看。改标题、关联和目标在编辑里。</p>
+					<p>{mode === 'modal' ? '仅展示，可进入整页编辑' : '改标题、关联和目标在编辑里。'}</p>
 				</div>
 				<Button icon={<RightOutlined />} size="small" onClick={() => changeYear(year + 1)}>
 					下一年
 				</Button>
 			</header>
 			<div className="year-plan-toolbar">
-				<ViewOnlyTooltip viewOnly={!canEdit}>
-					<Button disabled={!canEdit || !plan} onClick={() => (editing ? setEditing(false) : startEdit())}>
-						{editing ? '完成编辑' : '编辑'}
-					</Button>
-				</ViewOnlyTooltip>
+				{mode === 'modal' ? (
+					<Link href="/year-plan" className="year-plan-open-page">
+						<ExpandOutlined />
+						整页打开
+					</Link>
+				) : null}
+				{mode === 'page' ? (
+					<ViewOnlyTooltip viewOnly={!canEdit}>
+						<Button disabled={!canEdit || !plan} onClick={() => (editing ? setEditing(false) : startEdit())}>
+							{editing ? '完成编辑' : '编辑'}
+						</Button>
+					</ViewOnlyTooltip>
+				) : null}
 			</div>
 			{loading && !plan ? <p className="year-plan-empty">正在读取今年的清单</p> : null}
 			{plan?.groups.map((group) => (
@@ -291,7 +303,7 @@ export default function YearPlanPage() {
 													<label key={stage.id}>
 														<Checkbox
 															checked={stage.done}
-															disabled={!canEdit}
+															disabled={mode === 'modal' || !canEdit}
 															onChange={(event) => toggleStage(item, stage.id, event.target.checked)}
 														/>
 														{editing && draft ? (
