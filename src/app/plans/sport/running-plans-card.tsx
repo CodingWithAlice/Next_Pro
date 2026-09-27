@@ -39,9 +39,12 @@ interface RunningPlansCardProps {
     onAdd?: () => void;
 }
 
+const PREVIEW_COUNT = 2
+
 export default function RunningPlansCard({ plans, canEdit = false, onAdd }: RunningPlansCardProps) {
     // 跟踪每个计划的展开状态
     const [expandedPlans, setExpandedPlans] = useState<Set<string>>(new Set());
+    const [showAllPlans, setShowAllPlans] = useState(false);
     // 用于整体分享的 ref
     const allPlansRef = useRef<HTMLDivElement>(null);
     // 用于单个计划分享的 refs
@@ -75,6 +78,7 @@ export default function RunningPlansCard({ plans, canEdit = false, onAdd }: Runn
         // 相同状态下，按开始时间排序（新的在前）
         return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
     });
+    const visiblePlans = showAllPlans ? sortedPlans : sortedPlans.slice(0, PREVIEW_COUNT);
 
     return (
         <Card 
@@ -104,6 +108,17 @@ export default function RunningPlansCard({ plans, canEdit = false, onAdd }: Runn
                             size="small"
                             type="link"
                             style={{ padding: 0 }}
+                            beforeCapture={async () => {
+                                if (!showAllPlans && sortedPlans.length > PREVIEW_COUNT) {
+                                    setShowAllPlans(true);
+                                    await new Promise(resolve => setTimeout(resolve, 300));
+                                }
+                            }}
+                            afterCapture={async () => {
+                                if (!showAllPlans && sortedPlans.length > PREVIEW_COUNT) {
+                                    setShowAllPlans(false);
+                                }
+                            }}
                         />
                     )}
                     </span>
@@ -115,8 +130,9 @@ export default function RunningPlansCard({ plans, canEdit = false, onAdd }: Runn
                     暂无跑步计划
                 </div>
             ) : (
+                <>
                 <div className="running-plans-list" ref={allPlansRef}>
-                    {sortedPlans.map((plan, planIndex) => {
+                    {visiblePlans.map((plan, planIndex) => {
                         // 按 run_type 分组
                         const itemsByType: { [key: string]: RunningPlanItem[] } = {}
                         plan.items.forEach((item) => {
@@ -243,6 +259,14 @@ export default function RunningPlansCard({ plans, canEdit = false, onAdd }: Runn
                         )
                     })}
                 </div>
+                {sortedPlans.length > PREVIEW_COUNT && (
+                    <div className="record-actions">
+                        <Button size="small" onClick={() => setShowAllPlans((open) => !open)}>
+                            {showAllPlans ? '收起' : `展开全部 ${sortedPlans.length} 个`}
+                        </Button>
+                    </div>
+                )}
+                </>
             )}
         </Card>
     );

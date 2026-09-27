@@ -7,6 +7,7 @@ import type { RunningPlan } from './running-plans-card';
 import './app.css';
 
 const PART_ORDER = ['上肢', '下肢'];
+const PREVIEW_COUNT = 2;
 
 interface ResistancePlansCardProps {
     plans: RunningPlan[];
@@ -16,6 +17,7 @@ interface ResistancePlansCardProps {
 
 export default function ResistancePlansCard({ plans, canEdit = false, onAdd }: ResistancePlansCardProps) {
     const [expandedPlans, setExpandedPlans] = useState<Set<string>>(new Set());
+    const [showAllPlans, setShowAllPlans] = useState(false);
 
     const togglePlanExpanded = (planName: string) => {
         setExpandedPlans((prev) => {
@@ -34,6 +36,7 @@ export default function ResistancePlansCard({ plans, canEdit = false, onAdd }: R
         if (a.status !== 'active' && b.status === 'active') return 1;
         return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
     });
+    const visiblePlans = showAllPlans ? sortedPlans : sortedPlans.slice(0, PREVIEW_COUNT);
 
     return (
         <Card
@@ -63,8 +66,9 @@ export default function ResistancePlansCard({ plans, canEdit = false, onAdd }: R
                     暂无抗阻计划
                 </div>
             ) : (
+                <>
                 <div className="running-plans-list">
-                    {sortedPlans.map((plan, planIndex) => {
+                    {visiblePlans.map((plan, planIndex) => {
                         const isExpanded = expandedPlans.has(plan.planName);
                         const dateText = plan.endDate
                             ? `${plan.startDate}～${plan.endDate}`
@@ -133,6 +137,14 @@ export default function ResistancePlansCard({ plans, canEdit = false, onAdd }: R
                         );
                     })}
                 </div>
+                {sortedPlans.length > PREVIEW_COUNT && (
+                    <div className="record-actions">
+                        <Button size="small" onClick={() => setShowAllPlans((open) => !open)}>
+                            {showAllPlans ? '收起' : `展开全部 ${sortedPlans.length} 个`}
+                        </Button>
+                    </div>
+                )}
+                </>
             )}
         </Card>
     );
