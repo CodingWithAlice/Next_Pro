@@ -8,6 +8,7 @@ import RecordModal from './record-modal';
 import { useCanEdit, ViewOnlyTooltip } from '@/components/capability-context';
 import RunningPlansCard, { type RunningPlan } from './running-plans-card';
 import ResistancePlansCard from './resistance-plans-card';
+import PlanModal, { type PlanFormValues, type PlanSportType } from './plan-modal';
 import SportOverviewCard, { type SportRecord, type SportSummary } from './sport-overview-card';
 import RecentRecordsCard from './recent-records-card';
 import Api from '@/service/api';
@@ -36,6 +37,7 @@ export default function SportPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalType, setModalType] = useState<SportType>('running');
     const [runningPlans, setRunningPlans] = useState<RunningPlan[]>([]);
+    const [planModalType, setPlanModalType] = useState<PlanSportType | null>(null);
     const canEdit = useCanEdit('sport');
 
     // 加载数据
@@ -74,6 +76,23 @@ export default function SportPage() {
     // 关闭弹窗
     const handleCancel = () => {
         setIsModalOpen(false);
+    };
+
+    const handleSavePlan = async (values: PlanFormValues) => {
+        let response: { success: boolean; message?: string };
+        try {
+            response = await Api.postRunningPlanApi(values);
+        } catch (error) {
+            messageApi.error((error as Error).message || '保存失败');
+            throw error;
+        }
+        if (!response.success) {
+            messageApi.error(response.message || '保存失败');
+            throw new Error(response.message || '保存失败');
+        }
+        messageApi.success('计划已添加');
+        setPlanModalType(null);
+        await loadData();
     };
 
     // 保存记录
@@ -148,8 +167,16 @@ export default function SportPage() {
 
             {/* 第三层：运动进展卡片 */}
             <div className="progress-cards">
-                <RunningPlansCard plans={runningPlans.filter((plan) => plan.sportType !== 'resistance')} />
-                <ResistancePlansCard plans={runningPlans.filter((plan) => plan.sportType === 'resistance')} />
+                <RunningPlansCard
+                    plans={runningPlans.filter((plan) => plan.sportType !== 'resistance')}
+                    canEdit={canEdit}
+                    onAdd={() => setPlanModalType('running')}
+                />
+                <ResistancePlansCard
+                    plans={runningPlans.filter((plan) => plan.sportType === 'resistance')}
+                    canEdit={canEdit}
+                    onAdd={() => setPlanModalType('resistance')}
+                />
             </div>
 
             {/* 第四层：近期运动记录 + 月度趋势 */}
@@ -162,6 +189,12 @@ export default function SportPage() {
                 date={dayjs()}
                 onCancel={handleCancel}
                 onSave={handleSaveRecord}
+            />
+            <PlanModal
+                open={planModalType !== null}
+                sportType={planModalType || 'running'}
+                onCancel={() => setPlanModalType(null)}
+                onSave={handleSavePlan}
             />
         </div>
     );

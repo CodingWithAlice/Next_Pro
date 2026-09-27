@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { RunningPlanModal, SportRecordModal } from 'db'
 import { Op } from 'sequelize'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
+import { denyIfCapabilityOff } from '@lib/capabilities'
 
 async function GET(request: NextRequest) {
 	try {
@@ -19,19 +20,22 @@ async function GET(request: NextRequest) {
 			order: [['date', 'DESC']],
 		})
 
-		// 按 plan_name 分组
+		// 按运动类型 + 计划名分组，避免跑步和撸铁同名时混成一条
 		const plansByName: { [key: string]: typeof plans } = {}
 		plans.forEach((plan) => {
 			const planName = plan.get('planName') as string
-			if (!plansByName[planName]) {
-				plansByName[planName] = []
+			const sportType = (plan.get('sportType') as string) || 'running'
+			const key = `${sportType}\0${planName}`
+			if (!plansByName[key]) {
+				plansByName[key] = []
 			}
-			plansByName[planName].push(plan)
+			plansByName[key].push(plan)
 		})
 
 		// 计算每个计划的进度（按 plan_name 分组）
-		const plansWithProgress = Object.keys(plansByName).map((planName) => {
-			const planItems = plansByName[planName]
+		const plansWithProgress = Object.keys(plansByName).map((key) => {
+			const planItems = plansByName[key]
+			const planName = planItems[0].get('planName') as string
 			
 			// 获取计划的日期范围（最早的开始日期和最晚的结束日期）
 			const startDates = planItems.map((item) => item.get('startDate') as string).sort()
@@ -134,5 +138,106 @@ async function GET(request: NextRequest) {
 	}
 }
 
-export { GET }
+const RUN_TYPES = ['匀速跑', '变速跑', '长跑']
+const RESISTANCE_PARTS = ['上肢', '下肢']
+
+async function POST(request: NextRequest) {
+	try {
+		const denied = await denyIfCapabilityOff(request)
+		if (denied) return denied
+		const userId = Number(getEffectiveUserIdFromRequest(request))
+		const body = await request.json()
+		const data = body.data || {}
+		const sportType = data.sportType === 'resistance' ? 'resistance' : data.sportType === 'running' ? 'running' : ''
+		const planName = typeof data.planName === 'string' ? data.planName.trim() : ''
+		const startDate = typeof data.startDate === 'string' ? data.startDate : ''
+		const endDate = typeof data.endDate === 'string' && data.endDate ? data.endDate : null
+		const items = Array.isArray(data.items) ? data.items : []
+
+		if (!sportType || !planName || !startDate) {
+			return NextResponse.json(
+				{ success: false, message: '请填写计划名称和开始日期' },
+				{ status: 400 }
+			)
+		}
+		if (planName.length > 50) {
+			return NextResponse.json({ success: false, message: '计划名称不超过 50 字' }, { status: 400 })
+		}
+		if (endDate && endDate < startDate) {
+			return NextResponse.json({ success: false, message: '结束日期不能早于开始日期' }, { status: 400 })
+		}
+		if (items.length === 0) {
+			return NextResponse.json({ success: false, message: '至少添加一项' }, { status: 400 })
+		}
+
+		const existing = await RunningPlanModal.findOne({
+			where: {
+				userId,
+				planName,
+				sportType,
+				status: { [Op.ne]: 'cancelled' },
+			},
+		})
+		if (existing) {
+			return NextResponse.json({ success: false, message: '已有同名计划' }, { status: 400 })
+		}
+
+		const rows = []
+		for (const item of items) {
+			const runType = typeof item?.runType === 'string' ? item.runType : ''
+			const target = Math.round(Number(item?.target))
+			if (!Number.isFinite(target) || target <= 0) {
+				return NextResponse.json({ success: false, message: '目标需要是大于 0 的整数' }, { status: 400 })
+			}
+			if (sportType === 'running') {
+				const distance = Number(item?.distance)
+				if (!RUN_TYPES.includes(runType) || !Number.isFinite(distance) || distance <= 0 || distance > 999.99) {
+					return NextResponse.json({ success: false, message: '请填写跑步类型和距离' }, { status: 400 })
+				}
+				const heart = typeof item?.targetHeartRate === 'string' ? item.targetHeartRate.trim() : ''
+				rows.push({
+					userId,
+					planName,
+					sportType,
+					runType,
+					distance,
+					target,
+					current: 0,
+					startDate,
+					endDate,
+					status: 'active',
+					targetHeartRate: heart || null,
+				})
+			} else {
+				if (!RESISTANCE_PARTS.includes(runType)) {
+					return NextResponse.json({ success: false, message: '撸铁计划只分上肢和下肢' }, { status: 400 })
+				}
+				rows.push({
+					userId,
+					planName,
+					sportType,
+					runType,
+					distance: 0,
+					target,
+					current: 0,
+					startDate,
+					endDate,
+					status: 'active',
+					targetHeartRate: null,
+				})
+			}
+		}
+
+		await RunningPlanModal.bulkCreate(rows)
+		return NextResponse.json({ success: true, message: '计划已添加' })
+	} catch (error) {
+		console.error(error)
+		return NextResponse.json(
+			{ success: false, message: '操作失败', error: (error as Error).message },
+			{ status: 500 }
+		)
+	}
+}
+
+export { GET, POST }
 

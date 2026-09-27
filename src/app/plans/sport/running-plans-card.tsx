@@ -1,7 +1,8 @@
 'use client';
 import { useState, useRef } from 'react';
 import { Card, Progress, Button } from 'antd';
-import { DownOutlined, UpOutlined } from '@ant-design/icons';
+import { DownOutlined, PlusOutlined, UpOutlined } from '@ant-design/icons';
+import { ViewOnlyTooltip } from '@/components/capability-context';
 import ShareImageButton from '@/components/share-image-button';
 import './app.css';
 
@@ -34,9 +35,11 @@ export interface RunningPlan {
 
 interface RunningPlansCardProps {
     plans: RunningPlan[];
+    canEdit?: boolean;
+    onAdd?: () => void;
 }
 
-export default function RunningPlansCard({ plans }: RunningPlansCardProps) {
+export default function RunningPlansCard({ plans, canEdit = false, onAdd }: RunningPlansCardProps) {
     // 跟踪每个计划的展开状态
     const [expandedPlans, setExpandedPlans] = useState<Set<string>>(new Set());
     // 用于整体分享的 ref
@@ -79,6 +82,21 @@ export default function RunningPlansCard({ plans }: RunningPlansCardProps) {
             title={
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span>跑步计划进度</span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                        {onAdd && (
+                            <ViewOnlyTooltip viewOnly={!canEdit}>
+                                <Button
+                                    type="link"
+                                    size="small"
+                                    icon={<PlusOutlined />}
+                                    disabled={!canEdit}
+                                    onClick={onAdd}
+                                    style={{ padding: 0 }}
+                                >
+                                    添加计划
+                                </Button>
+                            </ViewOnlyTooltip>
+                        )}
                     {sortedPlans.length > 0 && allPlansRef.current && (
                         <ShareImageButton
                             targetElement={allPlansRef.current}
@@ -88,6 +106,7 @@ export default function RunningPlansCard({ plans }: RunningPlansCardProps) {
                             style={{ padding: 0 }}
                         />
                     )}
+                    </span>
                 </div>
             }
         >

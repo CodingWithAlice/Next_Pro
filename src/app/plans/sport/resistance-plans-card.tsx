@@ -1,7 +1,8 @@
 'use client';
 import { useState } from 'react';
 import { Card, Progress, Button } from 'antd';
-import { DownOutlined, UpOutlined } from '@ant-design/icons';
+import { DownOutlined, PlusOutlined, UpOutlined } from '@ant-design/icons';
+import { ViewOnlyTooltip } from '@/components/capability-context';
 import type { RunningPlan } from './running-plans-card';
 import './app.css';
 
@@ -9,9 +10,11 @@ const PART_ORDER = ['上肢', '下肢'];
 
 interface ResistancePlansCardProps {
     plans: RunningPlan[];
+    canEdit?: boolean;
+    onAdd?: () => void;
 }
 
-export default function ResistancePlansCard({ plans }: ResistancePlansCardProps) {
+export default function ResistancePlansCard({ plans, canEdit = false, onAdd }: ResistancePlansCardProps) {
     const [expandedPlans, setExpandedPlans] = useState<Set<string>>(new Set());
 
     const togglePlanExpanded = (planName: string) => {
@@ -33,7 +36,28 @@ export default function ResistancePlansCard({ plans }: ResistancePlansCardProps)
     });
 
     return (
-        <Card className="sport-card progress-card" title="抗阻能力追踪">
+        <Card
+            className="sport-card progress-card"
+            title={
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>抗阻能力追踪</span>
+                    {onAdd && (
+                        <ViewOnlyTooltip viewOnly={!canEdit}>
+                            <Button
+                                type="link"
+                                size="small"
+                                icon={<PlusOutlined />}
+                                disabled={!canEdit}
+                                onClick={onAdd}
+                                style={{ padding: 0 }}
+                            >
+                                添加计划
+                            </Button>
+                        </ViewOnlyTooltip>
+                    )}
+                </div>
+            }
+        >
             {sortedPlans.length === 0 ? (
                 <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
                     暂无抗阻计划

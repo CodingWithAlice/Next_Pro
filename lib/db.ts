@@ -559,7 +559,7 @@ export const RunningPlanModal = sequelize.define(
 		},
 		endDate: {
 			type: DataTypes.DATEONLY,
-			allowNull: false,
+			allowNull: true,
 			field: 'end_date',
 		},
 		status: {
