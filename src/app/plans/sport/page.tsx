@@ -144,21 +144,28 @@ export default function SportPage() {
         <div className="sport-page">
             {contextHolder}
             {/* 第一层：快捷记录 */}
-            <Card className="sport-card" title="快捷记录">
-                <div className="quick-actions">
-                    {SPORT_TYPES_CONFIG.map((config) => (
-                        <ViewOnlyTooltip key={config.type} viewOnly={!canEdit}>
-                            <Button
-                                type="primary"
-                                disabled={!canEdit}
-                                onClick={() => openRecordModal(config.type)}
-                            >
-                                <PlusOutlined /> {config.label}
-                            </Button>
-                        </ViewOnlyTooltip>
-                    ))}
-                </div>
-            </Card>
+            <Card
+                className="sport-card sport-quick-card"
+                title={
+                    <div className="sport-quick-title">
+                        <span>快捷记录</span>
+                        <div className="quick-actions">
+                            {SPORT_TYPES_CONFIG.map((config) => (
+                                <ViewOnlyTooltip key={config.type} viewOnly={!canEdit}>
+                                    <Button
+                                        type="primary"
+                                        size="small"
+                                        disabled={!canEdit}
+                                        onClick={() => openRecordModal(config.type)}
+                                    >
+                                        <PlusOutlined /> {config.label}
+                                    </Button>
+                                </ViewOnlyTooltip>
+                            ))}
+                        </div>
+                    </div>
+                }
+            />
 
             {/* 第二层：今日概览 + 运动日历 */}
             <SportOverviewCard totalSummary={totalSummary} records={records} />

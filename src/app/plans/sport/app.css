@@ -45,18 +45,16 @@
     flex-direction: column;
 }
 
-.total-summary {
-    padding: 10px 0;
+.sport-overview-card > .ant-card-head .ant-card-head-title {
+    overflow: visible;
+    white-space: normal;
+}
+
+.sport-overview-title {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
-}
-
-.total-summary .label {
-    font-weight: 600;
-    color: #333;
-    margin-right: 4px;
+    gap: 8px 12px;
 }
 
 .total-summary-tags {
@@ -64,6 +62,7 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 8px;
+    font-weight: 500;
 }
 
 .summary-tag {
@@ -71,40 +70,47 @@
     border: 1px solid;
     font-weight: 500;
     white-space: nowrap;
-    min-width: 100px;
     text-align: center;
+    font-size: 13px;
+    line-height: 22px;
+    padding: 0 10px;
 }
 
-/* 响应式：移动端优化 */
 @media (max-width: 768px) {
-    .total-summary {
-        flex-direction: column;
+    .sport-overview-title {
         align-items: flex-start;
-        gap: 8px;
-    }
-
-    .total-summary .label {
-        margin-right: 0;
     }
 
     .total-summary-tags {
-        width: 100%;
         gap: 6px;
     }
+}
 
-    .summary-tag {
-        font-size: 13px !important;
-        padding: 3px 10px !important;
-        min-width: calc(50% - 3px);
-        max-width: calc(50% - 3px);
-        flex: 0 0 calc(50% - 3px);
-    }
+.sport-quick-card > .ant-card-body {
+    display: none;
+}
+
+.sport-quick-card > .ant-card-head {
+    border-bottom: none;
+}
+
+.sport-quick-card > .ant-card-head .ant-card-head-title {
+    overflow: visible;
+    white-space: normal;
+}
+
+.sport-quick-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
 }
 
 .quick-actions {
     display: flex;
-    gap: 12px;
+    gap: 8px;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 .sport-calendar-section {
@@ -643,12 +649,8 @@
         grid-template-columns: 1fr;
     }
 
-    .quick-actions {
-        flex-direction: column;
-    }
-
-    .quick-actions button {
-        width: 100%;
+    .sport-quick-title {
+        align-items: flex-start;
     }
 
     .year-view-months {

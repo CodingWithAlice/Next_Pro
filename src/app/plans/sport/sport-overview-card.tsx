@@ -346,10 +346,11 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
     };
 
     return (
-        <Card className="sport-card" title="运动概览">
-            <div className="quick-record-section">
-                <div className="total-summary">
-                    <span className="label">运动容量：</span>
+        <Card
+            className="sport-card sport-overview-card"
+            title={
+                <div className="sport-overview-title">
+                    <span>运动概览</span>
                     <div className="total-summary-tags">
                         {SPORT_TYPES_CONFIG.map((config) => (
                             <Tag
@@ -359,9 +360,6 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
                                     backgroundColor: config.lightColor,
                                     borderColor: config.color,
                                     color: config.color,
-                                    fontSize: '14px',
-                                    padding: '4px 12px',
-                                    borderRadius: '4px',
                                 }}
                             >
                                 {config.label} {totalSummary[config.summaryKey]}{config.unit}
@@ -369,7 +367,9 @@ export default function SportOverviewCard({ totalSummary, records }: SportOvervi
                         ))}
                     </div>
                 </div>
-
+            }
+        >
+            <div className="quick-record-section">
                 {/* 运动日历组件 */}
                 <div className="sport-calendar-section">
                     <div className="sport-calendar-header">
