@@ -9,8 +9,8 @@ export interface RunningPlanItem {
     id: number;
     runType: string;
     distance: number;
-    targetTimes: number;
-    currentTimes: number;
+    target: number;
+    current: number;
     startDate: string;
     endDate: string;
     targetHeartRate?: string;
@@ -21,6 +21,7 @@ export interface RunningPlanItem {
 
 export interface RunningPlan {
     planName: string;
+    sportType?: string;
     status: string;
     startDate: string;
     endDate: string;
@@ -195,7 +196,7 @@ export default function RunningPlansCard({ plans }: RunningPlansCardProps) {
                                                             <div key={item.id} className="plan-item-detail">
                                                                 <div className="plan-item-progress-row">
                                                                     <span className="item-label">
-                                                                        {item.distance}km 已完成{item.currentTimes}/{item.targetTimes}次
+                                                                        {item.distance}km 已完成{item.current}/{item.target}次
                                                                     </span>
                                                                     <Progress 
                                                                         percent={item.progress}

@@ -524,25 +524,33 @@ export const RunningPlanModal = sequelize.define(
 			allowNull: false,
 			field: 'plan_name',
 		},
+		sportType: {
+			type: DataTypes.ENUM('running', 'resistance'),
+			allowNull: false,
+			defaultValue: 'running',
+			field: 'sport_type',
+			comment: 'running=跑步 resistance=撸铁',
+		},
 		runType: {
 			type: DataTypes.STRING(20),
 			allowNull: false,
 			field: 'run_type',
+			comment: '跑步：匀速跑/变速跑/长跑；撸铁：上肢/下肢',
 		},
 		distance: {
 			type: DataTypes.DECIMAL(5, 2),
 			allowNull: false,
 		},
-		targetTimes: {
+		target: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
-			field: 'target_times',
+			comment: '跑步为次数，撸铁为容量kg',
 		},
-		currentTimes: {
+		current: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
 			defaultValue: 0,
-			field: 'current_times',
+			comment: '跑步为次数，撸铁为容量kg',
 		},
 		startDate: {
 			type: DataTypes.DATEONLY,

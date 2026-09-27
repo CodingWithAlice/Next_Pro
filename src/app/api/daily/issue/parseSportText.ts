@@ -1,3 +1,5 @@
+import { resistanceBodyPartPattern } from '../../../../utils/resistanceVolume'
+
 // 运动类型
 export type SportType = 'running' | 'resistance' | 'hiking' | 'class';
 
@@ -143,9 +145,10 @@ function parseSingleRecord(
 		}
 	}
 
-	// 尝试匹配抗阻（部位 + 重量）- 支持 "臀腿11000+" 这种格式（没有空格）
-	const resistanceMatch = cleanText.match(/(臀腿|肩背|胸|背|全身|上肢|下肢|胸肌|腿臀|胸背|胸肩背|简单肩背|下肢正面|下肢背面|背面|肩部·全身|胸肌·全身|全身练)\s*(\d+)\s*(KG|kg|\+)?/i) ||
-		cleanText.match(/(臀腿|肩背|胸|背|全身|上肢|下肢|胸肌|腿臀|胸背|胸肩背|简单肩背|下肢正面|下肢背面|背面|肩部·全身|胸肌·全身|全身练)(\d+)(KG|kg|\+)?/i);
+	// 部位词来自正文，例如「臀腿 10335」「背腿10335」。日程时段只有「运动」，不从那里取部位。
+	const bodyPart = resistanceBodyPartPattern()
+	const resistanceMatch = cleanText.match(new RegExp(`(${bodyPart})\\s*(\\d+)\\s*(KG|kg|\\+)?`, 'i')) ||
+		cleanText.match(new RegExp(`(${bodyPart})(\\d+)(KG|kg|\\+)?`, 'i'));
 	if (resistanceMatch) {
 		const category = resistanceMatch[1];
 		const value = parseInt(resistanceMatch[2], 10);

@@ -1,6 +1,6 @@
 import { IssueModal, TimeModal, SportRecordModal } from 'db'
 import { NextRequest, NextResponse } from 'next/server'
-import { transOneDateToWhereOptions, incrementRunningPlanProgress } from 'utils'
+import { transOneDateToWhereOptions, incrementRunningPlanProgress, incrementResistancePlanProgress } from 'utils'
 import { Op } from 'sequelize'
 import { parseSportText } from './parseSportText'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
@@ -122,6 +122,10 @@ async function POST(request: NextRequest) {
 							} else if (record.type === 'running' && record.value > 0 && record.category) {
 								incrementRunningPlanProgress(data.date, record.category, record.value, userId).catch((e) =>
 									console.error('更新跑步计划进度失败:', e)
+								)
+							} else if (record.type === 'resistance' && record.value > 0 && record.category) {
+								incrementResistancePlanProgress(data.date, record.category, record.value, userId).catch((e) =>
+									console.error('更新撸铁计划进度失败:', e)
 								)
 							}
 						} catch (recordError) {

@@ -216,7 +216,10 @@ async function loadMetrics(userId: number, year: number): Promise<Metrics> {
 	}
 
 	try {
-		const plans = await RunningPlanModal.findAll({ where: { userId }, order: [['id', 'ASC']] })
+		const plans = await RunningPlanModal.findAll({
+			where: { userId, sportType: 'running' },
+			order: [['id', 'ASC']],
+		})
 		const byName = new Map<string, typeof plans>()
 		for (const plan of plans) {
 			const name = String(plan.get('planName') ?? '')
@@ -235,8 +238,8 @@ async function loadMetrics(userId: number, year: number): Promise<Metrics> {
 			let targetTimes = 0
 			let currentTimes = 0
 			for (const item of basis) {
-				targetTimes += Number(item.get('targetTimes') ?? 0)
-				currentTimes += Number(item.get('currentTimes') ?? 0)
+				targetTimes += Number(item.get('target') ?? 0)
+				currentTimes += Number(item.get('current') ?? 0)
 			}
 			const progress = targetTimes > 0 ? Math.min((currentTimes / targetTimes) * 100, 100) : 0
 			metrics.plans.push({

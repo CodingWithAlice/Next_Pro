@@ -43,6 +43,7 @@ async function GET(request: NextRequest) {
 			const planStatus = planItems.every((item) => item.get('status') === 'completed') 
 				? 'completed' 
 				: 'active'
+			const sportType = (planItems[0].get('sportType') as string) || 'running'
 
 			// 计算该计划期间的跑步记录（用于计算实际完成情况）
 			// 将日期字符串转换为 Date 对象进行比较，确保比较准确
@@ -60,8 +61,8 @@ async function GET(request: NextRequest) {
 			
 			const items = planItems.map((item) => {
 				const itemDistance = parseFloat(String(item.get('distance'))) || 0
-				const itemTargetTimes = (item.get('targetTimes') as number) || 0
-				const itemCurrentTimes = (item.get('currentTimes') as number) || 0 // 直接使用数据库中的 currentTimes
+				const itemTarget = (item.get('target') as number) || 0
+				const itemCurrent = (item.get('current') as number) || 0
 				const itemStartDate = item.get('startDate') as string
 				const itemEndDate = item.get('endDate') as string
 
@@ -74,23 +75,21 @@ async function GET(request: NextRequest) {
 					return recordDate >= itemStart && recordDate <= itemEnd
 				})
 
-				// 计算子项的目标总距离（计划需要完成的总距离 = target_times × distance）
-				const itemTotalDistance = itemTargetTimes * itemDistance
+				// 跑步：目标总距离 = target × distance。撸铁的 distance 不用，进度只看 current / target。
+				const itemTotalDistance = sportType === 'running' ? itemTarget * itemDistance : 0
 
-				// 累加总目标次数和完成次数（使用数据库中的 currentTimes）
-				totalTargetTimes += itemTargetTimes
-				totalCompletedTimes += itemCurrentTimes
+				totalTargetTimes += itemTarget
+				totalCompletedTimes += itemCurrent
 				totalDistance += itemTotalDistance
 
-				// 计算子项进度（使用数据库中的 currentTimes）
-				const itemProgress = itemTargetTimes > 0 ? Math.min((itemCurrentTimes / itemTargetTimes) * 100, 100) : 0
+				const itemProgress = itemTarget > 0 ? Math.min((itemCurrent / itemTarget) * 100, 100) : 0
 
 				return {
 					id: item.get('id'),
 					runType: item.get('runType'),
 					distance: itemDistance,
-					targetTimes: itemTargetTimes,
-					currentTimes: itemCurrentTimes, // 直接使用数据库中的 currentTimes
+					target: itemTarget,
+					current: itemCurrent,
 					startDate: itemStartDate,
 					endDate: itemEndDate,
 					targetHeartRate: item.get('targetHeartRate'),
@@ -105,6 +104,7 @@ async function GET(request: NextRequest) {
 
 			return {
 				planName,
+				sportType,
 				status: planStatus,
 				startDate: planStartDate,
 				endDate: planEndDate,

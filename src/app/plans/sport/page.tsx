@@ -7,6 +7,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import RecordModal from './record-modal';
 import { useCanEdit, ViewOnlyTooltip } from '@/components/capability-context';
 import RunningPlansCard, { type RunningPlan } from './running-plans-card';
+import ResistancePlansCard from './resistance-plans-card';
 import SportOverviewCard, { type SportRecord, type SportSummary } from './sport-overview-card';
 import RecentRecordsCard from './recent-records-card';
 import Api from '@/service/api';
@@ -147,11 +148,8 @@ export default function SportPage() {
 
             {/* 第三层：运动进展卡片 */}
             <div className="progress-cards">
-                <RunningPlansCard plans={runningPlans} />
-                <Card className="sport-card progress-card" title="抗阻能力追踪">
-                    {/* TODO: 抗阻能力追踪内容 */}
-                    <div>抗阻能力追踪（待实现）</div>
-                </Card>
+                <RunningPlansCard plans={runningPlans.filter((plan) => plan.sportType !== 'resistance')} />
+                <ResistancePlansCard plans={runningPlans.filter((plan) => plan.sportType === 'resistance')} />
             </div>
 
             {/* 第四层：近期运动记录 + 月度趋势 */}

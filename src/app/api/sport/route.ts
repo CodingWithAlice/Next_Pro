@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { SportRecordModal } from 'db'
-import { incrementRunningPlanProgress } from 'utils'
+import { incrementRunningPlanProgress, incrementResistancePlanProgress } from 'utils'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 import { denyIfCapabilityOff } from '@lib/capabilities'
 
@@ -112,20 +112,40 @@ async function POST(request: NextRequest) {
 			)
 		}
 
-		const record = await SportRecordModal.create({
-			userId,
-			type: data.type,
-			date: data.date,
-			value: data.value,
-			category: data.category,
-			subInfo: data.subInfo || null,
-			duration: data.duration || null,
-			notes: data.notes || null,
+		const [record, created] = await SportRecordModal.findOrCreate({
+			where: {
+				userId,
+				date: data.date,
+				type: data.type,
+				category: data.category,
+				value: data.value,
+			},
+			defaults: {
+				userId,
+				type: data.type,
+				date: data.date,
+				value: data.value,
+				category: data.category,
+				subInfo: data.subInfo || null,
+				duration: data.duration || null,
+				notes: data.notes || null,
+			},
 		})
 
-		if (data.type === 'running' && data.value > 0 && data.category) {
+		if (!created) {
+			record.set({
+				subInfo: data.subInfo || null,
+				duration: data.duration || null,
+				notes: data.notes || null,
+			})
+			await record.save()
+		} else if (data.type === 'running' && data.value > 0 && data.category) {
 			incrementRunningPlanProgress(data.date, data.category, parseFloat(data.value), userId).catch((e) =>
 				console.error('更新跑步计划进度失败:', e)
+			)
+		} else if (data.type === 'resistance' && data.value > 0 && data.category) {
+			incrementResistancePlanProgress(data.date, data.category, parseFloat(data.value), userId).catch((e) =>
+				console.error('更新撸铁计划进度失败:', e)
 			)
 		}
 		
