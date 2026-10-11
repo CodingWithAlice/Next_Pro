@@ -4,6 +4,7 @@ import { GetWeekData } from 'utils'
 import { DailyDataProps } from '@/daily/page'
 import { AIPOST, MessageProp } from '@lib/deepseek'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
+import dayjs from 'dayjs'
 
 type Primitive = string | number | boolean | null | undefined
 type Flatten = Primitive | { [key: string]: Flatten } | Flatten[]
@@ -82,6 +83,92 @@ function transDaysData({
 async function getWeekRawContent(serialNumber: string, userId: number) {
 	const data: WeekInputProps = await GetWeekData(serialNumber, userId)
 	return transDaysData(data)
+}
+
+function formatDay(value: Date | string | undefined): string {
+	if (value == null) return ''
+	if (typeof value === 'string') {
+		const matched = value.match(/^(\d{4}-\d{2}-\d{2})/)
+		if (matched) return matched[1]
+	}
+	const parsed = dayjs(value)
+	return parsed.isValid() ? parsed.format('YYYY-MM-DD') : ''
+}
+
+function isRestSport(sport: string | undefined): boolean {
+	const text = (sport || '').trim()
+	if (!text || text === '/' || text === '无') return true
+	return /^(休|休息|休息日|没运动|没有运动|未运动)([。.!！\s]|$)/.test(text)
+}
+
+/** 周期内每一天：有运动内容为练，否则为休。连续的休/练压成「休9练4休4」。 */
+function buildTrainRhythm(days: WeekAIProps[]): string {
+	if (!days?.length) return ''
+	const start = dayjs(formatDay(days[0].startTime))
+	const end = dayjs(formatDay(days[0].endTime))
+	if (!start.isValid() || !end.isValid() || end.isBefore(start, 'day')) return ''
+
+	const sportByDate = new Map<string, string>()
+	for (const day of days) {
+		sportByDate.set(formatDay(day.date), day.sport || '')
+	}
+
+	const trained: boolean[] = []
+	for (
+		let cursor = start;
+		cursor.isBefore(end, 'day') || cursor.isSame(end, 'day');
+		cursor = cursor.add(1, 'day')
+	) {
+		trained.push(!isRestSport(sportByDate.get(cursor.format('YYYY-MM-DD'))))
+	}
+	if (!trained.length) return ''
+
+	const parts: string[] = []
+	let index = 0
+	while (index < trained.length) {
+		const isTrain = trained[index]
+		let count = 1
+		while (index + count < trained.length && trained[index + count] === isTrain) {
+			count += 1
+		}
+		parts.push(`${isTrain ? '练' : '休'}${count}`)
+		index += count
+	}
+	return parts.join('')
+}
+
+function sportDiary(days: WeekAIProps[]): string {
+	return (days || [])
+		.map((day) => {
+			const sport = (day.sport || '').trim()
+			const body = isRestSport(sport) ? '休' : sport
+			return `${formatDay(day.date)}: ${body}`
+		})
+		.filter((line) => !line.startsWith(':'))
+		.join('\n')
+}
+
+function asText(value: unknown): string {
+	if (typeof value === 'string') return value.trim()
+	if (value && typeof value === 'object') {
+		return flattenDataToString(value as Flatten).trim()
+	}
+	return ''
+}
+
+/** 逐日累积保留。总结放在最上面：休练节奏用代码算的结果，运动内容用模型归并的那一行。 */
+function mergeSportSummary(accumulated: string, rhythm: string, summary: string): string {
+	const motion = summary
+		.split('\n')
+		.map((line) => line.trim())
+		.find((line) => line.startsWith('运动内容'))
+	const head = [rhythm ? `本周期：${rhythm}` : '', motion || '']
+		.filter(Boolean)
+		.join('\n')
+	const base = (accumulated || '').trim()
+	if (!head) return base
+	if (!base) return head
+	return `${head}\n\n${base}`
 }
 
 // 将每日数据整合为周期数据
@@ -278,6 +365,7 @@ async function GET(request: NextRequest) {
 		const weekData = daysData && calcPeriodData(daysData)
 
 		// 阶段3：AI 获取建议
+		const rhythm = buildTrainRhythm(daysData || [])
 		const messages: MessageProp[] = [
 			{
 				role: 'assistant',
@@ -288,6 +376,8 @@ async function GET(request: NextRequest) {
 				content: JSON.stringify({
 					frontOverview: weekData?.frontOverview,
 					frontWellDone: weekData?.frontWellDone,
+					sport: sportDiary(daysData || []),
+					rhythm,
 				}),
 			},
 		]
@@ -301,9 +391,11 @@ async function GET(request: NextRequest) {
 				{ status: 500 }
 			)
 		}
+		let parsed: { [key: string]: Flatten }
 		let aiData
 		try {
-			aiData = transToString(JSON.parse(aiResponse))
+			parsed = JSON.parse(aiResponse) as { [key: string]: Flatten }
+			aiData = transToString(parsed)
 		} catch (parseError) {
 			console.error(
 				`解析 AI 响应失败:${parseError}, 原始响应内容:${aiResponse}, AI响应大小: ${aiResponse?.length}字符`
@@ -322,10 +414,15 @@ async function GET(request: NextRequest) {
 			data: {
 				...weekData,
 				...aiData,
+				sport: mergeSportSummary(
+					weekData?.sport || '',
+					rhythm,
+					asText(parsed.sportSummary)
+				),
 				startTime: daysData?.[0]?.startTime,
 				endTime: daysData?.[0]?.endTime,
 			},
-			aiResponse: JSON.parse(aiResponse || ''),
+			aiResponse: parsed,
 		})
 	} catch (error) {
 		console.error(error)
