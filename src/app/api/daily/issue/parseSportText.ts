@@ -123,6 +123,9 @@ function parseSingleRecord(
 	const notes = notesMatch ? notesMatch[1] : null;
 	const cleanText = normalizeSportAliases(text.replace(/[（(][^）)]+[）)]/g, '').trim());
 
+	// 健身页回写日报用「项目：数字」。这种句子只给人看，不再反向生成运动记录。
+	if (/：\d/.test(cleanText)) return null;
+
 	// 尝试匹配跑步（含长跑）
 	const runningMatch = cleanText.match(/(匀速跑|变速跑|长跑|跑步|户外匀速跑|热身)\s*(\d+\.?\d*)\s*(km|公里)?/i);
 	if (runningMatch && runningMatch[2]) {

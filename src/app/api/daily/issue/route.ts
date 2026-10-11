@@ -111,14 +111,17 @@ async function POST(request: NextRequest) {
 								},
 							})
 
-							// 如果记录已存在，更新相关信息
+							// 正文里没解析到的时长、地点、备注保留原值。
+							// 健身页同步进日报的句子，隔天再保存时不会把已经记下的明细清掉。
 							if (!created) {
-								sportRecord.set({
-									subInfo: record.subInfo || null,
-									duration: record.duration || null,
-									notes: record.notes || null,
-								});
-								await sportRecord.save();
+								const patch: { subInfo?: string | null; duration?: number | null; notes?: string | null } = {}
+								if (record.subInfo) patch.subInfo = record.subInfo
+								if (record.duration) patch.duration = record.duration
+								if (record.notes) patch.notes = record.notes
+								if (Object.keys(patch).length > 0) {
+									sportRecord.set(patch)
+									await sportRecord.save()
+								}
 							} else if (record.type === 'running' && record.value > 0 && record.category) {
 								incrementRunningPlanProgress(data.date, record.category, record.value, userId).catch((e) =>
 									console.error('更新跑步计划进度失败:', e)

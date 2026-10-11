@@ -73,8 +73,8 @@ export default function BookEditModal({ open, record, onCancel, onSuccess }: Boo
                 blogUrl: values.blogUrl || null,
             };
 
-            await Api.updateReadApi(updateData);
-            messageApi.success('更新成功');
+            const res = await Api.updateReadApi(updateData);
+            messageApi.success(res?.message || '更新成功');
             form.resetFields();
             onSuccess();
         } catch (error) {

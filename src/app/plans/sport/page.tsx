@@ -113,7 +113,7 @@ export default function SportPage() {
                 notes: values.notes ?? undefined,
             });
             if (response.success) {
-                messageApi.success('记录保存成功');
+                messageApi.success(response.message || '记录保存成功');
                 setIsModalOpen(false);
                 // 刷新数据
                 await loadData();

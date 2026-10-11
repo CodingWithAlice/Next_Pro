@@ -3,6 +3,8 @@ import { SportRecordModal } from 'db'
 import { incrementRunningPlanProgress, incrementResistancePlanProgress } from 'utils'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 import { denyIfCapabilityOff } from '@lib/capabilities'
+import { formatSportIssueLine, toIssueDateKey, withDailyIssueHint } from '@lib/daily-issue-line'
+import { syncDailyIssueSnippet } from '@lib/daily-issue-sync'
 
 // 运动类型配置
 const SPORT_TYPES = ['running', 'resistance', 'hiking', 'class'] as const
@@ -148,10 +150,17 @@ async function POST(request: NextRequest) {
 				console.error('更新撸铁计划进度失败:', e)
 			)
 		}
-		
+
+		const date = toIssueDateKey(data.date)
+		const synced = await syncDailyIssueSnippet({
+			userId,
+			date,
+			snippet: formatSportIssueLine(data),
+		})
+
 		return NextResponse.json({
 			success: true,
-			message: '记录保存成功',
+			message: withDailyIssueHint('记录保存成功', synced, date),
 			data: {
 				id: record.get('id'),
 				type: record.get('type') as string,
