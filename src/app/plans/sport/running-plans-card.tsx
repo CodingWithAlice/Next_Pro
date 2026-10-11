@@ -1,7 +1,8 @@
 'use client';
 import { useState, useRef } from 'react';
 import { Card, Progress, Button } from 'antd';
-import { DownOutlined, UpOutlined } from '@ant-design/icons';
+import { DownOutlined, PlusOutlined, UpOutlined } from '@ant-design/icons';
+import { ViewOnlyTooltip } from '@/components/capability-context';
 import ShareImageButton from '@/components/share-image-button';
 import './app.css';
 
@@ -9,8 +10,8 @@ export interface RunningPlanItem {
     id: number;
     runType: string;
     distance: number;
-    targetTimes: number;
-    currentTimes: number;
+    target: number;
+    current: number;
     startDate: string;
     endDate: string;
     targetHeartRate?: string;
@@ -21,6 +22,7 @@ export interface RunningPlanItem {
 
 export interface RunningPlan {
     planName: string;
+    sportType?: string;
     status: string;
     startDate: string;
     endDate: string;
@@ -33,11 +35,16 @@ export interface RunningPlan {
 
 interface RunningPlansCardProps {
     plans: RunningPlan[];
+    canEdit?: boolean;
+    onAdd?: () => void;
 }
 
-export default function RunningPlansCard({ plans }: RunningPlansCardProps) {
+const PREVIEW_COUNT = 2
+
+export default function RunningPlansCard({ plans, canEdit = false, onAdd }: RunningPlansCardProps) {
     // 跟踪每个计划的展开状态
     const [expandedPlans, setExpandedPlans] = useState<Set<string>>(new Set());
+    const [showAllPlans, setShowAllPlans] = useState(false);
     // 用于整体分享的 ref
     const allPlansRef = useRef<HTMLDivElement>(null);
     // 用于单个计划分享的 refs
@@ -71,6 +78,7 @@ export default function RunningPlansCard({ plans }: RunningPlansCardProps) {
         // 相同状态下，按开始时间排序（新的在前）
         return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
     });
+    const visiblePlans = showAllPlans ? sortedPlans : sortedPlans.slice(0, PREVIEW_COUNT);
 
     return (
         <Card 
@@ -78,6 +86,21 @@ export default function RunningPlansCard({ plans }: RunningPlansCardProps) {
             title={
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span>跑步计划进度</span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                        {onAdd && (
+                            <ViewOnlyTooltip viewOnly={!canEdit}>
+                                <Button
+                                    type="link"
+                                    size="small"
+                                    icon={<PlusOutlined />}
+                                    disabled={!canEdit}
+                                    onClick={onAdd}
+                                    style={{ padding: 0 }}
+                                >
+                                    添加计划
+                                </Button>
+                            </ViewOnlyTooltip>
+                        )}
                     {sortedPlans.length > 0 && allPlansRef.current && (
                         <ShareImageButton
                             targetElement={allPlansRef.current}
@@ -85,8 +108,20 @@ export default function RunningPlansCard({ plans }: RunningPlansCardProps) {
                             size="small"
                             type="link"
                             style={{ padding: 0 }}
+                            beforeCapture={async () => {
+                                if (!showAllPlans && sortedPlans.length > PREVIEW_COUNT) {
+                                    setShowAllPlans(true);
+                                    await new Promise(resolve => setTimeout(resolve, 300));
+                                }
+                            }}
+                            afterCapture={async () => {
+                                if (!showAllPlans && sortedPlans.length > PREVIEW_COUNT) {
+                                    setShowAllPlans(false);
+                                }
+                            }}
                         />
                     )}
+                    </span>
                 </div>
             }
         >
@@ -95,8 +130,9 @@ export default function RunningPlansCard({ plans }: RunningPlansCardProps) {
                     暂无跑步计划
                 </div>
             ) : (
+                <>
                 <div className="running-plans-list" ref={allPlansRef}>
-                    {sortedPlans.map((plan, planIndex) => {
+                    {visiblePlans.map((plan, planIndex) => {
                         // 按 run_type 分组
                         const itemsByType: { [key: string]: RunningPlanItem[] } = {}
                         plan.items.forEach((item) => {
@@ -195,7 +231,7 @@ export default function RunningPlansCard({ plans }: RunningPlansCardProps) {
                                                             <div key={item.id} className="plan-item-detail">
                                                                 <div className="plan-item-progress-row">
                                                                     <span className="item-label">
-                                                                        {item.distance}km 已完成{item.currentTimes}/{item.targetTimes}次
+                                                                        {item.distance}km 已完成{item.current}/{item.target}次
                                                                     </span>
                                                                     <Progress 
                                                                         percent={item.progress}
@@ -223,6 +259,14 @@ export default function RunningPlansCard({ plans }: RunningPlansCardProps) {
                         )
                     })}
                 </div>
+                {sortedPlans.length > PREVIEW_COUNT && (
+                    <div className="record-actions">
+                        <Button size="small" onClick={() => setShowAllPlans((open) => !open)}>
+                            {showAllPlans ? '收起' : `展开全部 ${sortedPlans.length} 个`}
+                        </Button>
+                    </div>
+                )}
+                </>
             )}
         </Card>
     );

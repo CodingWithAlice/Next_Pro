@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { BooksRecordModal } from 'db'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 import { denyIfCapabilityOff } from '@lib/capabilities'
+import { formatMediaIssueLine, toIssueDateKey, withDailyIssueHint } from '@lib/daily-issue-line'
+import { syncDailyIssueSnippet } from '@lib/daily-issue-sync'
 
 async function GET(request: NextRequest) {
 	try {
@@ -63,9 +65,16 @@ async function POST(request: NextRequest) {
 		const { readData } = data
 		await BooksRecordModal.create({ ...readData, userId }, { validate: true })
 
+		const date = toIssueDateKey(readData?.recent)
+		const synced = await syncDailyIssueSnippet({
+			userId,
+			date,
+			snippet: formatMediaIssueLine(readData?.tag, readData?.title, readData?.record),
+		})
+
 		return NextResponse.json({
 			success: true,
-			message: '体验 + 1',
+			message: withDailyIssueHint('体验 + 1', synced, date),
 		})
 	} catch (error) {
 		console.error(error)
@@ -95,6 +104,7 @@ async function PUT(request: NextRequest) {
 				{ status: 400 }
 			)
 		}
+		const prev = await BooksRecordModal.findOne({ where: { id, userId } })
 		const [affectedCount] = await BooksRecordModal.update(updateData, {
 			where: { id, userId },
 		})
@@ -109,9 +119,22 @@ async function PUT(request: NextRequest) {
 			)
 		}
 
+		const date = toIssueDateKey(readData?.recent)
+		const synced = await syncDailyIssueSnippet({
+			userId,
+			date,
+			snippet: formatMediaIssueLine(readData?.tag, readData?.title, readData?.record),
+			previous: prev
+				? {
+					date: prev.get('recent'),
+					snippet: formatMediaIssueLine(prev.get('tag'), prev.get('title'), prev.get('record')),
+				}
+				: null,
+		})
+
 		return NextResponse.json({
 			success: true,
-			message: '更新成功',
+			message: withDailyIssueHint('更新成功', synced, date),
 		})
 	} catch (error) {
 		console.error(error)

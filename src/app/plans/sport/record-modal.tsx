@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Modal, Input, InputNumber, Select, Form, DatePicker, AutoComplete, message } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
+import { RESISTANCE_BODY_PARTS } from '../../../utils/resistanceVolume';
 
 // 运动类型
 type SportType = 'running' | 'resistance' | 'hiking' | 'class';
@@ -70,7 +71,14 @@ const SPORT_TYPE_CONFIG: Record<SportType, {
         defaultCategory: '',
         fields: [
             { name: 'value', label: '重量（kg）', type: 'number', required: true, placeholder: '请输入重量', step: 0.1, min: 0 },
-            { name: 'category', label: '运动分类', type: 'text', required: true, placeholder: '如：深蹲、卧推、硬拉等' },
+            {
+                name: 'category',
+                label: '部位',
+                type: 'autocomplete',
+                required: true,
+                placeholder: '如：臀腿、胸肩背、全身、背腿',
+                options: RESISTANCE_BODY_PARTS.map((part) => ({ value: part, label: part })),
+            },
             { name: 'duration', label: '运动时长（分钟）', type: 'number', placeholder: '选填', min: 0 },
             { name: 'notes', label: '备注', type: 'text', placeholder: '选填' },
         ],

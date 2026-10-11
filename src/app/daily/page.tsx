@@ -44,6 +44,7 @@ export default function Daily() {
 
     const [routineType, setRoutineType] = useState<routineType[]>([]);
     const [issues, setIssues] = useState<Issue[]>([]);
+    const [tedPrefix, setTedPrefix] = useState('');
     const [issueData, setIssueData] = useState<IssueRecordProps>({
         sport: '',
         video: '',
@@ -118,7 +119,7 @@ export default function Daily() {
 
 
     useEffect(() => {
-        Api.getDailyApi(currentDate).then(({ routineData, dailyData, IssueData }) => {
+        Api.getDailyApi(currentDate).then(({ routineData, dailyData, IssueData, tedPrefix: tedPrefixFromApi }) => {
             // 过程可以展示的 routine 类别
             const routine = routineData.filter((it: routineType) => it.show);
             const routineIds = routine.map((it: routineType) => it.id);
@@ -195,12 +196,14 @@ export default function Daily() {
             
             setIssues(sortedIssues);
 
+            const prefix = typeof tedPrefixFromApi === 'string' ? tedPrefixFromApi : tedRoundPrefix();
+            setTedPrefix(prefix);
             setIssueData({
                 ...IssueData,
                 front: IssueData.front || '1、LTN：做？题 + 错题重做(时长) \n2、BOX1： \n3、在线工具：',
                 work: IssueData.work || '1、技术方向： \n2、业务方向：',
                 good: ([IssueData.good1 || '', IssueData.good2 || '', IssueData.good3 || '']).filter(it => !!it).join('\n'),
-                ted: IssueData.ted || tedRoundPrefix()
+                ted: IssueData.ted || prefix
             });
         })
     }, [currentDate]);
@@ -264,7 +267,7 @@ export default function Daily() {
                     }
                 }}
             />
-            <IssueRecord study={study} issueData={issueData} setIssueData={setIssueData} currentDate={currentDate} />
+            <IssueRecord study={study} issueData={issueData} setIssueData={setIssueData} currentDate={currentDate} tedPrefix={tedPrefix} />
         </div>
         </main>
     </div>)

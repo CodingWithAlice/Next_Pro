@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { SportRecordModal } from 'db'
-import { incrementRunningPlanProgress } from 'utils'
+import { incrementRunningPlanProgress, incrementResistancePlanProgress } from 'utils'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 import { denyIfCapabilityOff } from '@lib/capabilities'
+import { formatSportIssueLine, toIssueDateKey, withDailyIssueHint } from '@lib/daily-issue-line'
+import { syncDailyIssueSnippet } from '@lib/daily-issue-sync'
 
 // 运动类型配置
 const SPORT_TYPES = ['running', 'resistance', 'hiking', 'class'] as const
@@ -112,26 +114,53 @@ async function POST(request: NextRequest) {
 			)
 		}
 
-		const record = await SportRecordModal.create({
-			userId,
-			type: data.type,
-			date: data.date,
-			value: data.value,
-			category: data.category,
-			subInfo: data.subInfo || null,
-			duration: data.duration || null,
-			notes: data.notes || null,
+		const [record, created] = await SportRecordModal.findOrCreate({
+			where: {
+				userId,
+				date: data.date,
+				type: data.type,
+				category: data.category,
+				value: data.value,
+			},
+			defaults: {
+				userId,
+				type: data.type,
+				date: data.date,
+				value: data.value,
+				category: data.category,
+				subInfo: data.subInfo || null,
+				duration: data.duration || null,
+				notes: data.notes || null,
+			},
 		})
 
-		if (data.type === 'running' && data.value > 0 && data.category) {
+		if (!created) {
+			record.set({
+				subInfo: data.subInfo || null,
+				duration: data.duration || null,
+				notes: data.notes || null,
+			})
+			await record.save()
+		} else if (data.type === 'running' && data.value > 0 && data.category) {
 			incrementRunningPlanProgress(data.date, data.category, parseFloat(data.value), userId).catch((e) =>
 				console.error('更新跑步计划进度失败:', e)
 			)
+		} else if (data.type === 'resistance' && data.value > 0 && data.category) {
+			incrementResistancePlanProgress(data.date, data.category, parseFloat(data.value), userId).catch((e) =>
+				console.error('更新撸铁计划进度失败:', e)
+			)
 		}
-		
+
+		const date = toIssueDateKey(data.date)
+		const synced = await syncDailyIssueSnippet({
+			userId,
+			date,
+			snippet: formatSportIssueLine(data),
+		})
+
 		return NextResponse.json({
 			success: true,
-			message: '记录保存成功',
+			message: withDailyIssueHint('记录保存成功', synced, date),
 			data: {
 				id: record.get('id'),
 				type: record.get('type') as string,

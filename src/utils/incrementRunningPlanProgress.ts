@@ -32,6 +32,7 @@ export async function incrementRunningPlanProgress(
 	const plans = await RunningPlanModal.findAll({
 		where: {
 			userId,
+			sportType: 'running',
 			status: 'active',
 			runType,
 			distance: matchDistance,
@@ -40,7 +41,7 @@ export async function incrementRunningPlanProgress(
 	})
     
 	for (const plan of plans) {
-		const current = plan.get('currentTimes') as number
-		await plan.update({ currentTimes: (current || 0) + 1 })
+		const current = (plan.get('current') as number) || 0
+		await plan.update({ current: current + 1 })
 	}
 }

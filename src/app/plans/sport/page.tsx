@@ -7,6 +7,8 @@ import { PlusOutlined } from '@ant-design/icons';
 import RecordModal from './record-modal';
 import { useCanEdit, ViewOnlyTooltip } from '@/components/capability-context';
 import RunningPlansCard, { type RunningPlan } from './running-plans-card';
+import ResistancePlansCard from './resistance-plans-card';
+import PlanModal, { type PlanFormValues, type PlanSportType } from './plan-modal';
 import SportOverviewCard, { type SportRecord, type SportSummary } from './sport-overview-card';
 import RecentRecordsCard from './recent-records-card';
 import Api from '@/service/api';
@@ -35,6 +37,7 @@ export default function SportPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalType, setModalType] = useState<SportType>('running');
     const [runningPlans, setRunningPlans] = useState<RunningPlan[]>([]);
+    const [planModalType, setPlanModalType] = useState<PlanSportType | null>(null);
     const canEdit = useCanEdit('sport');
 
     // 加载数据
@@ -75,6 +78,23 @@ export default function SportPage() {
         setIsModalOpen(false);
     };
 
+    const handleSavePlan = async (values: PlanFormValues) => {
+        let response: { success: boolean; message?: string };
+        try {
+            response = await Api.postRunningPlanApi(values);
+        } catch (error) {
+            messageApi.error((error as Error).message || '保存失败');
+            throw error;
+        }
+        if (!response.success) {
+            messageApi.error(response.message || '保存失败');
+            throw new Error(response.message || '保存失败');
+        }
+        messageApi.success('计划已添加');
+        setPlanModalType(null);
+        await loadData();
+    };
+
     // 保存记录
     const handleSaveRecord = async (values: {
         type: SportType;
@@ -93,7 +113,7 @@ export default function SportPage() {
                 notes: values.notes ?? undefined,
             });
             if (response.success) {
-                messageApi.success('记录保存成功');
+                messageApi.success(response.message || '记录保存成功');
                 setIsModalOpen(false);
                 // 刷新数据
                 await loadData();
@@ -124,21 +144,28 @@ export default function SportPage() {
         <div className="sport-page">
             {contextHolder}
             {/* 第一层：快捷记录 */}
-            <Card className="sport-card" title="快捷记录">
-                <div className="quick-actions">
-                    {SPORT_TYPES_CONFIG.map((config) => (
-                        <ViewOnlyTooltip key={config.type} viewOnly={!canEdit}>
-                            <Button
-                                type="primary"
-                                disabled={!canEdit}
-                                onClick={() => openRecordModal(config.type)}
-                            >
-                                <PlusOutlined /> {config.label}
-                            </Button>
-                        </ViewOnlyTooltip>
-                    ))}
-                </div>
-            </Card>
+            <Card
+                className="sport-card sport-quick-card"
+                title={
+                    <div className="sport-quick-title">
+                        <span>快捷记录</span>
+                        <div className="quick-actions">
+                            {SPORT_TYPES_CONFIG.map((config) => (
+                                <ViewOnlyTooltip key={config.type} viewOnly={!canEdit}>
+                                    <Button
+                                        type="primary"
+                                        size="small"
+                                        disabled={!canEdit}
+                                        onClick={() => openRecordModal(config.type)}
+                                    >
+                                        <PlusOutlined /> {config.label}
+                                    </Button>
+                                </ViewOnlyTooltip>
+                            ))}
+                        </div>
+                    </div>
+                }
+            />
 
             {/* 第二层：今日概览 + 运动日历 */}
             <SportOverviewCard totalSummary={totalSummary} records={records} />
@@ -147,11 +174,16 @@ export default function SportPage() {
 
             {/* 第三层：运动进展卡片 */}
             <div className="progress-cards">
-                <RunningPlansCard plans={runningPlans} />
-                <Card className="sport-card progress-card" title="抗阻能力追踪">
-                    {/* TODO: 抗阻能力追踪内容 */}
-                    <div>抗阻能力追踪（待实现）</div>
-                </Card>
+                <RunningPlansCard
+                    plans={runningPlans.filter((plan) => plan.sportType !== 'resistance')}
+                    canEdit={canEdit}
+                    onAdd={() => setPlanModalType('running')}
+                />
+                <ResistancePlansCard
+                    plans={runningPlans.filter((plan) => plan.sportType === 'resistance')}
+                    canEdit={canEdit}
+                    onAdd={() => setPlanModalType('resistance')}
+                />
             </div>
 
             {/* 第四层：近期运动记录 + 月度趋势 */}
@@ -164,6 +196,12 @@ export default function SportPage() {
                 date={dayjs()}
                 onCancel={handleCancel}
                 onSave={handleSaveRecord}
+            />
+            <PlanModal
+                open={planModalType !== null}
+                sportType={planModalType || 'running'}
+                onCancel={() => setPlanModalType(null)}
+                onSave={handleSavePlan}
             />
         </div>
     );

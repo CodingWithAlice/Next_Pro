@@ -191,6 +191,20 @@ const Api = {
 	getRunningPlansApi() {
 		return request.get('running-plans')
 	},
+	postRunningPlanApi(data: {
+		sportType: 'running' | 'resistance'
+		planName: string
+		startDate: string
+		endDate?: string | null
+		items: {
+			runType: string
+			distance?: number
+			target: number
+			targetHeartRate?: string | null
+		}[]
+	}) {
+		return request.post('running-plans', data)
+	},
 
 	getPiggyBankApi() {
 		return request.get('piggy-bank')
