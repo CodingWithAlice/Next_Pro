@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { transOneDateToWhereOptions } from 'utils'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 import { denyIfCapabilityOff } from '@lib/capabilities'
+import { readTedRound, tedRoundPrefixFrom } from '@lib/ted-round'
 
 async function POST(request: NextRequest) {
 	try {
@@ -72,6 +73,8 @@ async function GET(request: NextRequest) {
 			dailyData,
 			routineData,
 			IssueData: IssueList?.[0] || {},
+			// 轮次在请求时读 config.env。NEXT_PUBLIC_TED_ROUND 在 docker build 时就写进前端包，那时还没有挂载 config.env。
+			tedPrefix: tedRoundPrefixFrom(readTedRound()),
 			success: true,
 			message: '操作成功',
 		})

@@ -10,21 +10,19 @@ import { useCanEdit, ViewOnlyTooltip } from "@/components/capability-context";
 import { tedRoundPrefix } from "@/components/ted-round";
 const { TextArea } = Input;
 
-const TED_PREFIX = tedRoundPrefix();
-
 const ISSUE_FIELD_TEMPLATES: Partial<Record<keyof IssueRecordProps, string>> = {
     front: '1、LTN：做？题 + 错题重做(时长) \n2、BOX1： \n3、在线工具：',
     work: '1、技术方向： \n2、业务方向：',
-    ted: TED_PREFIX,
 };
 
 function isCompactIssueField(
     key: keyof IssueRecordProps,
-    value: string | undefined
+    value: string | undefined,
+    templates: Partial<Record<keyof IssueRecordProps, string>>
 ): boolean {
     const trimmed = (value || '').trim();
     if (!trimmed) return true;
-    const template = ISSUE_FIELD_TEMPLATES[key];
+    const template = templates[key];
     return template !== undefined && value === template;
 }
 
@@ -36,6 +34,7 @@ interface UniformTextAreaWithStyleProps {
     className?: string
     minRows?: number
     maxRows?: number
+    templates: Partial<Record<keyof IssueRecordProps, string>>
 }
 
 interface IssueRecordFuncProps {
@@ -43,6 +42,7 @@ interface IssueRecordFuncProps {
     issueData: IssueRecordProps;
     setIssueData: (data: IssueRecordProps) => void;
     currentDate: string;
+    tedPrefix?: string;
 }
 
 function UniformTextAreaWithStyle({
@@ -54,9 +54,10 @@ function UniformTextAreaWithStyle({
     minRows = 1,
     maxRows = 12,
     disabled,
+    templates,
 }: UniformTextAreaWithStyleProps & { disabled?: boolean }) {
     const value = String(source[type] ?? '');
-    const compact = isCompactIssueField(type, value);
+    const compact = isCompactIssueField(type, value, templates);
     return <TextArea
         key={type}
         className={[
@@ -74,7 +75,9 @@ function UniformTextAreaWithStyle({
     />
 }
 
-export default function IssueRecord({ study, issueData, setIssueData, currentDate }: IssueRecordFuncProps) {
+export default function IssueRecord({ study, issueData, setIssueData, currentDate, tedPrefix = '' }: IssueRecordFuncProps) {
+    const prefix = tedPrefix || tedRoundPrefix();
+    const fieldTemplates = { ...ISSUE_FIELD_TEMPLATES, ted: prefix };
     const [messageApi, contextHolder] = message.useMessage();
     const canEdit = useCanEdit('daily');
     // const { styles } = useStyle();
@@ -192,10 +195,10 @@ export default function IssueRecord({ study, issueData, setIssueData, currentDat
             if (!next) return prev;
 
             const prevTrim = prev.trim();
-            const prefix = TED_PREFIX.trim();
-            const round = prefix.match(/^Round(\d+):$/);
+            const roundPrefix = prefix.trim();
+            const round = roundPrefix.match(/^Round(\d+):$/);
             const isJustPrefix = round != null && new RegExp(`^Round${round[1]}\\s*:\\s*$`).test(prevTrim);
-            if (isJustPrefix) return `${prefix} ${next}`;
+            if (isJustPrefix) return `${roundPrefix} ${next}`;
 
             if (!prevTrim) return next;
             // 若已有本轮前缀但还有内容，则换行追加
@@ -251,6 +254,7 @@ export default function IssueRecord({ study, issueData, setIssueData, currentDat
             className={opts?.className}
             minRows={opts?.minRows}
             maxRows={opts?.maxRows}
+            templates={fieldTemplates}
             disabled={!canEdit}
         />
     )
