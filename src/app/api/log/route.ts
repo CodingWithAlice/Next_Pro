@@ -123,14 +123,9 @@ async function POST(request: NextRequest) {
 			const startedAt = new Date(row.get('startedAt') as string | Date)
 			const clock = Math.max(0, Math.round((endedAt.getTime() - startedAt.getTime()) / 60000))
 			if (typeof data.note === 'string') row.set('note', data.note.slice(0, 500))
-			if (data.durationMin != null && data.durationMin !== '') {
-				const minutes = Number(data.durationMin)
-				if (Number.isFinite(minutes) && minutes >= 0) row.set('durationMin', Math.round(minutes))
-			}
-			const current = row.get('durationMin') as number | null
 			row.set({
 				endedAt,
-				durationMin: current != null ? current : clock,
+				durationMin: clock,
 			})
 			await row.save()
 			return NextResponse.json({ success: true, log: toLog(row) })

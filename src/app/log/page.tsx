@@ -110,13 +110,11 @@ export default function LogPage() {
 
     const stop = () => {
         if (!openLog) return
-        const payload: { [key: string]: string | number | null } = {
+        run(Api.postLogApi({
             action: 'stop',
             id: openLog.id,
             note: openLog.note,
-        }
-        if (openLog.durationMin != null) payload.durationMin = openLog.durationMin
-        run(Api.postLogApi(payload), '这一段结束了')
+        }), '这一段结束了')
     }
 
     const saveField = (row: LogRow, patch: { note?: string; durationMin?: number | null; routineTypeId?: number }) => {
@@ -131,9 +129,7 @@ export default function LogPage() {
     }
 
     const viewingToday = date === today
-    const shownMinutes = openLog
-        ? (openLog.durationMin != null ? openLog.durationMin : elapsedMinutes(openLog.startedAt))
-        : 0
+    const shownMinutes = openLog ? elapsedMinutes(openLog.startedAt) : 0
     void tick
 
     return (
@@ -165,19 +161,6 @@ export default function LogPage() {
                             placeholder="这一段在做什么"
                             onChange={(event) => setOpenLog({ ...openLog, note: event.target.value })}
                             onBlur={() => saveField(openLog, { note: openLog.note })}
-                            disabled={!canEdit}
-                        />
-                        <InputNumber
-                            min={0}
-                            max={24 * 60}
-                            value={openLog.durationMin ?? undefined}
-                            placeholder="不改就用点击间隔"
-                            addonAfter="分钟"
-                            onChange={(value) => {
-                                const durationMin = value == null ? null : Number(value)
-                                setOpenLog({ ...openLog, durationMin })
-                                if (durationMin != null) saveField(openLog, { durationMin })
-                            }}
                             disabled={!canEdit}
                         />
                         <ViewOnlyTooltip viewOnly={!canEdit}>
