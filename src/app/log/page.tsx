@@ -219,7 +219,10 @@ export default function LogPage() {
                 {logs.filter((row) => row.endedAt).map((row) => (
                     <article className="log-row" key={row.id}>
                         <div className="log-row__time">
-                            {clock(row.startedAt)} – {clock(row.endedAt)}
+                            <span>{clock(row.startedAt)} – {clock(row.endedAt)}</span>
+                            <span className="log-tag">
+                                {routines.find((item) => item.id === row.routineTypeId)?.des || '未分类'}
+                            </span>
                         </div>
                         <button
                             type="button"
@@ -229,13 +232,6 @@ export default function LogPage() {
                         >
                             删除
                         </button>
-                        <TypeSheet
-                            className="log-row__note"
-                            value={row.routineTypeId}
-                            options={typeOptions}
-                            disabled={!canEdit}
-                            onChange={(value) => saveField(row, { routineTypeId: value })}
-                        />
                         <Input
                             className="log-row__note"
                             value={row.note}

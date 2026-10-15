@@ -78,7 +78,22 @@
 }
 
 .log-row__time {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
     font-variant-numeric: tabular-nums;
+}
+
+.log-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 8px;
+    border: 1px solid rgba(6, 128, 67, 0.35);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+    font-size: 0.85rem;
+    line-height: 1.5;
 }
 
 .log-row__note {
