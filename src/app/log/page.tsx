@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import dayjs from 'dayjs'
@@ -49,6 +50,7 @@ export default function LogPage() {
     const [note, setNote] = useState('')
     const [tick, setTick] = useState(0)
     const [busy, setBusy] = useState(false)
+    const [pendingDelete, setPendingDelete] = useState<LogRow | null>(null)
 
     const load = useCallback((nextDate: string) => {
         return Api.getLogApi(nextDate).then((res) => {
@@ -76,6 +78,20 @@ export default function LogPage() {
         const timer = window.setInterval(() => setTick((value) => value + 1), 15000)
         return () => window.clearInterval(timer)
     }, [openLog])
+
+    useEffect(() => {
+        if (!pendingDelete) return
+        const previous = document.body.style.overflow
+        document.body.style.overflow = 'hidden'
+        const onKey = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') setPendingDelete(null)
+        }
+        window.addEventListener('keydown', onKey)
+        return () => {
+            document.body.style.overflow = previous
+            window.removeEventListener('keydown', onKey)
+        }
+    }, [pendingDelete])
 
     const typeOptions = useMemo(
         () => routines.map((item) => ({ value: item.id, label: item.des })),
@@ -211,7 +227,7 @@ export default function LogPage() {
                             type="button"
                             className="log-row__delete"
                             disabled={!canEdit}
-                            onClick={() => run(Api.deleteLogApi(row.id), '已删掉')}
+                            onClick={() => setPendingDelete(row)}
                         >
                             删除
                         </button>
@@ -242,6 +258,39 @@ export default function LogPage() {
                     </article>
                 ))}
             </section>
+            {pendingDelete && createPortal(
+                <div className="log-confirm" onClick={() => setPendingDelete(null)}>
+                    <div
+                        className="log-confirm__panel"
+                        role="alertdialog"
+                        aria-modal="true"
+                        aria-labelledby="log-confirm-title"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <h2 id="log-confirm-title">删掉这一段？</h2>
+                        <p>
+                            {clock(pendingDelete.startedAt)} – {clock(pendingDelete.endedAt)}
+                            {' '}
+                            {routines.find((item) => item.id === pendingDelete.routineTypeId)?.des || ''}
+                        </p>
+                        <div className="log-confirm__actions">
+                            <button type="button" onClick={() => setPendingDelete(null)}>取消</button>
+                            <button
+                                type="button"
+                                className="log-confirm__ok"
+                                onClick={() => {
+                                    const id = pendingDelete.id
+                                    setPendingDelete(null)
+                                    run(Api.deleteLogApi(id), '已删掉')
+                                }}
+                            >
+                                删除
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body,
+            )}
         </div>
     )
 }

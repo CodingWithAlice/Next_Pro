@@ -214,3 +214,54 @@
     from { transform: translateY(100%); }
     to { transform: translateY(0); }
 }
+
+.log-confirm {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.log-confirm__panel {
+    width: min(100%, 20rem);
+    padding: 1.25rem 1.25rem 1rem;
+    border-radius: 16px;
+    background: #fff;
+    color: rgb(6, 128, 67);
+}
+
+.log-confirm__panel h2 {
+    margin: 0 0 8px;
+    font-size: 1.15rem;
+}
+
+.log-confirm__panel p {
+    margin: 0 0 16px;
+}
+
+.log-confirm__actions {
+    display: flex;
+    gap: 10px;
+}
+
+.log-confirm__actions button {
+    flex: 1;
+    min-height: 2.75rem;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.log-confirm__actions .log-confirm__ok {
+    border-color: rgb(6, 128, 67);
+    background: rgb(6, 128, 67);
+    color: #fff;
+}
