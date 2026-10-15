@@ -5,7 +5,7 @@ import TimeRecordDayPicker from './time-record-day-picker';
 import { Switch, Tooltip } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
 
-const WORK_MODE_TIP = '默认添加 9:00、18:00';
+const WORK_MODE_TIP = '按 config.env 里这一天的默认上下班';
 
 interface TimeRecordProps {
     total: number,

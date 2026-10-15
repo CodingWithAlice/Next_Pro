@@ -1,9 +1,11 @@
-import { TimeModal, IssueModal, RoutineTypeModal, sequelize } from 'db'
+import { TimeModal, IssueModal, RoutineTypeModal, DayLogModal, sequelize } from 'db'
 import { NextRequest, NextResponse } from 'next/server'
 import { transOneDateToWhereOptions } from 'utils'
 import { getEffectiveUserIdFromRequest } from '@lib/auth-token'
 import { denyIfCapabilityOff } from '@lib/capabilities'
 import { readTedRound, tedRoundPrefixFrom } from '@lib/ted-round'
+import { deleteDayLogWhenArchived, ensureDayLogTable } from '@lib/day-log-db'
+import { workWindowForDate } from '@lib/work-window'
 
 async function POST(request: NextRequest) {
 	try {
@@ -44,6 +46,10 @@ async function POST(request: NextRequest) {
 			await TimeModal.bulkCreate(rows, { validate: true, transaction })
 		})
 
+		await deleteDayLogWhenArchived(userId, date).catch((error) => {
+			console.error('删除当场记录失败:', error)
+		})
+
 		return NextResponse.json({ success: true, message: '操作成功' })
 	} catch (error) {
 		console.error(error)
@@ -69,10 +75,21 @@ async function GET(request: NextRequest) {
 		const dailyData = await TimeModal.findAll({ where })
 		const routineData = await RoutineTypeModal.findAll({ where: { userId } })
 		const IssueList = await IssueModal.findAll({ where })
+		let dayLogs: unknown[] = []
+		if (date) {
+			await ensureDayLogTable()
+			const rows = await DayLogModal.findAll({
+				where: { userId, date },
+				order: [['startedAt', 'ASC']],
+			})
+			dayLogs = rows.map((row) => row.get({ plain: true }))
+		}
 		return NextResponse.json({
 			dailyData,
 			routineData,
 			IssueData: IssueList?.[0] || {},
+			dayLogs,
+			workWindow: date ? workWindowForDate(date) : null,
 			// 轮次在请求时读 config.env。NEXT_PUBLIC_TED_ROUND 在 docker build 时就写进前端包，那时还没有挂载 config.env。
 			tedPrefix: tedRoundPrefixFrom(readTedRound()),
 			success: true,

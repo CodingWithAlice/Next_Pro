@@ -48,14 +48,17 @@ export default function WeekTitle({ currentDate }: WeekTitleProps) {
                         明天
                     </button>
                     {!isToday && (
-                        <button
-                            type="button"
-                            onClick={() => handleNavigate(today)}
-                            className="nav-btn"
-                        >
-                            回到现在
-                        </button>
+                    <button
+                        type="button"
+                        onClick={() => handleNavigate(today)}
+                        className="nav-btn"
+                    >
+                        回到现在
+                    </button>
                     )}
+                    <Link href={`/log?date=${urlDate || today}`} className="nav-btn">
+                        当场记
+                    </Link>
                 </nav>
                 <DailySerialProgress variant="nav" />
             </div>

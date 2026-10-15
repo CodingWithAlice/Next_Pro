@@ -23,6 +23,7 @@ export const CAPABILITY_LABELS: { key: CapabilityKey; label: string }[] = [
 /** 写接口前缀。只匹配完整段，避免 /api/routine 命中 /api/routine-types */
 const WRITE_PREFIXES: { prefix: string; key: CapabilityKey }[] = [
 	{ prefix: '/api/daily', key: 'daily' },
+	{ prefix: '/api/log', key: 'daily' },
 	{ prefix: '/api/routine', key: 'daily' },
 	{ prefix: '/api/ai/parse-time', key: 'daily' },
 	{ prefix: '/api/ai/parse-issue', key: 'daily' },

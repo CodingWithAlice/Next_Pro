@@ -1,0 +1,90 @@
+.log-page {
+    width: min(100%, 32rem);
+    margin: 0 auto;
+    padding: 1rem 1rem 2rem;
+    box-sizing: border-box;
+}
+
+.log-page__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.log-page__title {
+    margin: 0;
+    font-size: 1.6rem;
+}
+
+.log-page__link {
+    color: inherit;
+}
+
+.log-dates {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    margin-bottom: 16px;
+    padding-bottom: 4px;
+}
+
+.log-dates button,
+.log-row__delete {
+    border: 1px solid currentColor;
+    background: transparent;
+    color: inherit;
+    border-radius: 999px;
+    padding: 4px 10px;
+    cursor: pointer;
+}
+
+.log-dates button[aria-pressed="true"] {
+    background: rgb(6, 128, 67);
+    color: #fff;
+}
+
+.log-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.log-card input,
+.log-card .ant-select,
+.log-card .ant-input-number {
+    font-size: 16px;
+}
+
+.log-start {
+    min-height: 3.25rem;
+    font-size: 1.05rem;
+}
+
+.log-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.log-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px 8px;
+    padding: 10px 0;
+    border-top: 1px solid rgba(6, 128, 67, 0.25);
+}
+
+.log-row__time {
+    font-variant-numeric: tabular-nums;
+}
+
+.log-row__note {
+    grid-column: 1 / -1;
+}
+
+.log-row__duration {
+    width: 6.5rem;
+}

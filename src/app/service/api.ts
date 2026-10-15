@@ -289,6 +289,16 @@ const Api = {
 			source: 'user'
 		}>
 	},
+
+	getLogApi(date: string) {
+		return request.get('log', { date })
+	},
+	postLogApi(data: { [key: string]: string | number | null }) {
+		return request.post('log', data)
+	},
+	deleteLogApi(id: number) {
+		return request.delete('log', { id })
+	},
 }
 
 export default Api

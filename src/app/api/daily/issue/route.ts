@@ -1,4 +1,5 @@
 import { IssueModal, TimeModal, SportRecordModal } from 'db'
+import { deleteDayLogWhenArchived } from '@lib/day-log-db'
 import { NextRequest, NextResponse } from 'next/server'
 import { transOneDateToWhereOptions, incrementRunningPlanProgress, incrementResistancePlanProgress } from 'utils'
 import { Op } from 'sequelize'
@@ -141,6 +142,12 @@ async function POST(request: NextRequest) {
 				console.error('解析运动文本失败:', parseError, '文本:', data.sport);
 				// 解析失败不影响 issue 保存
 			}
+		}
+
+		if (data.date) {
+			await deleteDayLogWhenArchived(userId, String(data.date)).catch((error) => {
+				console.error('删除当场记录失败:', error)
+			})
 		}
 
 		return NextResponse.json({

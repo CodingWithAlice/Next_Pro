@@ -8,6 +8,7 @@ import Api from '@/service/api';
 import dayjs from 'dayjs';
 import { type Issue } from '@/components/custom-time-picker';
 import { getCurrentBySub, IssueRecordProps, sortIssuesWithSleepLast } from '@/components/tool';
+import { buildTimeDraft, buildWorkText, type DayLogInput } from '@lib/day-log-apply';
 import { useSearchParams, useRouter } from 'next/navigation';
 import config from 'config';
 import { tedRoundPrefix } from '@/components/ted-round';
@@ -45,6 +46,7 @@ export default function Daily() {
     const [routineType, setRoutineType] = useState<routineType[]>([]);
     const [issues, setIssues] = useState<Issue[]>([]);
     const [tedPrefix, setTedPrefix] = useState('');
+    const [workWindow, setWorkWindow] = useState({ start: '09:00', end: '18:00' });
     const [issueData, setIssueData] = useState<IssueRecordProps>({
         sport: '',
         video: '',
@@ -119,7 +121,7 @@ export default function Daily() {
 
 
     useEffect(() => {
-        Api.getDailyApi(currentDate).then(({ routineData, dailyData, IssueData, tedPrefix: tedPrefixFromApi }) => {
+        Api.getDailyApi(currentDate).then(({ routineData, dailyData, IssueData, tedPrefix: tedPrefixFromApi, dayLogs, workWindow: windowFromApi }) => {
             // 过程可以展示的 routine 类别
             const routine = routineData.filter((it: routineType) => it.show);
             const routineIds = routine.map((it: routineType) => it.id);
@@ -188,20 +190,66 @@ export default function Daily() {
                     }
                 });
 
-            // 按开始时间排序，但睡眠始终排在最后
+            const windowForDay = windowFromApi?.start && windowFromApi?.end
+                ? { start: windowFromApi.start, end: windowFromApi.end }
+                : { start: '09:00', end: '18:00' };
+            setWorkWindow(windowForDay);
+
+            const logs: DayLogInput[] = Array.isArray(dayLogs)
+                ? dayLogs.map((log: {
+                    routineTypeId: number
+                    startedAt: string
+                    endedAt: string | null
+                    durationMin: number | null
+                    note: string | null
+                }) => ({
+                    routineTypeId: Number(log.routineTypeId),
+                    startedAt: log.startedAt,
+                    endedAt: log.endedAt,
+                    durationMin: log.durationMin,
+                    note: log.note,
+                }))
+                : [];
+            const hasTimeArchive = initIssues.length > 0;
+            const hasWorkArchive = !!(IssueData.work && String(IssueData.work).trim());
+            const timeDraft = hasTimeArchive
+                ? []
+                : buildTimeDraft({
+                    date: currentDate,
+                    logs,
+                    workTypeId: config.workId,
+                    workStart: windowForDay.start,
+                    workEnd: windowForDay.end,
+                });
             const sortedIssues = sortIssuesWithSleepLast(initIssues).map((it: Issue, index: number) => ({
                 ...it,
-                daySort: index
+                daySort: index,
             }));
-            
-            setIssues(sortedIssues);
+            const filledIssues = timeDraft.length
+                ? timeDraft.map((draft, index) => ({
+                    startTime: dayjs(draft.start),
+                    endTime: dayjs(draft.end),
+                    type: String(draft.routineTypeId),
+                    daySort: index,
+                    interval: 0,
+                    duration: draft.duration,
+                }))
+                : sortedIssues;
+
+            setIssues(sortIssuesWithSleepLast(filledIssues).map((it, index) => ({
+                ...it,
+                daySort: index,
+            })));
 
             const prefix = typeof tedPrefixFromApi === 'string' ? tedPrefixFromApi : tedRoundPrefix();
+            const workFromLog = hasWorkArchive ? null : buildWorkText(logs, config.workId);
             setTedPrefix(prefix);
             setIssueData({
                 ...IssueData,
                 front: IssueData.front || '1、LTN：做？题 + 错题重做(时长) \n2、BOX1： \n3、在线工具：',
-                work: IssueData.work || '1、技术方向： \n2、业务方向：',
+                work: hasWorkArchive
+                    ? IssueData.work
+                    : (workFromLog || '1、技术方向： \n2、业务方向：'),
                 good: ([IssueData.good1 || '', IssueData.good2 || '', IssueData.good3 || '']).filter(it => !!it).join('\n'),
                 ted: IssueData.ted || prefix
             });
@@ -228,26 +276,14 @@ export default function Daily() {
                         // 打开：无工作类型时添加 9 点、18 点
                         if (!hasWork) {
                             const baseDate = currentDate;
-                            const startHour = config.workModeStartHour ?? 9;
-                            const endHour = config.workModeEndHour ?? 18;
-                            const newWorkIssues: Issue[] = [
-                                {
-                                    startTime: dayjs(`${baseDate} ${String(startHour).padStart(2, '0')}:00:00`),
-                                    endTime: dayjs(`${baseDate} ${String(startHour).padStart(2, '0')}:00:00`),
-                                    type: config.workId as unknown as string,
-                                    daySort: issues.length,
-                                    duration: 0,
-                                    interval: 0
-                                },
-                                {
-                                    startTime: dayjs(`${baseDate} ${String(endHour).padStart(2, '0')}:00:00`),
-                                    endTime: dayjs(`${baseDate} ${String(endHour).padStart(2, '0')}:00:00`),
-                                    type: config.workId as unknown as string,
-                                    daySort: issues.length + 1,
-                                    duration: 0,
-                                    interval: 0
-                                }
-                            ];
+                            const newWorkIssues: Issue[] = [workWindow.start, workWindow.end].map((clock, index) => ({
+                                startTime: dayjs(`${baseDate} ${clock}:00`),
+                                endTime: dayjs(`${baseDate} ${clock}:00`),
+                                type: config.workId as unknown as string,
+                                daySort: issues.length + index,
+                                duration: 0,
+                                interval: 0
+                            }));
                             const merged = sortIssuesWithSleepLast([...issues, ...newWorkIssues]).map((it, i) => ({
                                 ...it,
                                 daySort: i

@@ -139,8 +139,8 @@ export const IssueModal: ModelDefined<
 			field: 'user_id',
 		},
 		better: DataTypes.STRING,
-		front: DataTypes.STRING,
-		work: DataTypes.STRING,
+		front: DataTypes.TEXT,
+		work: DataTypes.TEXT,
 		good1: DataTypes.STRING,
 		good2: DataTypes.STRING,
 		good3: DataTypes.STRING,
@@ -646,6 +646,55 @@ export const YearPlanItemModal = sequelize.define(
 	{
 		tableName: 'year_plan_item',
 		timestamps: true,
+		underscored: true,
+	}
+)
+
+export const DayLogModal = sequelize.define(
+	'day_log',
+	{
+		id: {
+			type: DataTypes.INTEGER,
+			primaryKey: true,
+			autoIncrement: true,
+		},
+		userId: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			field: 'user_id',
+		},
+		date: {
+			type: DataTypes.DATEONLY,
+			allowNull: false,
+		},
+		routineTypeId: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			field: 'routine_type_id',
+		},
+		startedAt: {
+			type: DataTypes.DATE,
+			allowNull: false,
+			field: 'started_at',
+		},
+		endedAt: {
+			type: DataTypes.DATE,
+			allowNull: true,
+			field: 'ended_at',
+		},
+		durationMin: {
+			type: DataTypes.INTEGER,
+			allowNull: true,
+			field: 'duration_min',
+		},
+		note: {
+			type: DataTypes.STRING(500),
+			allowNull: true,
+		},
+	},
+	{
+		tableName: 'day_log',
+		timestamps: false,
 		underscored: true,
 	}
 )
