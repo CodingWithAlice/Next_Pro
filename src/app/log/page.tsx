@@ -4,7 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import dayjs from 'dayjs'
-import { Button, Input, InputNumber, Select, message } from 'antd'
+import { Button, Input, InputNumber, message } from 'antd'
+import TypeSheet from './type-sheet'
 import Api from '@/service/api'
 import config from 'config'
 import { useCanEdit, ViewOnlyTooltip } from '@/components/capability-context'
@@ -187,8 +188,8 @@ export default function LogPage() {
                     </>
                 ) : (
                     <>
-                        <Select
-                            value={typeId ?? undefined}
+                        <TypeSheet
+                            value={typeId}
                             options={typeOptions}
                             onChange={(value) => setTypeId(value)}
                             disabled={!canEdit || !viewingToday}
@@ -228,7 +229,7 @@ export default function LogPage() {
                         >
                             删除
                         </button>
-                        <Select
+                        <TypeSheet
                             className="log-row__note"
                             value={row.routineTypeId}
                             options={typeOptions}

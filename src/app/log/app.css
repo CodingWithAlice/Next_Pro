@@ -86,5 +86,116 @@
 }
 
 .log-row__duration {
-    width: 6.5rem;
+    width: min(100%, 16rem);
+}
+
+.log-type {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    min-height: 2.5rem;
+    padding: 6px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 8px;
+    background: #fff;
+    color: inherit;
+    font: inherit;
+    font-size: 16px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.log-type:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.log-type__chevron {
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid currentColor;
+    opacity: 0.55;
+    flex: none;
+}
+
+.log-sheet {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.log-sheet__panel {
+    width: min(100%, 32rem);
+    max-height: min(78dvh, 36rem);
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    color: rgb(6, 128, 67);
+    border-radius: 16px 16px 0 0;
+    padding-bottom: env(safe-area-inset-bottom);
+    animation: log-sheet-in 0.22s ease-out;
+}
+
+.log-sheet__bar {
+    width: 2.5rem;
+    height: 4px;
+    margin: 8px auto 0;
+    border-radius: 999px;
+    background: rgba(6, 128, 67, 0.28);
+}
+
+.log-sheet__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px 4px;
+}
+
+.log-sheet__head h2 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.log-sheet__head button,
+.log-sheet__list button {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.log-sheet__list {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+.log-sheet__list button {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 3rem;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(6, 128, 67, 0.12);
+    font-size: 17px;
+    text-align: left;
+}
+
+.log-sheet__list button[aria-selected="true"] {
+    background: rgba(6, 128, 67, 0.12);
+    font-weight: 600;
+}
+
+@keyframes log-sheet-in {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
 }
