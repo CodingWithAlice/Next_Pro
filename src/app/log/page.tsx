@@ -152,7 +152,7 @@ export default function LogPage() {
         <div className="log-page">
             {contextHolder}
             <header className="log-page__head">
-                <h1 className="log-page__title">当场记</h1>
+                <h1 className="log-page__title">forest</h1>
                 <Link className="log-page__link" href={`/daily?date=${date}`}>晨昏日志</Link>
             </header>
             <div className="log-dates">

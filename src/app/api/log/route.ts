@@ -19,7 +19,9 @@ function dateKey(value: unknown): string | null {
 	return null
 }
 
-function toLog(row: { get: (key: string) => unknown }) {
+type DayLogRow = { get: (key: string) => unknown }
+
+function toLog(row: DayLogRow) {
 	return {
 		id: row.get('id'),
 		date: dateKey(row.get('date')),
@@ -43,19 +45,24 @@ async function GET(request: NextRequest) {
 		})
 		const logs = await DayLogModal.findAll({
 			where: { userId, date: requested },
-			order: [['startedAt', 'ASC']],
+			order: [['startedAt', 'DESC']],
 		})
 		const open = await DayLogModal.findOne({
 			where: { userId, endedAt: { [Op.is]: null } },
 			order: [['startedAt', 'DESC']],
 		})
-		const dateRows = await DayLogModal.findAll({
+		const dateRows: DayLogRow[] = await DayLogModal.findAll({
 			where: { userId },
 			attributes: ['date'],
 		})
 		const dates = Array.from(
-			new Set([today, ...dateRows.map((row) => dateKey(row.get('date'))).filter(Boolean)])
-		).sort((a, b) => String(b).localeCompare(String(a))) as string[]
+			new Set([
+				today,
+				...dateRows
+					.map((row) => dateKey(row.get('date')))
+					.filter((value): value is string => value != null),
+			])
+		).sort((a, b) => b.localeCompare(a))
 
 		return NextResponse.json({
 			success: true,

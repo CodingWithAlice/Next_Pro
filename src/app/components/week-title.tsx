@@ -57,7 +57,7 @@ export default function WeekTitle({ currentDate }: WeekTitleProps) {
                     </button>
                     )}
                     <Link href={`/log?date=${urlDate || today}`} className="nav-btn">
-                        当场记
+                        forest
                     </Link>
                 </nav>
                 <DailySerialProgress variant="nav" />
