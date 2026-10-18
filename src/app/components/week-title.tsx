@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import LifeFootprint from '@/components/life-footprint';
 import DailySerialProgress from '@/components/daily-serial-progress';
+import DayLogViewModal from '@/components/day-log-view-modal';
 import { getCurrentBySub } from './tool';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -17,6 +19,7 @@ export default function WeekTitle({ currentDate }: WeekTitleProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const urlDate = searchParams?.get('date');
+    const [logOpen, setLogOpen] = useState(false);
 
     const current = urlDate ? dayjs(urlDate) : dayjs();
     const yesterday = current.subtract(1, 'day').format('YYYY-MM-DD');
@@ -56,10 +59,19 @@ export default function WeekTitle({ currentDate }: WeekTitleProps) {
                         回到现在
                     </button>
                     )}
-                    <Link href={`/log?date=${urlDate || today}`} className="nav-btn">
+                    <button
+                        type="button"
+                        className="nav-btn"
+                        onClick={() => setLogOpen(true)}
+                    >
                         forest
-                    </Link>
+                    </button>
                 </nav>
+                <DayLogViewModal
+                    date={urlDate || today}
+                    open={logOpen}
+                    onClose={() => setLogOpen(false)}
+                />
                 <DailySerialProgress variant="nav" />
             </div>
             <div className="daily-week-header__center">

@@ -1,0 +1,89 @@
+.day-log-view {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.day-log-view__panel {
+    width: min(100%, 28rem);
+    max-height: min(78dvh, 36rem);
+    display: flex;
+    flex-direction: column;
+    padding: 1.1rem 1.15rem 0.6rem;
+    border-radius: 16px;
+    background: #fff;
+    color: rgb(6, 128, 67);
+    box-sizing: border-box;
+}
+
+.day-log-view__head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.day-log-view__head h2 {
+    margin: 0;
+    font-size: 1.15rem;
+}
+
+.day-log-view__date {
+    font-variant-numeric: tabular-nums;
+}
+
+.day-log-view__head button {
+    margin-left: auto;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.day-log-view__status {
+    margin: 8px 0 12px;
+}
+
+.day-log-view__list {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+.day-log-view__row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 0;
+    border-top: 1px solid rgba(6, 128, 67, 0.25);
+}
+
+.day-log-view__time {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-variant-numeric: tabular-nums;
+}
+
+.day-log-view__tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 8px;
+    border: 1px solid rgba(6, 128, 67, 0.35);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.day-log-view__note {
+    margin: 0;
+    white-space: pre-wrap;
+}

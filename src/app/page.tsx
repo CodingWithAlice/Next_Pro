@@ -2,6 +2,7 @@
 import Link from "next/link";
 import withTypeStorage from "@/components/with-type-storage";
 import { useEffect } from "react";
+import { FieldTimeOutlined } from "@ant-design/icons";
 
 function Home() {
     const linksList = [
@@ -9,7 +10,6 @@ function Home() {
         { href: './week', title: '双周扫描', key: 'week', img: "/images/week.png", subTitle: '每周期诊断报告' },
         { href: `./month`, title: '季度沙盘', key: 'month', img: "/images/month.png", subTitle: '布局、推演和重塑' },
         { href: './plans?tab=ted', title: '知行录', key: 'read', img: "/images/read.png", subTitle: '思维培养皿、身体电源' },
-        { href: './log', title: 'forest', key: 'log', img: "/images/daily.png", subTitle: 'forest平替' },
     ]
     useEffect(() => {
         // 星空背景
@@ -31,7 +31,12 @@ function Home() {
             <a className='a-link' href="http://codingwithalice.top:4001">
                 莱特纳盒子学习法
             </a>
-            <div className='j-title'>J型生存终端</div>
+            <div className='j-title'>
+                J型生存终端
+                <Link href="/log" className="j-title__log" title="forest" aria-label="forest">
+                    <FieldTimeOutlined />
+                </Link>
+            </div>
             <br />
             {/* <Link href={'/ltn'}>
                 莱特纳盒子学习法
