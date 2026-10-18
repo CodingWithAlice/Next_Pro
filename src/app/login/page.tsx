@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Form, Input, Button, message } from 'antd';
 
@@ -9,22 +9,20 @@ const TOKEN_KEY = 'j-user-id';
 
 export default function LoginPage() {
 	const [mounted, setMounted] = useState(false);
-	const router = useRouter();
 	const searchParams = useSearchParams();
 
 	useEffect(() => {
 		setMounted(true);
 	}, []);
 
-	// URL 带 type 或 j-user-id 时预填并写入 localStorage 后清 URL
+	// URL 带 type 或 j-user-id 时预填并写入 localStorage，地址栏参数保留
 	const tokenFromUrl = searchParams.get('j-user-id') ?? searchParams.get('type');
 	useEffect(() => {
 		if (mounted && tokenFromUrl) {
 			localStorage.setItem(TOKEN_KEY, tokenFromUrl);
 			localStorage.setItem('type', tokenFromUrl);
-			router.replace('/login', { scroll: false });
 		}
-	}, [mounted, tokenFromUrl, router]);
+	}, [mounted, tokenFromUrl]);
 
 	const onFinish = (values: { token: string }) => {
 		const token = values?.token?.trim();
